@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Client-side Popup Menu Button</title>
+        <link rel="stylesheet" type="text/css" href="css/basic.css">
+    </head>
+    <body>
+        <div id="menu_here"></div>
+    </body>
+    
+    <script src="js/app-bundle-active.js"></script>
+    <script language="javascript">
+
+        var el_popup_menu = document.getElementById('menu_here');
+
+        // Each item could be defined as an array.
+
+        var arr_items_0 = [
+            ["Load and Preallocate", (e) => {
+                console.log("Load and Preallocate", e);
+                console.trace();
+            }],
+            ["Smart Allocation", (e) => {
+                console.log("Smart Allocation", e);
+            }],
+            ["Add Travel Time", (e) => {
+                console.log("Add Travel Time", e);
+            }],
+            ["Print Rosters", (e) => {
+                console.log("Print Rosters", e);
+            }],
+            ["Email Rosters", (e) => {
+                console.log("Email Rosters", e);
+            }]
+        ];
+
+        var arr_items = [
+            "Load and Preallocate",
+            "Smart Allocation",
+            "Add Travel Time",
+            "Print Rosters",
+            "Email Rosters"
+        ];
+
+        // Or, better to activate the document, then render the popup_menu_button?
+        //  As it is, with the creation of the control before document activation, it has no element to attach its DOM events to as they are defined.
+        //  For the moment, getting it to attach its events to the DOM at the right time seems like the best approach.
+
+
+
+        // Better to activate / setup an individual component with jsgui rather than activate the whole document.
+        var popup_menu_button = new jsgui.Popup_Menu_Button({
+            'context': page_context,
+            'el': el_popup_menu,
+            'label': 'Actions',
+            'items': arr_items_0
+        });
+        popup_menu_button.active();
+        console.log('popup_menu_button', popup_menu_button);
+
+        popup_menu_button.all_html_render((err, html) => {
+            if (err) {
+                throw err;
+            } else {
+                //console.log('html', html);
+                el_popup_menu.outerHTML = html;
+                //console.log('pre activate');
+                //popup_menu_button.activate(el_popup_menu);
+                
+                page_context.update_Controls('item', jsgui.Item);
+                page_context.update_Controls('combo_box', jsgui.Combo_Box);
+                page_context.update_Controls('popup_menu_button', jsgui.Popup_Menu_Button);
+
+                
+
+                // this._bound_general_handler;
+
+                // Activation should attach the DOM events that are not attached?
+
+                jsgui.activate(page_context);
+            }
+        });
+        
+        /*
+        ["Load and Preallocate", "sch_LoadandAllocate.a5w", [300, 200]],
+        ["Smart Allocation", "sch_Autofill.a5w", [300, 200]],
+        ["Add Travel Time", "sch_addTravel.a5w", [300, 400]],
+        ["Print Rosters", "sch_PrintRosters.a5w", [300, 400]],
+        ["Email Rosters", "sch_EmailRosters.a5w", [300, 400]]
+        */
+
+
+    </script>
+</html>

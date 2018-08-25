@@ -1,0 +1,66 @@
+.file_manager .tree {
+	/* max-width: 580px; */
+	width: 580px;
+	height: 100%;
+	overflow: scroll;
+}
+
+.clearall {
+	clear: both;
+}
+
+.file_manager .tree .menu.bar {
+	height: 3em;
+	background-color: #EEEEEE;
+}
+
+.file_manager .tree .item {
+	padding-left: 0.8em;
+	margin-top: 2px;
+}
+
+.file_manager .tree .item .icon {
+	width: 24px;
+	height: 24px;
+	/* background-color: #AAAAAA; */
+	
+	
+	float: left;
+	margin-left: 12px;
+}
+
+.file_manager .tree .item .info {
+	float: left;
+	margin-left: 12px;
+}
+
+
+.file_manager .tree .directory.item .expansion.button {
+	width: 14px;
+	height: 14px;
+	background-color: #AAAAAA;
+	float: left;
+	
+}
+
+.file_manager .tree .directory.item .subitems {
+	padding-left: 1.2em;
+	
+}
+
+.file_manager .tree .directory.item .icon {
+	background-image: url(../img/icons/256x256/folder_open.png);
+	background-size: 24px 24px;
+	
+}
+.file_manager .tree .file.item .icon {
+	background-image: url(../img/icons/256x256/file.png);
+	background-size: 24px 24px;
+	
+}
+
+.file_manager .tree .file.item .expansion.button {
+	visibility: hidden;
+	
+}
+

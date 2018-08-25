@@ -1,0 +1,33 @@
+{
+  "name": "jsgui3-server",
+  "main": "module.js",
+  "license": "MIT",
+  "dependencies": {
+    "babel-core": "^6.26.3",
+    "babel-plugin-remove-comments": "^2.0.0",
+    "babel-plugin-transform-class": "^0.3.0",
+    "babel-plugin-transform-es2015-classes": "^6.24.1",
+    "babel-plugin-transform-es2015-object-super": "^6.24.1",
+    "babel-preset-minify": "^0.4.3",
+    "browserify": "^16.2.2",
+    "child-process": "^1.0.2",
+    "cookies": "^0.7.1",
+    "fnl": "^0.0.3",
+    "fnlfs": "^0.0.2",
+    "jsgui3-client": "^0.0.1",
+    "jsgui3-html": "^0.0.1",
+    "ncp": "^2.0.0",
+    "rimraf": "^2.6.2",
+    "stream-to-array": "^2.3.0"
+  },
+  "engines": {
+    "node": ">=8.5.0"
+  },
+  "description": "ES6 JSGUI Server. Delivers the client to the browser.",
+  "author": "James Vickers <james@metabench.com>",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/metabench/jsgui3-server.git"
+  },
+  "version": "0.0.1"
+}

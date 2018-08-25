@@ -1,0 +1,914 @@
+* {
+    margin: 0;
+    padding: 0;
+}
+
+html {
+    height: 100%;
+}
+
+body {
+    min-height: 100%;
+    font-family: Arial, sans-serif;
+}
+
+.clearall {
+    clear: both;
+}
+
+.hidden {
+    /* display: none; */
+    display: none !important;
+}
+
+.invisible {
+    visibility: hidden !important;
+}
+
+.popup-layer {
+    position: absolute;
+    top: 0px;
+    left: 0px;
+}
+
+.multi-layout-mode.fluid-fixed .top.panel {
+    height: 6px;
+}
+
+.multi-layout-mode.fluid-fixed .left-wrapper {
+    float: left;
+    width: 100%;
+}
+
+.multi-layout-mode.fluid-fixed .left-wrapper .left.panel {
+    margin-right: 200px;
+}
+
+.multi-layout-mode.fluid-fixed .right.panel {
+    float: left;
+    width: 200px;
+    margin-left: -200px;
+}
+
+.multi-layout-mode.fluid-fixed .bottom.panel {
+    clear: left;
+}
+
+.field {
+    /* clear: both; */
+}
+
+.field .left {
+    float: left;
+    /* width: 8em; */
+}
+
+.field .right {
+    float: left;
+    /* width: 8em; */
+}
+
+.login button .login {
+    margin-left: 18em;
+}
+
+.link-menu ul li {
+    list-style: none;
+}
+
+.link-menu.horizontal ul {
+    clear: both;
+}
+
+.link-menu.horizontal ul li {
+    float: left;
+}
+
+.link-menu.horizontal ul li:not(:first-child) {
+    margin-left: 1em;
+}
+
+.object-editor *:focus {
+    outline: none;
+}
+
+.object-viewer,
+.object-editor {
+    font-family: 'Courier New', monospace;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+
+/*
+	Could have a way of specifying in a jsgui control that it needs to be monotype.
+	// Should have some sort of styling systems, but needs to work nicely with HTML.
+	//  Some methods that greatly simplify some things.
+
+
+
+
+*/
+
+.array-viewer,
+.array-editor {
+    font-family: 'Courier New', monospace;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+
+.object-kvp-key-viewer,
+.object-kvp-key-editor {
+    display: inline;
+}
+
+.object-kvp-value-viewer,
+.object-kvp-value-editor {
+    display: inline;
+}
+
+.string-viewer,
+.string-editor {
+    display: inline;
+}
+
+.string-viewer,
+.string-editor div {
+    display: inline;
+}
+
+.object-viewer,
+.object-editor {
+    display: inline;
+}
+
+.array-viewer,
+.array-editor {
+    display: inline;
+}
+
+.object-kvp-key-viewer {
+    /* margin-left: 2em; */
+}
+
+.object-kvp-key-viewer,
+.object-kvp-key-editor div {
+    /* margin-left: 2em; */
+    display: inline;
+}
+
+.object-inner {
+    margin-left: 2em;
+}
+
+.object-open {
+    display: inline;
+}
+
+.object-close {
+    display: inline;
+}
+
+.array-open {
+    display: inline;
+}
+
+.array-close {
+    display: inline;
+}
+
+.array-inner {
+    display: inline;
+}
+
+.number-viewer,
+.number-editor {
+    display: inline;
+}
+
+
+
+.selected div {
+    /* background-color: #ABCDEF; */
+}
+
+.bg-light-yellow {
+    background-color: #FFFF7E !important;
+}
+
+/* [contenteditable="true"] */
+
+.single-line {
+    white-space: nowrap;
+    width: 200px;
+    overflow: hidden;
+}
+
+/* [contenteditable="true"] */
+
+.single-line br {
+    display: none;
+}
+
+/* [contenteditable="true"] */
+
+.single-line * {
+    display: inline;
+    white-space: nowrap;
+}
+
+.admin.control {}
+
+.admin.control .left.panel {
+    height: 100%;
+    width: 30%;
+    background-color: #EEEEEE;
+    box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    -webkit-box-sizing: border-box;
+    border-right: 1px solid #AAAAAA;
+    float: left;
+}
+
+.admin.control .right.panel {
+    height: 100%;
+    width: 70%;
+    float: left;
+}
+
+div.single-line {
+    height: 32px;
+    box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    -webkit-box-sizing: border-box;
+    border-bottom: 1px solid #CCCCCC;
+    width: 100%;
+    background-color: #FFFFFF;
+}
+
+div.single-line span {
+    line-height: 32px;
+    text-align: middle;
+    margin-left: 16px;
+}
+
+div.single-line.selected {
+    background-color: #FDD017;
+}
+
+/*
+	Can have a top band
+	// Then the flexiboard would be positioned in the right of that.
+
+	// A top, absolutely positioned band.
+	//
+*/
+
+.flexiboard {
+    position: absolute;
+    top: 0px;
+    right: 0px;
+    height: 400px;
+    width: 220px;
+    background-color: #DDDDDD;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+
+.flexiboard .top-bar {
+    height: 16px;
+    width: 100%;
+    background-color: #00008B;
+}
+
+.grid_9 {
+    height: 100%;
+    width: 100%;
+}
+
+/*
+	Default settings where the vertical middle stripe takes 100% height.
+
+*/
+
+.grid_9 .v-middle {
+    height: 100%;
+}
+
+.grid_9 .left {
+    float: left;
+}
+
+.grid_9 .h-middle {
+    float: left;
+    /*
+		Not always width 100%....
+	*/
+    width: 100%;
+    height: 100%;
+}
+
+.grid_9 .right {
+    float: left;
+}
+
+.grid_9 .v-middle .left.dock-placeholder {
+    width: 180px;
+    height: 100%;
+    background-color: #DDDDDD;
+}
+
+.grid_9 .v-middle .right.dock-placeholder {
+    width: 180px;
+    height: 100%;
+    background-color: #DDDDDD;
+}
+
+.grid_9 .top .h-middle.dock-placeholder {
+    width: 180%;
+    height: 120px;
+    background-color: #DDDDDD;
+}
+
+.grid_9 .bottom .h-middle.dock-placeholder {
+    width: 180%;
+    height: 100px;
+    background-color: #DDDDDD;
+}
+
+.grid_9 .v-middle .left.open {
+    width: 180px;
+    height: 100%;
+}
+
+.grid_9 .v-middle .right.open {
+    width: 180px;
+    height: 100%;
+}
+
+.grid_9 .top .h-middle.open {
+    width: 100%;
+    height: 120px;
+}
+
+.grid_9 .bottom .h-middle.open {
+    width: 100%;
+    height: 120px;
+}
+
+.anchored {
+    position: static;
+}
+
+.grid_9 .h-middle .flexiboard.anchored {
+    width: 100%;
+    height: 120px;
+}
+
+.grid_9 .left .flexiboard.anchored {
+    width: 180px;
+    height: 100%;
+}
+
+.title.bar {
+    height: 32px;
+    /* width: 100%; */
+    padding-left: 8px;
+    /* text-align: center; */
+    background-color: #FFFFFF;
+    -webkit-box-shadow: inset 0px -2px 2px -2px rgba(0, 0, 0, 0.75);
+    -moz-box-shadow: inset 0px -2px 2px -2px rgba(0, 0, 0, 0.75);
+    box-shadow: inset 0px -2px 2px -2px rgba(0, 0, 0, 0.75);
+}
+
+.title.bar span {
+    vertical-align: middle;
+    line-height: 32px;
+}
+
+.window {
+    position: absolute;
+    border: 1px solid #CCCCCC;
+}
+
+.window .title.bar {
+    height: 28px;
+    background-color: #0D4F8B;
+    color: #FFFFFF;
+    font-size: 13px;
+    line-height: 28px;
+    text-indent: 4px;
+}
+
+.tree-node {
+    /* height: 32px; */
+    border-bottom: #CCCCCC;
+    /* position: relative; */
+    clear: both;
+    cursor: default;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+
+.tree-node img {}
+
+.tree-node .inner {
+    /* float: left; */
+    position: relative;
+    /* width: 120px; */
+    /* background-color: #EEEEEE; */
+}
+
+.toggle-button.plus-minus {
+    width: 14px;
+    height: 14px;
+    border: 1px solid #888888;
+    float: left;
+    font-family: monospace;
+    text-indent: 3px;
+    line-height: 14px;
+    position: relative;
+    top: 4px;
+}
+
+.toggle-button.start-stop {
+    width: 50px;
+    height: 32px;
+    border: 1px solid #888888;
+    float: left;
+    font-family: monospace;
+    text-indent: 6px;
+    line-height: 32px;
+    position: relative;
+    top: 4px;
+}
+
+.tree-node .expander {
+    /* padding-left: 18px; */
+    /* margin-top: 2px; */
+    position: relative;
+}
+
+.tree-node .top-line img {
+    position: absolute;
+    left: 24px;
+    width: 24px;
+    height: 24px;
+    /* margin-left: 4px; */
+    /* display: inline; */
+    /* float:left; */
+}
+
+.tree-node .top-line {
+    /* clear: both; */
+    height: 24px;
+    position: relative;
+}
+
+.tree-node .toggle-button {
+    /* position: absolute; */
+    left: 16px;
+    height: 16px;
+    width: 16px;
+    border: 1px solid #666666;
+    border-radius: 2px;
+    top: 3px;
+}
+
+.tree-node .toggle-button>span {
+    display: block;
+    text-align: center;
+    line-height: 15px;
+}
+
+.tree-node .top-line>span {
+    /* clear: both; */
+    /*
+	line-height: 24px;
+	margin-left: 4px;
+    */
+    position: absolute;
+    left: 40px;
+    top: 1px;
+    /*
+    position: absolute;
+    left: 54px;
+    */
+}
+
+.tree-node .file .top-line span {
+    width: 300px;
+}
+
+.tree-node .file .top-line .toggle-button span {
+    width: 16px;
+}
+
+.horizontal.menu {
+    cursor: default;
+}
+
+.horizontal.menu .menu-node {
+    float: left;
+    width: 94px;
+    background: #EEEEEE;
+    border-right: 1px solid #CCCCCC;
+    border-bottom: 1px solid #CCCCCC;
+    height: 24px;
+    line-height: 24px;
+    /* padding-left: 6px; */
+}
+
+.horizontal.menu .menu-node .main {
+    padding-left: 6px;
+}
+
+.context.menu {
+    /* Working out their size could be tricky though, could use overflow visible */
+    position: absolute;
+    z-index: 1000000;
+    background-color: #FFFFFF;
+    padding: 4px;
+    border: 1px solid #CCCCCC;
+    cursor: default;
+}
+
+.context.menu .menu-node {
+    padding-left: 18px;
+}
+
+.relative {
+    position: relative;
+}
+
+/* Custom CSS, just for the moment */
+
+/*
+
+.window {
+	-webkit-touch-callout: none;
+	-webkit-user-select: none;
+	-khtml-user-select: none;
+	-moz-user-select: none;
+	-ms-user-select: none;
+	user-select: none;
+}
+
+.tweets {
+	background-color: #FFFFFF;
+	margin-left: 10px;
+	margin-top: 10px;
+	width: 760px;
+	height: 500px;
+	padding: 10px;
+	overflow-y: scroll;
+
+	-webkit-touch-callout: none;
+	-webkit-user-select: none;
+	-khtml-user-select: none;
+	-moz-user-select: none;
+	-ms-user-select: none;
+	user-select: none;
+}
+
+.window .inner {
+	margin-top: 10px;
+}
+
+label {
+	margin-left: 10px;
+}
+
+input {
+	margin-left: 10px;
+}
+
+button {
+	margin-left: 10px;
+	padding-left: 2px;
+	padding-right: 2px;
+}
+
+.tweet {
+	margin-bottom: 10px;
+
+}
+
+.tweet .user {
+	color: #CC9999;
+}
+
+*/
+
+.resize-handle {
+    position: absolute;
+    width: 16px;
+    height: 16px;
+    background-color: #FF0000;
+}
+
+/* Audio Player */
+
+/* Could have audio player in different size modes
+
+Full screen desktop - tablet landscape
+Full screen tablet portrait
+Full screen iPhone 5 portrait & landscape
+Full screen iPhone 4 portrait & landscape
+
+Smaller / compact modes such as when there is an audio player acting as a component of a web page, rather than having the page be the player
+
+*/
+
+.cursor-pointer {
+    cursor: pointer;
+}
+
+.cursor-default {
+    cursor: default;
+}
+
+.web-admin-images .list {
+    width: 500px;
+}
+
+.web-admin-images .list .item {
+    width: 500px;
+    background-color: #EEEEEE;
+}
+
+.web-admin-images .list .item .id {
+    width: 70px;
+    float: left;
+}
+
+.web-admin-images .list .item .value {
+    width: 400px;
+    float: left;
+}
+
+.no-text-select {
+    -webkit-touch-callout: none !important;
+    -webkit-user-select: none !important;
+    -khtml-user-select: none !important;
+    -moz-user-select: none !important;
+    -ms-user-select: none !important;
+    user-select: none !important;
+}
+
+.default-cursor {
+    cursor: default;
+}
+
+/* Stuff for flexidoc */
+
+/*
+.flexidoc-editor .blank-components
+*/
+
+.flexidoc-component.icon {
+    width: 180px;
+    height: 28px;
+    background-color: #FDFDFD;
+    border: 1px solid #DDDDDD;
+    text-align: center;
+    padding-top: 12px;
+    margin-bottom: 1px;
+}
+
+.file-manager {
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    cursor: default;
+}
+
+.file-manager .expansion.button {
+    width: 16px;
+    height: 16px;
+    background-color: #FF0000;
+    float: left;
+}
+
+.file-manager .icon {
+    margin-left: 2px;
+}
+
+.file-manager .directory .icon {
+    width: 24px;
+    height: 24px;
+    background-color: #00FF00;
+    float: left;
+}
+
+.file-manager .file .icon {
+    width: 24px;
+    height: 24px;
+    background-color: #0000AA;
+    float: left;
+}
+
+.file-manager .info {
+    width: 400px;
+    height: 32px;
+    background-color: #DFDFDF;
+    float: left;
+    margin-left: 2px;
+}
+
+.tree .subitems {
+    padding-left: 18px;
+}
+
+.file-manager .item .name {
+    margin-left: 2px;
+    line-height: 24px;
+}
+
+.radio-button-group.horizontal>div.radio-button {
+    display: inline;
+    margin-left: 4px;
+    margin-right: 4px;
+}
+
+div.radio-button>input {
+    position: relative;
+    top: 1px;
+    margin-left: 1px;
+    margin-right: 1px;
+}
+
+table.grid {
+    background-color: #eceff1;
+    border: 1px solid #546e7a;
+    padding: 2px;
+    cursor: default;
+}
+
+table.grid tbody {
+    overflow: hidden;
+    display: block;
+}
+
+table.grid td {
+    padding: 1px;
+}
+
+.data-row .data-item {
+    display: inline;
+    margin-left: 2px;
+    padding: 2px;
+}
+
+.mid-width {
+    width: 450px;
+}
+
+div.grid {
+    user-select: none;
+    clear: both;
+}
+
+div.grid .header.row .cell {
+    text-align: center
+}
+
+div.grid .row {
+    clear: both;
+}
+
+div.grid .header.row .cell span {
+    position: relative;
+    top: 4px;
+    left: 0px;
+    font-size: 11pt;
+}
+
+div.grid .row .cell {
+    float: left;
+    box-sizing: border-box;
+    border-right: 1px solid #AAAAAA;
+    border-bottom: 1px solid #999999;
+}
+
+div.grid .row .cell.selected {
+    float: left;
+    box-sizing: border-box;
+    /*
+    border-right: 1px solid #AAAAAA;
+    border-bottom: 1px solid #999999;
+    */
+    border: 2px solid #2046df;
+    border-radius: 4px;
+}
+
+div.grid .row .cell.selected span {
+    position: relative;
+    /* top: 4px; */
+    left: 3px;
+    top: -1px;
+    font-size: 16pt;
+}
+
+div.grid .row .cell span {
+    position: relative;
+    /* top: 4px; */
+    left: 5px;
+    top: 1px;
+    font-size: 16pt;
+}
+
+.item-selector .item-view {
+    width: 120px;
+    text-align: center;
+    height: 32px;
+    line-height: 32px;
+    user-select: none;
+}
+
+.item-selector.list .item {
+    text-align: center;
+    user-select: none;
+    height: 28px;
+    line-height: 28px;
+    border-bottom: 1px solid #AAAAAA;
+    width: 120px;
+}
+
+
+.item-selector.list .item:hover {
+    background-color: #EEEEEE;
+}
+
+.item-selector.list .item.selected {
+    background-color: #ABCDEF;
+}
+
+
+.list.item-selector {
+    background-color: #FFFFFF;
+    box-shadow: 5px 5px 3px #888888;
+    border: 1px solid #AAAAAA;
+}
+
+.item-selector .item-view span {
+    text-align: center;
+}
+
+.left-right.arrows-selector {
+    height: 36px;
+}
+
+.arrows-selector .button {
+    float: left;
+}
+
+.arrows-selector .item-selector {
+    float: left;
+}
+
+.date-picker .month-picker {
+    clear: both;
+}
+
+.date-picker .year-picker {
+    clear: both;
+}
+
+.date-picker .arrows-selector {
+    width: 360px;
+}
+
+.date-picker .arrows-selector .button:first-child {
+    margin-left: 90px;
+}
+
+.arrow svg line {
+    stroke: #000000;
+}
+
+.arrow.disabled svg line {
+    stroke: #CCCCCC;
+}
+
+.arrow.disabled svg polygon {
+    fill: #CCCCCC;
+}

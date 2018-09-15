@@ -2,12 +2,30 @@
  * Created by James on 02/10/2016.
  */
 
-const Server = require('../server/single-control-server');
-const File_Tree = require('../controls/file-tree');
-const Month_View = require('../controls/month-view');
-const Arrow_Button = require('../controls/arrow-button');
-const Left_Right_Arrows_Selector = require('../controls/left-right-arrows-selector');
-const Date_Picker = require('../controls/date-picker');
+const jsgui = require('jsgui3-html');
+const Server = require('../single-control-server');
+//const File_Tree = jsgui.File_Tree;
+//const Month_View = require('../controls/month-view');
+//const Arrow_Button = require('../controls/arrow-button');
+const Left_Right_Arrows_Selector = jsgui.Left_Right_Arrows_Selector;
+//const Date_Picker = require('../controls/date-picker');
+const Grid = jsgui.Grid;
+
+// Make a version for Grid.
+//  Try for user-configurable column widths.
+//   optional
+//  row headers
+//  column headers
+//  
+
+// .rows['*']
+// .rows.all.width
+// .columns.all.width = 100px
+// .columns[6].width = 
+// columns[-1]?
+// .all_columns < seems easiest right now.
+
+
 
 //var Server = jsgui.Server;
 
@@ -88,8 +106,20 @@ let activate_app = (() => {
 
 
 	}
-})()
+})();
 
+// Set the data for the grid
+//  Could just give it an array
+//  Could give it a data resource.
+//  Could give it CSV.
+
+let grid_data = [
+	['0, 0', '1, 0', '2, 0', '3, 0', '4, 0', '5, 0'],
+	['0, 1', '1, 1', '2, 1', '3, 1', '4, 1', '5, 1'],
+	['0, 2', '1, 2', '2, 2', '3, 2', '4, 2', '5, 2'],
+	['0, 3', '1, 3', '2, 3', '3, 3', '4, 3', '5, 3'],
+	['0, 4', '1, 4', '2, 4', '3, 4', '4, 4', '5, 4']
+];
 
 //const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
 const years = [2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022];
@@ -100,9 +130,14 @@ var server = new Server({
 
 
 	// Left_Right_Arrows_Selector
-	'ctrl': [Date_Picker, {
+	'ctrl': [Grid, {
+		'data': grid_data,
+		cell_size: [80, 22],
+		column_headers: true,
+		row_headers: {
+			width: 32
+		}
 	}],
-
 	/*
 	'ctrl': [Month_View, {
 			//'rotation': 180
@@ -114,8 +149,6 @@ var server = new Server({
 // sending app client JS.
 //  activation JS here that gets sent to the file would be useful.
 //  allows the main parts of an entire app to be contained within one file.
-
-
 
 server.start(function(err, cb_start) {
 	if (err) {

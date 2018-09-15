@@ -7,8 +7,13 @@ var path = require('path'),
 	libUrl = require('url'),
 	Resource = jsgui.Resource,
 	fs2 = require('./fs2'),
+	brotli = require('iltorb').compress,
 	//UglifyJS = require('uglify-js'),
 	zlib = require('zlib');
+
+
+
+//fs.createReadStream(filename).pipe(brotli()).pipe(res);
 
 const fnl = require('fnl');
 const prom_or_cb = fnl.prom_or_cb;
@@ -30,7 +35,7 @@ var call_multi = jsgui.call_multi,
 	get_truth_map_from_arr = jsgui.get_truth_map_from_arr;
 
 var browserify = require('browserify');
-var zlib = require('zlib');
+//var zlib = require('zlib');
 var util = require('util');
 
 const babel = require('babel-core');
@@ -330,7 +335,8 @@ class Site_JavaScript extends Resource {
 		if (typeof a[2] === 'function') {
 			callback = a[2];
 			options = {
-				'babel': 'mini'
+				//'babel': 'mini',
+				'include_sourcemaps': true
 			};
 		}
 
@@ -372,12 +378,14 @@ class Site_JavaScript extends Resource {
 				s.push(null);
 
 
-				let include_sourcemaps = true;
+				//let include_sourcemaps = true;
 
 
 				let b = browserify(s, {
 					basedir: path.dir,
-					'debug': include_sourcemaps
+					//builtins: false,
+					builtins: ['buffer'],
+					'debug': options.include_sourcemaps
 				});
 
 
@@ -467,25 +475,26 @@ class Site_JavaScript extends Resource {
 					let o_transform = {
 						"presets": [
 							["minify", {
-								"mangle": {
-									"exclude": ["MyCustomError"]
-								},
+								//"mangle": {
+								//"exclude": ["MyCustomError"]
+								//},
 								//"unsafe": {
 								//	"typeConstructors": false
 								//},
 								//"keepFnName": true
 							}]
-						]
+						],
+						//plugins: ["minify-dead-code-elimination"]
 					};
 
 
-					if (include_sourcemaps) o_transform.sourceMaps = 'inline';
+					if (options.include_sourcemaps) o_transform.sourceMaps = 'inline';
 
 					let res_transform = babel.transform(str_js, o_transform);
-					let jst_es5 = res_transform.code;
+					//let jst_es5 = res_transform.code;
 					//let {jst_es5, map, ast} = babel.transform(str_js);
 					//console.log('jst_es5.length', jst_es5.length);
-					buf_js = Buffer.from(jst_es5);
+					buf_js = Buffer.from(res_transform.code);
 
 					/*
 					{
@@ -518,9 +527,60 @@ class Site_JavaScript extends Resource {
 				// then need to serve it under url
 
 				var escaped_url = url.replace(/\./g, '☺');
-				this.custom_paths.set(escaped_url, buf_js);
 
-				resolve(true);
+
+
+				brotli(buf_js, (err, buffer) => {
+					console.log('deflated buffer.length', buffer.length);
+
+					if (err) {
+						reject(err);
+					} else {
+
+						// 
+						buffer.encoding = 'br';
+						this.custom_paths.set(escaped_url, buffer);
+
+						resolve(true);
+					}
+					//res.writeHead(200, {
+					//	'Content-Encoding': 'deflate',
+					//	'Content-Type': 'text/javascript'
+					//});
+					//res.end(buffer);
+					//res.writeHead(200, {'Content-Type': 'text/javascript'});
+					//response.end(servableJs);
+					//res.end(minified.code);
+				});
+
+				/*
+				zlib.deflate(buf_js, (err, buffer) => {
+					console.log('deflated buffer.length', buffer.length);
+
+
+					if (err) {
+						reject(err);
+					} else {
+
+						// 
+						buffer.encoding = 'deflate';
+						this.custom_paths.set(escaped_url, buffer);
+
+						resolve(true);
+					}
+					//res.writeHead(200, {
+					//	'Content-Encoding': 'deflate',
+					//	'Content-Type': 'text/javascript'
+					//});
+					//res.end(buffer);
+					//res.writeHead(200, {'Content-Type': 'text/javascript'});
+					//response.end(servableJs);
+					//res.end(minified.code);
+				});
+				*/
+
+
+
 
 				// 
 
@@ -612,6 +672,7 @@ class Site_JavaScript extends Resource {
 		//console.log('rurl', rurl);
 
 		var custom_response_entry = custom_paths[rurl];
+		console.log('custom_response_entry.encoding', custom_response_entry.encoding);
 
 		// hmmmm get not working right?
 
@@ -622,11 +683,16 @@ class Site_JavaScript extends Resource {
 		if (custom_response_entry) {
 
 			let t = tof(custom_response_entry._);
-			//console.log('t', t);
+			console.log('t', t);
 			if (t === 'buffer') {
-				res.writeHead(200, {
+				let o_head = {
 					'Content-Type': 'text/javascript'
-				});
+				}
+				if (custom_response_entry._.encoding) {
+					o_head['Content-Encoding'] = custom_response_entry._.encoding;
+				}
+
+				res.writeHead(200, o_head);
 				//response.end(servableJs);
 				res.end(custom_response_entry._);
 			} else {

@@ -50,7 +50,7 @@ let app_server = resource_pool['HTML Server'];
 let js = app_server.resource_pool['Site JavaScript'];
 */
 
-console.log('Server', Server);
+//console.log('Server', Server);
 
 class Single_Control_Server extends Server {
     constructor(spec) {
@@ -96,7 +96,6 @@ class Single_Control_Server extends Server {
         //throw 'stop';
         var resource_pool = this.resource_pool;
         var server_router = resource_pool.get_resource('Server Router');
-
         // Build the client js and include that.
         //  Could have been given a different client js file too.
         //  By default want to provide the html client from jsgui.
@@ -122,7 +121,6 @@ class Single_Control_Server extends Server {
             }
             o_serve_package.babel = 'mini';
         }
-
         // Not sure how to do the replace when loading from disk.
 
         // Give a reference to the package to serve itself.
@@ -192,9 +190,6 @@ class Single_Control_Server extends Server {
         });
 
         // console.log('this.port', this.port);
-
-
-
     }
 
 

@@ -28,7 +28,7 @@ var Collection = jsgui.Collection;
 
 var exec = require('child_process').exec;
 
-console.log('!!1)jsgui', !!jsgui);
+//console.log('!!1)jsgui', !!jsgui);
 
 // Should just export the server
 //  Other packages can bind things together.
@@ -309,10 +309,6 @@ class JSGUI_Server extends jsgui.Data_Object {
                             }
                         });
 
-
-
-
-
                         //throw 'stop';
                     }
                 });
@@ -407,7 +403,7 @@ class JSGUI_Server extends jsgui.Data_Object {
     }
 }
 
-console.log('!!2)jsgui', !!jsgui);
+//console.log('!!2)jsgui', !!jsgui);
 
 JSGUI_Server.Resource = Resource;
 JSGUI_Server.Page_Context = Server_Page_Context;
@@ -417,7 +413,7 @@ JSGUI_Server.Page_Context = Server_Page_Context;
 
 //jsgui.Server = JSGUI_Server;
 
-console.log('!!JSGUI_Server', !!JSGUI_Server);
+//console.log('!!JSGUI_Server', !!JSGUI_Server);
 
 //jsgui.fs2 = require('./fs2');
 //jsgui.Resource = Resource;
@@ -426,6 +422,6 @@ console.log('!!JSGUI_Server', !!JSGUI_Server);
 //console.log('post scs');
 //console.log('3)jsgui', jsgui);
 
-console.log('JSGUI_Server', JSGUI_Server);
+//console.log('JSGUI_Server', JSGUI_Server);
 
 module.exports = JSGUI_Server;

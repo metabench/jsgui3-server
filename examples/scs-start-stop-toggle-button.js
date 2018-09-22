@@ -2,8 +2,8 @@
  * Created by James on 02/10/2016.
  */
 
-var Server = require('../server/single-control-server');
-var Start_Stop_Toggle_Button = require('../controls/start-stop-toggle-button');
+var Server = require('../single-control-server');
+var { Start_Stop_Toggle_Button } = require('jsgui3-html');
 
 //var Server = jsgui.Server;
 

@@ -86,6 +86,7 @@ class Single_Control_Server extends Server {
             }
 
             if (spec.js_mode) this.js_mode = spec.js_mode;
+            if (spec.js_client) this.js_client = spec.js_client;
             // Ctrl.activate_app
             //spec.activate_app;
             if (spec.activate_app) {
@@ -103,6 +104,11 @@ class Single_Control_Server extends Server {
         this.server_router.set_route('*', app, app.process);
         this.app_server = app;
     }
+
+    // Could start it up with a client_js reference
+
+
+
     'start' (callback) {
         //throw 'stop';
         var resource_pool = this.resource_pool;
@@ -119,7 +125,6 @@ class Single_Control_Server extends Server {
         // // the activate app function.
         //  Can be put into place in the served JS.
 
-
         // with replacement option within serve_package
 
         let o_serve_package = {
@@ -127,7 +132,6 @@ class Single_Control_Server extends Server {
         }
 
         // babel option.
-
 
         if (this.activate_app) {
             o_serve_package.replace = {
@@ -146,7 +150,9 @@ class Single_Control_Server extends Server {
         // Give a reference to the package to serve itself.
         //  example servers - 
 
-        js.serve_package('/js/app.js', 'jsgui3-client', o_serve_package, (err, served) => {
+        let js_client = this.js_client || 'jsgui3-client';
+
+        js.serve_package('/js/app.js', js_client, o_serve_package, (err, served) => {
             //var resource_pool = this.resource_pool;
             //console.log('server_router', server_router);
 
@@ -170,8 +176,6 @@ class Single_Control_Server extends Server {
                 hd.include_css('/css/basic.css')
                 hd.include_js('/js/app.js');
                 var body = hd.body;
-
-
                 let o_params = this.params || {};
                 Object.assign(o_params, {
                     'context': server_page_context
@@ -195,7 +199,6 @@ class Single_Control_Server extends Server {
                     }
                 });
             });
-
             //console.log('pre super start');
 
             super.start(this.port, (err, res_super_start) => {
@@ -208,14 +211,9 @@ class Single_Control_Server extends Server {
                 }
             });
         });
-
         // console.log('this.port', this.port);
     }
-
-
-
 }
-
 
 module.exports = Single_Control_Server;
 
@@ -231,13 +229,8 @@ module.exports = Single_Control_Server;
 
 // Get the website resource
 
-
-
 // Caching items / resources by type?
-
 // Need to give the resources a name.
-
-
 //var website = resource_pool.get_resource('Server Router');
 
 //console.log('\n\n');

@@ -324,6 +324,12 @@ class Site_JavaScript extends Resource {
 	//  However, supply the package ourselves, and its fine.
 
 	'serve_package' (url, js_package, options = {}, callback) {
+		console.log('serve_package', url, js_package);
+		console.log('js_package', js_package);
+		console.log('typeof js_package', typeof js_package);
+
+		let tjp = typeof js_package;
+
 		return this.serve_package_from_path(url, require.resolve(js_package), options, callback);
 	}
 
@@ -331,6 +337,7 @@ class Site_JavaScript extends Resource {
 	// Can't use this for scs any longer I think.
 	'serve_package_from_path' (url, js_file_path, options = {}, callback) {
 
+		console.log('serve_package_from_path', url, js_file_path);
 
 		// js_mode option may need to be used.
 
@@ -393,7 +400,6 @@ class Site_JavaScript extends Resource {
 
 				//let include_sourcemaps = true;
 
-
 				let b = browserify(s, {
 					basedir: path.dir,
 					//builtins: false,
@@ -401,14 +407,9 @@ class Site_JavaScript extends Resource {
 					'debug': options.include_sourcemaps
 				});
 
-
-
 				// Prefer the idea of sending a stream to browserify.
 
-
 				let parts = await stream_to_array(b.bundle());
-
-
 
 				/*
 				var b = browserify([js_file_path], {
@@ -465,8 +466,6 @@ class Site_JavaScript extends Resource {
 					};
 
 					if (options.include_sourcemaps) o_tranform.sourceMaps = 'inline';
-
-
 					let res_transform = babel.transform(str_js, o_tranform);
 
 
@@ -499,7 +498,6 @@ class Site_JavaScript extends Resource {
 						],
 						//plugins: ["minify-dead-code-elimination"]
 					};
-
 
 					if (options.include_sourcemaps) o_transform.sourceMaps = 'inline';
 
@@ -541,10 +539,11 @@ class Site_JavaScript extends Resource {
 
 				var escaped_url = url.replace(/\./g, '☺');
 
-
+				console.log('pre brot buf_js.length', buf_js.length);
+				console.trace();
 
 				brotli(buf_js, (err, buffer) => {
-					console.log('deflated buffer.length', buffer.length);
+					console.log('* brotli deflated buffer.length', buffer.length);
 
 					if (err) {
 						reject(err);

@@ -331,6 +331,9 @@ class Site_JavaScript extends Resource {
 	// Can't use this for scs any longer I think.
 	'serve_package_from_path' (url, js_file_path, options = {}, callback) {
 
+
+		// js_mode option may need to be used.
+
 		let a = arguments;
 		if (typeof a[2] === 'function') {
 			callback = a[2];
@@ -359,6 +362,16 @@ class Site_JavaScript extends Resource {
 				//console.log('1) fileContents.length', fileContents.length);
 				// are there any replacements to do?
 				// options.replacements
+
+
+				if (options.js_mode === 'debug') {
+					options.include_sourcemaps = true;
+				}
+				if (options.js_mode === 'compress' || options.js_mode === 'mini') {
+					options.include_sourcemaps = false;
+					options.babel = 'mini';
+				}
+
 				if (options.replace) {
 					let s_file_contents = fileContents.toString();
 					//console.log('s_file_contents', s_file_contents);
@@ -451,10 +464,10 @@ class Site_JavaScript extends Resource {
 						//'sourceMaps': 'inline'
 					};
 
-					if (include_sourcemaps) o_tranform.sourceMaps = 'inline';
+					if (options.include_sourcemaps) o_tranform.sourceMaps = 'inline';
 
 
-					let res_transform = babel.transform(str_js, );
+					let res_transform = babel.transform(str_js, o_tranform);
 
 
 					//console.log('res_transform', res_transform);
@@ -579,15 +592,9 @@ class Site_JavaScript extends Resource {
 				});
 				*/
 
-
-
-
 				// 
 
 				// then need to store that compiled file at that URL.
-
-
-
 
 			})();
 		}, callback);
@@ -599,12 +606,10 @@ class Site_JavaScript extends Resource {
 		//console.log('url', url);
 		var escaped_url = url.replace(/\./g, '☺');
 		//console.log('escaped_url', escaped_url);
-
 		//this.meta.set('custom_paths.' + escaped_url, file_path);
 		//var custom_paths = this.meta.get('custom_paths');
 		//console.log('custom_paths', custom_paths);
 		this.custom_paths.set(escaped_url, file_path);
-
 	}
 
 	// 

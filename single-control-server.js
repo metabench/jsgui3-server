@@ -30,6 +30,15 @@ console.log('!!Server', !!Server);
 console.log('Object.keys(Server)', Object.keys(Server));
 var Server_Page_Context = require('./page-context');
 
+// js_mode option
+//  compress
+//  debug
+//  (standard)
+
+// Want to get the library compressed sizes down. Particulatly client. Can do much more with oext.
+
+
+
 /*
 var server = new Server({
     '*': {
@@ -75,6 +84,8 @@ class Single_Control_Server extends Server {
             } else {
                 this.Ctrl = Ctrl;
             }
+
+            if (spec.js_mode) this.js_mode = spec.js_mode;
             // Ctrl.activate_app
             //spec.activate_app;
             if (spec.activate_app) {
@@ -115,10 +126,19 @@ class Single_Control_Server extends Server {
             //'babel': 'mini'
         }
 
+        // babel option.
+
+
         if (this.activate_app) {
             o_serve_package.replace = {
                 '/* -- ACTIVATE-APP -- */': this.activate_app.toString()
             }
+            //
+        }
+
+        if (this.js_mode) {
+            o_serve_package.js_mode = this.js_mode;
+        } else {
             o_serve_package.babel = 'mini';
         }
         // Not sure how to do the replace when loading from disk.

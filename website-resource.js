@@ -176,7 +176,6 @@ class Website_Resource extends Resource {
         }
 
         // use the Database Resource Factory.
-
         //
 
         // This needs to have a bunch of other resources inside it.
@@ -264,9 +263,6 @@ class Website_Resource extends Resource {
 
         var static_html_resource;
 
-
-
-
         if (spec == 'static') {
             // Will need to serve the JavaScript and CSS directories anyway.
             //  They will generally have static content on a dynamic-html website.
@@ -294,11 +290,8 @@ class Website_Resource extends Resource {
 
         }
         // Want to maybe set up the js_resource so that it serves static files from a directory.
-
         // has it set this?
-
         // Better way of setting custom paths in the future.
-
         //js_resource.meta.set('custom_paths.js/app☺js', './client/js/app.js');
         //js_resource.meta.set('custom_paths.js/app_bundle☺js', './client/js/app_bundle.js');
 
@@ -340,19 +333,19 @@ class Website_Resource extends Resource {
 
         let server_pool = this.pool;
         router.set_route('resources/:resource_name/*', this, (req, res) => {
-            console.log('website router routing resource request');
-            console.log('route_data.params', req.params);
+            //console.log('website router routing resource request');
+            //console.log('route_data.params', req.params);
             //let resource_name = req.params.resource_name;
             //console.log('resource_name', resource_name);
             //console.log('req', req);
             let {url, method} = req;
             let s_url = url.split('/');
-            console.log('s_url', s_url);
+            //console.log('s_url', s_url);
             let resource_short_name = s_url[2];
-            console.log('resource_short_name', resource_short_name);
-            console.log('Object.keys(req)', Object.keys(req));
-            console.log('req.params', req.params);
-            console.log('url, method', url, method);
+            //console.log('resource_short_name', resource_short_name);
+            //console.log('Object.keys(req)', Object.keys(req));
+            //console.log('req.params', req.params);
+            //console.log('url, method', url, method);
             //console.log('resource_name', resource_name);
             // consult the map of published resources
             // or supposed to be encapsulated
@@ -360,10 +353,10 @@ class Website_Resource extends Resource {
             //console.log('this.pool', this.pool);
             // Route it to a server resource?
 
-            console.log('Object.keys(this.map_resource_publishers)', Object.keys(this.map_resource_publishers));
+            //console.log('Object.keys(this.map_resource_publishers)', Object.keys(this.map_resource_publishers));
 
             let resource_publisher = this.map_resource_publishers[resource_short_name];
-            console.log('!!resource_publisher', !!resource_publisher);
+            //console.log('!!resource_publisher', !!resource_publisher);
 
             if (resource_publisher) {
                 resource_publisher.handle_http(req, res);
@@ -394,8 +387,6 @@ class Website_Resource extends Resource {
     publish(server_resource, name) {
         // Need to give it a name to publish it as
 
-
-
         // server needs a Resource_Publisher.
         //  Some resources include their own publishing.
         //   (existing things like javascript-resource)
@@ -417,10 +408,6 @@ class Website_Resource extends Resource {
 
         // Should actually publish within a Website_Resource...
         //  Server holds this.
-
-
-
-
     }
 
     get resource_names() {
@@ -440,7 +427,7 @@ class Website_Resource extends Resource {
 
     'start'(callback) {
         // Need to wait until the database has started.
-        console.log('Website Resource start');
+        //console.log('Website Resource start');
         // start the db / web db resources?
         // start the resource pool?
         var resource_pool = this.resource_pool;
@@ -457,7 +444,6 @@ class Website_Resource extends Resource {
         // The web db resource needs to have been started.
 
         //throw 'no start function defined for web resource (subclass)'
-
     }
 
     'meets_requirements'() {

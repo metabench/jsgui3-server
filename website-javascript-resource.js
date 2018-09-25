@@ -204,9 +204,7 @@ class Site_JavaScript extends Resource {
 		//this.meta.set('custom_paths', new Data_Object({}));
 		this.custom_paths = new Data_Object({});
 		// Those are custom file paths.
-
 		// could have a collection of directories, indexed by name, that get served.
-
 		// Index the collection by string value?
 
 		//this.meta.set('served_directories', new Collection({'index_by': 'name'}));
@@ -349,7 +347,6 @@ class Site_JavaScript extends Resource {
 				'include_sourcemaps': true
 			};
 		}
-
 
 		return prom_or_cb((resolve, reject) => {
 			(async () => {

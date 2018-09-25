@@ -107,8 +107,6 @@ class Single_Control_Server extends Server {
 
     // Could start it up with a client_js reference
 
-
-
     'start' (callback) {
         //throw 'stop';
         var resource_pool = this.resource_pool;

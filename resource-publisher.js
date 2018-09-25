@@ -14,7 +14,7 @@ class Resource_Publisher {
         this.name = spec.name;
     }
     handle_http(req, res) {
-        console.log('Resource_Publisher handle HTTP');
+        //console.log('Resource_Publisher handle HTTP');
         // then the http request params...
         //console.log('req', req);
         let {
@@ -23,9 +23,9 @@ class Resource_Publisher {
             method,
             params
         } = req;
-        console.log('headers, url, method, params', headers, url, method, params);
+        //console.log('headers, url, method, params', headers, url, method, params);
         let resource_url_parts = url.split('/').slice(3).filter(x => x != '');
-        console.log('resource_url_parts', resource_url_parts);
+        //console.log('resource_url_parts', resource_url_parts);
         // 
         if (resource_url_parts.length === 1 && resource_url_parts[0] === 'status.json') {
             (async () => {
@@ -62,10 +62,6 @@ class Resource_Publisher {
                     }
                 }
             })();
-
-
-
-
         }
 
         // then do get on that resource.

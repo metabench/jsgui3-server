@@ -332,6 +332,168 @@ class Site_JavaScript extends Resource {
 	}
 
 
+	'package' (js_file_path, options = {}, callback) {
+
+		let a = arguments;
+		if (typeof a[2] === 'function') {
+			callback = a[2];
+			options = {
+				//'babel': 'mini',
+				'include_sourcemaps': true
+			};
+		}
+
+		return prom_or_cb((resolve, reject) => {
+			(async () => {
+				// options
+
+				// may want a replacement within the client-side code.
+
+				// Can we call browserify on the code string?
+				//  Creating a modified copy of the file would do.
+				//  Load the file, modify it, save it under a different name
+
+
+				let s = new require('stream').Readable(),
+					path = require('path').parse(js_file_path);
+
+				let fileContents = await fnlfs.load(js_file_path);
+				//console.log('1) fileContents.length', fileContents.length);
+				// are there any replacements to do?
+				// options.replacements
+
+
+				if (options.js_mode === 'debug') {
+					options.include_sourcemaps = true;
+				}
+				if (options.js_mode === 'compress' || options.js_mode === 'mini') {
+					options.include_sourcemaps = false;
+					options.babel = 'mini';
+				}
+
+				if (options.replace) {
+					let s_file_contents = fileContents.toString();
+					//console.log('s_file_contents', s_file_contents);
+					each(options.replace, (text, key) => {
+						//console.log('key', key);
+						//console.log('text', text);
+						let running_fn = '(' + text + ')();'
+						//console.log('running_fn', running_fn);
+						s_file_contents = s_file_contents.split(key).join(running_fn);
+					})
+					fileContents = Buffer.from(s_file_contents);
+					//console.log('2) fileContents.length', fileContents.length);
+				}
+				// Then we can replace some of the file contents with specific content given when we tall it to serve that file.
+				//  We have a space for client-side activation.
+				s.push(fileContents);
+				s.push(null);
+
+				//let include_sourcemaps = true;
+
+				let b = browserify(s, {
+					basedir: path.dir,
+					//builtins: false,
+					builtins: ['buffer'],
+					'debug': options.include_sourcemaps
+				});
+
+				let parts = await stream_to_array(b.bundle());
+
+				const buffers = parts
+					.map(part => util.isBuffer(part) ? part : Buffer.from(part));
+				let buf_js = Buffer.concat(buffers);
+				let str_js = buf_js.toString();
+
+				let babel_option = options.babel
+				console.log('babel_option', babel_option);
+				if (babel_option === 'es5') {
+
+					let o_tranform = {
+						"presets": [
+							"es2015",
+							"es2017"
+						],
+						"plugins": [
+							"transform-runtime"
+						] //,
+						//'sourceMaps': 'inline'
+					};
+
+					if (options.include_sourcemaps) o_tranform.sourceMaps = 'inline';
+					let res_transform = babel.transform(str_js, o_tranform);
+
+
+					//console.log('res_transform', res_transform);
+					//console.log('Object.keys(res_transform)', Object.keys(res_transform));
+					let jst_es5 = res_transform.code;
+					//let {jst_es5, map, ast} = babel.transform(str_js);
+					//console.log('jst_es5.length', jst_es5.length);
+					buf_js = Buffer.from(jst_es5);
+				} else if (babel_option === 'mini') {
+
+					/*
+					let o_transform = {
+						presets: ["minify"]//,
+						//'sourceMaps': 'inline'
+					};
+					*/
+
+					let o_transform = {
+						"presets": [
+							["minify", {
+								//"mangle": {
+								//"exclude": ["MyCustomError"]
+								//},
+								//"unsafe": {
+								//	"typeConstructors": false
+								//},
+								//"keepFnName": true
+							}]
+						],
+						//plugins: ["minify-dead-code-elimination"]
+					};
+
+					if (options.include_sourcemaps) o_transform.sourceMaps = 'inline';
+
+					let res_transform = babel.transform(str_js, o_transform);
+					buf_js = Buffer.from(res_transform.code);
+
+				} else {
+					buf_js = Buffer.from(str_js);
+				}
+
+				//var escaped_url = url.replace(/\./g, '☺');
+
+				//console.log('pre brot buf_js.length', buf_js.length);
+				//console.trace();
+
+				/*
+
+				brotli(buf_js, (err, buffer) => {
+					console.log('* brotli deflated buffer.length', buffer.length);
+
+					if (err) {
+						reject(err);
+					} else {
+
+						// 
+						buffer.encoding = 'br';
+						//this.custom_paths.set(escaped_url, buffer);
+
+						resolve(buffer);
+					}
+				});
+				*/
+
+				resolve(buf_js);
+
+			})();
+		}, callback);
+
+	}
+
+
 	// Can't use this for scs any longer I think.
 	'serve_package_from_path' (url, js_file_path, options = {}, callback) {
 

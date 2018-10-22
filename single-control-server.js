@@ -17,6 +17,7 @@
 
 console.log('pre require jsgui');
 var jsgui = require('jsgui3-html');
+const each = jsgui.each;
 console.log('post require jsgui');
 //var Start_Stop_Toggle_Button = require('../controls/start-stop-toggle-button');
 const is_array = jsgui.is_array;
@@ -61,6 +62,13 @@ let js = app_server.resource_pool['Site JavaScript'];
 
 //console.log('Server', Server);
 
+// And choose the CSS file / files to send it.
+//  Could send basic jsgui css by default
+//  Then there would be app css on top of that.
+
+
+
+
 class Single_Control_Server extends Server {
     constructor(spec) {
         //spec['*'] = {
@@ -87,17 +95,27 @@ class Single_Control_Server extends Server {
 
             if (spec.js_mode) this.js_mode = spec.js_mode;
             if (spec.js_client) this.js_client = spec.js_client;
+
+            // deliver app specific css
+
+            // an obj
+            if (spec.css) this.css = spec.css;
+
             // Ctrl.activate_app
             //spec.activate_app;
             if (spec.activate_app) {
                 this.activate_app = spec.activate_app;
             }
+
+            if (spec.client_package) this.client_package = spec.client_package;
+
             this.port = spec.port || 80;
         }
         //this.__type_name = 'single-control-server';
         var app = new Website_Resource({
             'name': 'html-server'
         });
+        this.publish = (...args) => app.publish(...args);
         //console.log('app', app);
         //throw 'stop';
         this.resource_pool.add(app);
@@ -118,6 +136,7 @@ class Single_Control_Server extends Server {
 
         // build the html client code.
         let js = this.app_server.resource_pool['Site JavaScript'];
+        let css = this.app_server.resource_pool['Site CSS'];
 
         // serve package with replacement options.
         // // the activate app function.
@@ -148,11 +167,24 @@ class Single_Control_Server extends Server {
         // Give a reference to the package to serve itself.
         //  example servers - 
 
-        let js_client = this.js_client || 'jsgui3-client';
+
+        // serve the css as well.
+
+        if (this.css) {
+            each(this.css, (path, serve_as) => {
+                css.serve(serve_as, path);
+            })
+        }
+
+
+
+        let js_client = this.client_package || this.js_client || 'jsgui3-client';
 
         js.serve_package('/js/app.js', js_client, o_serve_package, (err, served) => {
             //var resource_pool = this.resource_pool;
             //console.log('server_router', server_router);
+
+            console.log('js_client', js_client);
 
             if (!server_router) {
                 throw 'no server_router';
@@ -164,7 +196,8 @@ class Single_Control_Server extends Server {
                 var server_page_context = new Server_Page_Context({
                     'req': req,
                     'res': res,
-                    'resource_pool': resource_pool
+                    'resource_pool': resource_pool,
+                    'server': this // does this make a vulnerability? know that controls have access to the server.
                 });
                 // Page_Bounds_Specifier
                 var hd = new jsgui.Client_HTML_Document({
@@ -172,6 +205,14 @@ class Single_Control_Server extends Server {
                 });
                 hd.include_client_css();
                 hd.include_css('/css/basic.css')
+
+                if (this.css) {
+                    each(this.css, (path, serve_as) => {
+                        //css.serve(serve_as, path);
+                        hd.include_css('/css/' + serve_as);
+                    });
+                }
+
                 hd.include_js('/js/app.js');
                 var body = hd.body;
                 let o_params = this.params || {};

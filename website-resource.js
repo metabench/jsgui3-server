@@ -74,6 +74,7 @@ var jsgui = require('jsgui3-html');
 //var Web_Resource = require('./website-resource');
 const Resource = jsgui.Resource;
 const Router = jsgui.Router;
+const Evented_Class = jsgui.Evented_Class;
 
 
 var Resource_Pool = require('./server-resource-pool');
@@ -88,6 +89,7 @@ var Site_Static_HTML = require('./website-static-html-resource');
 //var database_resource_factory = require('../../db/resource/factory');
 
 const Resource_Publisher = require('./resource-publisher');
+const Observable_Publisher = require('./observable-publisher');
 
 const Data_Resource = require('./data-resource');
 
@@ -332,6 +334,11 @@ class Website_Resource extends Resource {
         //router.set_route('resources/*', data_resource, data_resource.process);
 
         let server_pool = this.pool;
+
+        this.map_resource_publishers = this.map_resource_publishers || {};
+
+        let that = this;
+
         router.set_route('resources/:resource_name/*', this, (req, res) => {
             //console.log('website router routing resource request');
             //console.log('route_data.params', req.params);
@@ -354,9 +361,15 @@ class Website_Resource extends Resource {
             // Route it to a server resource?
 
             //console.log('Object.keys(this.map_resource_publishers)', Object.keys(this.map_resource_publishers));
+            //console.log('this', this);
 
-            let resource_publisher = this.map_resource_publishers[resource_short_name];
+            let resource_publisher = that.map_resource_publishers[resource_short_name];
+            //console.log('1) this', this);
+            //console.log('1) that', that);
+            // that
+            //console.log('this.map_resource_publishers', that.map_resource_publishers);
             //console.log('!!resource_publisher', !!resource_publisher);
+            //console.trace();
 
             if (resource_publisher) {
                 resource_publisher.handle_http(req, res);
@@ -384,7 +397,53 @@ class Website_Resource extends Resource {
         //this._super(spec);
     }
 
-    publish(server_resource, name) {
+    publish(published_name, item) {
+
+        //console.log('Website_Resource publish');
+        //console.log('published_name, item', published_name, item);
+
+
+        this.map_resource_publishers = this.map_resource_publishers || {};
+        if (item instanceof jsgui.Resource) {
+            let resource_publisher = new Resource_Publisher({
+                resource: item,
+                name: published_name
+            });
+    
+            
+            this.map_resource_publishers[published_name] = resource_publisher;
+        } else {
+
+            //if (item instanceof Evented_Class) {
+            if (item.next && item.complete && item.error) {
+                // assuming observable
+
+                // Observable publisher
+                //  One way sending...
+
+                //console.log('using Observable_Publisher');
+                
+                let obs_pub = new Observable_Publisher(item);
+
+                // or not a resource publisher, an observable publisher.
+
+                //this.map_resource_publishers = this.map_resource_publishers || {};
+                this.map_resource_publishers[published_name] = obs_pub;
+
+                //console.log('2) this', this);
+                //console.log('this.map_resource_publishers', this.map_resource_publishers);
+                //console.trace();
+
+
+
+
+            }
+
+        }
+
+
+        
+
         // Need to give it a name to publish it as
 
         // server needs a Resource_Publisher.
@@ -394,13 +453,7 @@ class Website_Resource extends Resource {
         // needs a name
 
         //this.resource_publisher = this.resource_publisher || new Resource_Publisher({
-        let resource_publisher = new Resource_Publisher({
-            resource: server_resource,
-            name: name
-        });
-
-        this.map_resource_publishers = this.map_resource_publishers || {};
-        this.map_resource_publishers[name] = resource_publisher;
+        
 
         //this.resource_pool.map_resource_publishers = resource_publisher;
 

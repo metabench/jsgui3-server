@@ -33,6 +33,10 @@ class Server_Page_Context extends jsgui.Page_Context {
 			this.response = spec.response;
 		};
 
+		if (spec.server) {
+			this.server = spec.server;
+		}
+
 		this.selection_scope_count = 0;
 		// Perhaps things could be more sandboxed, so that controls don't get access to the resource pool by default.
 		//  Maybe only a small number of controls should have access to this.

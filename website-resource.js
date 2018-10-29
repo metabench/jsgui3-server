@@ -90,6 +90,7 @@ var Site_Static_HTML = require('./website-static-html-resource');
 
 const Resource_Publisher = require('./resource-publisher');
 const Observable_Publisher = require('./observable-publisher');
+const Function_Publisher = require('./function-publisher');
 
 const Data_Resource = require('./data-resource');
 
@@ -414,30 +415,49 @@ class Website_Resource extends Resource {
             this.map_resource_publishers[published_name] = resource_publisher;
         } else {
 
-            //if (item instanceof Evented_Class) {
-            if (item.next && item.complete && item.error) {
-                // assuming observable
+            // if its a function
+            //  return that function call to the response.
 
-                // Observable publisher
-                //  One way sending...
+            let t_item = typeof item;
 
-                //console.log('using Observable_Publisher');
-                
-                let obs_pub = new Observable_Publisher(item);
+            if (t_item === 'function') {
 
-                // or not a resource publisher, an observable publisher.
+                // Function_Call_Publisher
 
-                //this.map_resource_publishers = this.map_resource_publishers || {};
-                this.map_resource_publishers[published_name] = obs_pub;
-
-                //console.log('2) this', this);
-                //console.log('this.map_resource_publishers', this.map_resource_publishers);
-                //console.trace();
+                let pub = new Function_Publisher(item);
+                this.map_resource_publishers[published_name] = pub;
 
 
 
-
+            } else {
+                if (item.next && item.complete && item.error) {
+                    // assuming observable
+    
+                    // Observable publisher
+                    //  One way sending...
+    
+                    //console.log('using Observable_Publisher');
+                    
+                    let obs_pub = new Observable_Publisher(item);
+    
+                    // or not a resource publisher, an observable publisher.
+    
+                    //this.map_resource_publishers = this.map_resource_publishers || {};
+                    this.map_resource_publishers[published_name] = obs_pub;
+    
+                    //console.log('2) this', this);
+                    //console.log('this.map_resource_publishers', this.map_resource_publishers);
+                    //console.trace();
+    
+    
+    
+    
+                }
             }
+
+
+            //if (item instanceof Evented_Class) {
+            
 
         }
 

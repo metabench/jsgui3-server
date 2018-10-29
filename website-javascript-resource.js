@@ -214,7 +214,7 @@ class Site_JavaScript extends Resource {
 
 	}
 
-	'start' (callback) {
+	'start'(callback) {
 		//console.log('Site_JavaScript start');
 		var build_on_start = this.build_on_start;
 		if (build_on_start) {
@@ -246,7 +246,7 @@ class Site_JavaScript extends Resource {
 	// want to give it the file to build.
 	// There will be a variety of jsgui packages.
 
-	'build_client' (callback) {
+	'build_client'(callback) {
 		// Need the reference relative to the application directory.
 
 		//var path = __dirname + '/js/app.js';
@@ -285,7 +285,7 @@ class Site_JavaScript extends Resource {
 	//  May be better not to allow server-side code to be read on the client.
 	//  Could have specific directories within jsgui that get served to the client.
 
-	'serve_directory' (path) {
+	'serve_directory'(path) {
 		// Serves that directory, as any files given in that directory can be served from /js
 		var served_directories = this.served_directories;
 		//console.log('served_directories ' + stringify(served_directories));
@@ -321,7 +321,7 @@ class Site_JavaScript extends Resource {
 	// However, loading it from disk allows for content replacement better.
 	//  However, supply the package ourselves, and its fine.
 
-	'serve_package' (url, js_package, options = {}, callback) {
+	'serve_package'(url, js_package, options = {}, callback) {
 		console.log('serve_package', url, js_package);
 		console.log('js_package', js_package);
 		console.log('typeof js_package', typeof js_package);
@@ -332,7 +332,7 @@ class Site_JavaScript extends Resource {
 	}
 
 
-	'package' (js_file_path, options = {}, callback) {
+	'package'(js_file_path, options = {}, callback) {
 
 		let a = arguments;
 		if (typeof a[2] === 'function') {
@@ -485,20 +485,14 @@ class Site_JavaScript extends Resource {
 					}
 				});
 				*/
-
 				resolve(buf_js);
-
 			})();
 		}, callback);
-
 	}
 
-
 	// Can't use this for scs any longer I think.
-	'serve_package_from_path' (url, js_file_path, options = {}, callback) {
-
+	'serve_package_from_path'(url, js_file_path, options = {}, callback) {
 		console.log('serve_package_from_path', url, js_file_path);
-
 		// js_mode option may need to be used.
 
 		let a = arguments;
@@ -509,6 +503,8 @@ class Site_JavaScript extends Resource {
 				'include_sourcemaps': true
 			};
 		}
+
+		let accepts_brotli = false;
 
 		return prom_or_cb((resolve, reject) => {
 			(async () => {
@@ -528,7 +524,6 @@ class Site_JavaScript extends Resource {
 				//console.log('1) fileContents.length', fileContents.length);
 				// are there any replacements to do?
 				// options.replacements
-
 
 				if (options.js_mode === 'debug') {
 					options.include_sourcemaps = true;
@@ -556,7 +551,6 @@ class Site_JavaScript extends Resource {
 				s.push(fileContents);
 				s.push(null);
 
-
 				//let include_sourcemaps = true;
 
 				let b = browserify(s, {
@@ -565,11 +559,9 @@ class Site_JavaScript extends Resource {
 					builtins: ['buffer'],
 					'debug': options.include_sourcemaps
 				});
-
 				// Prefer the idea of sending a stream to browserify.
 
 				let parts = await stream_to_array(b.bundle());
-
 				/*
 				var b = browserify([js_file_path], {
 					'debug': true
@@ -586,7 +578,7 @@ class Site_JavaScript extends Resource {
 				// options.babel === true
 
 				let babel_option = options.babel
-				console.log('babel_option', babel_option);
+				//console.log('babel_option', babel_option);
 				if (babel_option === 'es5') {
 					// es5 option
 					//  not sure if it babels async await though.
@@ -701,28 +693,33 @@ class Site_JavaScript extends Resource {
 				console.log('pre brot buf_js.length', buf_js.length);
 				console.trace();
 
-				brotli(buf_js, (err, buffer) => {
-					console.log('* brotli deflated buffer.length', buffer.length);
+				if (accepts_brotli) {
+					brotli(buf_js, (err, buffer) => {
+						console.log('* brotli deflated buffer.length', buffer.length);
 
-					if (err) {
-						reject(err);
-					} else {
+						if (err) {
+							reject(err);
+						} else {
 
-						// 
-						buffer.encoding = 'br';
-						this.custom_paths.set(escaped_url, buffer);
+							// 
+							buffer.encoding = 'br';
+							this.custom_paths.set(escaped_url, buffer);
 
-						resolve(true);
-					}
-					//res.writeHead(200, {
-					//	'Content-Encoding': 'deflate',
-					//	'Content-Type': 'text/javascript'
-					//});
-					//res.end(buffer);
-					//res.writeHead(200, {'Content-Type': 'text/javascript'});
-					//response.end(servableJs);
-					//res.end(minified.code);
-				});
+							resolve(true);
+						}
+						//res.writeHead(200, {
+						//	'Content-Encoding': 'deflate',
+						//	'Content-Type': 'text/javascript'
+						//});
+						//res.end(buffer);
+						//res.writeHead(200, {'Content-Type': 'text/javascript'});
+						//response.end(servableJs);
+						//res.end(minified.code);
+					});
+				} else {
+					this.custom_paths.set(escaped_url, buf_js);
+					resolve(true);
+				}
 
 				/*
 				zlib.deflate(buf_js, (err, buffer) => {
@@ -759,7 +756,7 @@ class Site_JavaScript extends Resource {
 	}
 
 
-	'set_custom_path' (url, file_path) {
+	'set_custom_path'(url, file_path) {
 		// But change the URL to have a smiley face instead of fullstops
 		//console.log('url', url);
 		var escaped_url = url.replace(/\./g, '☺');
@@ -772,7 +769,7 @@ class Site_JavaScript extends Resource {
 
 	// 
 
-	'process' (req, res) {
+	'process'(req, res) {
 		//console.log('Site_JavaScript processing req.url', req.url);
 		var remoteAddress = req.connection.remoteAddress;
 		//console.log('remoteAddress ' + remoteAddress);
@@ -835,7 +832,7 @@ class Site_JavaScript extends Resource {
 		//console.log('rurl', rurl);
 
 		var custom_response_entry = custom_paths[rurl];
-		console.log('custom_response_entry.encoding', custom_response_entry.encoding);
+		//console.log('custom_response_entry.encoding', custom_response_entry.encoding);
 
 		// hmmmm get not working right?
 
@@ -848,21 +845,26 @@ class Site_JavaScript extends Resource {
 			let t = tof(custom_response_entry._);
 			console.log('t', t);
 			if (t === 'buffer') {
+				console.log('sending js');
 				let o_head = {
 					'Content-Type': 'text/javascript'
 				}
+				console.log('custom_response_entry._.encoding', custom_response_entry._.encoding);
 				if (custom_response_entry._.encoding) {
+
 					o_head['Content-Encoding'] = custom_response_entry._.encoding;
 				}
 
 				res.writeHead(200, o_head);
 				//response.end(servableJs);
+				console.log('custom_response_entry._', custom_response_entry._);
+				console.log('custom_response_entry._.length', custom_response_entry._.length);
 				res.end(custom_response_entry._);
+				console.log('response js written');
+
 			} else {
 				var file_path = custom_response_entry.value();
 				//console.log('file_path', file_path);
-
-
 
 				//throw 'stop';
 				//var disk_path = '../../ws/js/' + wildcard_value;

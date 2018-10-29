@@ -184,7 +184,7 @@ class Single_Control_Server extends Server {
             //var resource_pool = this.resource_pool;
             //console.log('server_router', server_router);
 
-            console.log('js_client', js_client);
+            //console.log('js_client', js_client);
 
             if (!server_router) {
                 throw 'no server_router';
@@ -245,6 +245,9 @@ class Single_Control_Server extends Server {
                     callback(err);
                 } else {
                     console.log('res_super_start', res_super_start);
+
+                    this.raise('scs_ready');
+
                     callback(null, res_super_start);
 
                 }

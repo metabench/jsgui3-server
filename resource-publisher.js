@@ -3,7 +3,7 @@
 
 // then handle...
 //  need to handle http requests, for the resource.
-
+const zlib = require('zlib');
 
 class Resource_Publisher {
     constructor(spec) {
@@ -47,18 +47,36 @@ class Resource_Publisher {
 
             (async () => {
                 if (method === 'GET') {
+                    console.log('Resource_Publisher resource_url_parts');
                     let r = await this.resource.get(resource_url_parts);
                     if (r !== undefined) {
                         //console.log('r', r);
                         // Then turn it to JSON.
                         // to server output json.
+
                         let j = JSON.stringify(r);
+
+                        zlib.gzip(j, (error, result) => {
+                            if (error) {
+                                throw error;
+                            } else {
+                                // console.log(result);
+
+                                res.setHeader('Content-Type', 'application/json');
+                                res.setHeader('Content-Encoding', 'gzip');
+                                res.setHeader('Content-Length', result.length);
+
+                                // compress with gzip
+
+                                res.end(result);
+                            }
+
+                        })
+
+
                         //console.log('j', j);
                         //console.log('typeof r', typeof r);
 
-                        res.setHeader('Content-Type', 'application/json');
-                        res.setHeader('Content-Length', j.length);
-                        res.end(j);
                     }
                 }
             })();

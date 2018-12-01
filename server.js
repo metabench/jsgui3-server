@@ -407,14 +407,13 @@ class JSGUI_Server extends jsgui.Data_Object {
 
 JSGUI_Server.Resource = Resource;
 JSGUI_Server.Page_Context = Server_Page_Context;
-
-
+JSGUI_Server.Server_Page_Context = Server_Page_Context;
+JSGUI_Server.Website_Resource = Website_Resource;
 //Server.JSGUI_Server = JSGUI_Server;
 
 //jsgui.Server = JSGUI_Server;
 
 //console.log('!!JSGUI_Server', !!JSGUI_Server);
-
 //jsgui.fs2 = require('./fs2');
 //jsgui.Resource = Resource;
 //console.log('pre scs');

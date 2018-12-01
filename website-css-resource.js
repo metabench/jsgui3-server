@@ -109,7 +109,7 @@ var serve_css_file_from_disk = function (filePath, response) {
 	// just the file name, check if that css file is in the client path.
 	// '/css/basic.css' it treats the client path as /css but only will serve css from that path.
 
-	let candidate_paths = [filePath, internal_client_file_path, '../../css/' + filePath, './css/' + filePath, './' + filePath, '../../ws/' + filePath, '../../../' + filePath];
+	let candidate_paths = [filePath, internal_client_file_path, './client/app.css', '../../css/' + filePath, './css/' + filePath, './' + filePath, '../../ws/' + filePath, '../../../' + filePath];
 	let c = 0,
 		l = candidate_paths.length,
 		spath;

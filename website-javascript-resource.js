@@ -11,14 +11,11 @@ var path = require('path'),
 	//UglifyJS = require('uglify-js'),
 	zlib = require('zlib');
 
-
-
 //fs.createReadStream(filename).pipe(brotli()).pipe(res);
 
 const fnl = require('fnl');
 const prom_or_cb = fnl.prom_or_cb;
 const fnlfs = require('fnlfs');
-
 
 var stringify = jsgui.stringify,
 	each = jsgui.each,
@@ -43,20 +40,14 @@ const babel = require('babel-core');
 // Extends AutoStart_Resource?
 const stream_to_array = require('stream-to-array');
 
-
-
 // This could do with some overhauling.
 //  Only need to have it do what the applications need from it.
 //  Building the app may take place automatically elsewhere.
 
-
-
 // May need to change around a fair few references to make it workable.
 // May need some more complicated logic to change it to the path for service.
 
-
 // This will also be able to be told to serve some particular files from some particular locations.
-
 
 // It can have a custom_serving_map.
 
@@ -65,7 +56,6 @@ const stream_to_array = require('stream-to-array');
 
 // Since this is a resource, we could wrap that in the .meta object.
 //  Or just have a custom_paths_map Data_Object.
-
 
 // Not so sure about this.
 //  Processing of files for serving. Maybe some kind of map would work well.
@@ -97,10 +87,7 @@ const stream_to_array = require('stream-to-array');
 //  Then there will be a bunch of other files that get requested.
 //  Better to try serving the files in their paths without modification.
 
-
-
 // 21/02/2018 - Need site JavaScript to be able to send a specified Buffer for a specified JS path.
-
 
 var serve_js_file_from_disk_updated_refs = function (filePath, response, callback) {
 	fs2.load_file_as_string(filePath, function (err, data) {
@@ -109,10 +96,8 @@ var serve_js_file_from_disk_updated_refs = function (filePath, response, callbac
 		} else {
 			//console.log('');
 			//console.log('serve_js_file_from_disk_updated_refs filePath ' + filePath);
-
 			//console.log('data ' + data);
 			//var servableJs = updateReferencesForServing(data);
-
 			response.writeHead(200, {
 				'Content-Type': 'text/javascript'
 			});
@@ -132,14 +117,11 @@ var check_served_directories_for_requested_file = function (arr_served_paths, sp
 	var fns = [
 
 	]
-
 	var checkPath = function (path, callback) {
 		// check to see if an existing file matches up with the path that is requested.
 		// so, from that path, we use the split_path_within_js for the rest of the file path.
-
 		// then we check if such a (JS) file exists.
 	}
-
 	// fns.push([fs2.load_file_as_string, [source_path_item], function(err, res_loaded) {
 
 	// Not so sure I can use the exists function like this...
@@ -159,7 +141,6 @@ var check_served_directories_for_requested_file = function (arr_served_paths, sp
 			[]
 		]);
 	});
-
 	call_multi(fns, function (err, res_multi) {
 		if (err) {
 			console.log('err ' + err);
@@ -174,9 +155,7 @@ var check_served_directories_for_requested_file = function (arr_served_paths, sp
 				callback(null, null);
 			}
 		}
-	})
-
-	// add a function check for each of the
+	});
 }
 
 // A way of serving a file so that it includes custom code.
@@ -186,34 +165,25 @@ var check_served_directories_for_requested_file = function (arr_served_paths, sp
 //  Those page controls would know which control types are within them.
 //  That info could then be used to write JS code that sets up the references on the client.
 
-
-
 // Possibly this should have its own routing tree to connect paths with js files?
 //  Need to set up custom paths.
-
-
 
 class Site_JavaScript extends Resource {
 	//'fields': {
 	//	'custom_paths': 'data_object'
 	//},
-
 	constructor(spec) {
 		super(spec);
-
 		//this.meta.set('custom_paths', new Data_Object({}));
 		this.custom_paths = new Data_Object({});
 		// Those are custom file paths.
 		// could have a collection of directories, indexed by name, that get served.
 		// Index the collection by string value?
-
 		//this.meta.set('served_directories', new Collection({'index_by': 'name'}));
 		this.served_directories = new Collection({
 			'index_by': 'name'
 		});
-
 	}
-
 	'start'(callback) {
 		//console.log('Site_JavaScript start');
 		var build_on_start = this.build_on_start;
@@ -231,35 +201,23 @@ class Site_JavaScript extends Resource {
 		// Let's have it build the client-side code.
 		//  Need the options to ignore various files, as well as to include the source maps in the output.
 	}
-
 	// build client, and serve it from one particular place
 	//  do so with a promise.
-
 	// serve_package
-
 	// Need to bundle / build together a package from the disk path, then serve it under a URL route.
-
-
-
-
 
 	// want to give it the file to build.
 	// There will be a variety of jsgui packages.
 
 	'build_client'(callback) {
 		// Need the reference relative to the application directory.
-
 		//var path = __dirname + '/js/app.js';
 		var appDir = path.dirname(require.main.filename);
 		//console.log('appDir', appDir);
-
 		var app_path = appDir + '/js/app.js';
 		var app_bundle_path = appDir + '/js/app-bundle.js';
-
-		//
 		var wstream = fs.createWriteStream(app_bundle_path);
 		var b = browserify();
-
 		//b.require(app_path, {
 		//	entry: true,
 		//	debug: true
@@ -272,15 +230,12 @@ class Site_JavaScript extends Resource {
 		b.bundle().pipe(wstream);
 
 		wstream.end = function (data) {
-
 			//console.log('file bundle write complete');
-
 			callback(null, app_bundle_path);
 			// no more writes after end
 			// emit "close" (optional)
 		}
 	}
-
 	// Will could serve all jsgui code?
 	//  May be better not to allow server-side code to be read on the client.
 	//  Could have specific directories within jsgui that get served to the client.
@@ -295,29 +250,18 @@ class Site_JavaScript extends Resource {
 		});
 		//console.log('served_directories ' + stringify(served_directories));
 		//console.log('path ' + path);
-
 		//throw 'stop';
-
 	}
-
 	// Want to be able to serve specific js files.
-
 	// Need better syntax than this:
 	//  //site_js.meta.set('custom_paths.js/modernizr-latest☺js', './client/js/modernizr-latest.js');
-
 	// .set_custom_path(url, fileName)
 	//  would need to appear in the main routing tree perhaps?
 
 	// However, may set it using a buffer, not a file path.
 	// The app-bundle may be created on application start.
-
 	// options...
-
-
-
 	// but serving a package when we have the path will be a little different.
-
-
 	// However, loading it from disk allows for content replacement better.
 	//  However, supply the package ourselves, and its fine.
 
@@ -325,12 +269,9 @@ class Site_JavaScript extends Resource {
 		console.log('serve_package', url, js_package);
 		console.log('js_package', js_package);
 		console.log('typeof js_package', typeof js_package);
-
 		let tjp = typeof js_package;
-
 		return this.serve_package_from_path(url, require.resolve(js_package), options, callback);
 	}
-
 
 	'package'(js_file_path, options = {}, callback) {
 
@@ -346,13 +287,10 @@ class Site_JavaScript extends Resource {
 		return prom_or_cb((resolve, reject) => {
 			(async () => {
 				// options
-
 				// may want a replacement within the client-side code.
-
 				// Can we call browserify on the code string?
 				//  Creating a modified copy of the file would do.
 				//  Load the file, modify it, save it under a different name
-
 
 				let s = new require('stream').Readable(),
 					path = require('path').parse(js_file_path);
@@ -361,7 +299,6 @@ class Site_JavaScript extends Resource {
 				//console.log('1) fileContents.length', fileContents.length);
 				// are there any replacements to do?
 				// options.replacements
-
 
 				if (options.js_mode === 'debug') {
 					options.include_sourcemaps = true;
@@ -406,7 +343,7 @@ class Site_JavaScript extends Resource {
 				let str_js = buf_js.toString();
 
 				let babel_option = options.babel
-				console.log('babel_option', babel_option);
+				//console.log('babel_option', babel_option);
 				if (babel_option === 'es5') {
 
 					let o_tranform = {
@@ -422,8 +359,6 @@ class Site_JavaScript extends Resource {
 
 					if (options.include_sourcemaps) o_tranform.sourceMaps = 'inline';
 					let res_transform = babel.transform(str_js, o_tranform);
-
-
 					//console.log('res_transform', res_transform);
 					//console.log('Object.keys(res_transform)', Object.keys(res_transform));
 					let jst_es5 = res_transform.code;
@@ -431,14 +366,12 @@ class Site_JavaScript extends Resource {
 					//console.log('jst_es5.length', jst_es5.length);
 					buf_js = Buffer.from(jst_es5);
 				} else if (babel_option === 'mini') {
-
 					/*
 					let o_transform = {
 						presets: ["minify"]//,
 						//'sourceMaps': 'inline'
 					};
 					*/
-
 					let o_transform = {
 						"presets": [
 							["minify", {
@@ -453,34 +386,25 @@ class Site_JavaScript extends Resource {
 						],
 						//plugins: ["minify-dead-code-elimination"]
 					};
-
 					if (options.include_sourcemaps) o_transform.sourceMaps = 'inline';
 
 					let res_transform = babel.transform(str_js, o_transform);
 					buf_js = Buffer.from(res_transform.code);
-
 				} else {
 					buf_js = Buffer.from(str_js);
 				}
-
 				//var escaped_url = url.replace(/\./g, '☺');
-
 				//console.log('pre brot buf_js.length', buf_js.length);
 				//console.trace();
-
 				/*
-
 				brotli(buf_js, (err, buffer) => {
 					console.log('* brotli deflated buffer.length', buffer.length);
-
 					if (err) {
 						reject(err);
 					} else {
-
 						// 
 						buffer.encoding = 'br';
 						//this.custom_paths.set(escaped_url, buffer);
-
 						resolve(buffer);
 					}
 				});
@@ -489,12 +413,10 @@ class Site_JavaScript extends Resource {
 			})();
 		}, callback);
 	}
-
 	// Can't use this for scs any longer I think.
 	'serve_package_from_path'(url, js_file_path, options = {}, callback) {
 		console.log('serve_package_from_path', url, js_file_path);
 		// js_mode option may need to be used.
-
 		let a = arguments;
 		if (typeof a[2] === 'function') {
 			callback = a[2];
@@ -503,19 +425,14 @@ class Site_JavaScript extends Resource {
 				'include_sourcemaps': true
 			};
 		}
-
 		let accepts_brotli = false;
-
 		return prom_or_cb((resolve, reject) => {
 			(async () => {
 				// options
-
 				// may want a replacement within the client-side code.
-
 				// Can we call browserify on the code string?
 				//  Creating a modified copy of the file would do.
 				//  Load the file, modify it, save it under a different name
-
 
 				let s = new require('stream').Readable(),
 					path = require('path').parse(js_file_path);
@@ -524,7 +441,6 @@ class Site_JavaScript extends Resource {
 				//console.log('1) fileContents.length', fileContents.length);
 				// are there any replacements to do?
 				// options.replacements
-
 				if (options.js_mode === 'debug') {
 					options.include_sourcemaps = true;
 				}
@@ -532,7 +448,6 @@ class Site_JavaScript extends Resource {
 					options.include_sourcemaps = false;
 					options.babel = 'mini';
 				}
-
 				if (options.replace) {
 					let s_file_contents = fileContents.toString();
 					//console.log('s_file_contents', s_file_contents);
@@ -550,9 +465,7 @@ class Site_JavaScript extends Resource {
 				//  We have a space for client-side activation.
 				s.push(fileContents);
 				s.push(null);
-
 				//let include_sourcemaps = true;
-
 				let b = browserify(s, {
 					basedir: path.dir,
 					//builtins: false,
@@ -560,7 +473,6 @@ class Site_JavaScript extends Resource {
 					'debug': options.include_sourcemaps
 				});
 				// Prefer the idea of sending a stream to browserify.
-
 				let parts = await stream_to_array(b.bundle());
 				/*
 				var b = browserify([js_file_path], {
@@ -582,7 +494,6 @@ class Site_JavaScript extends Resource {
 				if (babel_option === 'es5') {
 					// es5 option
 					//  not sure if it babels async await though.
-
 					/*
 					{
 						"presets": [
@@ -594,7 +505,6 @@ class Site_JavaScript extends Resource {
 						]
 						}
 					*/
-
 					/*
 					let res_transform = babel.transform(str_js, {
 						//'plugins': ['transform-class']
@@ -604,7 +514,6 @@ class Site_JavaScript extends Resource {
 						// transform-es2015-object-super
 					});
 					*/
-
 					let o_tranform = {
 						"presets": [
 							"es2015",
@@ -615,11 +524,8 @@ class Site_JavaScript extends Resource {
 						] //,
 						//'sourceMaps': 'inline'
 					};
-
 					if (options.include_sourcemaps) o_tranform.sourceMaps = 'inline';
 					let res_transform = babel.transform(str_js, o_tranform);
-
-
 					//console.log('res_transform', res_transform);
 					//console.log('Object.keys(res_transform)', Object.keys(res_transform));
 					let jst_es5 = res_transform.code;
@@ -627,14 +533,12 @@ class Site_JavaScript extends Resource {
 					//console.log('jst_es5.length', jst_es5.length);
 					buf_js = Buffer.from(jst_es5);
 				} else if (babel_option === 'mini') {
-
 					/*
 					let o_transform = {
 						presets: ["minify"]//,
 						//'sourceMaps': 'inline'
 					};
 					*/
-
 					let o_transform = {
 						"presets": [
 							["minify", {
@@ -651,13 +555,11 @@ class Site_JavaScript extends Resource {
 					};
 
 					if (options.include_sourcemaps) o_transform.sourceMaps = 'inline';
-
 					let res_transform = babel.transform(str_js, o_transform);
 					//let jst_es5 = res_transform.code;
 					//let {jst_es5, map, ast} = babel.transform(str_js);
 					//console.log('jst_es5.length', jst_es5.length);
 					buf_js = Buffer.from(res_transform.code);
-
 					/*
 					{
 					"presets": [["minify", {
@@ -670,7 +572,6 @@ class Site_JavaScript extends Resource {
 						"keepFnName": true
 					}]]
 					}
-
 					*/
 					//
 

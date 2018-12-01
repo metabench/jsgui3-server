@@ -15,9 +15,9 @@
     "cookies": "^0.7.2",
     "fnl": "^0.0.7",
     "fnlfs": "^0.0.6",
-    "iltorb": "^2.4.0",
-    "jsgui3-client": "^0.0.9",
-    "jsgui3-html": "0.0.16",
+    "iltorb": "^2.4.1",
+    "jsgui3-client": "^0.0.10",
+    "jsgui3-html": "0.0.17",
     "ncp": "^2.0.0",
     "obext": "^0.0.4",
     "rimraf": "^2.6.2",
@@ -33,5 +33,5 @@
     "type": "git",
     "url": "https://github.com/metabench/jsgui3-server.git"
   },
-  "version": "0.0.11"
+  "version": "0.0.12"
 }

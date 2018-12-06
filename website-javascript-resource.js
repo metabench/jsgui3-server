@@ -746,11 +746,11 @@ class Site_JavaScript extends Resource {
 			let t = tof(custom_response_entry._);
 			console.log('t', t);
 			if (t === 'buffer') {
-				console.log('sending js');
+				//console.log('sending js');
 				let o_head = {
 					'Content-Type': 'text/javascript'
 				}
-				console.log('custom_response_entry._.encoding', custom_response_entry._.encoding);
+				//console.log('custom_response_entry._.encoding', custom_response_entry._.encoding);
 				if (custom_response_entry._.encoding) {
 
 					o_head['Content-Encoding'] = custom_response_entry._.encoding;
@@ -758,10 +758,10 @@ class Site_JavaScript extends Resource {
 
 				res.writeHead(200, o_head);
 				//response.end(servableJs);
-				console.log('custom_response_entry._', custom_response_entry._);
-				console.log('custom_response_entry._.length', custom_response_entry._.length);
+				//console.log('custom_response_entry._', custom_response_entry._);
+				//console.log('custom_response_entry._.length', custom_response_entry._.length);
 				res.end(custom_response_entry._);
-				console.log('response js written');
+				//console.log('response js written');
 
 			} else {
 				var file_path = custom_response_entry.value();

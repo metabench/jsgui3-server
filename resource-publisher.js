@@ -4,6 +4,7 @@
 // then handle...
 //  need to handle http requests, for the resource.
 const zlib = require('zlib');
+const Cookies = require('cookies');
 
 class Resource_Publisher {
     constructor(spec) {
@@ -40,32 +41,77 @@ class Resource_Publisher {
 
             (async () => {
                 if (method === 'GET') {
-                    console.log('Resource_Publisher GET resource_url_parts');
-                    let r = await this.resource.get(resource_url_parts);
-                    if (r !== undefined) {
-                        //console.log('r', r);
-                        // Then turn it to JSON.
-                        // to server output json.
-                        let j = JSON.stringify(r);
-                        zlib.gzip(j, (error, result) => {
-                            if (error) {
-                                throw error;
-                            } else {
-                                // console.log(result);
-                                res.setHeader('Content-Type', 'application/json');
-                                res.setHeader('Content-Encoding', 'gzip');
-                                res.setHeader('Content-Length', result.length);
-                                // compress with gzip
-                                res.end(result);
-                            }
-                        });
-                        //console.log('j', j);
-                        //console.log('typeof r', typeof r);
+                    let cookies = new Cookies(req, res);
+
+                    let jwt_cookie = cookies.get('jwt') || cookies.get('Authentication');
+                    let auth_info, r;
+                    if (jwt_cookie) {
+                        auth_info = this.resource.authenticate(jwt_cookie);
+                        let user_key = auth_info.key;
+
                     }
+
+                    //console.log('auth_info', auth_info);
+
+                    //console.log('Resource_Publisher GET resource_url_parts');
+
+                    // 
+
+                    // True just means default authorization.
+                    if (auth_info && auth_info !== true) {
+
+                        let r = await this.resource.get(auth_info, resource_url_parts);
+
+                        if (r !== undefined) {
+                            //console.log('r', r);
+                            // Then turn it to JSON.
+                            // to server output json.
+                            let j = JSON.stringify(r);
+                            zlib.gzip(j, (error, result) => {
+                                if (error) {
+                                    throw error;
+                                } else {
+                                    // console.log(result);
+                                    res.setHeader('Content-Type', 'application/json');
+                                    res.setHeader('Content-Encoding', 'gzip');
+                                    res.setHeader('Content-Length', result.length);
+                                    // compress with gzip
+                                    res.end(result);
+                                }
+                            });
+                            //console.log('j', j);
+                            //console.log('typeof r', typeof r);
+                        }
+                    } else {
+                        let r = await this.resource.get(resource_url_parts);
+                        if (r !== undefined) {
+                            //console.log('r', r);
+                            // Then turn it to JSON.
+                            // to server output json.
+                            let j = JSON.stringify(r);
+                            zlib.gzip(j, (error, result) => {
+                                if (error) {
+                                    throw error;
+                                } else {
+                                    // console.log(result);
+                                    res.setHeader('Content-Type', 'application/json');
+                                    res.setHeader('Content-Encoding', 'gzip');
+                                    res.setHeader('Content-Length', result.length);
+                                    // compress with gzip
+                                    res.end(result);
+                                }
+                            });
+                            //console.log('j', j);
+                            //console.log('typeof r', typeof r);
+                        }
+                    }
+
+
+
                 }
                 if (method === 'POST') {
-                    console.log('Resource_Publisher POST resource_url_parts');
-                    console.log('resource_url_parts', resource_url_parts);
+                    //console.log('Resource_Publisher POST resource_url_parts');
+                    //console.log('resource_url_parts', resource_url_parts);
 
                     const bufs = [];
                     req.on('data', function (data) {
@@ -78,7 +124,6 @@ class Resource_Publisher {
                         //console.log("Body: " + body);
                         let obj = JSON.parse(buf.toString());
                         console.log('obj', obj);
-
 
                         try {
                             let r = await this.resource.post(obj);
@@ -103,19 +148,15 @@ class Resource_Publisher {
                                 //console.log('typeof r', typeof r);
                             }
                         } catch (err) {
-
                             res.statusCode = 400;
                             res.setHeader('Content-Type', 'application/json');
                             let s_err = err.toString();
                             res.setHeader('Content-Length', s_err.length);
-                            console.log('s_err', s_err);
+                            //console.log('s_err', s_err);
                             res.end(s_err);
                             //var e = new Error('error message');
                             //next(e);
-
                         }
-
-
                     });
                     /*
                     res.writeHead(200, {

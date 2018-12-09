@@ -176,14 +176,11 @@ class Single_Control_Server extends Server {
             })
         }
 
-
-
         let js_client = this.client_package || this.js_client || 'jsgui3-client';
 
         js.serve_package('/js/app.js', js_client, o_serve_package, (err, served) => {
             //var resource_pool = this.resource_pool;
             //console.log('server_router', server_router);
-
             //console.log('js_client', js_client);
 
             if (!server_router) {

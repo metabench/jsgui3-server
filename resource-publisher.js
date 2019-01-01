@@ -52,7 +52,7 @@ class Resource_Publisher {
 
                     }
 
-                    //console.log('auth_info', auth_info);
+                    //console.log('publish resource get auth_info', auth_info);
 
                     //console.log('Resource_Publisher GET resource_url_parts');
 

@@ -935,22 +935,12 @@ class Site_Images extends Resource {
 
                     //console.log('splitPath', splitPath);
 
-
-
-
-
-
                     if (splitPath.length > 1) {
-
                         // At this point, can look for the file on disk within the app directory.
-
                         //console.log('rurl', rurl);
                         //console.log('req.url', req.url);
 
-
                         // replace /images/ with /img/
-
-
 
                         var project_disk_path = req.url.replace('images/', 'img/');
                         if (project_disk_path.substr(0, 1) == '/') project_disk_path = project_disk_path.substr(1);
@@ -968,14 +958,9 @@ class Site_Images extends Resource {
                                 // Want top have a very versitile web_data resource that uses a DB, but also to have the means to interact with the files on disk
                                 //  in the project directory.
 
-
-
-
                                 throw 'stop';
 
                                 if (splitPath.length == 2) {
-
-
 
 
                                     // Could check options to see if to look in the database, or the file system.

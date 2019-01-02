@@ -11,13 +11,15 @@
 // Some of the wiring could be done automatically.
 //
 
-var jsgui = require('../server/server');
-var Start_Stop_Toggle_Button = require('../controls/start-stop-toggle-button');
-var Color_Palette = require('../controls/color-palette');
+var jsgui = require('jsgui3-html');
 
-var Server = jsgui.Server;
+
+var Start_Stop_Toggle_Button = jsgui.Start_Stop_Toggle_Button;
+var Color_Palette = jsgui.Color_Palette;
+
+var Server = require('../server');
 var port = 8000;
-var Server_Page_Context = Server.Page_Context;
+var Server_Page_Context = require('../page-context');
 
 var server = new Server({
 	'routes': {

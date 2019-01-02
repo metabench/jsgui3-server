@@ -16,8 +16,8 @@
     "fnl": "^0.0.7",
     "fnlfs": "^0.0.6",
     "iltorb": "^2.4.1",
-    "jsgui3-client": "^0.0.22",
-    "jsgui3-html": "0.0.43",
+    "jsgui3-client": "^0.0.23",
+    "jsgui3-html": "0.0.45",
     "ncp": "^2.0.0",
     "obext": "^0.0.4",
     "rimraf": "^2.6.2",
@@ -33,5 +33,5 @@
     "type": "git",
     "url": "https://github.com/metabench/jsgui3-server.git"
   },
-  "version": "0.0.22"
+  "version": "0.0.23"
 }

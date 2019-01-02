@@ -42,21 +42,33 @@ class Resource_Publisher {
             (async () => {
                 let cookies = new Cookies(req, res);
                 if (method === 'GET') {
-                    
+
 
                     let jwt_cookie = cookies.get('jwt') || cookies.get('Authentication');
                     let auth_info, r;
+
+                    let restricted = false;
+
                     if (jwt_cookie) {
                         auth_info = this.resource.authenticate(jwt_cookie);
                         let user_key = auth_info.key;
 
+                        // Could provide further data...
+                    } else {
+                        // if there is an authenticate function but no cookie...
+
+                        if (this.resource.authenticate) {
+                            restricted = true;
+                        }
+
                     }
 
                     //console.log('publish resource get auth_info', auth_info);
+                    //console.trace();
 
                     //console.log('Resource_Publisher GET resource_url_parts');
-
                     // 
+
 
                     // True just means default authorization.
                     let serve_result = (r) => {
@@ -82,16 +94,22 @@ class Resource_Publisher {
                         }
                     }
 
-                    if (auth_info && auth_info !== true) {
-
-                        let r = await this.resource.get(auth_info, resource_url_parts);
-                        serve_result(r);
-                    } else {
-                        let r = await this.resource.get(resource_url_parts);
-                        serve_result(r);
+                    let serve_access_error = () => {
+                        //res.sendStatus(403);
+                        res.status(500).send({ error: "access denied" });
                     }
 
-
+                    if (!restricted) {
+                        if (auth_info && auth_info !== true) {
+                            let r = await this.resource.get(auth_info, resource_url_parts);
+                            serve_result(r);
+                        } else {
+                            let r = await this.resource.get(resource_url_parts);
+                            serve_result(r);
+                        }
+                    } else {
+                        serve_access_error();
+                    }
 
                 }
                 if (method === 'POST') {
@@ -103,9 +121,7 @@ class Resource_Publisher {
                     if (jwt_cookie) {
                         auth_info = this.resource.authenticate(jwt_cookie);
                         let user_key = auth_info.key;
-
                     }
-
 
                     const bufs = [];
                     req.on('data', function (data) {
@@ -118,14 +134,11 @@ class Resource_Publisher {
                         //console.log("Body: " + body);
                         let obj = JSON.parse(buf.toString());
                         //console.log('POST obj', obj);
-
                         let serve_result = r => {
-
                             if (r !== undefined) {
-                                //console.log('r', r);
+                                console.log('serve_result r', r);
                                 // Then turn it to JSON.
                                 // to server output json.
-
                                 let j = JSON.stringify(r);
                                 zlib.gzip(j, (error, result) => {
                                     if (error) {
@@ -149,7 +162,7 @@ class Resource_Publisher {
                                 //console.log('pre resource post obj', obj);
                                 //console.log('this.resource', this.resource);
                                 let r = await this.resource.post(auth_info, obj);
-                                //console.log('r', r);
+                                console.log('r', r);
                                 serve_result(r);
                             } else {
                                 //console.log('pre resource post');
@@ -195,8 +208,6 @@ class Resource_Publisher {
         // lets stick with status.json
 
         // could do status diffs too on the client.
-
-
     }
 
     // override handle_http

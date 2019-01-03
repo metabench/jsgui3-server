@@ -42,25 +42,29 @@ class Resource_Publisher {
             (async () => {
                 let cookies = new Cookies(req, res);
                 if (method === 'GET') {
-
-
                     let jwt_cookie = cookies.get('jwt') || cookies.get('Authentication');
                     let auth_info, r;
 
                     let restricted = false;
 
+                    //console.log('jwt_cookie', jwt_cookie);
+
                     if (jwt_cookie) {
-                        auth_info = this.resource.authenticate(jwt_cookie);
-                        let user_key = auth_info.key;
+
+                        if (this.resource.authenticate) {
+                            auth_info = this.resource.authenticate(jwt_cookie);
+                            //let user_key = auth_info.key;
+                        }
 
                         // Could provide further data...
                     } else {
                         // if there is an authenticate function but no cookie...
 
-                        if (this.resource.authenticate) {
-                            restricted = true;
-                        }
+                        //console.log('this.resource.authenticate', this.resource.authenticate);
 
+                        if (this.resource.authenticate) {
+                            restricted = !this.resource.authenticate();
+                        }
                     }
 
                     //console.log('publish resource get auth_info', auth_info);
@@ -69,6 +73,7 @@ class Resource_Publisher {
                     //console.log('Resource_Publisher GET resource_url_parts');
                     // 
 
+                    //console.log('restricted', restricted);
 
                     // True just means default authorization.
                     let serve_result = (r) => {
@@ -96,7 +101,9 @@ class Resource_Publisher {
 
                     let serve_access_error = () => {
                         //res.sendStatus(403);
-                        res.status(500).send({ error: "access denied" });
+                        //res.status(500).send({ error: "access denied" });
+                        res.writeHead(403);
+                        res.end('Access Denied');
                     }
 
                     if (!restricted) {
@@ -104,10 +111,14 @@ class Resource_Publisher {
                             let r = await this.resource.get(auth_info, resource_url_parts);
                             serve_result(r);
                         } else {
+
+                            console.log('resource_url_parts', resource_url_parts);
+                            console.log('pre resource get');
                             let r = await this.resource.get(resource_url_parts);
                             serve_result(r);
                         }
                     } else {
+                        console.log('restricted, so there is an error');
                         serve_access_error();
                     }
 
@@ -209,9 +220,7 @@ class Resource_Publisher {
 
         // could do status diffs too on the client.
     }
-
     // override handle_http
-
 }
 
 

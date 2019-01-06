@@ -15,7 +15,7 @@ class Resource_Publisher {
     handle_http(req, res) {
         //console.log('Resource_Publisher handle HTTP');
         // then the http request params...
-        //console.log('req', req);
+        //console.log('req.url', req.url);
         let {
             headers,
             url,
@@ -90,6 +90,19 @@ class Resource_Publisher {
                                     res.setHeader('Content-Type', 'application/json');
                                     res.setHeader('Content-Encoding', 'gzip');
                                     res.setHeader('Content-Length', result.length);
+
+                                    res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+                                    res.setHeader('Pragma', 'no-cache');
+                                    res.setHeader('Expires', '0');
+
+
+                                    /*
+
+                                    Cache-Control: no-cache, no-store, must-revalidate
+                                    Pragma: no-cache
+                                    Expires: 0
+                                    */
+
                                     // compress with gzip
                                     res.end(result);
                                 }

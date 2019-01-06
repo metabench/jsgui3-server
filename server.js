@@ -1,13 +1,13 @@
-
-
-
 //var sockjs = require('sockjs'), jsgui = require('jsgui3-html'),
 const jsgui = require('jsgui3-html'),
-    os = require('os'), http = require('http'),
+    os = require('os'),
+    http = require('http'),
+    https = require('https'),
     Resource = jsgui.Resource,
     Server_Resource_Pool = require('./server-resource-pool'),
     Router = jsgui.Router,
-    Website_Resource = require('./website-resource'), Info = require('./local-server-info-resource'),
+    Website_Resource = require('./website-resource'),
+    Info = require('./local-server-info-resource'),
     Server_Page_Context = require('./page-context');
 
 // Login = require('../resource/login'),
@@ -20,10 +20,14 @@ const Resource_Publisher = require('./resource-publisher');
 
 // This should be running in node.js
 
-var stringify = jsgui.stringify, each = jsgui.each, arrayify = jsgui.arrayify, tof = jsgui.tof;
+var stringify = jsgui.stringify,
+    each = jsgui.each,
+    arrayify = jsgui.arrayify,
+    tof = jsgui.tof;
 var filter_map_by_regex = jsgui.filter_map_by_regex;
 var Data_Object = jsgui.Data_Object;
-var fp = jsgui.fp, is_defined = jsgui.is_defined;
+var fp = jsgui.fp,
+    is_defined = jsgui.is_defined;
 var Collection = jsgui.Collection;
 
 var exec = require('child_process').exec;
@@ -101,6 +105,10 @@ class JSGUI_Server extends jsgui.Data_Object {
         //  And then set some things up on the website resource...
         //   using the app spec.
 
+        if (spec.https_options) {
+            this.https_options = spec.https_options;
+        }
+
         if (spec.routes) {
             each(spec.routes, (app_spec, route) => {
 
@@ -116,7 +124,7 @@ class JSGUI_Server extends jsgui.Data_Object {
                 //throw 'stop';
                 resource_pool.add(app);
                 server_router.set_route(route, app, app.process);
-                
+
                 // And set it to that route in the routing table.
             })
         }
@@ -221,7 +229,7 @@ class JSGUI_Server extends jsgui.Data_Object {
                         //  Host on every ipv4 address for the moment.
 
                         var arr_ipv4_addresses = [];
-                        
+
                         each(net, (arr_addresses, name) => {
                             each(arr_addresses, (obj_address) => {
                                 if (obj_address.family === 'IPv4') {
@@ -231,28 +239,71 @@ class JSGUI_Server extends jsgui.Data_Object {
                         });
                         let num_to_start = arr_ipv4_addresses.length;
 
-                        each(arr_ipv4_addresses, (ipv4_address) => {
-                            var http_server = http.createServer(function (req, res) {
-                                //console.log('process server request');
+                        if (that.https_options) {
+                            each(arr_ipv4_addresses, (ipv4_address) => {
 
-                                var server_routing_res = server_router.process(req, res);
+                                var https_server = https.createServer(that.https_options, function (req, res) {
+                                    //console.log('process server request.url', req.url);
 
-                                //console.log('server_routing_res', server_routing_res);
+                                    var server_routing_res = server_router.process(req, res);
 
+                                    //console.log('server_routing_res', server_routing_res);
+
+                                });
+
+                                // server could have been given https options
+
+                                https_server.timeout = 10800000;
+                                //if (ipAddress.value) ipAddress = ipAddress.value();
+                                //console.log('ipAddress', ipAddress);
+
+                                https_server.listen(443, ipv4_address);
+                                //http_server.listen(port, ipv4_address);
+
+                                //console.log('* Server running at https://' + ipv4_address + ':' + 443 + '/');
+                                num_to_start--;
+
+                                //console.log('num_to_start', num_to_start);
+
+                                if (num_to_start === 0) {
+                                    callback(null, true);
+                                }
                             });
-                            http_server.timeout = 10800000;
-                            //if (ipAddress.value) ipAddress = ipAddress.value();
-                            //console.log('ipAddress', ipAddress);
-                            http_server.listen(port, ipv4_address);
-                            console.log('* Server running at http://' + ipv4_address + ':' + port + '/');
-                            num_to_start--;
 
-                            console.log('num_to_start', num_to_start);
+                        } else {
+                            each(arr_ipv4_addresses, (ipv4_address) => {
 
-                            if (num_to_start === 0) {
-                                callback(null, true);
-                            }
-                        });
+                                var http_server = http.createServer(function (req, res) {
+                                    //console.log('process server request');
+
+                                    var server_routing_res = server_router.process(req, res);
+
+                                    //console.log('server_routing_res', server_routing_res);
+
+                                });
+
+                                // server could have been given https options
+
+                                http_server.timeout = 10800000;
+                                //if (ipAddress.value) ipAddress = ipAddress.value();
+                                //console.log('ipAddress', ipAddress);
+                                http_server.listen(port, ipv4_address);
+
+
+
+                                console.log('* Server running at http://' + ipv4_address + ':' + port + '/');
+                                num_to_start--;
+
+                                console.log('num_to_start', num_to_start);
+
+                                if (num_to_start === 0) {
+                                    callback(null, true);
+                                }
+                            });
+                        }
+
+
+
 
                         //throw 'stop';
                     }
@@ -343,7 +394,9 @@ class JSGUI_Server extends jsgui.Data_Object {
         var html = jsgui_html_document.all_html_render();
         var mime_type = 'text/html';
         //console.log('mime_type ' + mime_type);
-        res.writeHead(200, { 'Content-Type': mime_type });
+        res.writeHead(200, {
+            'Content-Type': mime_type
+        });
         res.end(html, 'utf-8');
     }
 }
@@ -354,18 +407,5 @@ JSGUI_Server.Resource = Resource;
 JSGUI_Server.Page_Context = Server_Page_Context;
 JSGUI_Server.Server_Page_Context = Server_Page_Context;
 JSGUI_Server.Website_Resource = Website_Resource;
-//Server.JSGUI_Server = JSGUI_Server;
-
-//jsgui.Server = JSGUI_Server;
-
-//console.log('!!JSGUI_Server', !!JSGUI_Server);
-//jsgui.fs2 = require('./fs2');
-//jsgui.Resource = Resource;
-//console.log('pre scs');
-//jsgui.Single_Control_Server = require('./single-control-server');
-//console.log('post scs');
-//console.log('3)jsgui', jsgui);
-
-//console.log('JSGUI_Server', JSGUI_Server);
 
 module.exports = JSGUI_Server;

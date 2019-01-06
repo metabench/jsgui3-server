@@ -425,6 +425,7 @@ class Site_JavaScript extends Resource {
 				'include_sourcemaps': true
 			};
 		}
+		let serve_raw = options.serve_raw || options.raw;
 		let accepts_brotli = false;
 		return prom_or_cb((resolve, reject) => {
 			(async () => {
@@ -463,164 +464,176 @@ class Site_JavaScript extends Resource {
 				}
 				// Then we can replace some of the file contents with specific content given when we tall it to serve that file.
 				//  We have a space for client-side activation.
-				s.push(fileContents);
-				s.push(null);
-				//let include_sourcemaps = true;
-				let b = browserify(s, {
-					basedir: path.dir,
-					//builtins: false,
-					builtins: ['buffer'],
-					'debug': options.include_sourcemaps
-				});
-				// Prefer the idea of sending a stream to browserify.
-				let parts = await stream_to_array(b.bundle());
-				/*
-				var b = browserify([js_file_path], {
-					'debug': true
-				});
-				*/
-				//let parts = await stream_to_array(b.bundle());
-				const buffers = parts
-					.map(part => util.isBuffer(part) ? part : Buffer.from(part));
-				let buf_js = Buffer.concat(buffers);
-				let str_js = buf_js.toString();
 
-				//console.log('buf_js.length', buf_js.length);
-				//console.log('str_js.length', str_js.length);
-				// options.babel === true
+				// want a raw option with no browserify.
 
-				let babel_option = options.babel
-				//console.log('babel_option', babel_option);
-				if (babel_option === 'es5') {
-					// es5 option
-					//  not sure if it babels async await though.
+				if (serve_raw) {
+					var escaped_url = url.replace(/\./g, '☺');
+					this.custom_paths.set(escaped_url, fileContents);
+				} else {
+					s.push(fileContents);
+					s.push(null);
+					//let include_sourcemaps = true;
+					let b = browserify(s, {
+						basedir: path.dir,
+						//builtins: false,
+						builtins: ['buffer'],
+						'debug': options.include_sourcemaps
+					});
+					// Prefer the idea of sending a stream to browserify.
+					let parts = await stream_to_array(b.bundle());
 					/*
-					{
-						"presets": [
-							"es2015",
-							"es2017"
-						],
-						"plugins": [
-							"transform-runtime"
-						]
-						}
-					*/
-					/*
-					let res_transform = babel.transform(str_js, {
-						//'plugins': ['transform-class']
-						'plugins': ['transform-es2015-object-super', 'transform-es2015-classes', 'remove-comments'],
-						'sourceMaps': 'inline'
-						//'plugins': ['transform-es2015-classes']
-						// transform-es2015-object-super
+					var b = browserify([js_file_path], {
+						'debug': true
 					});
 					*/
-					let o_tranform = {
-						"presets": [
-							"es2015",
-							"es2017"
-						],
-						"plugins": [
-							"transform-runtime"
-						] //,
-						//'sourceMaps': 'inline'
-					};
-					if (options.include_sourcemaps) o_tranform.sourceMaps = 'inline';
-					let res_transform = babel.transform(str_js, o_tranform);
-					//console.log('res_transform', res_transform);
-					//console.log('Object.keys(res_transform)', Object.keys(res_transform));
-					let jst_es5 = res_transform.code;
-					//let {jst_es5, map, ast} = babel.transform(str_js);
-					//console.log('jst_es5.length', jst_es5.length);
-					buf_js = Buffer.from(jst_es5);
-				} else if (babel_option === 'mini') {
-					/*
-					let o_transform = {
-						presets: ["minify"]//,
-						//'sourceMaps': 'inline'
-					};
-					*/
-					let o_transform = {
-						"presets": [
-							["minify", {
-								//"mangle": {
-								//"exclude": ["MyCustomError"]
-								//},
-								//"unsafe": {
-								//	"typeConstructors": false
-								//},
-								//"keepFnName": true
-							}]
-						],
-						//plugins: ["minify-dead-code-elimination"]
-					};
+					//let parts = await stream_to_array(b.bundle());
+					const buffers = parts
+						.map(part => util.isBuffer(part) ? part : Buffer.from(part));
+					let buf_js = Buffer.concat(buffers);
+					let str_js = buf_js.toString();
 
-					if (options.include_sourcemaps) o_transform.sourceMaps = 'inline';
-					let res_transform = babel.transform(str_js, o_transform);
-					//let jst_es5 = res_transform.code;
-					//let {jst_es5, map, ast} = babel.transform(str_js);
-					//console.log('jst_es5.length', jst_es5.length);
-					buf_js = Buffer.from(res_transform.code);
-					/*
-					{
-					"presets": [["minify", {
-						"mangle": {
-						"exclude": ["MyCustomError"]
-						},
-						"unsafe": {
-						"typeConstructors": false
-						},
-						"keepFnName": true
-					}]]
+					//console.log('buf_js.length', buf_js.length);
+					//console.log('str_js.length', str_js.length);
+					// options.babel === true
+
+					let babel_option = options.babel
+					//console.log('babel_option', babel_option);
+					if (babel_option === 'es5') {
+						// es5 option
+						//  not sure if it babels async await though.
+						/*
+						{
+							"presets": [
+								"es2015",
+								"es2017"
+							],
+							"plugins": [
+								"transform-runtime"
+							]
+							}
+						*/
+						/*
+						let res_transform = babel.transform(str_js, {
+							//'plugins': ['transform-class']
+							'plugins': ['transform-es2015-object-super', 'transform-es2015-classes', 'remove-comments'],
+							'sourceMaps': 'inline'
+							//'plugins': ['transform-es2015-classes']
+							// transform-es2015-object-super
+						});
+						*/
+						let o_tranform = {
+							"presets": [
+								"es2015",
+								"es2017"
+							],
+							"plugins": [
+								"transform-runtime"
+							] //,
+							//'sourceMaps': 'inline'
+						};
+						if (options.include_sourcemaps) o_tranform.sourceMaps = 'inline';
+						let res_transform = babel.transform(str_js, o_tranform);
+						//console.log('res_transform', res_transform);
+						//console.log('Object.keys(res_transform)', Object.keys(res_transform));
+						let jst_es5 = res_transform.code;
+						//let {jst_es5, map, ast} = babel.transform(str_js);
+						//console.log('jst_es5.length', jst_es5.length);
+						buf_js = Buffer.from(jst_es5);
+					} else if (babel_option === 'mini') {
+						/*
+						let o_transform = {
+							presets: ["minify"]//,
+							//'sourceMaps': 'inline'
+						};
+						*/
+						let o_transform = {
+							"presets": [
+								["minify", {
+									//"mangle": {
+									//"exclude": ["MyCustomError"]
+									//},
+									//"unsafe": {
+									//	"typeConstructors": false
+									//},
+									//"keepFnName": true
+								}]
+							],
+							//plugins: ["minify-dead-code-elimination"]
+						};
+
+						if (options.include_sourcemaps) o_transform.sourceMaps = 'inline';
+						let res_transform = babel.transform(str_js, o_transform);
+						//let jst_es5 = res_transform.code;
+						//let {jst_es5, map, ast} = babel.transform(str_js);
+						//console.log('jst_es5.length', jst_es5.length);
+						buf_js = Buffer.from(res_transform.code);
+						/*
+						{
+						"presets": [["minify", {
+							"mangle": {
+							"exclude": ["MyCustomError"]
+							},
+							"unsafe": {
+							"typeConstructors": false
+							},
+							"keepFnName": true
+						}]]
+						}
+						*/
+						//
+
+					} else {
+						buf_js = Buffer.from(str_js);
 					}
-					*/
-					//
+					// uglify and remove comments?
 
-				} else {
-					buf_js = Buffer.from(str_js);
+					// Coming up with different built / compressed versions makes sense.
+
+					// Need to be able to return uncompressed if client cannot accept compressed data.
+
+					//throw 'stop';
+					// Then run it through babel to change the ES6 classes into older style.
+
+					// then need to serve it under url
+
+					var escaped_url = url.replace(/\./g, '☺');
+
+					console.log('pre brot buf_js.length', buf_js.length);
+					console.trace();
+
+					if (accepts_brotli) {
+						brotli(buf_js, (err, buffer) => {
+							console.log('* brotli deflated buffer.length', buffer.length);
+
+							if (err) {
+								reject(err);
+							} else {
+
+								// 
+								buffer.encoding = 'br';
+								this.custom_paths.set(escaped_url, buffer);
+
+								resolve(true);
+							}
+							//res.writeHead(200, {
+							//	'Content-Encoding': 'deflate',
+							//	'Content-Type': 'text/javascript'
+							//});
+							//res.end(buffer);
+							//res.writeHead(200, {'Content-Type': 'text/javascript'});
+							//response.end(servableJs);
+							//res.end(minified.code);
+						});
+					} else {
+						this.custom_paths.set(escaped_url, buf_js);
+						resolve(true);
+					}
 				}
-				// uglify and remove comments?
 
-				// Coming up with different built / compressed versions makes sense.
 
-				// Need to be able to return uncompressed if client cannot accept compressed data.
 
-				//throw 'stop';
-				// Then run it through babel to change the ES6 classes into older style.
 
-				// then need to serve it under url
-
-				var escaped_url = url.replace(/\./g, '☺');
-
-				console.log('pre brot buf_js.length', buf_js.length);
-				console.trace();
-
-				if (accepts_brotli) {
-					brotli(buf_js, (err, buffer) => {
-						console.log('* brotli deflated buffer.length', buffer.length);
-
-						if (err) {
-							reject(err);
-						} else {
-
-							// 
-							buffer.encoding = 'br';
-							this.custom_paths.set(escaped_url, buffer);
-
-							resolve(true);
-						}
-						//res.writeHead(200, {
-						//	'Content-Encoding': 'deflate',
-						//	'Content-Type': 'text/javascript'
-						//});
-						//res.end(buffer);
-						//res.writeHead(200, {'Content-Type': 'text/javascript'});
-						//response.end(servableJs);
-						//res.end(minified.code);
-					});
-				} else {
-					this.custom_paths.set(escaped_url, buf_js);
-					resolve(true);
-				}
 
 				/*
 				zlib.deflate(buf_js, (err, buffer) => {

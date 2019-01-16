@@ -5,6 +5,8 @@
 //  need to handle http requests, for the resource.
 const zlib = require('zlib');
 const Cookies = require('cookies');
+const multiparty = require('multiparty');
+const util = require('util');
 
 class Resource_Publisher {
     constructor(spec) {
@@ -44,9 +46,7 @@ class Resource_Publisher {
                 if (method === 'GET') {
                     let jwt_cookie = cookies.get('jwt') || cookies.get('Authentication');
                     let auth_info, r;
-
                     let restricted = false;
-
                     //console.log('jwt_cookie', jwt_cookie);
 
                     if (jwt_cookie) {
@@ -55,24 +55,19 @@ class Resource_Publisher {
                             auth_info = this.resource.authenticate(jwt_cookie);
                             //let user_key = auth_info.key;
                         }
-
                         // Could provide further data...
                     } else {
                         // if there is an authenticate function but no cookie...
-
                         //console.log('this.resource.authenticate', this.resource.authenticate);
-
                         if (this.resource.authenticate) {
                             restricted = !this.resource.authenticate();
                         }
                     }
-
                     //console.log('publish resource get auth_info', auth_info);
                     //console.trace();
 
                     //console.log('Resource_Publisher GET resource_url_parts');
                     // 
-
                     //console.log('restricted', restricted);
 
                     // True just means default authorization.
@@ -95,9 +90,7 @@ class Resource_Publisher {
                                     res.setHeader('Pragma', 'no-cache');
                                     res.setHeader('Expires', '0');
 
-
                                     /*
-
                                     Cache-Control: no-cache, no-store, must-revalidate
                                     Pragma: no-cache
                                     Expires: 0
@@ -140,71 +133,146 @@ class Resource_Publisher {
                     //console.log('Resource_Publisher POST resource_url_parts');
                     //console.log('resource_url_parts', resource_url_parts);
 
+                    console.log('headers', headers);
+
                     let jwt_cookie = cookies.get('jwt') || cookies.get('Authentication');
                     let auth_info, r;
                     if (jwt_cookie) {
                         auth_info = this.resource.authenticate(jwt_cookie);
-                        let user_key = auth_info.key;
+                        //let user_key = auth_info.key;
+                    }
+                    const content_type = headers['content-type'];
+
+                    // 'multipart/form-data; boundary=----WebKitFormBoundaryxk08Mj2AlOPsmrGp'
+
+                    let serve_result = r => {
+                        if (r !== undefined) {
+                            console.log('serve_result r', r);
+                            // Then turn it to JSON.
+                            // to server output json.
+                            let j = JSON.stringify(r);
+                            zlib.gzip(j, (error, result) => {
+                                if (error) {
+                                    throw error;
+                                } else {
+                                    // console.log(result);
+                                    res.setHeader('Content-Type', 'application/json');
+                                    res.setHeader('Content-Encoding', 'gzip');
+                                    res.setHeader('Content-Length', result.length);
+                                    // compress with gzip
+                                    res.end(result);
+                                }
+                            });
+                            //console.log('j', j);
+                            //console.log('typeof r', typeof r);
+                        }
                     }
 
-                    const bufs = [];
-                    req.on('data', function (data) {
-                        //body += data;
-                        //console.log("Partial body: " + body);
-                        bufs.push(data);
-                    });
-                    req.on('end', async () => {
-                        const buf = Buffer.concat(bufs);
-                        //console.log("Body: " + body);
-                        let obj = JSON.parse(buf.toString());
-                        //console.log('POST obj', obj);
-                        let serve_result = r => {
-                            if (r !== undefined) {
-                                console.log('serve_result r', r);
-                                // Then turn it to JSON.
-                                // to server output json.
-                                let j = JSON.stringify(r);
-                                zlib.gzip(j, (error, result) => {
-                                    if (error) {
-                                        throw error;
-                                    } else {
-                                        // console.log(result);
-                                        res.setHeader('Content-Type', 'application/json');
-                                        res.setHeader('Content-Encoding', 'gzip');
-                                        res.setHeader('Content-Length', result.length);
-                                        // compress with gzip
-                                        res.end(result);
-                                    }
-                                });
-                                //console.log('j', j);
-                                //console.log('typeof r', typeof r);
-                            }
-                        }
+                    if (content_type.indexOf('multipart/form-data') === 0) {
+                        var form = new multiparty.Form();
+                        let files = [];
 
-                        try {
-                            if (auth_info && auth_info !== true) {
-                                //console.log('pre resource post obj', obj);
-                                //console.log('this.resource', this.resource);
-                                let r = await this.resource.post(auth_info, obj);
-                                console.log('r', r);
-                                serve_result(r);
+                        form.on('part', function (part) {
+                            //console.log('Object.keys(part)', Object.keys(part));
+                            const {
+                                headers,
+                                name,
+                                filename,
+                                readable,
+                                byteCount
+                            } = part;
+                            //console.log('readable', readable);
+                            //console.log('name', name);
+                            //console.log('filename', filename);
+
+                            var bufs = [];
+                            part.on('data', function (d) {
+                                bufs.push(d);
+                            });
+                            part.on('end', function () {
+                                var buf = Buffer.concat(bufs);
+                                console.log('buf', buf);
+                                console.log('buf.length', buf.length);
+
+                                files.push({
+                                    buffer: buf,
+                                    name: name,
+                                    filename: filename
+                                });
+                            });
+                        });
+                        form.parse(req);
+                        
+                        form.on('close', (async err => {
+                            if (err) {
+
                             } else {
-                                //console.log('pre resource post');
-                                let r = await this.resource.post(obj);
-                                serve_result(r);
+                                console.log('form ended');
+                                try {
+                                    if (auth_info && auth_info !== true) {
+                                        //console.log('pre resource post obj', obj);
+                                        //console.log('this.resource', this.resource);
+                                        //console.log('files', files);
+                                        let r = await this.resource.post(auth_info, files);
+                                        //console.log('r', r);
+                                        serve_result(r);
+                                    } else {
+                                        //console.log('pre resource post');
+                                        let r = await this.resource.post(files);
+                                        serve_result(r);
+                                    }
+                                } catch (err) {
+                                    //console.log('err', err);
+                                    res.statusCode = 400;
+                                    res.setHeader('Content-Type', 'application/json');
+                                    let s_err = err.toString();
+                                    res.setHeader('Content-Length', s_err.length);
+                                    //console.log('s_err', s_err);
+                                    res.end(s_err);
+                                    //var e = new Error('error message');
+                                    //next(e);
+                                }
                             }
-                        } catch (err) {
-                            console.log('err', err);
-                            res.statusCode = 400;
-                            res.setHeader('Content-Type', 'application/json');
-                            let s_err = err.toString();
-                            res.setHeader('Content-Length', s_err.length);
-                            //console.log('s_err', s_err);
-                            res.end(s_err);
-                            //var e = new Error('error message');
-                            //next(e);
-                        }
-                    });
+                        }));
+                    } else {
+                        const bufs = [];
+                        req.on('data', function (data) {
+                            //body += data;
+                            //console.log("Partial body: " + body);
+                            bufs.push(data);
+                        });
+                        req.on('end', async () => {
+                            const buf = Buffer.concat(bufs);
+                            // Depending on the request type...
+                            //console.log("Body: " + body);
+                            let obj = JSON.parse(buf.toString());
+                            //console.log('POST obj', obj);
+                            try {
+                                if (auth_info && auth_info !== true) {
+                                    //console.log('pre resource post obj', obj);
+                                    //console.log('this.resource', this.resource);
+                                    let r = await this.resource.post(auth_info, obj);
+                                    //console.log('r', r);
+                                    serve_result(r);
+                                } else {
+                                    //console.log('pre resource post');
+                                    let r = await this.resource.post(obj);
+                                    serve_result(r);
+                                }
+                            } catch (err) {
+                                console.log('err', err);
+                                res.statusCode = 400;
+                                res.setHeader('Content-Type', 'application/json');
+                                let s_err = err.toString();
+                                res.setHeader('Content-Length', s_err.length);
+                                //console.log('s_err', s_err);
+                                res.end(s_err);
+                                //var e = new Error('error message');
+                                //next(e);
+                            }
+                        });
+                    }
+                    // Look at the headers.
                     /*
                     res.writeHead(200, {
                         'Content-Type': 'text/html'
@@ -214,23 +282,16 @@ class Resource_Publisher {
                 }
             })();
         }
-
         // then do get on that resource.
         //  could be get subscription.
-
         // when we get an event, if it's an observable, we need to send the data back with an HTTP long poll.
         //  possibly upgrade to websockets here? server-sent events too.
-
         // The sse spec could help.
-
         // get subscription, or whatever.
         //  if an observable is returnes, can use SSE.
         //  possibly a Subscription or Resource_Subscription object?
-
         // could also check the data type expected.
-
         // lets stick with status.json
-
         // could do status diffs too on the client.
     }
     // override handle_http

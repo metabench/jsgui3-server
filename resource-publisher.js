@@ -172,6 +172,13 @@ class Resource_Publisher {
                         var form = new multiparty.Form();
                         let files = [];
 
+                        form.on('error', err => {
+                            // serve error result
+
+                            res.writeHead(500);
+                            res.end('Error: ' + err);
+                        });
+
                         form.on('part', function (part) {
                             //console.log('Object.keys(part)', Object.keys(part));
                             const {

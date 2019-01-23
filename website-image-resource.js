@@ -107,7 +107,9 @@ var mime_types = {
     'jpeg': 'image/jpeg',
     'gif': 'image/gif',
     'png': 'image/png',
-    'svg': 'image/svg+xml'
+    'svg': 'image/svg+xml',
+    'otf': 'application/font-sfnt',
+    'ttf': 'application/font-sfnt'
 }
 
 var serve_image_file_from_buffer = function(buffer, filename, response) {

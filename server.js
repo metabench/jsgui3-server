@@ -50,8 +50,6 @@ class JSGUI_Server extends jsgui.Data_Object {
             }
         });
 
-
-
         //Object.defineProperty('')
 
         // Maybe the server router should explicitly be a Resource?

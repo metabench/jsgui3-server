@@ -111,6 +111,7 @@ var mime_types = {
 }
 
 var serve_image_file_from_buffer = function(buffer, filename, response) {
+    console.log('filename', filename);
     var extname = path.extname(filename);
     console.log('extname ' + extname);
 
@@ -169,7 +170,8 @@ class Site_Images extends Resource {
 
         //this.meta.set('custom_paths', new Data_Object({}));
 
-        this.custom_paths = new Data_Object({});
+        //this.custom_paths = new Data_Object({});
+        this.custom_paths = {};
 
 
         // Those are custom file paths.
@@ -832,12 +834,15 @@ class Site_Images extends Resource {
 
 
 
+    // want to be able to serve a path better.
+    //  still has bug here.
     'serve_directory'(path) {
         // Serves that directory, as any files given in that directory can be served from /js
-        var served_directories = this.meta.get('served_directories');
+
+        //var served_directories = this.meta.get('served_directories');
         //console.log('served_directories ' + stringify(served_directories));
         //served_directories.push(path);
-        served_directories.push({
+        this.served_directories.push({
             'name': path
         });
         //console.log('served_directories ' + stringify(served_directories));
@@ -854,10 +859,10 @@ class Site_Images extends Resource {
         //console.log('Site_Images processing');
         var remoteAddress = req.connection.remoteAddress;
 
-        var custom_paths = this.meta.get('custom_paths');
+        var custom_paths = this.custom_paths;
 
         var rurl = req.url;
-        var pool = this.meta.get('pool');
+        //var pool = this.pool;
         // should have a bunch of resources from the pool.
 
         //var pool_resources = pool.resources();
@@ -872,7 +877,7 @@ class Site_Images extends Resource {
         rurl = rurl.replace(/\./g, '☺');
         //console.log('rurl ' + rurl);
 
-        var custom_response_entry = custom_paths.get(rurl);
+        var custom_response_entry = custom_paths[rurl];
 
 
         var that = this;
@@ -1088,7 +1093,7 @@ class Site_Images extends Resource {
 
 
 
-                                        var served_directories = this.meta.get('served_directories');
+                                        var served_directories = this.served_directories;
                                         //console.log('served_directories ' + stringify(served_directories));
 
                                         // see if the file exists in any of the served directories
@@ -1176,21 +1181,16 @@ class Site_Images extends Resource {
 
                             } else {
                                 console.log('loaded file, need to serve it');
-
                                 // need to set the mime type correctly.
                                 //  We can get this from the file name for the moment.
 
                                 // serve_image_file_from_buffer
 
                                 //serve_image_file_from_disk(diskPath, res);
+                                console.log('buffer', buffer);
+                                console.log('project_disk_path', project_disk_path);
 
-                                serve_image_file_from_buffer(buffer, diskPath, res);
-
-
-
-
-
-
+                                serve_image_file_from_buffer(buffer, project_disk_path, res);
 
                                 //throw 'stop';
                             }

@@ -242,27 +242,17 @@ class JSGUI_Server extends jsgui.Data_Object {
 
                                 var https_server = https.createServer(that.https_options, function (req, res) {
                                     //console.log('process server request.url', req.url);
-
                                     var server_routing_res = server_router.process(req, res);
-
                                     //console.log('server_routing_res', server_routing_res);
-
                                 });
-
-                                // server could have been given https options
-
                                 https_server.timeout = 10800000;
                                 //if (ipAddress.value) ipAddress = ipAddress.value();
                                 //console.log('ipAddress', ipAddress);
-
                                 https_server.listen(443, ipv4_address);
                                 //http_server.listen(port, ipv4_address);
-
                                 //console.log('* Server running at https://' + ipv4_address + ':' + 443 + '/');
                                 num_to_start--;
-
                                 //console.log('num_to_start', num_to_start);
-
                                 if (num_to_start === 0) {
                                     callback(null, true);
                                 }
@@ -270,18 +260,12 @@ class JSGUI_Server extends jsgui.Data_Object {
 
                         } else {
                             each(arr_ipv4_addresses, (ipv4_address) => {
-
                                 var http_server = http.createServer(function (req, res) {
                                     //console.log('process server request');
-
                                     var server_routing_res = server_router.process(req, res);
-
                                     //console.log('server_routing_res', server_routing_res);
-
                                 });
-
                                 // server could have been given https options
-
                                 http_server.timeout = 10800000;
                                 //if (ipAddress.value) ipAddress = ipAddress.value();
                                 //console.log('ipAddress', ipAddress);

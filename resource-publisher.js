@@ -43,6 +43,85 @@ class Resource_Publisher {
 
             (async () => {
                 let cookies = new Cookies(req, res);
+
+                let serve_access_error = () => {
+                    //res.sendStatus(403);
+                    //res.status(500).send({ error: "access denied" });
+                    res.writeHead(403);
+                    res.end('Access Denied');
+                }
+
+                let serve_result = (r) => {
+                    if (r !== undefined) {
+                        //console.log('r', r);
+                        // Then turn it to JSON.
+                        // to server output json.
+                        let j = JSON.stringify(r);
+                        zlib.gzip(j, (error, result) => {
+                            if (error) {
+                                throw error;
+                            } else {
+                                // console.log(result);
+                                res.setHeader('Content-Type', 'application/json');
+                                res.setHeader('Content-Encoding', 'gzip');
+                                res.setHeader('Content-Length', result.length);
+
+                                res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+                                res.setHeader('Pragma', 'no-cache');
+                                res.setHeader('Expires', '0');
+
+                                /*
+                                Cache-Control: no-cache, no-store, must-revalidate
+                                Pragma: no-cache
+                                Expires: 0
+                                */
+
+                                // compress with gzip
+                                res.end(result);
+                            }
+                        });
+                        //console.log('j', j);
+                        //console.log('typeof r', typeof r);
+                    }
+                }
+
+                if (method === 'DELETE') {
+                    let jwt_cookie = cookies.get('jwt') || cookies.get('Authentication');
+                    let auth_info, r;
+                    let restricted = false;
+                    //console.log('jwt_cookie', jwt_cookie);
+
+                    if (jwt_cookie) {
+
+                        if (this.resource.authenticate) {
+                            auth_info = this.resource.authenticate(jwt_cookie);
+                            //let user_key = auth_info.key;
+                        }
+                        // Could provide further data...
+                    } else {
+                        // if there is an authenticate function but no cookie...
+                        //console.log('this.resource.authenticate', this.resource.authenticate);
+                        if (this.resource.authenticate) {
+                            restricted = !this.resource.authenticate();
+                        }
+                    }
+                    if (!restricted) {
+                        if (auth_info && auth_info !== true) {
+                            let r = await this.resource.delete(auth_info, resource_url_parts[0]);
+                            serve_result(r);
+                        } else {
+
+                            console.log('resource_url_parts', resource_url_parts);
+                            console.log('pre resource get');
+                            let r = await this.resource.delete(resource_url_parts[0]);
+                            serve_result(r);
+                        }
+                    } else {
+                        console.log('restricted, so there is an error');
+                        serve_access_error();
+                    }
+                }
+
                 if (method === 'GET') {
                     let jwt_cookie = cookies.get('jwt') || cookies.get('Authentication');
                     let auth_info, r;
@@ -63,54 +142,6 @@ class Resource_Publisher {
                             restricted = !this.resource.authenticate();
                         }
                     }
-                    //console.log('publish resource get auth_info', auth_info);
-                    //console.trace();
-
-                    //console.log('Resource_Publisher GET resource_url_parts');
-                    // 
-                    //console.log('restricted', restricted);
-
-                    // True just means default authorization.
-                    let serve_result = (r) => {
-                        if (r !== undefined) {
-                            //console.log('r', r);
-                            // Then turn it to JSON.
-                            // to server output json.
-                            let j = JSON.stringify(r);
-                            zlib.gzip(j, (error, result) => {
-                                if (error) {
-                                    throw error;
-                                } else {
-                                    // console.log(result);
-                                    res.setHeader('Content-Type', 'application/json');
-                                    res.setHeader('Content-Encoding', 'gzip');
-                                    res.setHeader('Content-Length', result.length);
-
-                                    res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
-                                    res.setHeader('Pragma', 'no-cache');
-                                    res.setHeader('Expires', '0');
-
-                                    /*
-                                    Cache-Control: no-cache, no-store, must-revalidate
-                                    Pragma: no-cache
-                                    Expires: 0
-                                    */
-
-                                    // compress with gzip
-                                    res.end(result);
-                                }
-                            });
-                            //console.log('j', j);
-                            //console.log('typeof r', typeof r);
-                        }
-                    }
-
-                    let serve_access_error = () => {
-                        //res.sendStatus(403);
-                        //res.status(500).send({ error: "access denied" });
-                        res.writeHead(403);
-                        res.end('Access Denied');
-                    }
 
                     if (!restricted) {
                         if (auth_info && auth_info !== true) {
@@ -127,7 +158,6 @@ class Resource_Publisher {
                         console.log('restricted, so there is an error');
                         serve_access_error();
                     }
-
                 }
                 if (method === 'POST') {
                     //console.log('Resource_Publisher POST resource_url_parts');

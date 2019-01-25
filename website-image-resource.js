@@ -17,26 +17,37 @@
  Worker) {
  */
 
-var path = require('path'), fs = require('fs'),
-    url = require('url'), jsgui = require('jsgui3-html'), os = require('os'), http = require('http'), libUrl = require('url'),
+var path = require('path'),
+    fs = require('fs'),
+    url = require('url'),
+    jsgui = require('jsgui3-html'),
+    os = require('os'),
+    http = require('http'),
+    libUrl = require('url'),
     Resource = jsgui.Resource;
-    
+
 fs2 = require('./fs2');
 
-    /*
+/*
 
-    jsgui_jpeg = require('../../image/node/jsgui-node-jpeg'),
-    jsgui_png = require('../../image/node/jsgui-node-png');
+jsgui_jpeg = require('../../image/node/jsgui-node-jpeg'),
+jsgui_png = require('../../image/node/jsgui-node-png');
 
 
-    */
+*/
 //Worker = require('webworker-threads');
 
-var stringify = jsgui.stringify, each = jsgui.eac, arrayify = jsgui.arrayify, tof = jsgui.tof;
+var stringify = jsgui.stringify,
+    each = jsgui.eac,
+    arrayify = jsgui.arrayify,
+    tof = jsgui.tof;
 var call_multi = jsgui.call_multi;
 var filter_map_by_regex = jsgui.filter_map_by_regex;
-var Class = jsgui.Class, Data_Object = jsgui.Data_Object, Enhanced_Data_Object = jsgui.Enhanced_Data_Object;
-var fp = jsgui.fp, is_defined = jsgui.is_defined;
+var Class = jsgui.Class,
+    Data_Object = jsgui.Data_Object,
+    Enhanced_Data_Object = jsgui.Enhanced_Data_Object;
+var fp = jsgui.fp,
+    is_defined = jsgui.is_defined;
 var get_item_sig = jsgui.get_item_sig;
 var Collection = jsgui.Collection;
 
@@ -112,7 +123,7 @@ var mime_types = {
     'ttf': 'application/font-sfnt'
 }
 
-var serve_image_file_from_buffer = function(buffer, filename, response) {
+var serve_image_file_from_buffer = function (buffer, filename, response) {
     console.log('filename', filename);
     var extname = path.extname(filename);
     console.log('extname ' + extname);
@@ -120,12 +131,14 @@ var serve_image_file_from_buffer = function(buffer, filename, response) {
     var extension = extname.substr(1);
     console.log('extension ' + extension);
 
-    response.writeHead(200, {'Content-Type': mime_types[extension] });
+    response.writeHead(200, {
+        'Content-Type': mime_types[extension]
+    });
     response.end(buffer, 'binary');
 }
 
 
-var serve_image_file_from_disk = function(filePath, response) {
+var serve_image_file_from_disk = function (filePath, response) {
     var extname = path.extname(filePath);
     console.log('extname ' + extname);
 
@@ -142,11 +155,13 @@ var serve_image_file_from_disk = function(filePath, response) {
 
     // can this be streamed to the response buffer?
 
-    fs.readFile(filePath, function(err, data) {
+    fs.readFile(filePath, function (err, data) {
         if (err) {
             throw err;
         } else {
-            response.writeHead(200, {'Content-Type': mime_types[extension] });
+            response.writeHead(200, {
+                'Content-Type': mime_types[extension]
+            });
             response.end(data, 'binary');
         }
     });
@@ -182,7 +197,9 @@ class Site_Images extends Resource {
 
         // Index the collection by string value?
         //this.meta.set('served_directories', new Collection({'index_by': 'name'}));
-        this.served_directories = new Collection({'index_by': 'name'});
+        this.served_directories = new Collection({
+            'index_by': 'name'
+        });
 
     }
     'start'(callback) {
@@ -955,7 +972,7 @@ class Site_Images extends Resource {
                         // try to load it from disk.
                         //  try to load it as a buffer
 
-                        fs2.load_file_as_buffer(project_disk_path, function(err, buffer) {
+                        fs2.load_file_as_buffer(project_disk_path, function (err, buffer) {
                             if (err) {
                                 console.log('error loading ' + project_disk_path + ': ' + err);
 
@@ -965,200 +982,100 @@ class Site_Images extends Resource {
                                 // Want top have a very versitile web_data resource that uses a DB, but also to have the means to interact with the files on disk
                                 //  in the project directory.
 
-                                throw 'stop';
+                                res.writeHead(404, {
+                                    "Content-Type": "text/plain"
+                                });
+                                res.write("404 Not Found\n");
+                                res.end();
 
-                                if (splitPath.length == 2) {
-
-
-                                    // Could check options to see if to look in the database, or the file system.
-                                    //  Perhaps could have a website document storage abstraction that will store in the file system or the
-                                    //   database.
-
+                                //throw 'stop';
 
 
-
-                                    var fileName = splitPath[1];
-
-                                    // See if we can get the document with the key of the filename of the image.
-                                    //  Perhaps it will be stored as a site image.
-
-                                    that.get_document(fileName, function(err, res_get_document) {
-                                        if (err) {
-                                            throw err;
-                                        } else {
+                                const old_fn = () => {
+                                    if (splitPath.length == 2) {
 
 
-                                            //console.log('res_get_document', res_get_document);
-
-                                            console.log('cb get document');
-
-                                            // Now we have it,
-
-                                            var doc_keys = Object.keys(res_get_document);
-                                            console.log('doc_keys', doc_keys);
-
-                                            // Need to know more information, such as the type_name
-                                            //  that extra info should probably get returned from the database.
+                                        // Could check options to see if to look in the database, or the file system.
+                                        //  Perhaps could have a website document storage abstraction that will store in the file system or the
+                                        //   database.
 
 
 
 
+                                        var fileName = splitPath[1];
 
-                                        }
+                                        // See if we can get the document with the key of the filename of the image.
+                                        //  Perhaps it will be stored as a site image.
 
-                                    });
-
-
-                                    /*
-                                     //console.log('url_parts.path ' + url_parts.path);
-                                     var filePath = url_parts.path.substr(1);
-                                     //console.log('module.uri ' + module.uri);
-                                     var val2 =  path.dirname(module.uri);
-                                     console.log('val2 ' + val2);
-                                     //throw '9) stop';
-                                     //var diskPath = val2 + '/../../images/' + fileName;
-                                     var diskPath = '../../ws/img/' + fileName;
-                                     // Also making use of custom paths...
-                                     // First check if such an image is in a specifically served directory.
-                                     var served_directories = this.meta.get('served_directories');
-                                     //console.log('served_directories ' + stringify(served_directories));
-                                     // see if the file exists in any of the served directories
-                                     // search for the file in the served directories.
-                                     //  will be an asyncronous search, and use an array of function calls with call_multi.
-                                     var fns = [];
-                                     var found_path;
-                                     each(served_directories, function(served_directory) {
-                                     //console.log('served_directory', served_directory);
-                                     var dir_val = served_directory.value();
-                                     //console.log('dir_val', dir_val);
-                                     var dir_name = dir_val.name;
-                                     //console.log('dir_name', dir_name);
-                                     var search_path = dir_name + '/' + fileName;
-                                     //console.log('search_path', search_path);
-                                     fns.push(function(callback) {
-                                     // check that directory
-                                     fs.exists(search_path, function(exists) {
-                                     //console.log('exists', exists);
-                                     if (!found_path && exists) {
-                                     found_path = search_path;
-                                     }
-                                     callback(null, exists);
-                                     })
-                                     })
-                                     });
-                                     call_multi(fns, function(err, res2) {
-                                     if (err) {
-                                     throw err;
-                                     } else {
-                                     //console.log('found_path', found_path);
-                                     if (found_path) {
-                                     diskPath = found_path;
-                                     serve_image_file_from_disk(diskPath, res);
-                                     }
-                                     }
-                                     });
-                                     //throw 'stop';
-                                     */
-
-
-                                    /*
-                                     fs2.load_file_as_string(diskPath, function (err, data) {
-                                     if (err) {
-                                     throw err;
-                                     } else {
-                                     //var servableJs = updateReferencesForServing(data);
-                                     res.writeHead(200, {'Content-Type': 'text/css'});
-                                     res.end(data);
-                                     }
-                                     });
-                                     */
-                                } else {
-                                    if (splitPath.length > 2) {
-
-                                        // need to put the rest of it together...
-
-                                        var fileName = splitPath.slice(1, splitPath.length).join('/');
-                                        console.log('fileName', fileName);
-
-
-                                        var filePath = url_parts.path.substr(1);
-                                        //console.log('module.uri ' + module.uri);
-                                        var val2 =  path.dirname(module.uri);
-                                        console.log('val2 ' + val2);
-                                        //throw '9) stop';
-
-                                        //var diskPath = val2 + '/../../images/' + fileName;
-
-                                        var diskPath = '../../ws/img/' + fileName;
-
-                                        // Do the search in the various served directories for the file.
-
-
-
-                                        var served_directories = this.served_directories;
-                                        //console.log('served_directories ' + stringify(served_directories));
-
-                                        // see if the file exists in any of the served directories
-
-                                        // search for the file in the served directories.
-                                        //  will be an asyncronous search, and use an array of function calls with call_multi.
-
-                                        var fns = [];
-                                        var found_path;
-
-
-                                        each(served_directories, function(served_directory) {
-                                            //console.log('served_directory', served_directory);
-                                            var dir_val = served_directory.value();
-                                            //console.log('dir_val', dir_val);
-                                            var dir_name = dir_val.name;
-                                            //console.log('dir_name', dir_name);
-
-                                            var search_path = dir_name + '/' + fileName;
-                                            //console.log('search_path', search_path);
-                                            fns.push(function(callback) {
-                                                // check that directory
-
-                                                fs.exists(search_path, function(exists) {
-                                                    //console.log('exists', exists);
-
-                                                    if (!found_path && exists) {
-                                                        found_path = search_path;
-                                                    }
-                                                    callback(null, exists);
-                                                })
-
-
-                                            })
-                                        });
-
-                                        call_multi(fns, function(err, res2) {
+                                        that.get_document(fileName, function (err, res_get_document) {
                                             if (err) {
                                                 throw err;
                                             } else {
-                                                console.log('found_path', found_path);
-                                                if (found_path) {
-                                                    diskPath = found_path;
-                                                    //serve_image_file_from_disk(diskPath, res);
-                                                }
-                                                serve_image_file_from_disk(diskPath, res);
-                                            }
+                                                //console.log('res_get_document', res_get_document);
+                                                console.log('cb get document');
 
+                                                // Now we have it,
+
+                                                var doc_keys = Object.keys(res_get_document);
+                                                console.log('doc_keys', doc_keys);
+
+                                                // Need to know more information, such as the type_name
+                                                //  that extra info should probably get returned from the database.
+                                            }
                                         });
 
-
-
-
-
-
-                                        // /js/core/jsgui-lang-enh
-                                        //console.log('!*!*!*! url_parts.path ' + url_parts.path);
                                         /*
-                                         if (splitPath[1] == 'core') {
-                                         var fileName = splitPath[2];
+                                         //console.log('url_parts.path ' + url_parts.path);
+                                         var filePath = url_parts.path.substr(1);
+                                         //console.log('module.uri ' + module.uri);
                                          var val2 =  path.dirname(module.uri);
-                                         //console.log('val2 ' + val2);
-                                         var diskPath = val2 + '/../core/' + fileName;
+                                         console.log('val2 ' + val2);
+                                         //throw '9) stop';
+                                         //var diskPath = val2 + '/../../images/' + fileName;
+                                         var diskPath = '../../ws/img/' + fileName;
+                                         // Also making use of custom paths...
+                                         // First check if such an image is in a specifically served directory.
+                                         var served_directories = this.meta.get('served_directories');
+                                         //console.log('served_directories ' + stringify(served_directories));
+                                         // see if the file exists in any of the served directories
+                                         // search for the file in the served directories.
+                                         //  will be an asyncronous search, and use an array of function calls with call_multi.
+                                         var fns = [];
+                                         var found_path;
+                                         each(served_directories, function(served_directory) {
+                                         //console.log('served_directory', served_directory);
+                                         var dir_val = served_directory.value();
+                                         //console.log('dir_val', dir_val);
+                                         var dir_name = dir_val.name;
+                                         //console.log('dir_name', dir_name);
+                                         var search_path = dir_name + '/' + fileName;
+                                         //console.log('search_path', search_path);
+                                         fns.push(function(callback) {
+                                         // check that directory
+                                         fs.exists(search_path, function(exists) {
+                                         //console.log('exists', exists);
+                                         if (!found_path && exists) {
+                                         found_path = search_path;
+                                         }
+                                         callback(null, exists);
+                                         })
+                                         })
+                                         });
+                                         call_multi(fns, function(err, res2) {
+                                         if (err) {
+                                         throw err;
+                                         } else {
+                                         //console.log('found_path', found_path);
+                                         if (found_path) {
+                                         diskPath = found_path;
+                                         serve_image_file_from_disk(diskPath, res);
+                                         }
+                                         }
+                                         });
+                                         //throw 'stop';
+                                         */
+
+                                        /*
                                          fs2.load_file_as_string(diskPath, function (err, data) {
                                          if (err) {
                                          throw err;
@@ -1168,89 +1085,101 @@ class Site_Images extends Resource {
                                          res.end(data);
                                          }
                                          });
-                                         }
                                          */
+                                    } else {
+                                        if (splitPath.length > 2) {
+                                            // need to put the rest of it together...
+                                            var fileName = splitPath.slice(1, splitPath.length).join('/');
+                                            console.log('fileName', fileName);
+                                            var filePath = url_parts.path.substr(1);
+                                            //console.log('module.uri ' + module.uri);
+                                            var val2 = path.dirname(module.uri);
+                                            console.log('val2 ' + val2);
+                                            //throw '9) stop';
+                                            //var diskPath = val2 + '/../../images/' + fileName;
+                                            var diskPath = '../../ws/img/' + fileName;
+                                            // Do the search in the various served directories for the file.
 
+                                            var served_directories = this.served_directories;
+                                            //console.log('served_directories ' + stringify(served_directories));
+                                            // see if the file exists in any of the served directories
+                                            // search for the file in the served directories.
+                                            //  will be an asyncronous search, and use an array of function calls with call_multi.
 
+                                            var fns = [];
+                                            var found_path;
+                                            each(served_directories, function (served_directory) {
+                                                //console.log('served_directory', served_directory);
+                                                var dir_val = served_directory.value();
+                                                //console.log('dir_val', dir_val);
+                                                var dir_name = dir_val.name;
+                                                //console.log('dir_name', dir_name);
+
+                                                var search_path = dir_name + '/' + fileName;
+                                                //console.log('search_path', search_path);
+                                                fns.push(function (callback) {
+                                                    // check that directory
+
+                                                    fs.exists(search_path, function (exists) {
+                                                        //console.log('exists', exists);
+
+                                                        if (!found_path && exists) {
+                                                            found_path = search_path;
+                                                        }
+                                                        callback(null, exists);
+                                                    })
+                                                })
+                                            });
+
+                                            call_multi(fns, function (err, res2) {
+                                                if (err) {
+                                                    throw err;
+                                                } else {
+                                                    console.log('found_path', found_path);
+                                                    if (found_path) {
+                                                        diskPath = found_path;
+                                                        //serve_image_file_from_disk(diskPath, res);
+                                                    }
+                                                    serve_image_file_from_disk(diskPath, res);
+                                                }
+                                            });
+                                            // /js/core/jsgui-lang-enh
+                                            //console.log('!*!*!*! url_parts.path ' + url_parts.path);
+                                            /*
+                                             if (splitPath[1] == 'core') {
+                                             var fileName = splitPath[2];
+                                             var val2 =  path.dirname(module.uri);
+                                             //console.log('val2 ' + val2);
+                                             var diskPath = val2 + '/../core/' + fileName;
+                                             fs2.load_file_as_string(diskPath, function (err, data) {
+                                             if (err) {
+                                             throw err;
+                                             } else {
+                                             //var servableJs = updateReferencesForServing(data);
+                                             res.writeHead(200, {'Content-Type': 'text/css'});
+                                             res.end(data);
+                                             }
+                                             });
+                                             }
+                                             */
+                                        }
                                     }
-
                                 }
-
-
-
-
-
-
                             } else {
                                 console.log('loaded file, need to serve it');
                                 // need to set the mime type correctly.
                                 //  We can get this from the file name for the moment.
-
                                 // serve_image_file_from_buffer
-
                                 //serve_image_file_from_disk(diskPath, res);
                                 console.log('buffer', buffer);
                                 console.log('project_disk_path', project_disk_path);
-
                                 serve_image_file_from_buffer(buffer, project_disk_path, res);
-
-                                //throw 'stop';
                             }
                         })
-
-
-
-                        //fs2.load_file_as_string
-
-
-
-
-
-
                     }
                 }
-
-
-
-                // Perhaps will have /admin first in the path sent to an admin router?
-
             }
         }
-
-
-        //console.log('remoteAddress ' + remoteAddress);
-
-        // Need to be able to get the resource pool from this resource.
-        //  It routes http calls to particular resources, and resources in the same pool make use of each
-        //   other.
-
-
-        // /js/...js
-
-        // the site's static file resources.
-        //  a file server that serves the files with their mime types.
-        //   nice to have encapsulation of this because it can do compression.
-
-
-        //console.log('this.parent() ' + stringify(this.parent()));
-        // then
-
-
-
-
-
-        // This could send it to an authenticated service / resource.
-
-        //  /admin
-        //  /admin/files could go to a file manager application (html resource)
-        //   There could be the HTML interface to the File_System resource there.
-
-        //  /admin/resources could go to the resource pool admin, from where it would be possible to administer
-        //   and view various resource.
-
-        // split the path up, then do various initial tests, then maybe send it to the admin resource.
-        //  And the admin resource may not be the resource pool interface, it could be more user friendly,
-        //  a gateway to deeper administration.
     }
 }
 

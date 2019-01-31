@@ -403,7 +403,6 @@ class Website_Resource extends Resource {
         //console.log('Website_Resource publish');
         //console.log('published_name, item', published_name, item);
 
-
         this.map_resource_publishers = this.map_resource_publishers || {};
         if (item instanceof jsgui.Resource) {
             let resource_publisher = new Resource_Publisher({

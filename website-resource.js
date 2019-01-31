@@ -400,25 +400,27 @@ class Website_Resource extends Resource {
 
     publish(published_name, item) {
 
-        //console.log('Website_Resource publish');
+        console.log('Website_Resource publish', published_name);
         //console.log('published_name, item', published_name, item);
-
         this.map_resource_publishers = this.map_resource_publishers || {};
+
+        // .__resource ?
+
+        // instanceof means same version?
+
         if (item instanceof jsgui.Resource) {
             let resource_publisher = new Resource_Publisher({
                 resource: item,
                 name: published_name
             });
-    
-            
             this.map_resource_publishers[published_name] = resource_publisher;
-        } else {
+            //console.log('Object.keys(this.map_resource_publishers)', Object.keys(this.map_resource_publishers));
 
+        } else {
             // if its a function
             //  return that function call to the response.
 
             let t_item = typeof item;
-
             if (t_item === 'function') {
 
                 // Function_Call_Publisher
@@ -451,6 +453,9 @@ class Website_Resource extends Resource {
     
     
     
+                } else {
+                    console.log('item', item);
+                    throw 'Unrecognised item type. Possibly node module versions are wrong / have not been linked fully.'
                 }
             }
 
@@ -458,7 +463,7 @@ class Website_Resource extends Resource {
             //if (item instanceof Evented_Class) {
             
 
-        }
+        } 
 
 
         

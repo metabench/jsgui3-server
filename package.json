@@ -34,9 +34,5 @@
     "type": "git",
     "url": "https://github.com/metabench/jsgui3-server.git"
   },
-<<<<<<< HEAD
   "version": "0.0.53"
-=======
-  "version": "0.0.52"
->>>>>>> dc433a54dd9168ec44461da9989e408adcbc31fb
 }

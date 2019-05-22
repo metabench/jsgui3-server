@@ -35,7 +35,7 @@ var browserify = require('browserify');
 //var zlib = require('zlib');
 var util = require('util');
 
-const babel = require('babel-core');
+const babel = require('@babel/core');
 
 // Extends AutoStart_Resource?
 const stream_to_array = require('stream-to-array');
@@ -599,8 +599,8 @@ class Site_JavaScript extends Resource {
 
 					var escaped_url = url.replace(/\./g, '☺');
 
-					console.log('pre brot buf_js.length', buf_js.length);
-					console.trace();
+					console.log('pre compress buf_js.length', buf_js.length);
+					//console.trace();
 
 					if (accepts_brotli) {
 						brotli(buf_js, (err, buffer) => {
@@ -630,10 +630,6 @@ class Site_JavaScript extends Resource {
 						resolve(true);
 					}
 				}
-
-
-
-
 
 				/*
 				zlib.deflate(buf_js, (err, buffer) => {

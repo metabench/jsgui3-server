@@ -13,13 +13,14 @@ const jsgui = require('jsgui3-html'),
 // Login = require('../resource/login'),
 //var Server = {};
 
-const Resource_Publisher = require('./resource-publisher');
-
+//const Resource_Publisher = require('./resource-publisher');
 //var Login_Html_Resource = Login.Html;
 // Test if node features are supported?
-
 // This should be running in node.js
 
+const {each, tof} = jsgui;
+
+/*
 var stringify = jsgui.stringify,
     each = jsgui.each,
     arrayify = jsgui.arrayify,
@@ -29,8 +30,9 @@ var Data_Object = jsgui.Data_Object;
 var fp = jsgui.fp,
     is_defined = jsgui.is_defined;
 var Collection = jsgui.Collection;
+*/
 
-var exec = require('child_process').exec;
+//var exec = require('child_process').exec;
 
 //console.log('!!1)jsgui', !!jsgui);
 
@@ -49,9 +51,7 @@ class JSGUI_Server extends jsgui.Data_Object {
                 'full': ['server_admin']
             }
         });
-
         //Object.defineProperty('')
-
         // Maybe the server router should explicitly be a Resource?
         //  Or just treat Objects the same way as Data_Object (if possible) in Collection.
 
@@ -64,40 +64,14 @@ class JSGUI_Server extends jsgui.Data_Object {
             'pool': resource_pool
         });
         this.server_router = server_router;
-
         // Not being added properly. It seems to get put inside a Data_Object.
         //  Want object to be held in collections directly, not having to be nested within anything else.
-
-
         //console.log('resource_pool.resources ' + resource_pool.resources);
         //console.log('resource_pool.resources.index_system ' + resource_pool.resources.index_system);
-
         // index_system
         //console.log('pre resource_pool.push');
         resource_pool.add(server_router);
-        //console.log('resource_pool.resources ' + resource_pool.resources);
-        //console.log('resource_pool.resources.index_system ' + resource_pool.resources.index_system);
-        //console.log('resource_pool.resources.index_system.index_map ', resource_pool.resources.index_system.index_map);
-        //throw 'stop';
-
-
-
-        // Probably better to have a specific Server_Websockets_Router, likely quite simple.
-
-
-        /*
-        var server_sock_router = new Server_Sock_Router({
-            // Should have that name by default
-
-            //'meta': {
-            //    'name': 'Server Sock Router'
-            //}
-        });
-        */
-
-
-        //resource_pool.push(server_sock_router);
-        var t_spec = tof(spec);
+        //var t_spec = tof(spec);
 
         // Normally have an object in the spec?
         //  And then set some things up on the website resource...
@@ -133,39 +107,6 @@ class JSGUI_Server extends jsgui.Data_Object {
         return this.resource_pool.resource_names;
     }
 
-
-
-    // Do this under website resource?
-    //  May be better that way.
-
-    _publish(server_resource, name) {
-        // Need to give it a name to publish it as
-
-
-
-        // server needs a Resource_Publisher.
-        //  Some resources include their own publishing.
-        //   (existing things like javascript-resource)
-
-        // needs a name
-
-        //this.resource_publisher = this.resource_publisher || new Resource_Publisher({
-        let resource_publisher = new Resource_Publisher({
-            resource: server_resource,
-            name: name
-        });
-
-        this.map_resource_publishers = this.map_resource_publishers || {};
-        this.map_resource_publishers[name] = resource_publisher;
-
-        //this.resource_pool.map_resource_publishers = resource_publisher;
-
-        // website resource needs the map of resource publishers.
-
-        // Should actually publish within a Website_Resource...
-        //  Server holds this.
-    }
-
     'start'(port, callback, fnProcessRequest) {
         //throw 'stop';
         // The resource_pool is not just a Data_Value. need to fix some get or create new field value code.
@@ -181,14 +122,12 @@ class JSGUI_Server extends jsgui.Data_Object {
                 throw err;
             } else {
                 //console.log('jsgui-server resource pool started');
-
                 var lsi = rp.get_resource('Local Server Info');
                 //console.log('lsi', (lsi));
                 //console.log('rp', rp);
 
                 var resource_names = rp.resource_names;
                 //console.log('resource_names', resource_names);
-
                 //throw 'stop';
 
                 var js = rp.get_resource('Site JavaScript');
@@ -271,8 +210,6 @@ class JSGUI_Server extends jsgui.Data_Object {
                                 //console.log('ipAddress', ipAddress);
                                 http_server.listen(port, ipv4_address);
 
-
-
                                 console.log('* Server running at http://' + ipv4_address + ':' + port + '/');
                                 num_to_start--;
 
@@ -283,56 +220,9 @@ class JSGUI_Server extends jsgui.Data_Object {
                                 }
                             });
                         }
-
-
-
-
                         //throw 'stop';
                     }
                 });
-
-                /*
-
-
-                var matching = nis.find('entries', {
-                    'family': 'IPv4',
-                    'internal': false
-                });
-                //console.log('matching', matching);
-                var ipAddresses = [];
-                each(matching, function(v, i) {
-                    var ipAddress = v.address;
-                    ipAddresses.push(ipAddress);
-                });
-                var application_router = rp.get_resource('Server Router');
-                var rt = application_router.routing_tree;
-                var map_connections = {};
-                var i_connections = 0;
-                //console.log('ipAddresses', ipAddresses);
-                //throw 'stop';
-                //throw 'stop';
-
-                each(ipAddresses, function(ipAddress, i) {
-                    var http_server = http.createServer(function(req, res) {
-                        //console.log('process server request');
-
-                        var server_routing_res = application_router.process(req, res);
-
-                        //console.log('server_routing_res', server_routing_res);
-
-
-
-
-                    });
-                    http_server.timeout = 10800000;
-                    if (ipAddress.value) ipAddress = ipAddress.value();
-                    //console.log('ipAddress', ipAddress);
-                    http_server.listen(port, ipAddress);
-                    console.log('* Server running at http://' + ipAddress + ':' + port + '/');
-
-                });
-                if (callback) callback(null, true);
-                */
             }
         });
     }

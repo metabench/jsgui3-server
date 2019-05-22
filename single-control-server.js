@@ -15,20 +15,17 @@
 // Some of the wiring could be done automatically.
 //
 
-console.log('pre require jsgui');
+//console.log('pre require jsgui');
 var jsgui = require('jsgui3-html');
 const each = jsgui.each;
-console.log('post require jsgui');
+//console.log('post require jsgui');
 //var Start_Stop_Toggle_Button = require('../controls/start-stop-toggle-button');
 const is_array = jsgui.is_array;
 var Server = require('./server');
 var Website_Resource = require('./website-resource');
 var port = 80;
-console.log('!!Server', !!Server);
-
-
-
-console.log('Object.keys(Server)', Object.keys(Server));
+//console.log('!!Server', !!Server);
+//console.log('Object.keys(Server)', Object.keys(Server));
 var Server_Page_Context = require('./page-context');
 
 // js_mode option
@@ -66,9 +63,6 @@ let js = app_server.resource_pool['Site JavaScript'];
 //  Could send basic jsgui css by default
 //  Then there would be app css on top of that.
 
-
-
-
 class Single_Control_Server extends Server {
     constructor(spec) {
         //spec['*'] = {
@@ -103,9 +97,12 @@ class Single_Control_Server extends Server {
 
             // Ctrl.activate_app
             //spec.activate_app;
-            if (spec.activate_app) {
+            if (spec.activate_app && !this.activate_app) {
                 this.activate_app = spec.activate_app;
             }
+
+            //console.log('this.activate_app', this.activate_app);
+            //throw 'stop';
 
             if (spec.client_package) this.client_package = spec.client_package;
 
@@ -138,6 +135,8 @@ class Single_Control_Server extends Server {
         let js = this.app_server.resource_pool['Site JavaScript'];
         let css = this.app_server.resource_pool['Site CSS'];
 
+        // will look into the resource publisher to see what is published.
+
         // serve package with replacement options.
         // // the activate app function.
         //  Can be put into place in the served JS.
@@ -150,44 +149,58 @@ class Single_Control_Server extends Server {
 
         // babel option.
 
+        // Activation should be defined
+        //  Or there is some default activation in the client.js
+        //  It has the maps of controls and Controls
+        //   Then can activate these controls.
+        //    There should maybe be some more data services in the client.
+        //  Could make the client more miniature and modular once it works, and then incorporate react.
+
+        // Data-Resource would be general enough to work on both.
+        //  The client data resources could then direct their requests to the server ones.
+
+
+        // Could make a resource-pool for both client and server
+
+        //console.log('this.activate_app', this.activate_app);
+        //throw 'stop';
+
+        // Should do this before the babel compilation. Think that's the sequence anyway.
+        //  Not sure why it's not working.
         if (this.activate_app) {
             o_serve_package.replace = {
                 '/* -- ACTIVATE-APP -- */': this.activate_app.toString()
             }
             //
         }
-
+        // want it to serve with debug code map
+        //  for the moment
+        // want that to be easier to do with a --debug option.
+        //  should read command line options.
         if (this.js_mode) {
             o_serve_package.js_mode = this.js_mode;
         } else {
-            o_serve_package.babel = 'mini';
+            //o_serve_package.babel = 'mini';
         }
+        o_serve_package.js_mode = 'debug';
         // Not sure how to do the replace when loading from disk.
-
         // Give a reference to the package to serve itself.
         //  example servers - 
-
-
         // serve the css as well.
-
         if (this.css) {
             each(this.css, (path, serve_as) => {
                 css.serve(serve_as, path);
             })
         }
-
         let js_client = this.client_package || this.js_client || 'jsgui3-client';
-
         js.serve_package('/js/app.js', js_client, o_serve_package, (err, served) => {
             //var resource_pool = this.resource_pool;
             //console.log('server_router', server_router);
             //console.log('js_client', js_client);
-
             if (!server_router) {
                 throw 'no server_router';
             }
             var routing_tree = server_router.routing_tree;
-
             routing_tree.set('/', (req, res) => {
                 //console.log('root path / request');
                 var server_page_context = new Server_Page_Context({
@@ -210,17 +223,69 @@ class Single_Control_Server extends Server {
                     });
                 }
 
-                hd.include_js('/js/app.js');
+                // include a js script block, having it set up the 
+                // not include_client_js
+
+                // .include_client_config_js()
+                //  will get the resource config from the resource publisher.
+
+                // including data on published resources in the initial html download would be very useful.
+                //  auto event wiring, so that controls that rely on having this data will have it available.
+
+                // Want to get this to work, then greatly slim down the codebase, or at least delete comments, use some more syntactic sugar.
+
+                console.log('this.app_server.map_resource_publishers', this.app_server.map_resource_publishers);
+                console.log('this.app_server.def_resource_publishers', this.app_server.def_resource_publishers);
+
+                // a script block where we assign the resource publishers.
+                //  tell the client what resources are available on the server.
+
+                // include a js script block.
+                // jsgui.register_server_resources({...})
+                // o_def
+                //  an object that describes how the resources are published.
+
+                // app_server.def_resource_publishers
+                //  the urls
+                //   what data it provides / its schema.
+                //  a def from each of the publishers
+                //   with a schema similar to graphql?
+
+                //throw 'stop';
+
                 var body = hd.body;
                 let o_params = this.params || {};
                 Object.assign(o_params, {
                     'context': server_page_context
                 });
-
                 var ctrl = this.ctrl = new this.Ctrl(o_params);
                 ctrl.active();
                 //var ctrl2 = new jsgui.Control({});
                 body.add(ctrl);
+
+                let resources_script = new jsgui.script({
+                    context: server_page_context
+                });
+
+                // it will be a client-side function.
+
+                // Should not use 'add' here.
+                //  it's the script content.
+
+                // want to get around that escaping.
+                // options escaping / escape : false
+
+                hd.include_js('/js/app.js');
+
+                const strc = new jsgui.String_Control({
+                    context: server_page_context,
+                    text: `jsgui.register_server_resources(${JSON.stringify(this.app_server.def_resource_publishers)});`
+                });
+
+                resources_script.add(strc);
+                body.add(resources_script);
+
+                
                 hd.all_html_render(function (err, deferred_html) {
                     if (err) {
                         throw err;
@@ -241,12 +306,9 @@ class Single_Control_Server extends Server {
                 if (err) {
                     callback(err);
                 } else {
-                    console.log('res_super_start', res_super_start);
-
+                    //console.log('res_super_start', res_super_start);
                     this.raise('scs_ready');
-
                     callback(null, res_super_start);
-
                 }
             });
         });

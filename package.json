@@ -3,27 +3,29 @@
   "main": "module.js",
   "license": "MIT",
   "dependencies": {
-    "babel-core": "^6.26.3",
-    "babel-plugin-minify-dead-code-elimination": "^0.5.0",
-    "babel-plugin-remove-comments": "^2.0.0",
-    "babel-plugin-transform-class": "^0.3.0",
-    "babel-plugin-transform-es2015-classes": "^6.24.1",
-    "babel-plugin-transform-es2015-object-super": "^6.24.1",
+    "@babel/core": "^7.4.5",
     "babel-preset-minify": "^0.5.0",
     "browserify": "^16.2.3",
     "child-process": "^1.0.2",
     "cookies": "^0.7.3",
     "fnl": "^0.0.8",
-    "fnlfs": "^0.0.8",
-    "iltorb": "^2.4.1",
-    "jsgui3-client": "^0.0.46",
-    "jsgui3-html": "0.0.67",
+    "fnlfs": "^0.0.9",
+    "iltorb": "^2.4.3",
+    "jsgui3-client": "^0.0.47",
+    "jsgui3-html": "0.0.68",
     "multiparty": "^4.2.1",
     "ncp": "^2.0.0",
     "obext": "^0.0.4",
     "rimraf": "^2.6.3",
     "stream-to-array": "^2.3.0",
-    "url-parse": "^1.4.4"
+    "url-parse": "^1.4.7"
+  },
+  "commentDeps": {
+    "babel-plugin-minify-dead-code-elimination": "^0.5.0",
+    "babel-plugin-remove-comments": "^2.0.0",
+    "babel-plugin-transform-class": "^0.3.0",
+    "babel-plugin-transform-es2015-classes": "^6.24.1",
+    "babel-plugin-transform-es2015-object-super": "^6.24.1"
   },
   "engines": {
     "node": ">=10.0.0"
@@ -34,5 +36,5 @@
     "type": "git",
     "url": "https://github.com/metabench/jsgui3-server.git"
   },
-  "version": "0.0.53"
+  "version": "0.0.54"
 }

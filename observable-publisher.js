@@ -9,20 +9,25 @@ const {
 
 class Observable_Publisher {
     constructor(spec) {
-        let obs;
-
+        let obs, schema;
         // needs to hook into the server though...
-
         if (spec.next && spec.complete && spec.error) {
             obs = spec;
         } else {
-            console.trace();
-            throw 'NYI';
+
+            //let {schema} = spec;
+            obs = spec.obs;
+            schema = spec.schema;
+
+            //console.trace();
+            //throw 'NYI';
         }
-
         // need to be able to process (http) requests.
-
         // reobserve that observable to prevent too many events being attached.
+
+        // reobserve
+        //  code here could be written as resobserve function.
+        //   or just obs on an existing obs?
 
         let obs2 = observable((next, complete, error) => {
             obs.on('next', data => {
@@ -30,7 +35,7 @@ class Observable_Publisher {
             })
             return [];
         })
-
+        this.type = 'observable';
 
         /*
 
@@ -61,11 +66,6 @@ class Observable_Publisher {
 
         id: 43 
         data: Last message, id "43"
-
-
-
-
-
         
 1
 2
@@ -77,43 +77,25 @@ data: that has two lines\n
 \n
 
         */
-
         this.handle_http = (req, res) => {
-
             // need to handle observable http request.
-
             // Begin sending to that connection...
-
             // Following SSE would be nice.
-
             res.writeHead(200, {
                 'Content-Type': 'text/event-stream',
                 'Transfer-Encoding': 'chunked',
                 //'Trailer': 'Content-MD5'
             });
-
             res.write('OK\n');
-
-
             let obs2_handler = data => {
                 //console.log('data', data);
                 let s_data = JSON.stringify(data);
                 //res.write(s_data + '\n');
-
                 res.write('event: message\ndata:' + s_data + '\n\n');
             }
-
             obs2.on('next', obs2_handler);
-
-
-
         }
-
-
-
-
     }
-
 }
 
 module.exports = Observable_Publisher;

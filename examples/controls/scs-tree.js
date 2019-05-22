@@ -2,7 +2,7 @@
  * Created by James on 02/10/2016.
  */
 
-var Server = require('../single-control-server');
+var Server = require('../../single-control-server');
 var { Tree, Tree_Node } = require('jsgui3-html');
 
 //var Server = jsgui.Server;
@@ -40,10 +40,7 @@ server.start(function(err, cb_start) {
 	if (err) {
 		throw err;
 	} else {
-
 		// access button with server.ctrl
-
-
 		// A .background object would be cool. Would change the dom attributes.
 
 		//server.ctrl.background.color = '#ABCDEF';

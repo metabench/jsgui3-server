@@ -366,7 +366,7 @@ var fs2 = {
 		if (file_content.buffer.byteLength) {
 			// its a typed array
 			console.log('file_content.length', file_content.length);
-			var buf = new Buffer(file_content.buffer);
+			var buf = Buffer.from(file_content.buffer);
 			// but does it calculate the buffer length correctly?
 			console.log('buf.length', buf.length);
 

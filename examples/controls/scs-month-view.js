@@ -4,10 +4,13 @@
 
 
 const jsgui = require('jsgui3-html');
-const Server = require('../single-control-server');
-const File_Tree = jsgui.File_Tree;
+
+// html-core would help
+// html-controls
+
+
+const Server = require('../../single-control-server');
 const Month_View = jsgui.Month_View;
-const Arrow_Button = jsgui.Arrow_Button;
 
 //var Server = jsgui.Server;
 
@@ -32,7 +35,10 @@ requirements = () => {
 	// const x = require x
 }
 
+// Client-side activation code could be quite useful here.
 
+
+/*
 let activate_app = (() => {
 	// Context variable will be available within the scope on the client.
 	let context;
@@ -44,9 +50,15 @@ let activate_app = (() => {
 		console.log('Object.keys(context)', Object.keys(context));
 		console.log('Object.keys(context.map_controls)', Object.keys(context.map_controls));
 		let month_view = context.map_controls['month_view_0'];
-		setTimeout(() => {
-			month_view.next_month();
-		}, 4000);
+
+		if (month_view) {
+			setTimeout(() => {
+				month_view.next_month();
+			}, 4000);
+		} else {
+			console.log('month_view control not found');
+		}
+		
 		// Seems like too many items were added to the map.
 		//  Must be created accidently on start.
 
@@ -59,6 +71,7 @@ let activate_app = (() => {
 
 	}
 })();
+*/
 
 var server = new Server({
 	'port': 80,
@@ -66,21 +79,18 @@ var server = new Server({
 	'ctrl': [Month_View, {
 			//'rotation': 180
 		'direction': 'left'
-	}],
-	'activate_app': activate_app
+	}]//,
+	//'activate_app': activate_app
 });
 
 // sending app client JS.
 //  activation JS here that gets sent to the file would be useful.
 //  allows the main parts of an entire app to be contained within one file.
 
-
-
 server.start(function(err, cb_start) {
 	if (err) {
 		throw err;
 	} else {
-		
 		console.log('server started');
 	}
 });

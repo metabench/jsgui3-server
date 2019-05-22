@@ -25,7 +25,7 @@ define(['module', 'path', 'fs', 'url', '../../web/jsgui-html', 'os', 'http', 'ur
 */
 
 var path = require('path'), fs = require('fs'), url = require('url'), jsgui = require('../../web/jsgui-html'), os = require('os'), http = require('http'), libUrl = require('url'),
-  Resource = require('./resource'), JeSuisXML = require('../../web/jsgui-je-suis-xml'), Cookies = require('cookies'), fs2 = require('../../fs/jsgui-node-fs2-core'), audio_metadata = require('../../audio/jsgui-node-audio-metadata'), crypto = require('crypto');
+  Resource = require('./resource'), JeSuisXML = require('../../web/jsgui-je-suis-xml'), Cookies = require('./cookies'), fs2 = require('../../fs/jsgui-node-fs2-core'), audio_metadata = require('../../audio/jsgui-node-audio-metadata'), crypto = require('crypto');
 
 
 	var stringify = jsgui.stringify, each = jsgui.eac, arrayify = jsgui.arrayify, tof = jsgui.tof;
@@ -59,10 +59,6 @@ var path = require('path'), fs = require('fs'), url = require('url'), jsgui = re
 	// Cache them in RAM as well.
 	//  Storing them in GPU RAM would be very cool, especially if from there we can get versions with
 	//   different operations done, or the output of operations.
-
-
-
-
 
 
 	// May need to change around a fair few references to make it workable.

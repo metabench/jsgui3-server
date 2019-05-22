@@ -11,17 +11,20 @@
 // Some of the wiring could be done automatically.
 //
 
-var jsgui = require('../server/server');
-var Combo_Box = jsgui.Combo_Box;
+var jsgui = require('jsgui3-html');
 
-var Server = jsgui.Server;
-var port = 80;
-var Server_Page_Context = Server.Page_Context;
+
+var Start_Stop_Toggle_Button = jsgui.Start_Stop_Toggle_Button;
+var Color_Palette = jsgui.Color_Palette;
+
+var Server = require('../../server');
+var port = 8000;
+var Server_Page_Context = require('../../page-context');
 
 var server = new Server({
-	routes: {
+	'routes': {
 		'*': {
-			'name': 'html-server'
+			'name': 'HTML Server'
 		}
 	}
 	
@@ -41,13 +44,22 @@ var resource_pool = server.resource_pool;
 
 // Get the website resource
 
+
+
 // Caching items / resources by type?
+
 // Need to give the resources a name.
 
 
 //var website = resource_pool.get_resource('Server Router');
+
 //console.log('\n\n');
+
+//console.log('resource_names', resource_pool.get_resource_names());
+//throw 'stop';
 var server_router = resource_pool.get_resource('Server Router');
+
+
 
 //console.log('server_router', server_router);
 
@@ -57,7 +69,7 @@ if (!server_router) {
 
 var routing_tree = server_router.routing_tree;
 
-routing_tree.set('/', function(req, res) {
+routing_tree.set('/', function (req, res) {
 	//console.log('root path / request');
 	var server_page_context = new Server_Page_Context({
 		'req': req,
@@ -69,14 +81,18 @@ routing_tree.set('/', function(req, res) {
 		'context': server_page_context
 	});
 	hd.include_client_css();
-	hd.include_js('/js/app-bundle.js');
+	hd.include_js('/js/app-bundle-active.js');
 	var body = hd.body;
-    var ctrl = new Combo_Box({
-		'context': server_page_context
+	body.size = [800, 600];
+	var ctrl = new Color_Palette({
+		'context': server_page_context,
+		'size': [312, 312]
 	});
 	//var ctrl2 = new jsgui.Control({});
+	ctrl.resizable = true;
 	body.add(ctrl);
-	hd.all_html_render(function(err, deferred_html) {
+	ctrl.active();
+	hd.all_html_render(function (err, deferred_html) {
 		if (err) {
 			throw err;
 		} else {
@@ -89,7 +105,8 @@ routing_tree.set('/', function(req, res) {
 	});
 });
 
-server.start(port, function(err, cb_start) {
+//console.log('pre server start');
+server.start(port, function (err, cb_start) {
 	if (err) {
 		throw err;
 	} else {

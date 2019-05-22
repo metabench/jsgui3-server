@@ -576,14 +576,7 @@ class Site_Images extends Resource {
                                 // When describing transformed documents, we can reference them by key rather than integer id.
                                 //  The different versions will still have different names, most likely given suffixes.
 
-
                                 // Then transform and save various versions of it.
-
-
-
-
-
-
 
 
                                 //throw 'stop';
@@ -677,7 +670,6 @@ class Site_Images extends Resource {
                                     // dtrans_params
                                     //  id, transformation id, key
 
-
                                     // Document Transformation Parameter (Record)s
                                     //  id, transformation id, key
                                     // Document Transformation Integer Parameter (Record)s
@@ -691,10 +683,7 @@ class Site_Images extends Resource {
                                     // Make the document transformation record + param records after the target document
                                     //  has been put into the database.
 
-
                                     // Then save the resized one, as before,
-
-
 
                                     // Then save the transformation that connects the two saved images.
 

@@ -1,14 +1,3 @@
-/*
- if (typeof define !== 'function') {
- var define = require('amdefine')(module);
- }
-
- define(['module', 'path', 'fs', 'url', '../../web/jsgui-html', 'os', 'http', 'url', './resource',
- '../../web/jsgui-je-suis-xml', 'cookies', '../../fs/jsgui-node-fs2-core'],
-
- function(module, path, fs, url, jsgui, os, http, libUrl,
- Resource, JeSuisXML, Cookies, fs2) {
- */
 
 var path = require('path'),
     fs = require('fs'),
@@ -19,7 +8,7 @@ var path = require('path'),
     libUrl = require('url'),
     Resource = jsgui.Resource,
     Cookies = require('cookies'),
-    fs2 = require('./fs2');
+    fs2 = require('../fs2');
 
 
 
@@ -47,15 +36,10 @@ class Data_Resource extends Resource {
         super(spec);
         //this.meta.set('custom_paths', new Data_Object({}));
         this.custom_paths = new Data_Object({});
-
-
         this.data = {};
-
         // want to be able to set specific pieces of data to be available.
         //  This won't be a full DB API, but a starting point for the client-side app to communicate with the server.
         //  It will interact with a data model through this.
-
-
     }
     'start'(callback) {
         callback(null, true);
@@ -63,24 +47,17 @@ class Data_Resource extends Resource {
     'process'(req, res) {
         console.log('Data_Resource processing HTTP request');
         var remoteAddress = req.connection.remoteAddress;
-
         var custom_paths = this.custom_paths;
-
         var rurl = req.url;
-
         var pool = this.pool;
         // should have a bunch of resources from the pool.
 
         //var pool_resources = pool.resources();
         //console.log('pool_resources ' + stringify(pool_resources));
-
-
         var url_parts = url.parse(req.url, true);
         //console.log('url_parts ' + stringify(url_parts));
         var splitPath = url_parts.path.substr(1).split('/');
         //console.log('resource site data splitPath ' + stringify(splitPath));
-
-
         if (rurl.substr(0, 1) == '/') rurl = rurl.substr(1);
         rurl = rurl.replace(/\./g, '☺');
         //console.log('rurl ' + rurl);
@@ -90,10 +67,8 @@ class Data_Resource extends Resource {
                 let key = splitPath[1];
                 let value = this.data[key];
                 //console.log('value', value);
-
                 let t_val = tof(value);
                 //console.log('t_val', t_val);
-
                 if (t_val === 'buffer') {
                     // Encode it as hex / baase64?
 
@@ -108,26 +83,11 @@ class Data_Resource extends Resource {
                         'Content-Type': mime_type
                     });
                     res.end(value);
-
-
-
-
                 }
-
-
             }
         }
-
-
-
         // Could consult a map of values to send back.
         //  A prefixed map would be fine for some applications.
-
-
-
-
-
-
     }
 }
 

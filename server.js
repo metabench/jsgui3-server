@@ -4,10 +4,14 @@ const jsgui = require('jsgui3-html'),
     http = require('http'),
     https = require('https'),
     Resource = jsgui.Resource,
-    Server_Resource_Pool = require('./server-resource-pool'),
+    Server_Resource_Pool = require('./resources/server-resource-pool'),
+
+
+    // routing-tree? make a generalised module?
+
     Router = jsgui.Router,
-    Website_Resource = require('./website-resource'),
-    Info = require('./local-server-info-resource'),
+    Website_Resource = require('./resources/website-resource'),
+    Info = require('./resources/local-server-info-resource'),
     Server_Page_Context = require('./page-context');
 
 // Login = require('../resource/login'),
@@ -39,6 +43,9 @@ var Collection = jsgui.Collection;
 // Should just export the server
 //  Other packages can bind things together.
 //  Maybe just a jsgui package, holding the server too.
+
+// Make Server a resouce too?
+//  So it could be accessed (including logs) by the right connected admin users.
 
 class JSGUI_Server extends jsgui.Data_Object {
     constructor(spec, __type_name) {

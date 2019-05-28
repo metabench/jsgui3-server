@@ -26,7 +26,15 @@ var path = require('path'),
     libUrl = require('url'),
     Resource = jsgui.Resource;
 
-fs2 = require('./fs2');
+fs2 = require('../fs2');
+
+// Then could this connect to a cms db?
+//  Or a wider source of images?
+// Mapping the ws image requests to acquiring the image data.
+//  Won't necessarily be on disk. Could call to another resource, such as network / file / files on network.
+//  Could map over / use another resource.
+
+
 
 /*
 

@@ -7,6 +7,9 @@ const {
     observable
 } = require('fnl');
 
+// May need a lot more work for flexibility and auth
+//  Maybe can use middleware.
+
 class Function_Publisher {
     constructor(spec) {
         //let fn = this.fn = spec;
@@ -33,9 +36,14 @@ class Function_Publisher {
             // need to handle observable http request.
             // Begin sending to that connection...
             // Following SSE would be nice.
+
+            // Should check to see if it supports compression.
+            //   Compression function middleware could work fine here.
+
+
             let data = fn();
             res.writeHead(200, {
-                'Content-Type': 'text/json'//,
+                'Content-Type': 'application/json'//,
                 //'Transfer-Encoding': 'chunked',
                 //'Trailer': 'Content-MD5'
             });

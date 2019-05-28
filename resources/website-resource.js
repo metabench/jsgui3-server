@@ -68,9 +68,9 @@ var Site_Static_HTML = require("./website-static-html-resource");
 //var DB_Web_Resource = require('../../web/db-resource-postgres');
 //var database_resource_factory = require('../../db/resource/factory');
 
-const Resource_Publisher = require("./resource-publisher");
-const Observable_Publisher = require("./observable-publisher");
-const Function_Publisher = require("./function-publisher");
+const Resource_Publisher = require("../publishing/resource-publisher");
+const Observable_Publisher = require("../publishing/observable-publisher");
+const Function_Publisher = require("../publishing/function-publisher");
 
 const Data_Resource = require("./data-resource");
 /*

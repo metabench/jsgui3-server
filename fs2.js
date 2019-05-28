@@ -1,17 +1,3 @@
-// Adding process_copy function
-
-
-/*
- if (typeof define !== 'function') {
- var define = require('amdefine')(module);
- }
-
-
- //['jsgui-lang-essentials', 'node-rasters']
-
- define(['../core/jsgui-lang-essentials', 'child_process', 'ncp', './jsgui-node-file-checksum', 'rimraf'],
- function (jsgui, child_process, ncp_module, checksum, rimraf) {
- */
 
 var jsgui = require('jsgui3-html');
 var child_process = require('child_process');
@@ -19,9 +5,6 @@ var ncp_module = require('ncp');
 //var checksum = require('./file-checksum');
 var rimraf = require('rimraf');
 //var child_process = require('child_process');
-
-//define(['jsgui-lang-essentials', 'node-rasters', 'node-spritesheet', 'xpath', 'jsgui-html', 'phantom', 'xmldom', 'ncp'], function (jsgui, node_rasters, node_spritesheet, xpath, jsgui_html, phantom, xmldom, ncp) {
-
 var ncp = ncp_module.ncp;
 var log = console.log;
 
@@ -49,6 +32,15 @@ var call_multiple_callback_functions = jsgui.call_multiple_callback_functions;
 var call_multi = jsgui.call_multi;
 
 var Fns = jsgui.Fns;
+
+// promisify these, put them into fnlfs.
+//  do more work on fnlfs to make it observables.
+//   then put that into vhl.
+//    maybe with a bit of options and config done / automated by vhl.
+
+
+
+
 
 var file_checksum = function (file_path, callback) {
 	var algo = 'sha256';

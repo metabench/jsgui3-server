@@ -6,6 +6,8 @@ const Cookies = require('cookies');
 const multiparty = require('multiparty');
 //const util = require('util');
 
+// Publishing using websockets would be cool.
+
 class Resource_Publisher {
     constructor(spec) {
         this.resource = spec.resource;

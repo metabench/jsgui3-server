@@ -43,9 +43,10 @@ class Server_Page_Context extends jsgui.Page_Context {
 		if (spec.pool) {
 			this.pool = spec.pool;
 		}
-		if (spec.rendering_mode) {
-			this.rendering_mode = spec.rendering_mode;
-		}
+		//if (spec.rendering_mode) {
+		//	this.rendering_mode = spec.rendering_mode;
+		//}
+		this.rendering_mode = spec.rendering_mode || 'html5';
 
 		// The item IDs could be handled here... use the local variable closure here.
 		var map_new_ids = {};
@@ -69,7 +70,7 @@ class Server_Page_Context extends jsgui.Page_Context {
 
 	}
 	'get_dtd'() {
-		if (this.rendering_mode == 'html5') {
+		if (this.rendering_mode === 'html5') {
 			return '<!DOCTYPE html>';
 		}
 	}

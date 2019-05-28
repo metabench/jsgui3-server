@@ -22,7 +22,7 @@ const each = jsgui.each;
 //var Start_Stop_Toggle_Button = require('../controls/start-stop-toggle-button');
 const is_array = jsgui.is_array;
 var Server = require('./server');
-var Website_Resource = require('./website-resource');
+var Website_Resource = require('./resources/website-resource');
 var port = 80;
 //console.log('!!Server', !!Server);
 //console.log('Object.keys(Server)', Object.keys(Server));

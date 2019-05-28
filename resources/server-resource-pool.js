@@ -35,8 +35,6 @@ class Server_Resource_Pool extends Resource_Pool {
 		super(spec);
 
 		// will add the Resource_Local_Server_Information
-
-
 		// Will be nice to set them with an object.
 		//  Not just the normal spec.
 		//  Maybe can see if the spec matches fields?

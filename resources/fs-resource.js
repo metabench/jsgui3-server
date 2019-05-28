@@ -112,8 +112,6 @@ class FS_Resource extends Resource {
         // is_directory(path)
 
         // If it's a file, then it would return a read stream.
-        
-
 
 
     }

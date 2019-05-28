@@ -8,7 +8,7 @@ const Server_Page_Context = require('./page-context');
 // Login = require('../resource/login'),
 //var Server = {};
 
-const Resource_Publisher = require('./resource-publisher');
+const Resource_Publisher = require('./publishing/resource-publisher');
 
 //var Login_Html_Resource = Login.Html;
 // Test if node features are supported?

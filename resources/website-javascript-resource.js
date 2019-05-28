@@ -6,7 +6,7 @@ var path = require('path'),
 	http = require('http'),
 	libUrl = require('url'),
 	Resource = jsgui.Resource,
-	fs2 = require('./fs2'),
+	fs2 = require('../fs2'),
 	brotli = require('iltorb').compress,
 	//UglifyJS = require('uglify-js'),
 	zlib = require('zlib');
@@ -921,6 +921,12 @@ class Site_JavaScript extends Resource {
 							//res.writeHead(200, {'Content-Type': 'text/javascript'});
 							// Could possibly stream it from disk instead, that would likely be more efficient.
 							console.log('str_js.length', str_js.length);
+
+
+							// use gzip in many cases.
+							// want to support that.
+
+							// a streaming middleware fn could work...?
 
 							zlib.deflate(str_js, function (err, buffer) {
 								console.log('deflated buffer.length', buffer.length);

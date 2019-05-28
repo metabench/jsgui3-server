@@ -7,6 +7,20 @@ const {
     observable
 } = require('fnl');
 
+// Evented_Class_Publisher?
+//  Evented_Publisher
+
+// Want to do this over websockets too.
+//  Should be a single ws point.
+//   Could give out conntection keys alongside the HTTP request.
+//    All the security needed - give out a 256 bit key in the HTML doc, require it to open the websocket connection.
+//     Seems simple, would work with a single process auth provider, then could have centralised auth and token issuance and checking.
+
+
+
+
+
+
 class Observable_Publisher {
     constructor(spec) {
         let obs, schema;
@@ -36,6 +50,8 @@ class Observable_Publisher {
             return [];
         })
         this.type = 'observable';
+
+        // Also should publish when it's over.
 
         /*
 

@@ -1,7 +1,7 @@
 var path = require('path'), fs = require('fs'),
 	url = require('url'), jsgui = require('jsgui3-html'), os = require('os'), http = require('http'), libUrl = require('url'),
 	Resource = jsgui.Resource,
-	Cookies = require('cookies'), fs2 = require('./fs2');
+	Cookies = require('cookies'), fs2 = require('../fs2');
 
 var stringify = jsgui.stringify, each = jsgui.each, arrayify = jsgui.arrayify, tof = jsgui.tof;
 var filter_map_by_regex = jsgui.filter_map_by_regex;

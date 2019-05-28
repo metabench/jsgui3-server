@@ -19,7 +19,7 @@ var path = require('path'),
 	libUrl = require('url'),
 	Resource = jsgui.Resource,
 	Cookies = require('cookies'),
-	fs2 = require('./fs2');
+	fs2 = require('../fs2');
 
 const fnl = require('fnl');
 

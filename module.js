@@ -28,4 +28,7 @@ jsgui.fs2 = require('./fs2');
 //console.log('pre scs');
 jsgui.Single_Control_Server = require('./single-control-server');
 //console.log('3)jsgui', jsgui);
+
+// Make the Resource_Publisher available?
+
 module.exports = jsgui;

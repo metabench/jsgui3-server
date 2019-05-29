@@ -52,7 +52,14 @@ class Resource_Publisher {
                         //console.log('r', r);
                         // Then turn it to JSON.
                         // to server output json.
+
+                        // Resources that don't return JSON?
+
                         let j = JSON.stringify(r);
+
+                        // Middleware could be better?
+                        //  Only want to gzip if the client says its accepted.
+
                         zlib.gzip(j, (error, result) => {
                             if (error) {
                                 throw error;
@@ -75,6 +82,9 @@ class Resource_Publisher {
                         });
                         //console.log('j', j);
                         //console.log('typeof r', typeof r);
+                    } else {
+                        // Serve error?
+
                     }
                 }
 

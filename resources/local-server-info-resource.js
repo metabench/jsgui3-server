@@ -37,7 +37,7 @@ class Local_Server_Info extends Resource {
 	//  may not just be a pair.
 
 	'start'(callback) {
-        var that = this;
+        //var that = this;
 		super.start((err, res_start) => {
 			if (err) {
 				callback(err);
@@ -56,8 +56,8 @@ class Local_Server_Info extends Resource {
                         }
                     };
                     Object.assign(this.getters, getters);
-                    that.status = 'on';
-                    that.raise_event('started');
+                    this.status = 'on';
+                    this.raise_event('started');
                     if (callback) {
                         //console.log('pre cb lsi');
                         callback(null, true);

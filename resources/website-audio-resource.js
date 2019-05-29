@@ -24,8 +24,8 @@ define(['module', 'path', 'fs', 'url', '../../web/jsgui-html', 'os', 'http', 'ur
 		Resource, JeSuisXML, Cookies, fs2, audio_metadata, crypto) {
 */
 
-var path = require('path'), fs = require('fs'), url = require('url'), jsgui = require('../../web/jsgui-html'), os = require('os'), http = require('http'), libUrl = require('url'),
-  Resource = require('./resource'), JeSuisXML = require('../../web/jsgui-je-suis-xml'), Cookies = require('./cookies'), fs2 = require('../../fs/jsgui-node-fs2-core'), audio_metadata = require('../../audio/jsgui-node-audio-metadata'), crypto = require('crypto');
+const path = require('path'), fs = require('fs'), url = require('url'), jsgui = require('../../web/jsgui-html'), os = require('os'), http = require('http'), libUrl = require('url'),
+  Resource = require('./resource'), Cookies = require('./cookies'), fs2 = require('../../fs/jsgui-node-fs2-core'), audio_metadata = require('../../audio/jsgui-node-audio-metadata'), crypto = require('crypto');
 
 
 	var stringify = jsgui.stringify, each = jsgui.eac, arrayify = jsgui.arrayify, tof = jsgui.tof;

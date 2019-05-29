@@ -7,7 +7,7 @@ var path = require('path'),
 	libUrl = require('url'),
 	Resource = jsgui.Resource,
 	fs2 = require('../fs2'),
-	brotli = require('iltorb').compress,
+	//brotli = require('iltorb').compress,
 	//UglifyJS = require('uglify-js'),
 	zlib = require('zlib');
 
@@ -308,6 +308,8 @@ class Site_JavaScript extends Resource {
 					options.babel = 'mini';
 				}
 
+				//console.log('options.babel', options.babel);
+
 				if (options.replace) {
 					let s_file_contents = fileContents.toString();
 					//console.log('s_file_contents', s_file_contents);
@@ -422,11 +424,17 @@ class Site_JavaScript extends Resource {
 			callback = a[2];
 			options = {
 				//'babel': 'mini',
-				'include_sourcemaps': true
+				'include_sourcemaps': false
 			};
 		}
 		let serve_raw = options.serve_raw || options.raw;
 		let accepts_brotli = false;
+
+		// Need to come up with compressed versions.
+		//  An object that provides different versions 
+
+
+
 		return prom_or_cb((resolve, reject) => {
 			(async () => {
 				// options
@@ -449,6 +457,7 @@ class Site_JavaScript extends Resource {
 					options.include_sourcemaps = false;
 					options.babel = 'mini';
 				}
+				//console.log('options.babel', options.babel);
 				if (options.replace) {
 					let s_file_contents = fileContents.toString();
 					//console.log('s_file_contents', s_file_contents);
@@ -466,6 +475,7 @@ class Site_JavaScript extends Resource {
 				//  We have a space for client-side activation.
 
 				// want a raw option with no browserify.
+				//console.log('serve_raw', serve_raw);
 
 				if (serve_raw) {
 					var escaped_url = url.replace(/\./g, '☺');
@@ -497,7 +507,11 @@ class Site_JavaScript extends Resource {
 					//console.log('str_js.length', str_js.length);
 					// options.babel === true
 
-					let babel_option = options.babel
+					let babel_option = options.babel;
+
+					console.log('babel_option', babel_option);
+
+					//babel_option = 'es5';
 					//console.log('babel_option', babel_option);
 					if (babel_option === 'es5') {
 						// es5 option
@@ -533,6 +547,7 @@ class Site_JavaScript extends Resource {
 							//'sourceMaps': 'inline'
 						};
 						if (options.include_sourcemaps) o_tranform.sourceMaps = 'inline';
+
 						let res_transform = babel.transform(str_js, o_tranform);
 						//console.log('res_transform', res_transform);
 						//console.log('Object.keys(res_transform)', Object.keys(res_transform));
@@ -559,6 +574,7 @@ class Site_JavaScript extends Resource {
 									//"keepFnName": true
 								}]
 							],
+							"comments": false
 							//plugins: ["minify-dead-code-elimination"]
 						};
 
@@ -586,6 +602,36 @@ class Site_JavaScript extends Resource {
 					} else {
 						buf_js = Buffer.from(str_js);
 					}
+					var escaped_url = url.replace(/\./g, '☺');
+
+					console.log('pre compress buf_js.length', buf_js.length);
+					zlib.gzip(buf_js, {level: 9}, (err, buffer) => {
+						console.log('deflated buffer.length', buffer.length);
+	
+						if (err) {
+							reject(err);
+						} else {
+	
+							// 
+							//buffer.encoding = 'deflate';
+
+							this.custom_paths.set(escaped_url, {
+								raw: buf_js,
+								gzip: buffer
+							});
+	
+							resolve(true);
+						}
+						//res.writeHead(200, {
+						//	'Content-Encoding': 'deflate',
+						//	'Content-Type': 'text/javascript'
+						//});
+						//res.end(buffer);
+						//res.writeHead(200, {'Content-Type': 'text/javascript'});
+						//response.end(servableJs);
+						//res.end(minified.code);
+					});
+
 					// uglify and remove comments?
 
 					// Coming up with different built / compressed versions makes sense.
@@ -597,12 +643,30 @@ class Site_JavaScript extends Resource {
 
 					// then need to serve it under url
 
-					var escaped_url = url.replace(/\./g, '☺');
+					
 
-					console.log('pre compress buf_js.length', buf_js.length);
+					
 					//console.trace();
 
+
+					// want it compressed with a few different ways.
+
+					// want to compress to gzip by default
+
+					// Will change the way that .custom paths works.
+
+					// need to come up with both gzip and brotli compressed.
+					//  well, could ignore brotli for the moment
+					// could also have them become ready.
+
+
+
+
+
+					/*
+
 					if (accepts_brotli) {
+
 						brotli(buf_js, (err, buffer) => {
 							console.log('* brotli deflated buffer.length', buffer.length);
 
@@ -611,7 +675,10 @@ class Site_JavaScript extends Resource {
 							} else {
 
 								// 
+
+
 								buffer.encoding = 'br';
+
 								this.custom_paths.set(escaped_url, buffer);
 
 								resolve(true);
@@ -626,41 +693,14 @@ class Site_JavaScript extends Resource {
 							//res.end(minified.code);
 						});
 					} else {
-						this.custom_paths.set(escaped_url, buf_js);
-						resolve(true);
+						
 					}
+					*/
 				}
-
 				/*
-				zlib.deflate(buf_js, (err, buffer) => {
-					console.log('deflated buffer.length', buffer.length);
-
-
-					if (err) {
-						reject(err);
-					} else {
-
-						// 
-						buffer.encoding = 'deflate';
-						this.custom_paths.set(escaped_url, buffer);
-
-						resolve(true);
-					}
-					//res.writeHead(200, {
-					//	'Content-Encoding': 'deflate',
-					//	'Content-Type': 'text/javascript'
-					//});
-					//res.end(buffer);
-					//res.writeHead(200, {'Content-Type': 'text/javascript'});
-					//response.end(servableJs);
-					//res.end(minified.code);
-				});
 				*/
-
 				// 
-
 				// then need to store that compiled file at that URL.
-
 			})();
 		}, callback);
 	}
@@ -742,6 +782,7 @@ class Site_JavaScript extends Resource {
 		//console.log('rurl', rurl);
 
 		var custom_response_entry = custom_paths[rurl];
+		//console.log('custom_response_entry', custom_response_entry);
 		//console.log('custom_response_entry.encoding', custom_response_entry.encoding);
 
 		// hmmmm get not working right?
@@ -752,7 +793,36 @@ class Site_JavaScript extends Resource {
 		var pool = this.pool;
 		if (custom_response_entry) {
 
-			let t = tof(custom_response_entry._);
+			//let t = tof(custom_response_entry._);
+
+			//console.log('req.headers', req.headers);
+			const ae = req.headers['accept-encoding'];
+			let data_to_serve;
+			let o_head = {
+				'Content-Type': 'text/javascript'
+			}
+			if (ae.includes('gzip')) {
+				o_head['Content-Encoding'] = 'gzip';
+				data_to_serve = custom_response_entry._.gzip;
+			} else {
+				data_to_serve = custom_response_entry._.raw;
+			}
+			res.writeHead(200, o_head);
+			res.end(data_to_serve);
+
+
+
+
+			//throw 'stop';
+
+
+			// it's an object.
+
+			// ._.raw, ._.gzip
+
+
+
+			/*
 			console.log('t', t);
 			if (t === 'buffer') {
 				//console.log('sending js');
@@ -790,6 +860,7 @@ class Site_JavaScript extends Resource {
 					}
 				});
 			}
+			*/
 
 			// 
 			//console.trace();

@@ -13,15 +13,17 @@
 var libpath = require('path'),
     fs = require('fs'),
     url = require('url'),
-    jsgui = require('jsgui3-html'),
+    //jsgui = require('jsgui3-html'),
     os = require('os'),
     http = require('http'),
     libUrl = require('url'),
+    jsgui = require('jsgui3-html')
     Resource = jsgui.Resource,
     Cookies = require('cookies'),
-    fs2 = require('./fs2');
+    fs2 = require('../fs2');
 
 
+    /*
 
 var stringify = jsgui.stringify,
     each = jsgui.each,
@@ -34,7 +36,7 @@ var Class = jsgui.Class,
 var fp = jsgui.fp,
     is_defined = jsgui.is_defined;
 var Collection = jsgui.Collection;
-
+*/
 // Extends AutoStart_Resource?
 
 // May need to change around a fair few references to make it workable.
@@ -48,9 +50,17 @@ const fnlfs = require('fnlfs');
 // Cloud_FS_Resource
 // SFTP_FS_Resource
 
+
+// Publishing an FS resource would enable a directory browsing app.
+//  File_Tree, and connect to the client-side Data_Resource.
+
+
+
 const {
-    is_directory
+    is_directory, dir_contents
 } = fnlfs;
+
+// This Resource looks to be in a RESTful paradigm. Consider how it would work with GraphQL.
 
 class FS_Resource extends Resource {
 
@@ -79,11 +89,15 @@ class FS_Resource extends Resource {
         //  Disallow .. in the given paths.
 
 
-
-
     }
+    // need to promisify this.
     'start' (callback) {
-        callback(null, true);
+        if (callback) {
+            callback(null, true);
+        } else {
+            return true;
+        }
+        
     }
 
     'get' (path, callback) {
@@ -95,12 +109,14 @@ class FS_Resource extends Resource {
                     let full_path = libpath.join(this.root_path, path);
                     console.log('full_path', full_path);
 
-                    let contents = fnlfs.dir_contents(full_path);
+                    let contents = await dir_contents(full_path);
                     // however, those are File objects.
 
                     // try just stringifying them now.
                     //  No need to handle stringifying here.
                     complete(contents);
+                } else {
+                    // It's a file.
                 }
             })();
         });
@@ -116,8 +132,12 @@ class FS_Resource extends Resource {
 
     }
     'set' (path, value, callback) {
-
+        // Overwrite files
     }
+
+    // Delete
+
+
 
     /*
         Does not process HTTP requests itself. Has a Resource_Publisher which contains / refers to this and does the publishing.

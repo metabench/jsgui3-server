@@ -29,8 +29,8 @@ var stringify = jsgui.stringify,
 	tof = jsgui.tof;
 var filter_map_by_regex = jsgui.filter_map_by_regex;
 var Class = jsgui.Class,
-	Data_Object = jsgui.Data_Object,
-	Enhanced_Data_Object = jsgui.Enhanced_Data_Object;
+	Data_Object = jsgui.Data_Object;
+	//Enhanced_Data_Object = jsgui.Enhanced_Data_Object;
 var fp = jsgui.fp,
 	is_defined = jsgui.is_defined;
 var Collection = jsgui.Collection;
@@ -51,6 +51,9 @@ var serve_css_string = function(css, response) {
 	});
 	response.end(css);
 }
+
+// Could compile sass or whatever.
+//  Could gzip compress.
 
 var serve_css_file_from_disk = function (filePath, response) {
 	// look for the file in two places.
@@ -246,7 +249,7 @@ class Site_CSS extends Resource {
 			var tcr = tof(custom_response_entry);
 			//console.log('tcr ' + tcr);
 			//throw 'stop';
-			if (tcr == 'data_value') {
+			if (tcr === 'data_value') {
 				var val = custom_response_entry.value();
 				//console.log('val ' + val);
 				throw 'stop';
@@ -256,14 +259,14 @@ class Site_CSS extends Resource {
 					serve_css_file_from_disk(val, res);
 				}
 			}
-			if (tcr == 'string') {
+			if (tcr === 'string') {
 				serve_css_file_from_disk(custom_response_entry, res);
 			}
 		} else {
 			if (splitPath.length > 0) {
 				if (splitPath[0] === 'css') {
 					if (splitPath.length > 1) {
-						if (splitPath.length == 2) {
+						if (splitPath.length === 2) {
 							var fileName = splitPath[1];
 							//var filePath = 'css/' + fileName;
 							serve_css_file_from_disk(fileName, res);

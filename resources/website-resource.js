@@ -97,6 +97,13 @@ var Worker = require('webworker-threads');
 // Want to be able to run a website resource serving static files.
 //  Don't want too complicated configuration here.
 
+// Does not have the FS resource by default.
+//  Can add the FS resource to the website's resource pool.
+//  Can just have the resource there, not in the pool, and publish it.
+//   Set the resource's security?
+//   Resource has security built-in?
+
+
 class Website_Resource extends Resource {
   constructor(spec) {
     super(spec);
@@ -106,7 +113,7 @@ class Website_Resource extends Resource {
 
     // speck could be a string, such as 'static'
 
-    var t_spec = tof(spec);
+    //var t_spec = tof(spec);
     //console.log('t_spec', t_spec);
     // A website has a resource pool as well.
     //  That means nested resource pools.
@@ -117,14 +124,30 @@ class Website_Resource extends Resource {
     //    Website router
     // And don't need local server info there?
     //  Connect the local server info back up the resource and resource pool chain?
+
+
+    // A bit of a special resource here because it has its own resource_pool.
+
     var resource_pool = new Resource_Pool({
       name: "Website Resource Pool"
     });
+
+    // within a pool?
+    //  its own pool?
+
+    this.resource_pool = resource_pool;
     //console.log('this._.resource_pool', this._.resource_pool);
     //throw 'stop';
     // maybe there is not a database.
     var database_spec = spec.database;
     var web_database_resource;
+
+    // Maybe better to specifically add this???
+    //  DB resource factory according to spec is cool though.
+
+    // Could use CMS-Resource?
+
+
     if (database_spec) {
       database_spec.name = database_spec.name || database_spec.database_name;
       var database_resource = database_resource_factory(database_spec);
@@ -274,12 +297,17 @@ class Website_Resource extends Resource {
       //}
     });
 
+    // Not so sure about this data resource.
+    //  Don't use it for the moment - it's not functional.
+
+    /*
     var data_resource = new Data_Resource({
       //'meta': {
       name: "Site Data",
       pool: resource_pool
       //}
     });
+    */
     //resource_pool.push(admin_web_resource);
 
     // javascript and css resources.
@@ -287,7 +315,7 @@ class Website_Resource extends Resource {
     resource_pool.push(img_resource);
     resource_pool.push(js_resource);
     resource_pool.push(css_resource);
-    resource_pool.push(data_resource);
+    //resource_pool.push(data_resource);
 
     // anything ending in .css as well.
     //  Routing maybe wouldn't work like that.
@@ -300,14 +328,18 @@ class Website_Resource extends Resource {
 
     router.set_route("img/*", img_resource, img_resource.process);
     router.set_route("images/*", img_resource, img_resource.process);
-    router.set_route("data/*", data_resource, data_resource.process);
+    //router.set_route("data/*", data_resource, data_resource.process);
+
+    // removing /data default path to data resource (which doesn't appear to do much right now)
+
+
     //router.set_route('resources/*', data_resource, data_resource.process);
 
-    let server_pool = this.pool;
+    //let server_pool = this.pool;
 
     this.map_resource_publishers = this.map_resource_publishers || {};
 
-    let that = this;
+    //let that = this;
 
     router.set_route("resources/:resource_name/*", this, (req, res) => {
       //console.log('website router routing resource request');
@@ -333,8 +365,7 @@ class Website_Resource extends Resource {
       //console.log('Object.keys(this.map_resource_publishers)', Object.keys(this.map_resource_publishers));
       //console.log('this', this);
 
-      let resource_publisher =
-        that.map_resource_publishers[resource_short_name];
+      let resource_publisher = this.map_resource_publishers[resource_short_name];
       //console.log('1) this', this);
       //console.log('1) that', that);
       // that
@@ -384,9 +415,9 @@ class Website_Resource extends Resource {
       a = arguments,
       l = a.length;
 
-    console.log("a", a);
-    console.log("sig", sig);
-    console.log("l", l);
+    //console.log("a", a);
+    //console.log("sig", sig);
+    //console.log("l", l);
     //throw 'stop';
 
     const single = (published_name, item) => {
@@ -401,6 +432,13 @@ class Website_Resource extends Resource {
           name: published_name
         });
         this.map_resource_publishers[published_name] = resource_publisher;
+
+        item.name = item.name || published_name;
+        // add that resource!
+        //  (to the pool?)
+        console.log('item', item);
+        this.resource_pool.add(item);
+
         //console.log('Object.keys(this.map_resource_publishers)', Object.keys(this.map_resource_publishers));
       } else {
         // if its a function
@@ -590,7 +628,7 @@ class Website_Resource extends Resource {
       //
       // Special case of '/'
 
-      if (req.url == "/") {
+      if (req.url === "/") {
         // Send this to the static HTML processing system.
 
         var static_html_resource = this.resource_pool.get_resource(

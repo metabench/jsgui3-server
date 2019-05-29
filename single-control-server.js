@@ -124,8 +124,13 @@ class Single_Control_Server extends Server {
 
     'start' (callback) {
         //throw 'stop';
-        var resource_pool = this.resource_pool;
-        var server_router = resource_pool.get_resource('Server Router');
+        //var resource_pool = this.resource_pool;
+
+        var resource_pool = this.app_server.resource_pool;
+
+
+
+        var server_router = this.resource_pool.get_resource('Server Router');
         // Build the client js and include that.
         //  Could have been given a different client js file too.
         //  By default want to provide the html client from jsgui.
@@ -182,7 +187,17 @@ class Single_Control_Server extends Server {
         } else {
             //o_serve_package.babel = 'mini';
         }
-        o_serve_package.js_mode = 'debug';
+        // need to minify the js.
+        //  Also, gzip compression as standard.
+        //  Need HTTPS for Brotli - but want to get HTTPS working more, tested online and running.
+
+        // Need to minify js, reduce file size.
+
+        // Minifying currently breaks it.
+
+        //o_serve_package.js_mode = 'debug';
+        o_serve_package.js_mode = 'mini';
+
         // Not sure how to do the replace when loading from disk.
         // Give a reference to the package to serve itself.
         //  example servers - 
@@ -207,8 +222,13 @@ class Single_Control_Server extends Server {
                     'req': req,
                     'res': res,
                     'resource_pool': resource_pool,
-                    'server': this // does this make a vulnerability? know that controls have access to the server.
+
+                    // Best not to do this I think.
+                    //  Could have a plugin?
+
+                    //'server': this // does this make a vulnerability? know that controls have access to the server.
                 });
+
                 // Page_Bounds_Specifier
                 var hd = new jsgui.Client_HTML_Document({
                     'context': server_page_context
@@ -234,8 +254,11 @@ class Single_Control_Server extends Server {
 
                 // Want to get this to work, then greatly slim down the codebase, or at least delete comments, use some more syntactic sugar.
 
-                console.log('this.app_server.map_resource_publishers', this.app_server.map_resource_publishers);
-                console.log('this.app_server.def_resource_publishers', this.app_server.def_resource_publishers);
+                // Calling 'publish' would be a good method.
+                //console.log('this.app_server.map_resource_publishers', this.app_server.map_resource_publishers);
+                //console.log('this.app_server.def_resource_publishers', this.app_server.def_resource_publishers);
+
+
 
                 // a script block where we assign the resource publishers.
                 //  tell the client what resources are available on the server.
@@ -258,6 +281,7 @@ class Single_Control_Server extends Server {
                 Object.assign(o_params, {
                     'context': server_page_context
                 });
+                //console.log('this.Ctrl', this.Ctrl);
                 var ctrl = this.ctrl = new this.Ctrl(o_params);
                 ctrl.active();
                 //var ctrl2 = new jsgui.Control({});

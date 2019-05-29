@@ -29,6 +29,14 @@ var Collection = jsgui.Collection;
 // May need to change around a fair few references to make it workable.
 // May need some more complicated logic to change it to the path for service.
 
+// Possibly Data_Resource could provide images which go alongside the data.
+//  Icons to represent data.
+//  Could make use of the image resource in order to do this.
+//   An image resource could use / be a data resource that provides access to images.
+
+// Ideally want it like image keys, then options for max size and also quality.
+//  
+
 
 class Data_Resource extends Resource {
 
@@ -64,11 +72,9 @@ class Data_Resource extends Resource {
 
         if (splitPath.length === 2) {
             if (splitPath[0] === 'data') {
-                let key = splitPath[1];
-                let value = this.data[key];
-                //console.log('value', value);
-                let t_val = tof(value);
+                let key = splitPath[1], value = this.data[key], t_val = tof(value);
                 //console.log('t_val', t_val);
+                // Other types of data?
                 if (t_val === 'buffer') {
                     // Encode it as hex / baase64?
 

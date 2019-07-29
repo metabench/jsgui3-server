@@ -239,6 +239,12 @@ class Website_Resource extends Resource {
 
     //console.log('Site_Images', Site_Images);
 
+    // The images resource may need more work.
+    //  Need to be able to simply load images / icons into this resource.
+
+
+
+
     var img_resource = new Site_Images({
       //'meta': {
       name: "Site Images",
@@ -252,6 +258,10 @@ class Website_Resource extends Resource {
       pool: resource_pool
       //}
     });
+
+
+
+
 
     // Also want a static HTML server.
     //  Would serve index.html by default I think???
@@ -297,6 +307,34 @@ class Website_Resource extends Resource {
       //}
     });
 
+
+    js_resource.on('extracted-controls-css', str_extracted_css => {
+
+      console.log('website resource has got the extracted controls css from the js: ' + str_extracted_css);
+
+      // serve this as /css/controls.css
+
+      // Give it to the css resource to serve.
+
+      //css_resource.ser
+
+      css_resource.serve_str_css('controls.css', str_extracted_css);
+
+
+
+
+
+
+      // Will serve this as controls.css
+      //  Separate HTTP request, will get more CSS for the moment.
+
+
+
+
+
+    })
+
+
     // Not so sure about this data resource.
     //  Don't use it for the moment - it's not functional.
 
@@ -340,6 +378,34 @@ class Website_Resource extends Resource {
     this.map_resource_publishers = this.map_resource_publishers || {};
 
     //let that = this;
+
+    // always under a /reseources/ url path?
+    //  Maybe just want it under the resource name.
+
+
+    // It could add the path when it publishes a resource.
+    //  A particular path could have its route set when its published.
+
+    // Or change the client-side wiring up?
+    //  Could include the path of the resource in the def that's sent to the client.
+
+    // Publishing functions / being able to do so, not under the /resources/ path makes a lot of sense.
+    //  Intuitively a website arch may not need the /resources/ path.
+    //   Be able to set a custom path / route.
+
+    //  A publisher could create a request handler function?
+
+    //  resources maybe will not be set under /resources/.
+    //   worth keeping as a default?
+    //    does make sense unless a 'path' is specified in the options.
+    
+    
+
+
+
+
+    // keep this for the moment...
+
 
     router.set_route("resources/:resource_name/*", this, (req, res) => {
       //console.log('website router routing resource request');
@@ -398,9 +464,133 @@ class Website_Resource extends Resource {
     // Super call was not working for some reason.
     //this._super(spec);
   }
+
+
   // And a schema?
 
+  // name, path, item?
+  // Publishing with a set path seems rather important.
+
+
+
+
+  // publish_item_get_fn_req_handler
+  //  request handler functions by themselves could be useful.
+  //  will make use of the resource publisher (instance).
+
+  // change the default path away from /resources/?
+  //  so could create a new handling function for the calls.
+  //  not everything would be routed through the /resources/ object
+
+
+  // publish(item, options)
+  //  publish(path, options)
+
+
+  // Maybe best to change API and how this works here.
+  //  /resources/ wont fit in with various API designs, shouldnt be default?
+  //  be able to set such a directory though?
+
+
+  // A new publish function...?
+  //  or variety of functions that do the various parts.
+  // 
+
+  // publishing_get_fn_http_handler
+  //  gets the function (http handler) that will get put in the appropriate route.
+
+
+  // maybe will redo publishing later. We specifically need the handling function and will add the 
+  publishing_get_pub(item) {
+    // don't need to name it?
+    //  name could already be included in item.
+
+    let pub;
+    if (item instanceof jsgui.Resource) {
+      pub = new Resource_Publisher({
+        resource: item
+      });
+      //this.map_resource_publishers[published_name] = resource_publisher;
+
+      //item.name = item.name || published_name;
+      // add that resource!
+      //  (to the pool?)
+      //console.log('item', item);
+      //this.resource_pool.add(item);
+
+      //console.log('Object.keys(this.map_resource_publishers)', Object.keys(this.map_resource_publishers));
+    } else {
+      // if its a function
+      //  return that function call to the response.
+      let t_item = typeof item;
+      if (t_item === "function") {
+        // Function_Call_Publisher
+        // could respec this.
+        // And the Function_Publisher operates through the Publisher API. Not sure what that is right now though.
+
+        pub = new Function_Publisher({
+            fn: item
+        });
+        //this.map_resource_publishers[published_name] = pub;
+        // 
+      } else {
+        if (item.next && item.complete && item.error) {
+          // assuming observable
+          // Observable publisher
+          //  One way sending...
+          //console.log('using Observable_Publisher');
+          pub = new Observable_Publisher({
+              obs: item
+          });
+          // or not a resource publisher, an observable publisher.
+          //this.map_resource_publishers = this.map_resource_publishers || {};
+          //this.map_resource_publishers[published_name] = obs_pub;
+
+          //console.log('2) this', this);
+          //console.log('this.map_resource_publishers', this.map_resource_publishers);
+          //console.trace();
+        } else {
+          console.log("item", item);
+          throw "Unrecognised item type. Possibly node module versions are wrong / have not been linked fully.";
+        }
+      }
+      //if (item instanceof Evented_Class) {
+    }
+    return pub;
+  }
+
+
+
+
+  // publish within resources?
   publish(published_name, item, schema) {
+    
+    // more sig matching where we check for a path?
+    //  use of an options object?
+
+    //  worth parsing the signature, looking for specific things.
+    //  likely could save some space and make the function clearer.
+
+    //  and automatically publishing the function schema / api, if the function is made with mfp etc?
+    //   not for the moment...?
+
+    // or assign its full params.
+
+    // an options object?
+    // path, (name?), item
+
+    // ofp applying as plural using multiple keys and values from the options object
+    //  not yet. that would be a way of calling the single function.
+
+    // allowing it to take an options object would be very useful.
+    //  specifying the name as well as the path?
+
+
+
+    // Want to be able to (optionally) choose the full path its published under.
+    //  Not (only) published under /resources/name.
+    //  More flexibility in creation of the website / service API / structure.
+
     // single and multi
     //  effectively like arrayify or mapify
     // 1 or multiple args
@@ -420,7 +610,12 @@ class Website_Resource extends Resource {
     //console.log("l", l);
     //throw 'stop';
 
+    // could use mfp, ofp etc.
+
     const single = (published_name, item) => {
+
+      // option of 
+
       console.log("Website_Resource publish", published_name);
       //console.log('published_name, item', published_name, item);
       //this.map_resource_publishers = this.map_resource_publishers || {};
@@ -443,17 +638,20 @@ class Website_Resource extends Resource {
       } else {
         // if its a function
         //  return that function call to the response.
-
         let t_item = typeof item;
         if (t_item === "function") {
           // Function_Call_Publisher
           // could respec this.
 
+          // And the Function_Publisher operates through the Publisher API. Not sure what that is right now though.
+          //   directly attaching the resource publishers?
           let pub = new Function_Publisher({
               fn: item,
               schema: schema
           });
           this.map_resource_publishers[published_name] = pub;
+          // 
+
         } else {
           if (item.next && item.complete && item.error) {
             // assuming observable
@@ -502,6 +700,7 @@ class Website_Resource extends Resource {
             single(i, v);
         })
     } else {
+
         single(published_name, item);
     }
   }
@@ -524,8 +723,11 @@ class Website_Resource extends Resource {
   get def_resource_publishers() {
     const res = {};
     each(this.map_resource_publishers, (rp, name) => {
-        console.log('name', name);
-        console.log('rp', rp);
+
+
+
+        //console.log('name', name);
+        //console.log('rp', rp);
         let def = {
             name: name,
             type: rp.type
@@ -591,30 +793,8 @@ class Website_Resource extends Resource {
     //throw 'stop';
 
     var remoteAddress = req.connection.remoteAddress;
-
-    // Gets the website router...
-
-    // use the router resource.
-
-    //console.log('this', this);
-
-    //console.log(new Error().stack);
-    //throw 'stop';
-
-    //console.log('this', this);
-    //throw 'stop';
-
     var router = this.router;
-
     var res_process = router.process(req, res);
-
-    // Then look at the last part of the filename.
-    //
-
-    // But then does anythin get returned?
-
-    //console.log('website router res_process', res_process);
-
     if (res_process === false) {
       // Perhaps it's one of the static HTML files?
       //  Could try to process it using static HTML?
@@ -624,7 +804,6 @@ class Website_Resource extends Resource {
 
       // At this point we hand it off to the static HTML processor.
       //  Need some more root directory level handling, but the main processing system is about setting up paths and dealing with parameters.
-
       //
       // Special case of '/'
 

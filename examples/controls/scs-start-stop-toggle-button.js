@@ -2,7 +2,7 @@
  * Created by James on 02/10/2016.
  */
 
-var Server = require('../../single-control-server');
+var SC_Server = require('../../single-control-server');
 var { Start_Stop_Toggle_Button } = require('jsgui3-html');
 
 //var Server = jsgui.Server;
@@ -11,11 +11,16 @@ var { Start_Stop_Toggle_Button } = require('jsgui3-html');
 //  Include jsgui client js as default.
 //  Would maybe want to substitute that with a different client build that includes jsgui3 (client) and custom controls and logic.
 
+// A very simple one.
+//  Could abstract it to a function call.
+
+// run_scs(Start_Stop_Toggle_Button)
+
 
 // Give it a live Control?
 //  Would want to give that Control access to a server-side resource too.
 
-var server = new Server({
+var server = new SC_Server({
 	'port': 80,
 	'ctrl': Start_Stop_Toggle_Button//,
 	//'js_mode': 'debug'

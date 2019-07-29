@@ -419,6 +419,12 @@ class Site_JavaScript extends Resource {
 	'serve_package_from_path'(url, js_file_path, options = {}, callback) {
 		console.log('serve_package_from_path', url, js_file_path);
 		// js_mode option may need to be used.
+
+
+		// Make it an observable?
+		//  Raise an event when we have the browserified fill js file (uncompressed?).
+
+
 		let a = arguments;
 		if (typeof a[2] === 'function') {
 			callback = a[2];
@@ -484,6 +490,10 @@ class Site_JavaScript extends Resource {
 					s.push(fileContents);
 					s.push(null);
 					//let include_sourcemaps = true;
+
+					// Don't always include sourcemap?
+					//  Separate out the sourcemap?
+
 					let b = browserify(s, {
 						basedir: path.dir,
 						//builtins: false,
@@ -503,13 +513,196 @@ class Site_JavaScript extends Resource {
 					let buf_js = Buffer.concat(buffers);
 					let str_js = buf_js.toString();
 
+					// the part prior to '//# sourceMappingURL' is the code itself.
+					//  we could parse it into AST?
+					//  and find all controls with .css properties?
+
+					// could do a more rudimentary dearch on each line of code.
+					//  That makes most sense.
+					// And can use the info to recompile the js code, with the CSS parts removed.
+
+					// This js resource could raise an event saying it's got the extracted / removed CSS.
+					//  Makes sense for the js resource to handle it.
+
+					// This will make it a lot easier to edit the CSS alongside the relevant controls.
+					// Controls could possibly have different themes that operate too.
+					//  Could make a theme-name css class, such as 'dark', and have css for specific themes declared in the control CSS / SASS.
+
+					let str_js_code = str_js;
+					let str_sourcemap;
+
+					let pos_prior_sourcemap = str_js.indexOf('//# sourceMappingURL');
+					if (pos_prior_sourcemap > -1) {
+						str_js_code = str_js.substr(0, pos_prior_sourcemap);
+						str_sourcemap = str_js.substr(pos_prior_sourcemap);
+					}
+
+					// can add the same sourcemap back?
+					//  Would prob be OK with the CSS code removed.
+
+
+
+
+
+					// extract css function...
+					//  extract css lines
+					//   returns css, non-css
+
+					// filter_extract_css
+
+					const js_remove_comments = (str_js_code) => {
+						// comments will be OK within a string.
+
+						// Be able to work out what type of code we are in at all points...?
+						//  Non-tokenising scanner...?
+
+						// Knowing whether or not */ // /* is within a string is important - because if it's in a string its not a comment.
+						//  seems like making the scanning parser is a bit of a large task. It would constantly need to know what symbol type / string encapsulator to use.
+
+						// Could split it into lines, spot whenever a line starts a comment...?
+
+
+
+
+					} 
+
+
+
+
+					const filter_js_extract_control_css = (str_js_code) => {
+						// res = [css, js_no_css]
+						// Split the js lines.
+
+						const s_js = str_js_code.split('\n');
+
+						// Mark the relative lines.
+						//  Could remove comment sections...
+						//  Spot comments begginning, comments ending.
+						//   Then could remove all comments from here, so we don't make use of any commented code.
+
+						// My own (basic) code to strip comments?
+						//  Stripping out commented CSS is relatively important
+						//  And replace some specific comments?
+						// Could go through the whole js string, char by char, removing comments.
+						// Make it so that all css that gets used has no indent...
+						//  That could work.
+
+						// Any line with .css = funny quote
+
+						let within_class_css = false;
+						const control_css_lines = [];
+						const js_non_css_lines = [];
+						// and the non-css lines.
+						// And need to look for its stop.
+						// And leave the first and last line out of the css.
+						each(s_js, js_line => {
+							let placed_js_line = false;
+							const pos_class_css_begin = js_line.indexOf('.css = `');
+							// if its 0
+
+							if (pos_class_css_begin > -1) {
+								//console.log('js_line', js_line);
+								within_class_css = true;
+							}
+							// Put empty lines (back) into the js array?
+
+							if (within_class_css) {
+								//console.log('js_line', js_line);
+
+								const pos_control_css_end = js_line.indexOf('`;');
+								//console.log('pos_control_css_end', pos_control_css_end);
+								if (pos_control_css_end > -1) {
+									within_class_css = false;
+								} else {
+									if (pos_class_css_begin > -1) {
+
+									} else {
+										control_css_lines.push(js_line);
+									}
+									
+								}
+							} else {
+								js_non_css_lines.push(js_line);
+								placed_js_line = true;
+							}
+
+							if (!placed_js_line) {
+								js_non_css_lines.push('');
+							}
+							//let is_control_css_start = js_line.indexOf()
+
+							if (control_css_lines.length > 200) throw 'stop';
+
+						})
+						return [control_css_lines.join('\n'), js_non_css_lines.join('\n')];
+					}
+
+					let [str_css, str_js_no_css] = filter_js_extract_control_css(str_js_code);
+
+					// Add the sourcemaps back? Its working.
+
+					if (str_sourcemap) {
+						str_js_no_css = str_js_no_css + str_sourcemap;
+					}
+
+					//console.log('str_css.length', str_css.length);
+					//console.log('str_js_no_css.length', str_js_no_css.length);
+					//console.log('str_css', str_css);
+
+					this.raise('extracted-controls-css', str_css);
+					// And the server / website resource can listen for these, and then give the data to the css.
+
+
+					// string of extracted Control css.
+
+					// Very nice... looks like the css and js separation and compilation is working OK.
+
+					// Work with the JS when serving the JS.
+					//  Could raise an event from the resource saying that we have the extracted / compiled CSS...?
+
+
+
+
+
+
+
+					//throw 'stop';
+
+
+
+
+
+
+
+
+
+					
+
+
+
+
+					//await fnlfs.save('D:\\saved_no_css.js', str_js_no_css);
+
+					// Then with str_js....
+					//  That is the part where we can find / remove the css parts.
+
+					// Use a JS parser?
+					//  Is that overkill?
+
+					// can we separate statements by ';'?
+					//  then go through them, looking for the css.
+
+					// or look for Class.css = {..
+
+					//console.log('str_js.length', str_js.length);
+
 					//console.log('buf_js.length', buf_js.length);
 					//console.log('str_js.length', str_js.length);
 					// options.babel === true
 
 					let babel_option = options.babel;
 
-					console.log('babel_option', babel_option);
+					//console.log('babel_option', babel_option);
 
 					//babel_option = 'es5';
 					//console.log('babel_option', babel_option);
@@ -548,7 +741,7 @@ class Site_JavaScript extends Resource {
 						};
 						if (options.include_sourcemaps) o_tranform.sourceMaps = 'inline';
 
-						let res_transform = babel.transform(str_js, o_tranform);
+						let res_transform = babel.transform(str_js_no_css, o_tranform);
 						//console.log('res_transform', res_transform);
 						//console.log('Object.keys(res_transform)', Object.keys(res_transform));
 						let jst_es5 = res_transform.code;
@@ -579,7 +772,7 @@ class Site_JavaScript extends Resource {
 						};
 
 						if (options.include_sourcemaps) o_transform.sourceMaps = 'inline';
-						let res_transform = babel.transform(str_js, o_transform);
+						let res_transform = babel.transform(str_js_no_css, o_transform);
 						//let jst_es5 = res_transform.code;
 						//let {jst_es5, map, ast} = babel.transform(str_js);
 						//console.log('jst_es5.length', jst_es5.length);
@@ -600,7 +793,7 @@ class Site_JavaScript extends Resource {
 						//
 
 					} else {
-						buf_js = Buffer.from(str_js);
+						buf_js = Buffer.from(str_js_no_css);
 					}
 					var escaped_url = url.replace(/\./g, '☺');
 
@@ -611,7 +804,6 @@ class Site_JavaScript extends Resource {
 						if (err) {
 							reject(err);
 						} else {
-	
 							// 
 							//buffer.encoding = 'deflate';
 

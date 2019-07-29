@@ -10,6 +10,12 @@
  Resource, JeSuisXML, Cookies, fs2) {
  */
 
+
+// All the CSS that has been put together from the controls...
+
+// .compile_controls_css(controls)
+
+
 var path = require('path'),
 	fs = require('fs'),
 	url = require('url'),
@@ -44,6 +50,30 @@ const prom_or_cb = fnl.prom_or_cb;
 
 // jsgui3 now has its own css in the 'client' folder.
 //  Should be able to just serve css files from there.
+
+
+// and a map of all css text?
+
+const compile_controls_css = controls => {
+	// go through all the controls, look for the .css property (on the class)
+
+	//let res = '';
+	const arr_css = [];
+
+
+	each(controls, Ctrl => {
+
+		const {css} = Ctrl;
+		if (css) arr_css.push(css);
+
+
+	});
+	const str_css = arr_css.join('\n');
+	return str_css;
+
+}
+
+
 
 var serve_css_string = function(css, response) {
 	response.writeHead(200, {
@@ -168,11 +198,32 @@ var serve_css_file_from_disk = function (filePath, response) {
 	}
 }
 
+// compile_controls_css
+// Serving loaded / generated / compiled css from a buffer looks like it makes the most sense.
+//  Still more to do to get the whole framework working well / efficiently as a whole.
+//   Should make for a very efficient programming style once this is done.
+
+
+
+
+
+
+
+
 class Site_CSS extends Resource {
 	constructor(spec) {
 		super(spec);
 		//this.meta.set('custom_paths', new Data_Object({}));
 		this.custom_paths = new Data_Object({});
+		// Custom paths buffer?
+
+		//this.map_css_uncompressed_buffers = {};
+
+		this.map_buffers = {};
+
+		// May be metter to make a map - buffer of the css that gets served.
+		//  Including gzip too where appropriate.
+
 		// Those are custom file paths.
 		// could have a collection of directories, indexed by name, that get served.
 		// Index the collection by string value?
@@ -197,6 +248,40 @@ class Site_CSS extends Resource {
 		//console.log('path ' + path);
 		//throw 'stop';
 	}
+	'serve_str_css' (path, str_css) {
+
+		// load it into the uncompressed / raw part of the buffer.
+		this.map_buffers[path] = {
+			raw: Buffer.from(str_css)
+		}
+
+		// Then will check for this when serving in the future.
+		//  When doing process request.
+
+
+	}
+
+	// serve_str_css (path to serve it as, str_css)
+	//  will record it into the map_buffers of what to serve under what name
+
+	// Serving compiled css for the jsgui controls will be very useful.
+	//  Then may do some more work on functional control creation.
+
+	//  A control factory?
+	//   And can give it the (xml) text spec too?
+
+
+
+
+
+	// Serve css as string.
+	//  Want a buffer of csss to serve user specific names.
+	//  Like image resource icons.
+
+
+
+
+
 	'serve' (serve_as, system_file_path, callback) {
 		return prom_or_cb((resolve, reject) => {
 			console.log('css serve_as', serve_as);
@@ -206,11 +291,14 @@ class Site_CSS extends Resource {
 		}, callback);
 	}
 	'process' (req, res) {
+
+		const {map_buffers, pool, custom_paths} = this;
+
 		//console.log('Site_CSS processing HTTP request');
 		var remoteAddress = req.connection.remoteAddress;
-		var custom_paths = this.custom_paths;
+		//var custom_paths = this.custom_paths;
 		var rurl = req.url;
-		var pool = this.pool;
+		//var pool = this.pool;
 		// should have a bunch of resources from the pool.
 		//var pool_resources = pool.resources();
 		//console.log('pool_resources ' + stringify(pool_resources));
@@ -221,15 +309,48 @@ class Site_CSS extends Resource {
 		var url_parts = url.parse(req.url, true);
 		//console.log('url_parts ' + stringify(url_parts));
 		var splitPath = url_parts.path.substr(1).split('/');
-		//console.log('resource site css splitPath ' + stringify(splitPath));
-
+		console.log('resource site css splitPath ', (splitPath));
 		var custom_response_entry;
+		// They usually would start /css/ I assume. Not sure when they won't.
+
 		if (splitPath.length === 2) {
 			if (splitPath[0] === 'css') {
+
+				// Check to see if it's in the prepared css buffers. easy to serve if that's the case.
+				// check for splitPath[1] existing in map_buffers.
+
+
+				if (map_buffers[splitPath[1]]) {
+					const o_buf_css = map_buffers[splitPath[1]];
+					const {raw} = o_buf_css;
+					// the raw buffer.
+
+					// Should be easy enough to serve this raw buffer as CSS.
+
+					serve_css_string(raw, res);
+					return true;
+
+
+				}
+
+				
+
+
+
+
+
 				let filename = path.basename(splitPath[1]).slice(0, -4);
 				//console.log('filename', filename);
 				//console.log('jsgui.css', jsgui.css);
 				//console.log('!!jsgui.css[filename]', !!jsgui.css[filename]);
+
+				// will set jsgui.css
+				//  maybe the property should not be there though.
+				//   definitely seems like the wrong way to buffer them.
+
+
+
+
 
 				if (jsgui.css[filename]) {
 					serve_css_string(jsgui.css[filename], res);
@@ -281,7 +402,8 @@ class Site_CSS extends Resource {
 		}
 	}
 }
-
+// Use it separately for the moment.
+Site_CSS.compile_controls_css = compile_controls_css;
 
 //return Site_CSS;
 

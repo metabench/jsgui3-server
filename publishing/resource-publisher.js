@@ -8,6 +8,13 @@ const multiparty = require('multiparty');
 
 // Publishing using websockets would be cool.
 
+
+// More observable systems?
+//  Making use of ofp could be very useful in various cases.
+//  mfp in some parts first?
+
+
+
 class Resource_Publisher {
     constructor(spec) {
         this.resource = spec.resource;
@@ -87,6 +94,17 @@ class Resource_Publisher {
 
                     }
                 }
+
+                // Want to build auth into the server module itself.
+                //  Will show simple unauthorised app / view.
+
+                // /site/ controls?
+                //  useful in particular for making a website?
+                //  could be too large.
+
+                // /auth/ makes sense for a 'not logged in' control with its own API.
+                //  include the login.js control too.
+
 
                 if (method === 'DELETE') {
                     let jwt_cookie = cookies.get('jwt') || cookies.get('Authentication');

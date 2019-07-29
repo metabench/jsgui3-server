@@ -21,7 +21,6 @@ class Server_Page_Context extends jsgui.Page_Context {
 			this.req = spec.request;
 			this.request = spec.request;
 		};
-
 		if (this.req.auth) {
 			this.auth = this.req.auth;
 		}
@@ -32,10 +31,11 @@ class Server_Page_Context extends jsgui.Page_Context {
 			this.res = spec.response;
 			this.response = spec.response;
 		};
-
+		// would need to create the Page_Context with the server in the spec.
 		if (spec.server) {
 			this.server = spec.server;
 		}
+
 
 		this.selection_scope_count = 0;
 		// Perhaps things could be more sandboxed, so that controls don't get access to the resource pool by default.
@@ -47,7 +47,6 @@ class Server_Page_Context extends jsgui.Page_Context {
 		//	this.rendering_mode = spec.rendering_mode;
 		//}
 		this.rendering_mode = spec.rendering_mode || 'html5';
-
 		// The item IDs could be handled here... use the local variable closure here.
 		var map_new_ids = {};
 		// and have the objects registered within the context too.
@@ -65,9 +64,7 @@ class Server_Page_Context extends jsgui.Page_Context {
 			map_new_ids[type_name]++;
 			return res;
 		}
-
 		this.new_id = _get_new_typed_object_id;
-
 	}
 	'get_dtd'() {
 		if (this.rendering_mode === 'html5') {

@@ -114,17 +114,32 @@ class JSGUI_Server extends jsgui.Data_Object {
         return this.resource_pool.resource_names;
     }
 
+
+    // could change this to an mfp function.
+    //  raises events as different parts start.
+
+
+    // logging mfp function?
+    
+    // another functional level for logging?
+    //  callee.log?
+    //  mfp does not have logging specific features. may be worth getting logging more sorted out on the
+    //   inner functions of the multi-observables.
+
+    
+
+
     'start'(port, callback, fnProcessRequest) {
         //throw 'stop';
         // The resource_pool is not just a Data_Value. need to fix some get or create new field value code.
         //console.log('start');
-        var rp = this.resource_pool;
+        const rp = this.resource_pool;
         //console.log('rp', rp);
         //console.log('resource_pool ' + stringify(resource_pool));
         //throw 'stop';
-        var that = this;
+        //var that = this;
         //console.log('pre start resource pool');
-        rp.start(function (err) {
+        rp.start(err =>  {
             if (err) {
                 throw err;
             } else {
@@ -142,6 +157,13 @@ class JSGUI_Server extends jsgui.Data_Object {
                 //console.log('js', js);
                 //throw 'stop';
                 var css = rp.get_resource('Site CSS');
+
+                // Where to compile the CSS from the controls we were given?
+                //  Maybe need to do that in the client module?
+                //  Could see where it can be done within server module.
+
+
+
                 var images = rp.get_resource('Site Images');
                 var audio = rp.get_resource('Site Audio');
 
@@ -183,10 +205,10 @@ class JSGUI_Server extends jsgui.Data_Object {
                         });
                         let num_to_start = arr_ipv4_addresses.length;
 
-                        if (that.https_options) {
+                        if (this.https_options) {
                             each(arr_ipv4_addresses, (ipv4_address) => {
 
-                                var https_server = https.createServer(that.https_options, function (req, res) {
+                                var https_server = https.createServer(this.https_options, function (req, res) {
                                     //console.log('process server request.url', req.url);
                                     var server_routing_res = server_router.process(req, res);
                                     //console.log('server_routing_res', server_routing_res);
@@ -244,7 +266,7 @@ class JSGUI_Server extends jsgui.Data_Object {
         //console.log('s_url ' + stringify(s_url));
 
         var a_path = [];
-        each(s_url, function (v, i) {
+        each(s_url, (v, i) => {
             if (v.length > 0) {
                 a_path.push(v);
             }

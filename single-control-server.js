@@ -92,8 +92,14 @@ class Single_Control_Server extends Server {
                     throw 'Single_Control_Server needs a Ctrl property'
                 }
             }
+
+
             if (spec.js_mode) this.js_mode = spec.js_mode;
             if (spec.js_client) this.js_client = spec.js_client;
+            //  js client could be this file itself...?
+            //   creating a js client file in the same location probably makes most sense.
+            //    maybe a way of skipping that later...? Deleting it?
+
 
 
             // Context data
@@ -171,6 +177,8 @@ class Single_Control_Server extends Server {
         let o_serve_package = {
             //'babel': 'mini'
         }
+
+        // Other way(s) of doing this now.
         if (this.activate_app) {
             o_serve_package.replace = {
                 '/* -- ACTIVATE-APP -- */': this.activate_app.toString()
@@ -196,6 +204,18 @@ class Single_Control_Server extends Server {
 
 
         let js_client = this.client_package || this.js_client || 'jsgui3-client';
+
+        // The removal of server code / recompilation shouldnt make a difference in cases where we give it client-side js to start with.
+        // Have the case of the actual client-side js being given with no transformation needed.
+        //  Can detect whether there is any server-side code and transformation(s) needed...?
+
+
+
+
+
+        console.log('js_client', js_client);
+        //throw 'stop';
+
         js.serve_package('/js/app.js', js_client, o_serve_package, (err, served) => {
             //var resource_pool = this.resource_pool;
             //console.log('server_router', server_router);
@@ -346,23 +366,15 @@ class Single_Control_Server extends Server {
     load_icon_set(path, map_icons) {
         // will load each icon into the image resource.
         //  sequential way of doing this?
-
         // need to register an image / icon by name within the image resource.
         //  different version support too?
         //  track original versions with name.
-
         let site_images = this.app_server.resource_pool['Site Images'];
-
         //console.log('load_icon_set');
         //console.log('site_images', site_images);
-
         // site_images.load_icon_set?
-
         // read each of them from disk individually?
-
         site_images.load_icon_set(path, map_icons);
-
-
     }
 }
 

@@ -40,6 +40,13 @@ const babel = require('@babel/core');
 // Extends AutoStart_Resource?
 const stream_to_array = require('stream-to-array');
 
+
+const process_js = require('./process-js');
+const {analyse_js_doc_formatting, extract_client_js} = process_js;
+
+// // analyse_js_doc_formatting extract_client_js
+
+
 // This could do with some overhauling.
 //  Only need to have it do what the applications need from it.
 //  Building the app may take place automatically elsewhere.
@@ -415,7 +422,40 @@ class Site_JavaScript extends Resource {
 			})();
 		}, callback);
 	}
-	// Can't use this for scs any longer I think.
+
+	// Can't use this for scs any longer I think. Seems we can :)
+	//  May be worth separating out different preparation and compilation functions.
+
+
+	// prepare_root_js
+	//  ?compile root js?
+
+	// Moving code out of the resource itself.
+	//  have a directory called js_process?
+	//  a bunch of functions available in process_js?
+
+
+
+
+
+	// Different preparation / compilation phases.
+
+
+	// Separating out client js, (server js), css
+	//  from one file
+
+	// process single source js file
+	//  splitting for client
+	
+
+
+
+	// Then browserify compilation - bringing all the files.
+
+
+
+
+
 	'serve_package_from_path'(url, js_file_path, options = {}, callback) {
 		console.log('serve_package_from_path', url, js_file_path);
 		// js_mode option may need to be used.
@@ -437,8 +477,7 @@ class Site_JavaScript extends Resource {
 		let accepts_brotli = false;
 
 		// Need to come up with compressed versions.
-		//  An object that provides different versions 
-
+		//  An object that provides different versions.
 
 
 		return prom_or_cb((resolve, reject) => {
@@ -464,6 +503,8 @@ class Site_JavaScript extends Resource {
 					options.babel = 'mini';
 				}
 				//console.log('options.babel', options.babel);
+
+				//  Likely to remove this....
 				if (options.replace) {
 					let s_file_contents = fileContents.toString();
 					//console.log('s_file_contents', s_file_contents);
@@ -477,19 +518,107 @@ class Site_JavaScript extends Resource {
 					fileContents = Buffer.from(s_file_contents);
 					//console.log('2) fileContents.length', fileContents.length);
 				}
+
+
 				// Then we can replace some of the file contents with specific content given when we tall it to serve that file.
 				//  We have a space for client-side activation.
-
 				// want a raw option with no browserify.
 				//console.log('serve_raw', serve_raw);
-
 				if (serve_raw) {
 					var escaped_url = url.replace(/\./g, '☺');
 					this.custom_paths.set(escaped_url, fileContents);
 				} else {
-					s.push(fileContents);
+					// Early filtering / transformation to the client CSS.
+					//  Need to transform a single file, such as in a single page (single file) app, making it work as client-side code.
+
+					// May be nice to move filtering / recompilation like this to a more general file / module?
+					//  Not for the moment, this is quite specific.
+					//  If it would help later on, then do it.
+
+
+					// Will be very useful for making apps with just one code file.
+					//  The server-side code gets removed during this compilation.
+
+
+					// find indentation scheme.
+					//  and then can find the indentation level on each line.
+
+					// and find the line separation character.
+					//  could count \r\n as well as \n by itself.
+
+
+
+					// get the line separator
+					//  get the indentation character or sequence (ie 4 spaces)
+
+
+					
+
+					const formatting_info = analyse_js_doc_formatting(fileContents.toString());
+					console.log('formatting_info', formatting_info);
+
+					const {arr_lines, line_break, indentation_analysis} = formatting_info;
+					const {parsed_lines, str_indentation} = indentation_analysis;
+
+					console.log('parsed_lines', parsed_lines);
+					console.log('indentation_analysis', indentation_analysis);
+
+					const client_root_js = extract_client_js(formatting_info);
+
+					//let client_js = arr_client_js_lines.join('\n');
+
+
+
+					fnlfs.save('d:\\saved.js', client_root_js);;
+
+
+
+					// Then can analyse the lines to see what type of lines they are.
+					//  Comment, server, isomorphic, client
+
+					// Not so sure there will even be client only code apart from code in the filke, or it will be encapsulated deeper in activate.
+
+
+					// 
+
+
+
+
+
+
+
+					//throw 'stop';
+
+					// &#13   -- Carriage return.
+					//  Maybe there is a prob with windows files using 2 characters for new lines.
+
+
+
+
+
+
+					//const no_server_js = transform_ensure_client_side_js(fileContents.toString());
+					//console.log('no_server_js', no_server_js);
+
+					s.push(client_root_js);
 					s.push(null);
 					//let include_sourcemaps = true;
+
+					// Filtering out server-side code.
+
+					// recompile js module(s).
+
+					// for the moment keep that functionality here as functions.
+
+
+					const lines_file_content = [];
+
+
+
+
+
+
+
 
 					// Don't always include sourcemap?
 					//  Separate out the sourcemap?
@@ -560,11 +689,11 @@ class Site_JavaScript extends Resource {
 						//  seems like making the scanning parser is a bit of a large task. It would constantly need to know what symbol type / string encapsulator to use.
 
 						// Could split it into lines, spot whenever a line starts a comment...?
-
-
-
-
 					} 
+
+					//const filter_js_remove_server_js
+					// compile_client_js_from_server_js
+					// is_server_js
 
 
 

@@ -310,7 +310,7 @@ class Website_Resource extends Resource {
 
     js_resource.on('extracted-controls-css', str_extracted_css => {
 
-      console.log('website resource has got the extracted controls css from the js: ' + str_extracted_css);
+      //console.log('website resource has got the extracted controls css from the js: ' + str_extracted_css);
 
       // serve this as /css/controls.css
 
@@ -616,7 +616,7 @@ class Website_Resource extends Resource {
 
       // option of 
 
-      console.log("Website_Resource publish", published_name);
+      //console.log("Website_Resource publish", published_name);
       //console.log('published_name, item', published_name, item);
       //this.map_resource_publishers = this.map_resource_publishers || {};
       // .__resource ?
@@ -631,7 +631,7 @@ class Website_Resource extends Resource {
         item.name = item.name || published_name;
         // add that resource!
         //  (to the pool?)
-        console.log('item', item);
+        //console.log('item', item);
         this.resource_pool.add(item);
 
         //console.log('Object.keys(this.map_resource_publishers)', Object.keys(this.map_resource_publishers));

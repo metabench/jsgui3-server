@@ -457,7 +457,7 @@ class Site_JavaScript extends Resource {
 
 
 	'serve_package_from_path'(url, js_file_path, options = {}, callback) {
-		console.log('serve_package_from_path', url, js_file_path);
+		//console.log('serve_package_from_path', url, js_file_path);
 		// js_mode option may need to be used.
 
 
@@ -519,7 +519,6 @@ class Site_JavaScript extends Resource {
 					//console.log('2) fileContents.length', fileContents.length);
 				}
 
-
 				// Then we can replace some of the file contents with specific content given when we tall it to serve that file.
 				//  We have a space for client-side activation.
 				// want a raw option with no browserify.
@@ -555,13 +554,13 @@ class Site_JavaScript extends Resource {
 					
 
 					const formatting_info = analyse_js_doc_formatting(fileContents.toString());
-					console.log('formatting_info', formatting_info);
+					//console.log('formatting_info', formatting_info);
 
 					const {arr_lines, line_break, indentation_analysis} = formatting_info;
 					const {parsed_lines, str_indentation} = indentation_analysis;
 
-					console.log('parsed_lines', parsed_lines);
-					console.log('indentation_analysis', indentation_analysis);
+					//console.log('parsed_lines', parsed_lines);
+					//console.log('indentation_analysis', indentation_analysis);
 
 					const client_root_js = extract_client_js(formatting_info);
 
@@ -926,9 +925,9 @@ class Site_JavaScript extends Resource {
 					}
 					var escaped_url = url.replace(/\./g, '☺');
 
-					console.log('pre compress buf_js.length', buf_js.length);
+					//console.log('pre compress buf_js.length', buf_js.length);
 					zlib.gzip(buf_js, {level: 9}, (err, buffer) => {
-						console.log('deflated buffer.length', buffer.length);
+						//console.log('deflated buffer.length', buffer.length);
 	
 						if (err) {
 							reject(err);
@@ -1025,7 +1024,6 @@ class Site_JavaScript extends Resource {
 			})();
 		}, callback);
 	}
-
 
 	'set_custom_path'(url, file_path) {
 		// But change the URL to have a smiley face instead of fullstops

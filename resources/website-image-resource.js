@@ -159,13 +159,13 @@ class Site_Images extends Resource {
             map_icon_filenames_to_names[v].push(k)
         });
 
-        console.log('Website Image Resource load_icon_set', map_icons);
+        //console.log('Website Image Resource load_icon_set', map_icons);
 
         const icons_to_load = [];
         const resolved_path = libpath.resolve(path);
-        console.log('resolved_path', resolved_path);
+        //console.log('resolved_path', resolved_path);
         const obs_files = fnlfs.dir_files(resolved_path);
-        console.log('obs_files', obs_files);
+        //console.log('obs_files', obs_files);
         obs_files.on('next', data => {
             //console.log('obs_files next data', data);
 
@@ -182,12 +182,12 @@ class Site_Images extends Resource {
             } else {
                 noextname = name;
             }
-            console.log('noextname', noextname);
+            //console.log('noextname', noextname);
             // check for the name match....
 
             if (map_icon_filenames_to_names[name]) {
-                console.log('found match', name);
-                console.log('map_icon_filenames_to_names[name]', map_icon_filenames_to_names[name]);
+                //console.log('found match', name);
+                //console.log('map_icon_filenames_to_names[name]', map_icon_filenames_to_names[name]);
 
                 each(map_icon_filenames_to_names[name], filename => {
                     icons_to_load.push([filename, name, path]);
@@ -202,7 +202,7 @@ class Site_Images extends Resource {
         });
 
         obs_files.on('complete', async() => {
-            console.log('obs files complete. icons_to_load', icons_to_load);
+            //console.log('obs files complete. icons_to_load', icons_to_load);
 
             // Then go through this list, loading them into buffers.
             //  Then those buffers will be served on request using the names given for the icons.
@@ -215,8 +215,8 @@ class Site_Images extends Resource {
 
                 // is load an obs?
                 const buf_file = await fnlfs.load(path);
-                console.log('buf_file', buf_file);
-                console.log('buf_file.length', buf_file.length);
+                //console.log('buf_file', buf_file);
+                //console.log('buf_file.length', buf_file.length);
 
                 // then put this into the buffer of icons.
                 //  by size? icon resizing?
@@ -228,10 +228,10 @@ class Site_Images extends Resource {
                 //  work out the mime_type that way.
 
                 const ext = libpath.extname(filename).substr(1);
-                console.log('ext', ext);
+                //console.log('ext', ext);
 
                 const mime_type = mime_types[ext];
-                console.log('mime_type', mime_type);
+                //console.log('mime_type', mime_type);
 
                 my_map_icons[icon_key] = {
                     'mime_type': mime_type,

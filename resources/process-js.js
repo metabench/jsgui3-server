@@ -30,7 +30,7 @@ const analyse_js_doc_formatting = (str_js) => {
         const s_rn = str_js.split('\r\n');
 
         if (s_rn.length > 1) {
-            console.log('s_rn.length', s_rn.length);
+            //console.log('s_rn.length', s_rn.length);
             s_js = s_rn;
             line_break = '\r\n';
         } else {
@@ -41,8 +41,8 @@ const analyse_js_doc_formatting = (str_js) => {
 
     split_detect_line_break();
 
-    console.log('s_js.length', s_js.length);
-    console.log('line_break', line_break);
+    //console.log('s_js.length', s_js.length);
+    //console.log('line_break', line_break);
 
     // a map of them?
     //  finding a common factor with all / almost all of them...
@@ -150,13 +150,13 @@ const analyse_js_doc_formatting = (str_js) => {
                 i++;
             }
 
-            console.log('');
-            console.log('line', line);
-            console.log('line.length', line.length);
-            console.log('line_begins_with_space', line_begins_with_space);
-            console.log('line_begins_with_tab', line_begins_with_tab);
-            console.log('line_beginning_spaces', line_beginning_spaces);
-            console.log('line_beginning_tabs', line_beginning_tabs);
+            //console.log('');
+            //console.log('line', line);
+            //console.log('line.length', line.length);
+            //console.log('line_begins_with_space', line_begins_with_space);
+            //console.log('line_begins_with_tab', line_begins_with_tab);
+            //console.log('line_beginning_spaces', line_beginning_spaces);
+            //console.log('line_beginning_tabs', line_beginning_tabs);
 
 
             if (line_begins_with_tab) {
@@ -173,8 +173,8 @@ const analyse_js_doc_formatting = (str_js) => {
 
         // Determine if the indentation uses spaces or tabs.
 
-        console.log('count_lines_beginning_space', count_lines_beginning_space);
-        console.log('count_lines_beginning_tab', count_lines_beginning_tab);
+        //console.log('count_lines_beginning_space', count_lines_beginning_space);
+        //console.log('count_lines_beginning_tab', count_lines_beginning_tab);
 
         let str_indentation;
 
@@ -184,8 +184,8 @@ const analyse_js_doc_formatting = (str_js) => {
 
 
         if (count_lines_beginning_space > count_lines_beginning_tab) {
-            console.log('indentation uses spaces');
-            console.log('map_num_spaces', map_num_spaces);
+            //console.log('indentation uses spaces');
+            //console.log('map_num_spaces', map_num_spaces);
 
             // the proportion dividing into 4
             // proportion dividing into 2
@@ -202,15 +202,15 @@ const analyse_js_doc_formatting = (str_js) => {
                 //count_lines_beginning_space += num_occurrances;
             })
 
-            console.log('count_factor_2', count_factor_2);
-            console.log('count_factor_4', count_factor_4);
-            console.log('count_lines_beginning_space', count_lines_beginning_space);
+            //console.log('count_factor_2', count_factor_2);
+            //console.log('count_factor_4', count_factor_4);
+            //console.log('count_lines_beginning_space', count_lines_beginning_space);
 
             let r2 = count_factor_2 / count_lines_beginning_space;
             let r4 = count_factor_4 / count_lines_beginning_space;
 
-            console.log('r2', r2);
-            console.log('r4', r4);
+            //console.log('r2', r2);
+            //console.log('r4', r4);
 
             // >= 90%.
 
@@ -227,7 +227,7 @@ const analyse_js_doc_formatting = (str_js) => {
                 throw 'NYI';
             }
 
-            console.log('arr_num_spaces', arr_num_spaces);
+            //console.log('arr_num_spaces', arr_num_spaces);
 
             // Then calculate how many indentations per line...
 
@@ -252,8 +252,8 @@ const analyse_js_doc_formatting = (str_js) => {
             throw 'NYI';
         }
 
-        console.log('str_indentation', str_indentation);
-        console.log('str_indentation.length', str_indentation.length);
+        //console.log('str_indentation', str_indentation);
+        //console.log('str_indentation.length', str_indentation.length);
         // also the unindented string lines, alongside their indentation levels.
         // recreate the lines....
         //  
@@ -334,8 +334,8 @@ const extract_client_js = (js_formatting_info) => {
 
         begin_server_block: (line) => {
             // line beings: if (require.main === module) {
-            console.log('line', line);
-            console.log('typeof line', typeof line);
+            //console.log('line', line);
+            //console.log('typeof line', typeof line);
             if (line.startsWith('if (require.main === module) {')) return true;
 
 
@@ -346,7 +346,7 @@ const extract_client_js = (js_formatting_info) => {
 
             // only having } in the line?
             
-            console.log('line.length', line.length);
+            //console.log('line.length', line.length);
 
             if (line.length <3) {
                 if (line.startsWith('}')) return true;
@@ -367,7 +367,7 @@ const extract_client_js = (js_formatting_info) => {
                 let pos2 = pos1 + s1.length;
                 let pos3 = line.indexOf(')');
                 let rpath = JSON.parse(line.substring(pos2, pos3).split('\'').join('"'));
-                console.log('rpath', rpath);
+                //console.log('rpath', rpath);
 
                 //let res = ['require']
 
@@ -402,7 +402,7 @@ const extract_client_js = (js_formatting_info) => {
 
     const arr_client_js_lines = [];
     each(parsed_lines, (arr_line_info, line_num) => {
-        console.log();
+        //console.log();
         const [indentation_level, unindented_line] = arr_line_info;
         let res_unindented_line = unindented_line;
 
@@ -410,31 +410,31 @@ const extract_client_js = (js_formatting_info) => {
         let do_js_copy_to_client = true;
         
         if (indentation_level === 0) {
-            console.log('unindented_line', unindented_line);
+            //console.log('unindented_line', unindented_line);
 
             
 
             each(map_line_type_detect_parse, (fn, name, stop) => {
                 const detection = fn(unindented_line);
-                console.log('detection', detection);
+                //console.log('detection', detection);
 
                 if (detection) {
                     stop();
                     //const {name} = detection;
-                    console.log('name', name);
+                    //console.log('name', name);
 
                     // detection of the beginning / end of server side (main module) code.
 
                     if (name === 'require') {
                         const {path} = detection;
-                        console.log('path', path);
+                        //console.log('path', path);
 
                         // Can create a new / different line.
                         //  Depending on what gets required.
 
                         if (path === 'jsgui3-html') {
                             res_unindented_line = unindented_line.split('jsgui3-html').join('jsgui3-client');
-                            console.log('res_unindented_line', res_unindented_line);
+                            //console.log('res_unindented_line', res_unindented_line);
                         }
                         //
                     }
@@ -501,7 +501,7 @@ const extract_client_js = (js_formatting_info) => {
 
         //console.log('res_unindented_line', res_unindented_line);
 
-        console.log('do_js_copy_to_client', do_js_copy_to_client);
+        //console.log('do_js_copy_to_client', do_js_copy_to_client);
         if (do_js_copy_to_client) {
             // blank out the line?
             // and put the indentation amount back.
@@ -510,8 +510,8 @@ const extract_client_js = (js_formatting_info) => {
         }
     })
 
-    console.log('arr_client_js_lines', arr_client_js_lines);
-    console.log('arr_client_js_lines.length', arr_client_js_lines.length);
+    //console.log('arr_client_js_lines', arr_client_js_lines);
+    //console.log('arr_client_js_lines.length', arr_client_js_lines.length);
 
     let client_js = arr_client_js_lines.join(line_break);
 

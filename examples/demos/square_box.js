@@ -53,7 +53,6 @@ class Demo_UI extends Control {
             const {context} = this;
 
             console.log('activate Demo_UI');
-
             // listen for the context events regarding frames, changes, resizing.
 
             context.on('window-resize', e_resize => {
@@ -61,10 +60,15 @@ class Demo_UI extends Control {
             });
 
 
-            const freq = 10000;
-            let ts_last_exec;
+            
+
+
+
 
             /*
+
+            const freq = 10000;
+            let ts_last_exec;
 
             const proc = (obj_frame) => {
                 console.log('proc');
@@ -209,6 +213,24 @@ class Square_Box extends Control {
             this.dragable = true;
             console.log('this.dragable = true;');
 
+            this.on('dragend', e => {
+                console.log('square box dragend e', e);
+
+                // Then snap it back to its original position?
+                //  Get a snap back function here?
+
+                // Could snap it back by changing / animating the transform properties.
+                //  Or not right now... at least we have the main translate drag functionality working.
+
+                // Also, could allow extensions / custom modes to be draggable.
+                
+
+
+
+
+
+            })
+
             // Use a variety of pieces of functionality.
 
             // Draggable
@@ -220,12 +242,6 @@ class Square_Box extends Control {
             // Some other parts of the framework will use direct access to these typed arrays.
             //  Need things coded on that lower level.
             //   quite a lot of code involved....
-
-
-
-
-
-
 
             /*
 

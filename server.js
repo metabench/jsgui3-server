@@ -1,18 +1,18 @@
 //var sockjs = require('sockjs'), jsgui = require('jsgui3-html'),
 const jsgui = require('jsgui3-html'),
-    os = require('os'),
-    http = require('http'),
-    https = require('https'),
-    Resource = jsgui.Resource,
-    Server_Resource_Pool = require('./resources/server-resource-pool'),
+os = require('os'),
+http = require('http'),
+https = require('https'),
+Resource = jsgui.Resource,
+Server_Resource_Pool = require('./resources/server-resource-pool'),
+{each, Evented_Class} = require('lang-mini');
 
+// routing-tree? make a generalised module?
 
-    // routing-tree? make a generalised module?
-
-    Router = jsgui.Router,
-    Website_Resource = require('./resources/website-resource'),
-    Info = require('./resources/local-server-info-resource'),
-    Server_Page_Context = require('./page-context');
+Router = jsgui.Router,
+Website_Resource = require('./resources/website-resource'),
+Info = require('./resources/local-server-info-resource'),
+Server_Page_Context = require('./page-context');
 
 // Login = require('../resource/login'),
 //var Server = {};
@@ -47,7 +47,7 @@ var Collection = jsgui.Collection;
 // Make Server a resouce too?
 //  So it could be accessed (including logs) by the right connected admin users.
 
-class JSGUI_Server extends jsgui.Data_Object {
+class JSGUI_Server extends Evented_Class {
     constructor(spec, __type_name) {
         super();
         this.__type_name = __type_name || 'server';

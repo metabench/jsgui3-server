@@ -3,20 +3,20 @@
   "main": "module.js",
   "license": "MIT",
   "dependencies": {
-    "@babel/core": "^7.5.4",
+    "@babel/core": "^7.11.6",
     "babel-plugin-transform-runtime": "^6.23.0",
-    "babel-preset-minify": "^0.5.0",
-    "browserify": "^16.3.0",
+    "babel-preset-minify": "^0.5.1",
+    "browserify": "^16.5.2",
     "child-process": "^1.0.2",
     "cookies": "^0.7.3",
-    "fnl": "^0.0.13",
+    "fnl": "^0.0.17",
     "fnlfs": "^0.0.16",
-    
+    "lang-mini": "^0.0.15",
     "jsgui3-client": "^0.0.58",
     "jsgui3-html": "0.0.81",
     "multiparty": "^4.2.1",
     "ncp": "^2.0.0",
-    "obext": "^0.0.8",
+    "obext": "^0.0.16",
     "rimraf": "^2.6.3",
     "stream-to-array": "^2.3.0",
     "url-parse": "^1.4.7"
@@ -38,5 +38,5 @@
     "type": "git",
     "url": "https://github.com/metabench/jsgui3-server.git"
   },
-  "version": "0.0.68"
+  "version": "0.0.70"
 }

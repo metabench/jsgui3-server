@@ -59,12 +59,6 @@ class Demo_UI extends Control {
                 console.log('window-resize', e_resize);
             });
 
-
-            
-
-
-
-
             /*
 
             const freq = 10000;
@@ -124,20 +118,11 @@ class Demo_UI extends Control {
             });
             */
 
-
-
-            
-
-
             // listen for the movement events?
             //  Context will do more to handle movement.
 
             // Get a ta of positions etc from the context?
             //  But a lot of that should be handled behind the scenes. Will keep a whole load of controls' properties together in a big typed array.
-
-
-
-
 
 
         }
@@ -155,9 +140,6 @@ Demo_UI.css = `
 }
 `;
 /*
-
-
-
 
 */
 

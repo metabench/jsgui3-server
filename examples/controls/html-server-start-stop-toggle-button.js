@@ -15,8 +15,9 @@
 
 //
 
-var jsgui = require('../server/server');
-var Start_Stop_Toggle_Button = require('../controls/start-stop-toggle-button');
+var jsgui = require('../../server');
+
+//var Start_Stop_Toggle_Button = require('../../controls/start-stop-toggle-button');
 
 var Server = jsgui.Server;
 var port = 8000;

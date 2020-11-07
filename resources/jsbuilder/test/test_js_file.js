@@ -1,7 +1,7 @@
 // Load a JS file into an OO structure
 
 const JS_File = require('../JS_File');
-const JS_File_Comprehension = require('../JS_File_Comprehension');
+//const JS_File_Comprehension = require('../JS_File_Comprehension');
 const path = require('path');
 const fs = require('fs');
 const Project = require('../Project');
@@ -17,8 +17,9 @@ const test_js_file = () => {
     const fnl_path = '../../../../../tools/fnl/fnl.js'
     const filecomp_path = '../JS_File_Comprehension.js';
     const jsfile_path = '../JS_File.js';
+    const jsbuilder_path = '../JS_Builder.js';
     //const file_path = '../JS_File.js';
-    const file_path = lm_path;
+    const file_path = jsbuilder_path;
 
     // path of lang mini....
 
@@ -470,7 +471,7 @@ const test_js_file = () => {
 
     const fstream = fs.createReadStream(resolved_path);
 
-    const jsf = JS_File_Comprehension.load_from_stream(fstream);
+    const jsf = JS_File.load_from_stream(fstream, file_path);
     jsf.on('ready', () => {
         console.log('jsf ready');
 
@@ -487,7 +488,7 @@ const test_js_file = () => {
         //  Basically see what they are.
         //   
         each(root_babel_declarations, babel_declaration => {
-            const comprehension = comprehend_babel_declaration(babel_declaration, jsf.source);
+            //const comprehension = comprehend_babel_declaration(babel_declaration, jsf.source);
 
             // So far just iterates through them, following the structure.
             //  Will be able to collect names of things used in references
@@ -497,10 +498,122 @@ const test_js_file = () => {
             //  ast node count vs compressed size - decent metric to use.
             //  also can lower ast node count.
 
+            //console.log('comprehension', comprehension);
+        });
+
+        const root_dec_names = jsf.get_root_declaration_names();
+        console.log('root_dec_names', root_dec_names);
+
+        jsf.each_root_node(js_node => {
+            console.log('js_node', js_node);
+            console.log('js_node.str_source', js_node.str_source);
+            const {type} = js_node; // not a babel node.
+
+            const ct = js_node.count_nodes();
+            console.log('ct', ct);
+            console.log('js_node.get_identifier_names()', js_node.get_identifier_names());
+            const cns = js_node.child_nodes;
+            console.log('js_node.child_nodes', cns);
+
+            each(cns, cn => {
+                console.log('cn.type', cn.type);
+            })
+            //console.log('type', type);
+
+            // Can do more specific queries.
+            //  
+
+            // get_identifiers function would be nice.
 
 
-            console.log('comprehension', comprehension);
+            //throw 'stop';
+
+
+            /*
+            const node_req_info = node.get_require_info();
+            console.log('node_req_info', node_req_info);
+
+            if (node_req_info) {
+
+                
+            }
+            */
+
+            
+
+        });
+        //throw 'stop';
+        /*
+        jsf.each_root_node(node => {
+            //console.log('node', node);
+            const {type} = node;
+            console.log('type', type);
+
+            // No matter what type, does it make use of 'require' and info on that if it does.
+            
+
+            
+
         })
+        */
+        
+
+        //const require_info = jsf.get_require_info();
+        //console.log('require_info', require_info);
+
+
+        // get_exports_info - could possibly be an object that is defined there.
+        //  a reference to an object is easier, but don't rely on it.
+        //  deal with js files in the ways they are written and can be written.
+
+        // need to know what a module has incoming / requires / imports
+        // also output / exports
+
+        // we will put everything required into local scope.
+        // there won't be the 'exports' as everything else needed will be in local scope too.
+
+
+
+        // .get_require_references
+        //  does any root node contain any require references?
+        //   could find them and work back to see what they are.
+
+        // [a, b, c] = [require('a'), require('b'), require('c')] need to be on the lookout for that case. Could be decent syntax too.
+        //   if so, to what?
+
+        // Signatures would help a lot here.
+        //  require could be part of the signature.
+        //   would make it east to find.
+
+
+
+
+
+        //const rdns_using_require = jsf.get_root_declaration_names_using_require();
+        //console.log('rdns_using_require', rdns_using_require);
+        // get_root_declaration_names_using_require...
+
+        // Would be nice to be able to reference any declaration by its name.
+        //  Then when doing so, see if it
+        //   uses require
+        //    if so, what does it require
+        //   is it all inline?
+        //   does it use only local variables (and literals) defined in the code above in that same file / scope?
+        //    which locally defined / scoped declarations does it use?
+        //  
+
+        // jsf.root_declarations_by_name ...
+
+        // Maybe make the functionality for loading js into a project?
+        //  When loaded, it makes all functionality available
+        //  And checks that anything that is referenced is available.
+        //   (As in available inline from that scope at that point).
+
+
+
+
+
+
 
 
 

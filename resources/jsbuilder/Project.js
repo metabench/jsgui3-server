@@ -10,29 +10,61 @@
 
 const {each, Evented_Class} = require('lang-mini');
 
-const JS_File = require('./JS_File');
+const JS_File = require('./JS_File_Core');
+const Platforms = require('./Platforms');
 
 class Project extends Evented_Class {
+
+    // This will act as an overall library of JS functions.
+    //  A project can have multiple builds?
+
+    // Or a build is basically the output of a platform. The platform gets put together, has the code ordering, can do things internally too.
+    //  platform.build
+
+    // or it's a platform that meets conditions.
+
+    // A project could have different output files.
+    //  For the moment, focus more on bringing together input.
+    //  Arrange inputs to get output.
+
+
+
+
+
+
+
+    //  The platform that is used as 
+
+
+
+
     constructor(spec) {
         super(spec = {});
+        
+        // The most outer layer.
 
-        const map_js_files_by_hash = {};
+        // Load files into here...?
+        //  Files exist independently within the project space.
 
-        //let js_file;
+        // map of files by path?
 
-        if (spec.js_file && spec.js_file instanceof JS_File) {
-            //js_file = spec.js_file;
-        }
+        // or by name, its equivalent.
 
+        const platforms = new Platforms();
 
+        Object.defineProperty(this, 'platforms', {
+            get() { return platforms; },
+            //set(newValue) { bValue = newValue; },
+            enumerable: true,
+            configurable: false
+        });
 
+    }
+    add_js_file(js_file) {
 
-
-        this.load_js_stream = (readable_stream) => {
-
-
-        }
-
+    }
+    remove_js_file(js_file) {
+        
     }
 
 }

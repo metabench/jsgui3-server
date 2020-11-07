@@ -1,3 +1,33 @@
+// Nov 2020:
+//  Need to overhaul this, bugs are on the client, need to be careful and clear about what will be sent to the client.
+//   Need to get more into the tools for building JS for the client. Can I do the outline / much of the outline of it myself?
+//   Build up a huge JS AST of the whole thing.
+//   Build up a system that understands what code does (to an extent) and how it fits together.
+
+// Could do my own application-level compression.
+
+// JS-Build.
+//  Could identify the resources / files used in the site?
+
+// Load all the files in, made into a function that will return what the module exports.
+//  Or not...
+// Make the module into just the code, store it as a variable, then be able to build 
+
+// Would make quite a difference - with a lot of localised references made possible.
+//  
+
+
+// JS_File
+//  Be able to get transformed versions of it
+//   JS_File_
+
+
+
+
+
+
+
+
 var path = require('path'),
 	fs = require('fs'),
 	url = require('url'),
@@ -44,58 +74,6 @@ const stream_to_array = require('stream-to-array');
 const process_js = require('./process-js');
 const {analyse_js_doc_formatting, extract_client_js} = process_js;
 
-// // analyse_js_doc_formatting extract_client_js
-
-
-// This could do with some overhauling.
-//  Only need to have it do what the applications need from it.
-//  Building the app may take place automatically elsewhere.
-
-// May need to change around a fair few references to make it workable.
-// May need some more complicated logic to change it to the path for service.
-
-// This will also be able to be told to serve some particular files from some particular locations.
-
-// It can have a custom_serving_map.
-
-// That means that some specific urls that are given as inputs refer to specific files, perhaps with
-//  relative paths.
-
-// Since this is a resource, we could wrap that in the .meta object.
-//  Or just have a custom_paths_map Data_Object.
-
-// Not so sure about this.
-//  Processing of files for serving. Maybe some kind of map would work well.
-//  Now the path name is needed in order to serve various files.
-//  Some of the files will be useful on the client as well (possibly resources).
-
-// This file seems too hackily put together.
-
-// There may be different categories of JavaScript files to serve or not serve.
-//  We want the app, by default, to serve necessary files for the JSGUI client.
-//  May get into compressing and browserifying them too.
-
-// May need some more general purpose resource for dealing with JavaScript files.
-//  Want to make it easy to serve the client files in its default configuration.
-
-// Perhaps we could have availability comments within the JavaScript files.
-//  So whatever folder it is in, we can know it should be served at /js/jsgui-lang-utils or similar.
-//  However, it may be best to have the client app mirror the structure on the server.
-//  Could make the app easier to serve, and mean we don't need to transform references.
-
-// /js/web/jsgui-html-client
-//  could start with that path.
-//  most of what we look for will be within web anyway.
-//  we could also make some other things available from resources.
-//   not everything in web is suitable for the client anyway.
-//   many things from outside web will be suitable for the client.
-
-// Needs to make sure the require.js file gets served.
-//  Then there will be a bunch of other files that get requested.
-//  Better to try serving the files in their paths without modification.
-
-// 21/02/2018 - Need site JavaScript to be able to send a specified Buffer for a specified JS path.
-
 var serve_js_file_from_disk_updated_refs = function (filePath, response, callback) {
 	fs2.load_file_as_string(filePath, function (err, data) {
 		if (err) {
@@ -115,11 +93,6 @@ var serve_js_file_from_disk_updated_refs = function (filePath, response, callbac
 }
 
 var check_served_directories_for_requested_file = function (arr_served_paths, split_path_within_js, callback) {
-	//console.log('check_served_directories_for_requested_file');
-	//console.log('split_path_within_js ' + stringify(split_path_within_js));
-	//console.log('arr_served_paths ' + stringify(arr_served_paths));
-	// use call_multi.
-	// maybe we get a result from them all.
 
 	var fns = [
 
@@ -259,19 +232,6 @@ class Site_JavaScript extends Resource {
 		//console.log('path ' + path);
 		//throw 'stop';
 	}
-	// Want to be able to serve specific js files.
-	// Need better syntax than this:
-	//  //site_js.meta.set('custom_paths.js/modernizr-latest☺js', './client/js/modernizr-latest.js');
-	// .set_custom_path(url, fileName)
-	//  would need to appear in the main routing tree perhaps?
-
-	// However, may set it using a buffer, not a file path.
-	// The app-bundle may be created on application start.
-	// options...
-	// but serving a package when we have the path will be a little different.
-	// However, loading it from disk allows for content replacement better.
-	//  However, supply the package ourselves, and its fine.
-
 	'serve_package'(url, js_package, options = {}, callback) {
 		console.log('serve_package', url, js_package);
 		console.log('js_package', js_package);
@@ -340,7 +300,7 @@ class Site_JavaScript extends Resource {
 				let b = browserify(s, {
 					basedir: path.dir,
 					//builtins: false,
-					builtins: ['buffer'],
+					builtins: ['buffer', 'process'],
 					'debug': options.include_sourcemaps
 				});
 
@@ -402,60 +362,10 @@ class Site_JavaScript extends Resource {
 				} else {
 					buf_js = Buffer.from(str_js);
 				}
-				//var escaped_url = url.replace(/\./g, '☺');
-				//console.log('pre brot buf_js.length', buf_js.length);
-				//console.trace();
-				/*
-				brotli(buf_js, (err, buffer) => {
-					console.log('* brotli deflated buffer.length', buffer.length);
-					if (err) {
-						reject(err);
-					} else {
-						// 
-						buffer.encoding = 'br';
-						//this.custom_paths.set(escaped_url, buffer);
-						resolve(buffer);
-					}
-				});
-				*/
 				resolve(buf_js);
 			})();
 		}, callback);
 	}
-
-	// Can't use this for scs any longer I think. Seems we can :)
-	//  May be worth separating out different preparation and compilation functions.
-
-
-	// prepare_root_js
-	//  ?compile root js?
-
-	// Moving code out of the resource itself.
-	//  have a directory called js_process?
-	//  a bunch of functions available in process_js?
-
-
-
-
-
-	// Different preparation / compilation phases.
-
-
-	// Separating out client js, (server js), css
-	//  from one file
-
-	// process single source js file
-	//  splitting for client
-	
-
-
-
-	// Then browserify compilation - bringing all the files.
-
-
-
-
-
 	'serve_package_from_path'(url, js_file_path, options = {}, callback) {
 		//console.log('serve_package_from_path', url, js_file_path);
 		// js_mode option may need to be used.
@@ -527,97 +437,16 @@ class Site_JavaScript extends Resource {
 					var escaped_url = url.replace(/\./g, '☺');
 					this.custom_paths.set(escaped_url, fileContents);
 				} else {
-					// Early filtering / transformation to the client CSS.
-					//  Need to transform a single file, such as in a single page (single file) app, making it work as client-side code.
-
-					// May be nice to move filtering / recompilation like this to a more general file / module?
-					//  Not for the moment, this is quite specific.
-					//  If it would help later on, then do it.
-
-
-					// Will be very useful for making apps with just one code file.
-					//  The server-side code gets removed during this compilation.
-
-
-					// find indentation scheme.
-					//  and then can find the indentation level on each line.
-
-					// and find the line separation character.
-					//  could count \r\n as well as \n by itself.
-
-
-
-					// get the line separator
-					//  get the indentation character or sequence (ie 4 spaces)
-
-
-					
-
 					const formatting_info = analyse_js_doc_formatting(fileContents.toString());
 					//console.log('formatting_info', formatting_info);
 
 					const {arr_lines, line_break, indentation_analysis} = formatting_info;
 					const {parsed_lines, str_indentation} = indentation_analysis;
-
-					//console.log('parsed_lines', parsed_lines);
-					//console.log('indentation_analysis', indentation_analysis);
-
 					const client_root_js = extract_client_js(formatting_info);
-
-					//let client_js = arr_client_js_lines.join('\n');
-
-
-
-					fnlfs.save('d:\\saved.js', client_root_js);;
-
-
-
-					// Then can analyse the lines to see what type of lines they are.
-					//  Comment, server, isomorphic, client
-
-					// Not so sure there will even be client only code apart from code in the filke, or it will be encapsulated deeper in activate.
-
-
-					// 
-
-
-
-
-
-
-
-					//throw 'stop';
-
-					// &#13   -- Carriage return.
-					//  Maybe there is a prob with windows files using 2 characters for new lines.
-
-
-
-
-
-
-					//const no_server_js = transform_ensure_client_side_js(fileContents.toString());
-					//console.log('no_server_js', no_server_js);
-
+					fnlfs.save('d:\\saved.js', client_root_js);
 					s.push(client_root_js);
 					s.push(null);
-					//let include_sourcemaps = true;
-
-					// Filtering out server-side code.
-
-					// recompile js module(s).
-
-					// for the moment keep that functionality here as functions.
-
-
 					const lines_file_content = [];
-
-
-
-
-
-
-
 
 					// Don't always include sourcemap?
 					//  Separate out the sourcemap?
@@ -640,22 +469,6 @@ class Site_JavaScript extends Resource {
 						.map(part => util.isBuffer(part) ? part : Buffer.from(part));
 					let buf_js = Buffer.concat(buffers);
 					let str_js = buf_js.toString();
-
-					// the part prior to '//# sourceMappingURL' is the code itself.
-					//  we could parse it into AST?
-					//  and find all controls with .css properties?
-
-					// could do a more rudimentary dearch on each line of code.
-					//  That makes most sense.
-					// And can use the info to recompile the js code, with the CSS parts removed.
-
-					// This js resource could raise an event saying it's got the extracted / removed CSS.
-					//  Makes sense for the js resource to handle it.
-
-					// This will make it a lot easier to edit the CSS alongside the relevant controls.
-					// Controls could possibly have different themes that operate too.
-					//  Could make a theme-name css class, such as 'dark', and have css for specific themes declared in the control CSS / SASS.
-
 					let str_js_code = str_js;
 					let str_sourcemap;
 
@@ -664,18 +477,6 @@ class Site_JavaScript extends Resource {
 						str_js_code = str_js.substr(0, pos_prior_sourcemap);
 						str_sourcemap = str_js.substr(pos_prior_sourcemap);
 					}
-
-					// can add the same sourcemap back?
-					//  Would prob be OK with the CSS code removed.
-
-
-
-
-
-					// extract css function...
-					//  extract css lines
-					//   returns css, non-css
-
 					// filter_extract_css
 
 					const js_remove_comments = (str_js_code) => {
@@ -690,33 +491,11 @@ class Site_JavaScript extends Resource {
 						// Could split it into lines, spot whenever a line starts a comment...?
 					} 
 
-					//const filter_js_remove_server_js
-					// compile_client_js_from_server_js
-					// is_server_js
-
-
-
-
 					const filter_js_extract_control_css = (str_js_code) => {
 						// res = [css, js_no_css]
 						// Split the js lines.
 
 						const s_js = str_js_code.split('\n');
-
-						// Mark the relative lines.
-						//  Could remove comment sections...
-						//  Spot comments begginning, comments ending.
-						//   Then could remove all comments from here, so we don't make use of any commented code.
-
-						// My own (basic) code to strip comments?
-						//  Stripping out commented CSS is relatively important
-						//  And replace some specific comments?
-						// Could go through the whole js string, char by char, removing comments.
-						// Make it so that all css that gets used has no indent...
-						//  That could work.
-
-						// Any line with .css = funny quote
-
 						let within_class_css = false;
 						const control_css_lines = [];
 						const js_non_css_lines = [];
@@ -772,66 +551,11 @@ class Site_JavaScript extends Resource {
 					if (str_sourcemap) {
 						str_js_no_css = str_js_no_css + str_sourcemap;
 					}
-
-					//console.log('str_css.length', str_css.length);
-					//console.log('str_js_no_css.length', str_js_no_css.length);
-					//console.log('str_css', str_css);
-
 					this.raise('extracted-controls-css', str_css);
-					// And the server / website resource can listen for these, and then give the data to the css.
-
-
-					// string of extracted Control css.
-
-					// Very nice... looks like the css and js separation and compilation is working OK.
-
-					// Work with the JS when serving the JS.
-					//  Could raise an event from the resource saying that we have the extracted / compiled CSS...?
-
-
-
-
-
-
-
-					//throw 'stop';
-
-
-
-
-
-
-
-
-
-					
-
-
-
-
-					//await fnlfs.save('D:\\saved_no_css.js', str_js_no_css);
-
-					// Then with str_js....
-					//  That is the part where we can find / remove the css parts.
-
-					// Use a JS parser?
-					//  Is that overkill?
-
-					// can we separate statements by ';'?
-					//  then go through them, looking for the css.
-
-					// or look for Class.css = {..
-
-					//console.log('str_js.length', str_js.length);
-
-					//console.log('buf_js.length', buf_js.length);
-					//console.log('str_js.length', str_js.length);
-					// options.babel === true
-
 					let babel_option = options.babel;
 
-					//console.log('babel_option', babel_option);
-
+					console.log('babel_option', babel_option);
+					//throw 'stop';
 					//babel_option = 'es5';
 					//console.log('babel_option', babel_option);
 					if (babel_option === 'es5') {
@@ -870,8 +594,6 @@ class Site_JavaScript extends Resource {
 						if (options.include_sourcemaps) o_tranform.sourceMaps = 'inline';
 
 						let res_transform = babel.transform(str_js_no_css, o_tranform);
-						//console.log('res_transform', res_transform);
-						//console.log('Object.keys(res_transform)', Object.keys(res_transform));
 						let jst_es5 = res_transform.code;
 						//let {jst_es5, map, ast} = babel.transform(str_js);
 						//console.log('jst_es5.length', jst_es5.length);
@@ -905,23 +627,9 @@ class Site_JavaScript extends Resource {
 						//let {jst_es5, map, ast} = babel.transform(str_js);
 						//console.log('jst_es5.length', jst_es5.length);
 						buf_js = Buffer.from(res_transform.code);
-						/*
-						{
-						"presets": [["minify", {
-							"mangle": {
-							"exclude": ["MyCustomError"]
-							},
-							"unsafe": {
-							"typeConstructors": false
-							},
-							"keepFnName": true
-						}]]
-						}
-						*/
-						//
-
 					} else {
 						buf_js = Buffer.from(str_js_no_css);
+						console.log('no babel use');
 					}
 					var escaped_url = url.replace(/\./g, '☺');
 
@@ -942,97 +650,14 @@ class Site_JavaScript extends Resource {
 	
 							resolve(true);
 						}
-						//res.writeHead(200, {
-						//	'Content-Encoding': 'deflate',
-						//	'Content-Type': 'text/javascript'
-						//});
-						//res.end(buffer);
-						//res.writeHead(200, {'Content-Type': 'text/javascript'});
-						//response.end(servableJs);
-						//res.end(minified.code);
 					});
-
-					// uglify and remove comments?
-
-					// Coming up with different built / compressed versions makes sense.
-
-					// Need to be able to return uncompressed if client cannot accept compressed data.
-
-					//throw 'stop';
-					// Then run it through babel to change the ES6 classes into older style.
-
-					// then need to serve it under url
-
-					
-
-					
-					//console.trace();
-
-
-					// want it compressed with a few different ways.
-
-					// want to compress to gzip by default
-
-					// Will change the way that .custom paths works.
-
-					// need to come up with both gzip and brotli compressed.
-					//  well, could ignore brotli for the moment
-					// could also have them become ready.
-
-
-
-
-
-					/*
-
-					if (accepts_brotli) {
-
-						brotli(buf_js, (err, buffer) => {
-							console.log('* brotli deflated buffer.length', buffer.length);
-
-							if (err) {
-								reject(err);
-							} else {
-
-								// 
-
-
-								buffer.encoding = 'br';
-
-								this.custom_paths.set(escaped_url, buffer);
-
-								resolve(true);
-							}
-							//res.writeHead(200, {
-							//	'Content-Encoding': 'deflate',
-							//	'Content-Type': 'text/javascript'
-							//});
-							//res.end(buffer);
-							//res.writeHead(200, {'Content-Type': 'text/javascript'});
-							//response.end(servableJs);
-							//res.end(minified.code);
-						});
-					} else {
-						
-					}
-					*/
 				}
-				/*
-				*/
-				// 
-				// then need to store that compiled file at that URL.
 			})();
 		}, callback);
 	}
 
 	'set_custom_path'(url, file_path) {
-		// But change the URL to have a smiley face instead of fullstops
-		//console.log('url', url);
 		var escaped_url = url.replace(/\./g, '☺');
-		//console.log('escaped_url', escaped_url);
-		//this.meta.set('custom_paths.' + escaped_url, file_path);
-		//var custom_paths = this.meta.get('custom_paths');
-		//console.log('custom_paths', custom_paths);
 		this.custom_paths.set(escaped_url, file_path);
 	}
 
@@ -1041,80 +666,11 @@ class Site_JavaScript extends Resource {
 	'process'(req, res) {
 		//console.log('Site_JavaScript processing req.url', req.url);
 		var remoteAddress = req.connection.remoteAddress;
-		//console.log('remoteAddress ' + remoteAddress);
-
-		// Need to be able to get the resource pool from this resource.
-		//  It routes http calls to particular resources, and resources in the same pool make use of each
-
-
-		// Could have specific processing for the app bundle
-		//  Use browserify to put the bundle into one JavaScript file.
-
-		// Need some default client-side bundle too.
-		// With jsgui and the various controls.
-		//
-
-		// Maybe a jsgui-client dependancy would do the job best.
-		//  Contains HTML and some client-specific tech.
-
-		// It should be able to serve jsgui2-client to the client easily, as a default.
-
-
-
-
-
-
-
-
-
-		//   other.
-
-
-		// /js/...js
-
-		// //site_js.meta.set('custom_paths.js/app☺js', './client/js/app.js');
-
-		// http://192.168.2.3/js/app.js
-
-		// need to serve /js/app.js.
-		//  however the Website Resource should set this up.
-
-
-		// the site's static file resources.
-		//  a file server that serves the files with their mime types.
-		//   nice to have encapsulation of this because it can do compression.
-
-		// It may be useful to get given the rest of the URL.
-
-
 		var custom_paths = this.custom_paths;
-
-		//console.log('custom_paths', custom_paths);
-		//throw 'stop'
-		//console.log('tof custom_paths', tof(custom_paths));
-
 		var rurl = req.url.replace(/\./g, '☺');
-
-		//if (rurl.substr(0, 1) == '/') rurl = rurl.substr(1);
-
-
-		//console.log('rurl', rurl);
-
 		var custom_response_entry = custom_paths[rurl];
-		//console.log('custom_response_entry', custom_response_entry);
-		//console.log('custom_response_entry.encoding', custom_response_entry.encoding);
-
-		// hmmmm get not working right?
-
-
-		//console.log('custom_response_entry', custom_response_entry);
-
 		var pool = this.pool;
 		if (custom_response_entry) {
-
-			//let t = tof(custom_response_entry._);
-
-			//console.log('req.headers', req.headers);
 			const ae = req.headers['accept-encoding'];
 			let data_to_serve;
 			let o_head = {
@@ -1128,75 +684,9 @@ class Site_JavaScript extends Resource {
 			}
 			res.writeHead(200, o_head);
 			res.end(data_to_serve);
-
-
-
-
-			//throw 'stop';
-
-
-			// it's an object.
-
-			// ._.raw, ._.gzip
-
-
-
-			/*
-			console.log('t', t);
-			if (t === 'buffer') {
-				//console.log('sending js');
-				let o_head = {
-					'Content-Type': 'text/javascript'
-				}
-				//console.log('custom_response_entry._.encoding', custom_response_entry._.encoding);
-				if (custom_response_entry._.encoding) {
-
-					o_head['Content-Encoding'] = custom_response_entry._.encoding;
-				}
-
-				res.writeHead(200, o_head);
-				//response.end(servableJs);
-				//console.log('custom_response_entry._', custom_response_entry._);
-				//console.log('custom_response_entry._.length', custom_response_entry._.length);
-				res.end(custom_response_entry._);
-				//console.log('response js written');
-
-			} else {
-				var file_path = custom_response_entry.value();
-				//console.log('file_path', file_path);
-
-				//throw 'stop';
-				//var disk_path = '../../ws/js/' + wildcard_value;
-				fs2.load_file_as_string(file_path, function (err, data) {
-					if (err) {
-						throw err;
-					} else {
-						res.writeHead(200, {
-							'Content-Type': 'text/javascript'
-						});
-						//response.end(servableJs);
-						res.end(data);
-					}
-				});
-			}
-			*/
-
-			// 
-			//console.trace();
-			//throw 'stop';
-
-			// we serve the file pointed to.
-
 		} else {
-
 			var served_directories = this.served_directories;
-
 			console.log('served_directories', served_directories);
-
-			//console.trace();
-			//throw 'stop';
-
-
 			var url_parts = url.parse(req.url, true);
 			//console.log('url_parts ' + stringify(url_parts));
 			var splitPath = url_parts.path.substr(1).split('/');
@@ -1207,22 +697,7 @@ class Site_JavaScript extends Resource {
 			if (wildcard_value == 'web/require.js') {
 
 			} else {
-				// Can get the path on disk...
-				//console.log('wildcard_value', wildcard_value);
-				// Best to check the app's directory.
-				//  We probably won't need to be serving the whole jsgui framework from here.
-				//  It can be built and put in the app's js directory.
-				//  Could also make it buildable on the server?
-				//var disk_path = './js/' + wildcard_value;
-
-				//console.log('__dirname', __dirname);
-				//console.log('require.main.filename', require.main.filename);
-				// Would be good to uglify and gzip what gets served.
-
 				var disk_path = path.dirname(require.main.filename) + '/' + 'js/' + wildcard_value;
-
-
-
 				var compress = false;
 
 
@@ -1231,34 +706,6 @@ class Site_JavaScript extends Resource {
 				if (compress) {
 					throw 'NYI with Babel';
 
-					// Uglify removed. Using babel instead.
-					/*
-
-					fs2.load_file_as_string(disk_path, function (err, data) {
-						if (err) {
-							throw err;
-						} else {
-							// And gzipped too...
-							var minified = UglifyJS.minify(data, {
-								fromString: true
-							});
-							//console.log('minified', minified);
-							zlib.deflate(minified.code, function (err, buffer) {
-								if (err) throw err;
-								res.writeHead(200, {
-									'Content-Encoding': 'deflate',
-									'Content-Type': 'text/javascript'
-								});
-								res.end(buffer);
-
-								//res.writeHead(200, {'Content-Type': 'text/javascript'});
-								//response.end(servableJs);
-								//res.end(minified.code);
-							});
-						}
-					});
-
-					*/
 				} else {
 					// try to load it from the project's js path.
 					//console.log('disk_path', disk_path);
@@ -1269,39 +716,6 @@ class Site_JavaScript extends Resource {
 						if (err) {
 							console.log('error loading from project_js_path: ', project_js_path);
 							console.log(err);
-
-							/*
-							var b = browserify();
-							b.add(require.resolve(('jsgui2-client')));
-
-							//b.bundle().pipe(process.stdout);
-							res.writeHead(200, {'Content-Type': 'text/javascript'});
-
-							var string = '';
-							var stream = b.bundle();
-							stream.on('readable',function(buffer){
-								var part = buffer.read().toString();
-								string += part;
-								console.log('stream data ' + part);
-							});
-
-							stream.on('end',function(){
-								console.log('final output ' + string);
-
-								console.log('string.length', string.length);
-								res.end(string);
-							});
-
-							//b.bundle().pipe(res);
-
-							//res.pipe(b.bundle());
-							*/
-
-							//setTimeout(function() {
-							//throw err;
-							//}, 5000)
-
-
 						} else {
 							// Have loaded the js from the project path, we can serve it.
 							console.log('have loaded js');

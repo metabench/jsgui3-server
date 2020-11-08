@@ -310,7 +310,7 @@ const iterate_babel_node = (babel_node, str_source, callback) => {
 
         let stopped = false;
 
-        const stop = () => stop = true;
+        const stop = () => stopped = true;
 
         if (callback) {
             callback(babel_node, stop);

@@ -33,8 +33,6 @@ class Platforms extends Evented_Class {
         //   In that case it would require the smallest platform that contains it, or it fishes the function out.
         //    Looks like we need tests for if a function is inline.
 
-        
-
         if (spec.platforms) {
             const t = spec.platforms;
             if (t === 'array') {
@@ -44,6 +42,15 @@ class Platforms extends Evented_Class {
 
         console.log('arr_requires', arr_requires);
         console.log('arr_platforms', arr_platforms);
+
+        this.push = platform => {
+            const idx = arr_platforms.length;
+            arr_platforms.push(platform);
+            this.raise('change', {
+                'type': 'add',
+                'value': platform
+            });
+        }
 
 
 

@@ -393,28 +393,37 @@ const iterate_babel_node = (babel_node, str_source, callback) => {
                 throw 'stop';
             }
 
+            // ConditionalExpression
+
         }
 
         
     }
 }
 
+// each_babel_child_node
+
+// iterate_find maybe?
+
+//const iterate_babel_find = (babel_node, str_source, fn_match, callback) = 
+
+// each_babel_child_node
 
 const iterate_babel_child_nodes = (babel_node, str_source, callback) => iterate_babel_node(babel_node, str_source, (node2) => {
     if (babel_node !== node2) {
         callback(node2);
     }
-})
+});
 
 // accumulate function?
-
-
 
 const get_babel_child_nodes = (babel_node, str_source) => {
     const res = [];
     iterate_babel_child_nodes(babel_node, str_source, (node => res.push(node)));
     return res;
 }
+
+
 
 const get_identifier_names = babel_node => {
     const arr_names = [], map_names = {};
@@ -451,9 +460,6 @@ const get_named_call = (babel_node, target_name) => {
 
         }
         */
-
-
-
         if (type === 'CallExpression') {
             //throw 'stop';
             const {callee} = babel_node;
@@ -506,7 +512,10 @@ const has_require_call = babel_node => !!get_require_call(babel_node);
 // pattern signatures and matching looks like the best way to go.
 //  
 
+// structure patterns
+//  could ignore variable names?
 
+// or run some kind of deep copy / clone on babel nodes and transform them.
 
 
 const babel_node_tools = {
@@ -544,6 +553,7 @@ const babel_node_tools = {
 
     iterate_babel_node: iterate_babel_node, //maybe just this one is necessary.
     iterate_babel_child_nodes: iterate_babel_child_nodes,
+    //each_babel_child_node: each_babel_child_node,
 
     count_nodes: count_nodes,
 

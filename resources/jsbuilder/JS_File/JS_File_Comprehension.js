@@ -1,7 +1,8 @@
 const {each, tof} = require('lang-mini');
 const JS_File = require('./JS_File_Core');
 const JS_AST_Node = require('../JS_AST/JS_AST_Node');
-const Reference_Sequence = require('../Reference_Sequence');
+const JS_File_Import_References = require('./JS_File_Import_References');
+const { default: Import_References } = require('./JS_File_Import_References');
 // Will extract relevant AST code functionality. Files often import things at the beginning, then have declarations, then export what was declared at the end.
 
 // Understanding the import declarations so they could be localised.
@@ -9,6 +10,7 @@ const Reference_Sequence = require('../Reference_Sequence');
 
 // Can build the functions into a js file.
 
+// Later on - renaming local variables within a scope. 
 
 
 // JS_File_Writable too...
@@ -26,10 +28,6 @@ class JS_File_Comprehension extends JS_File {
         super(spec);
 
         // Could have a syntax library - that means syntax that it already knows, and can recognise.
-
-
-
-
         let ready = false, babel_ast;
 
         const root_items = [], root_classes = [];
@@ -59,8 +57,17 @@ class JS_File_Comprehension extends JS_File {
         // An imports property.
         // Basically a sequence of references.
 
-        const in_references = new Reference_Sequence();
-        const out_references = new Reference_Sequence();
+        const import_references = new JS_File_Import_References();
+
+        //const in_references = new Reference_Sequence();
+        //const out_references = new Reference_Sequence();
+
+
+        // go through all root node declatations.
+        //  
+
+
+
 
         Object.defineProperty(this, 'code_type', {
             // Using shorthand method names (ES2015 feature).
@@ -132,7 +139,6 @@ class JS_File_Comprehension extends JS_File {
         }
 
         // detect matches of a statement with a child node being a require call.
-
         // .has_child_matching(fn_test)
 
         // being able to stop the iteration would help too.
@@ -143,12 +149,43 @@ class JS_File_Comprehension extends JS_File {
         // give the full source as well as its own source?
 
         const each_root_node = callback => each_babel_root_node(body_node => callback(new JS_AST_Node({
-            babel_node: body_node//,
-            //str_source: this.source.substring(body_node.start, body_node.end)
+            babel_node: body_node,
+            full_source: this.source
         })));
             //throw 'stop';
 
         this.each_root_node = each_root_node;
+
+
+        Object.defineProperty(this, 'root_nodes', {
+            // Using shorthand method names (ES2015 feature).
+            // This is equivalent to:
+            // get: function() { return bValue; },
+            // set: function(newValue) { bValue = newValue; },
+            get() { 
+                const res = [];
+                //return root_babel_declarations; 
+                each_root_node(root_node => {
+                    res.push(root_node);
+                })
+                return res;
+            },
+            //set(newValue) { bValue = newValue; },
+            enumerable: true,
+            configurable: false
+        });
+
+        // root nodes that are single variable declarations.
+        // that are multiple variable declarations.
+
+        this.filter_each_root_node = (fn_filter, callback) => {
+            each_root_node(root_node => {
+                if (fn_filter(root_node)) callback(root_node);
+            })
+        }
+
+        
+
 
         // get_root_require_calls
 

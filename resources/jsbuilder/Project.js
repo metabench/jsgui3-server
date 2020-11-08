@@ -27,6 +27,27 @@ class Project extends Evented_Class {
     //  For the moment, focus more on bringing together input.
     //  Arrange inputs to get output.
 
+    // Project-wide list / index of variable names
+    //  The variable names inside classes too.
+
+    // Project-wide substitution of variable names for shorter ones
+    //  Ongoing calculations of savings.
+
+    // Main thing will be to go further on code extraction - have the system able to deal with pieces of code, that it knows are required by something, to be
+    //  dealt with in abstract ways.
+
+    // Named platforms make sense.
+    //  Combining multiple platforms into one platform.
+    //   Application code sits on top of those platforms.
+
+
+    
+
+
+
+
+
+
 
 
 
@@ -52,6 +73,10 @@ class Project extends Evented_Class {
 
         const platforms = new Platforms();
 
+        platforms.on('change', e_change => {
+            console.log('platforms e_change', e_change);
+        });
+
         Object.defineProperty(this, 'platforms', {
             get() { return platforms; },
             //set(newValue) { bValue = newValue; },
@@ -60,12 +85,12 @@ class Project extends Evented_Class {
         });
 
     }
-    add_js_file(js_file) {
+    //add_js_file(js_file) {
 
-    }
-    remove_js_file(js_file) {
+    //}
+    //remove_js_file(js_file) {
         
-    }
+    //}
 
 }
 

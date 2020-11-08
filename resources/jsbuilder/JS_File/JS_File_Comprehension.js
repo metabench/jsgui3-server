@@ -1,7 +1,7 @@
 const {each, tof} = require('lang-mini');
 const JS_File = require('./JS_File_Core');
-const JS_AST_Node = require('./JS_AST_Node');
-
+const JS_AST_Node = require('../JS_AST/JS_AST_Node');
+const Reference_Sequence = require('../Reference_Sequence');
 // Will extract relevant AST code functionality. Files often import things at the beginning, then have declarations, then export what was declared at the end.
 
 // Understanding the import declarations so they could be localised.
@@ -26,6 +26,8 @@ class JS_File_Comprehension extends JS_File {
         super(spec);
 
         // Could have a syntax library - that means syntax that it already knows, and can recognise.
+
+
 
 
         let ready = false, babel_ast;
@@ -54,6 +56,11 @@ class JS_File_Comprehension extends JS_File {
         //  Want to be able to find things out about nodes in the AST.
         //  Such as if they are 'inline' - as in don't refer to anything out of their scope.
 
+        // An imports property.
+        // Basically a sequence of references.
+
+        const in_references = new Reference_Sequence();
+        const out_references = new Reference_Sequence();
 
         Object.defineProperty(this, 'code_type', {
             // Using shorthand method names (ES2015 feature).

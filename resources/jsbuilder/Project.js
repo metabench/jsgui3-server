@@ -10,7 +10,7 @@
 
 const {each, Evented_Class} = require('lang-mini');
 
-const JS_File = require('./JS_File_Core');
+//const JS_File = require('./JS_File_Core');
 const Platforms = require('./Platforms');
 
 class Project extends Evented_Class {

@@ -56,8 +56,25 @@ const test_js_file = () => {
         //const root_dec_names = jsf.get_root_declaration_names();
         //console.log('root_dec_names', root_dec_names);
 
-        const proposed_remappings = jsf.get_proposed_root_definitions_inner_name_remappings();
-        console.log('proposed_remappings', proposed_remappings);
+        //const proposed_remappings = jsf.get_proposed_root_definitions_inner_name_remappings();
+        //console.log('proposed_remappings', proposed_remappings);
+
+        jsf.remap_root_definition_inner_names();
+
+
+        
+
+        // then jsf.output?
+        // .babel_output makes sense.
+
+        // With the success of close babel interaction, later on integrating react and vue would be cool if possible.
+        //  Getting their projects running well, providing nice abstractions particularly for react.
+        //   Separating out control logic that could be used with any UI renderer.
+        //    Non-renderer specific UI logic.
+        //     Controls that can render in jsgui, react, or vue.
+        //      or jsgui would always be involved in rendering, but would prepare for rendering using react or vue.
+
+
 
 
         // easier syntax at this level.

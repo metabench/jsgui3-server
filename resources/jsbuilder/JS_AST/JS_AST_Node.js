@@ -215,6 +215,8 @@ class JS_AST_Node {
             configurable: false
         });
 
+        
+
         Object.defineProperty(this, 'inner_declaration_names', {
             get() { 
                 const res = []; const tm = {};
@@ -230,78 +232,6 @@ class JS_AST_Node {
             enumerable: true,
             configurable: false
         });
-
-        /*
-        Object.defineProperty(this, 'all_declaration_names', {
-            get() { 
-
-                // do an iteration of self and children.
-
-
-
-
-                // includes own declaration names
-                
-
-                if(this.is_declaration) {
-                    const res = [];
-                    //console.log('babel_node', babel_node);
-
-                    each(babel_node.declarations, declaration => {
-                        res.push(declaration.id.name);
-                    })
-
-                    //throw 'stop'
-                    return res;
-                }
-                
-            },
-            //set(newValue) { bValue = newValue; },
-            enumerable: true,
-            configurable: false
-        });
-        */
-
-
-
-
-
-        // inner_declaration_names
-
-
-        // nested declaration names?
-
-        // all declaration names?
-
-
-
-        // child_declaration_names property
-
-
-        // .own_declaration_names
-        //  a property which has got names of what is declared when relevant.
-
-
-
-
-        // a property that gets the variable names declared in local scope.
-
-        //  child variable names?
-        //  variable names defined within the function?
-
-        //  variable names defined anywhere within?
-
-
-
-
-        // with the locally scoped variable names we could rename them.
-
-
-
-        // and an array of names of what is declared?
-        // or check if it's a single declaration first?
-
-
 
         Object.defineProperty(this, 'child_declarations', {
             get() { 
@@ -322,68 +252,6 @@ class JS_AST_Node {
             enumerable: true,
             configurable: false
         });
-
-
-        /*
-        const iterate = callback => {
-            let stopped = false;
-            const stop = () => stopped = true;
-
-            callback(this, stop);
-
-            if (!stopped) {
-                const cns = this.child_nodes;
-                each(cns, (child_node, stop2) => {
-                    child_node.iterate(callback);
-                })
-            }
-        }
-        this.iterate = iterate;
-
-        const iterate_inner = callback => {
-            iterate((node, stop) => {
-                if (node !== this) callback(node, stop);
-            })
-        }
-        this.iterate_inner = iterate_inner;
-
-        Object.defineProperty(this, 'inner_declarations', {
-            get() { 
-                console.log('get inner_declarations');
-                const res = [];
-                iterate_inner(inner_node => {
-                    // if it the right node type?
-                    //console.log('inner_node', inner_node);
-
-                    if (inner_node.type === 'VariableDeclaration' || inner_node.type === 'ClassDeclaration') {
-                        res.push(inner_node);
-                    }
-
-                });
-                return res;
-                //return babel_node; 
-            },
-            //set(newValue) { bValue = newValue; },
-            enumerable: true,
-            configurable: false
-        });
-        */
-
-        /*
-
-        const iterate = this.iterate = (callback) => {
-            let stopped = false;
-            const stop = () => stopped = true;
-            callback(this, stop);
-            if (!stopped) {
-                each(this.child_nodes, (child_node) => {
-                    if (!stopped) {
-                        iterate(callback);
-                    }
-                })
-            }
-        }
-        */
 
         const each_inner_node = (callback) => {
             iterate_babel_node(babel_node, full_source, bcn => {
@@ -411,6 +279,13 @@ class JS_AST_Node {
             })
         }
         this.filter_each_inner_node = filter_each_inner_node;
+
+        const each_inner_declaration = (callback) => {
+            filter_each_inner_node(node => node.is_declaration, node => {
+                callback(node);
+            })
+        }
+        this.each_inner_declaration = each_inner_declaration;
 
         this.count_nodes = () => {
             let c = 0;

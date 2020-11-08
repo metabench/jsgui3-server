@@ -131,11 +131,20 @@ class JS_File_Comprehension extends JS_File {
             }
         }
 
+        // detect matches of a statement with a child node being a require call.
+
+        // .has_child_matching(fn_test)
+
+        // being able to stop the iteration would help too.
+
         //}
         // each_root_node?
+
+        // give the full source as well as its own source?
+
         const each_root_node = callback => each_babel_root_node(body_node => callback(new JS_AST_Node({
-            babel_node: body_node,
-            str_source: this.source.substring(body_node.start, body_node.end)
+            babel_node: body_node//,
+            //str_source: this.source.substring(body_node.start, body_node.end)
         })));
             //throw 'stop';
 

@@ -513,10 +513,18 @@ const test_js_file = () => {
             console.log('ct', ct);
             console.log('js_node.get_identifier_names()', js_node.get_identifier_names());
             const cns = js_node.child_nodes;
-            console.log('js_node.child_nodes', cns);
+            //console.log('js_node.child_nodes', cns);
 
             each(cns, cn => {
+                console.log('cn.str_source', cn.str_source);
                 console.log('cn.type', cn.type);
+                console.log('cn.get_identifier_names()', cn.get_identifier_names());
+
+                
+                // str_source
+                // contains_identifier_named?
+                // 
+
             })
             //console.log('type', type);
 

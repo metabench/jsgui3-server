@@ -307,84 +307,95 @@ const iterate_babel_node = (babel_node, str_source, callback) => {
     //console.log('babel_node', babel_node);
 
     if (babel_node) {
+
+        let stopped = false;
+
+        const stop = () => stop = true;
+
         if (callback) {
-            callback(babel_node);
+            callback(babel_node, stop);
         }
         const {type} = babel_node;
 
-        if (type === 'BinaryExpression') {
-            return iterate_babel_binary_expression_node(babel_node, str_source, callback);
-        } else if (type === 'UnaryExpression') {
-            return iterate_babel_unary_expression_node(babel_node, str_source, callback);
-        } else if (type === 'Identifier') {
-            return iterate_babel_identifier_node(babel_node, str_source, callback);
-        } else if (type === 'StringLiteral') {
-            return iterate_babel_string_literal_node(babel_node, str_source, callback);
-        } else if (type === 'VariableDeclaration') {
-            return iterate_babel_variable_declaration_node(babel_node, str_source, callback);
-        } else if (type === 'ArrowFunctionExpression') {
-            return iterate_babel_arrow_function_expression_node(babel_node, str_source, callback);
-        } else if (type === 'BlockStatement') {
-            return iterate_babel_block_statement_node(babel_node, str_source, callback);
-        } else if (type === 'IfStatement') {
-            return iterate_babel_if_statement_node(babel_node, str_source, callback);
-        } else if (type === 'ReturnStatement') {
-            return iterate_babel_return_statement_node(babel_node, str_source, callback);
-        } else if (type === 'ObjectExpression') {
-            return iterate_babel_object_expression_node(babel_node, str_source, callback);
-        } else if (type === 'ObjectProperty') {
-            return iterate_babel_object_property_node(babel_node, str_source, callback);
-        } else if (type === 'CallExpression') {
-            return iterate_babel_call_expression_node(babel_node, str_source, callback);
-        } else if (type === 'MemberExpression') {
-            return iterate_babel_member_expression_node(babel_node, str_source, callback);
-        } else if (type === 'FunctionExpression') {
-            return iterate_babel_function_expression_node(babel_node, str_source, callback);
-        } else if (type === 'LogicalExpression') {
-            return iterate_babel_logical_expression_node(babel_node, str_source, callback);
-        } else if (type === 'VariableDeclarator') {
-            return iterate_babel_variable_declarator_node(babel_node, str_source, callback);
-        } else if (type === 'ExpressionStatement') {
-            return iterate_babel_expression_statement_node(babel_node, str_source, callback);
-        } else if (type === 'AssignmentExpression') {
-            return iterate_babel_assignment_expression_node(babel_node, str_source, callback);
-        } else if (type === 'ArrayExpression') {
-            return iterate_babel_array_expression_node(babel_node, str_source, callback);
-        } else if (type === 'ForStatement') {
-            return iterate_babel_for_statement_node(babel_node, str_source, callback);
-        } else if (type === 'NumericLiteral') {
-            return iterate_babel_numeric_literal_node(babel_node, str_source, callback);
-        } else if (type === 'UpdateExpression') {
-            return iterate_babel_update_expression_node(babel_node, str_source, callback);
-        } else if (type === 'NewExpression') {
-            return iterate_babel_new_expression_node(babel_node, str_source, callback);
-        } else if (type === 'EmptyStatement') {
-            return iterate_babel_empty_statement_node(babel_node, str_source, callback);
-        } else if (type === 'NullLiteral') {
-            return iterate_babel_null_literal_node(babel_node, str_source, callback);
-        } else if (type === 'BooleanLiteral') {
-            return iterate_babel_boolean_literal_node(babel_node, str_source, callback);
-        } else if (type === 'ThrowStatement') {
-            return iterate_babel_throw_statement_node(babel_node, str_source, callback);
-        } else if (type === 'AssignmentPattern') {
-            return iterate_babel_assignment_pattern_node(babel_node, str_source, callback);
-        } else if (type === 'WhileStatement') {
-            return iterate_babel_while_statement_node(babel_node, str_source, callback);
-        } else if (type === 'ObjectPattern') {
-            return iterate_babel_object_pattern_node(babel_node, str_source, callback);
-        } else if (type === 'ClassDeclaration') {
-            return iterate_babel_class_declaration_node(babel_node, str_source, callback);
-        } else if (type === 'ClassBody') {
-            return iterate_babel_class_body_node(babel_node, str_source, callback);
-        } else if (type === 'ClassMethod') {
-            return iterate_babel_class_method_node(babel_node, str_source, callback);
-        } else {
-            console.log('');
-            console.log('type', type);
-            console.log('');
-            console.log('babel_node', babel_node);
-            throw 'stop';
+        if (!stopped) {
+
+            if (type === 'BinaryExpression') {
+                return iterate_babel_binary_expression_node(babel_node, str_source, callback);
+            } else if (type === 'UnaryExpression') {
+                return iterate_babel_unary_expression_node(babel_node, str_source, callback);
+            } else if (type === 'Identifier') {
+                return iterate_babel_identifier_node(babel_node, str_source, callback);
+            } else if (type === 'StringLiteral') {
+                return iterate_babel_string_literal_node(babel_node, str_source, callback);
+            } else if (type === 'VariableDeclaration') {
+                return iterate_babel_variable_declaration_node(babel_node, str_source, callback);
+            } else if (type === 'ArrowFunctionExpression') {
+                return iterate_babel_arrow_function_expression_node(babel_node, str_source, callback);
+            } else if (type === 'BlockStatement') {
+                return iterate_babel_block_statement_node(babel_node, str_source, callback);
+            } else if (type === 'IfStatement') {
+                return iterate_babel_if_statement_node(babel_node, str_source, callback);
+            } else if (type === 'ReturnStatement') {
+                return iterate_babel_return_statement_node(babel_node, str_source, callback);
+            } else if (type === 'ObjectExpression') {
+                return iterate_babel_object_expression_node(babel_node, str_source, callback);
+            } else if (type === 'ObjectProperty') {
+                return iterate_babel_object_property_node(babel_node, str_source, callback);
+            } else if (type === 'CallExpression') {
+                return iterate_babel_call_expression_node(babel_node, str_source, callback);
+            } else if (type === 'MemberExpression') {
+                return iterate_babel_member_expression_node(babel_node, str_source, callback);
+            } else if (type === 'FunctionExpression') {
+                return iterate_babel_function_expression_node(babel_node, str_source, callback);
+            } else if (type === 'LogicalExpression') {
+                return iterate_babel_logical_expression_node(babel_node, str_source, callback);
+            } else if (type === 'VariableDeclarator') {
+                return iterate_babel_variable_declarator_node(babel_node, str_source, callback);
+            } else if (type === 'ExpressionStatement') {
+                return iterate_babel_expression_statement_node(babel_node, str_source, callback);
+            } else if (type === 'AssignmentExpression') {
+                return iterate_babel_assignment_expression_node(babel_node, str_source, callback);
+            } else if (type === 'ArrayExpression') {
+                return iterate_babel_array_expression_node(babel_node, str_source, callback);
+            } else if (type === 'ForStatement') {
+                return iterate_babel_for_statement_node(babel_node, str_source, callback);
+            } else if (type === 'NumericLiteral') {
+                return iterate_babel_numeric_literal_node(babel_node, str_source, callback);
+            } else if (type === 'UpdateExpression') {
+                return iterate_babel_update_expression_node(babel_node, str_source, callback);
+            } else if (type === 'NewExpression') {
+                return iterate_babel_new_expression_node(babel_node, str_source, callback);
+            } else if (type === 'EmptyStatement') {
+                return iterate_babel_empty_statement_node(babel_node, str_source, callback);
+            } else if (type === 'NullLiteral') {
+                return iterate_babel_null_literal_node(babel_node, str_source, callback);
+            } else if (type === 'BooleanLiteral') {
+                return iterate_babel_boolean_literal_node(babel_node, str_source, callback);
+            } else if (type === 'ThrowStatement') {
+                return iterate_babel_throw_statement_node(babel_node, str_source, callback);
+            } else if (type === 'AssignmentPattern') {
+                return iterate_babel_assignment_pattern_node(babel_node, str_source, callback);
+            } else if (type === 'WhileStatement') {
+                return iterate_babel_while_statement_node(babel_node, str_source, callback);
+            } else if (type === 'ObjectPattern') {
+                return iterate_babel_object_pattern_node(babel_node, str_source, callback);
+            } else if (type === 'ClassDeclaration') {
+                return iterate_babel_class_declaration_node(babel_node, str_source, callback);
+            } else if (type === 'ClassBody') {
+                return iterate_babel_class_body_node(babel_node, str_source, callback);
+            } else if (type === 'ClassMethod') {
+                return iterate_babel_class_method_node(babel_node, str_source, callback);
+            } else {
+                console.log('');
+                console.log('type', type);
+                console.log('');
+                console.log('babel_node', babel_node);
+                throw 'stop';
+            }
+
         }
+
+        
     }
 }
 

@@ -120,6 +120,8 @@ class JS_AST_Node {
             return c;
         }
 
+        /*
+
         this.get_variable_names = () => {
             throw 'NYI';
             const map_names = {}, arr_names = [];
@@ -129,6 +131,7 @@ class JS_AST_Node {
                 //c++;
             });
         }
+        */
 
         this.get_identifier_names = () => get_identifier_names(babel_node);
 

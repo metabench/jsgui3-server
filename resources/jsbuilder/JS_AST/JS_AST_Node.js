@@ -218,16 +218,12 @@ class JS_AST_Node {
         Object.defineProperty(this, 'inner_declaration_names', {
             get() { 
                 const res = []; const tm = {};
-                filter_each_inner_node(node => node.is_declaration, node => {
-                    const dec_names = node.own_declaration_names;
-                    //console.log('dec_names', dec_names);
-                    each(dec_names, dn => {
-                        if (!tm[dn]) {
-                            res.push(dn);
-                            tm[dn] = true;
-                        }
-                    })
-                })
+                filter_each_inner_node(node => node.is_declaration, node => each(node.own_declaration_names, dn => {
+                    if (!tm[dn] && typeof dn === 'string') {
+                        res.push(dn);
+                        tm[dn] = true;
+                    }
+                }))
                 return res;
             },
             //set(newValue) { bValue = newValue; },

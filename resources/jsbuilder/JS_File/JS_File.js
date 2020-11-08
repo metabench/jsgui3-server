@@ -1,6 +1,6 @@
-const JS_FIle_Processor = require('./JS_FIle_Processor');
+const JS_File_Changing = require('./JS_File_Changing');
 
-class JS_FIle extends JS_FIle_Processor {
+class JS_File extends JS_File_Changing {
     constructor(spec) {
         super(spec);
 
@@ -9,4 +9,4 @@ class JS_FIle extends JS_FIle_Processor {
     }
 }
 
-module.exports = JS_FIle;
+module.exports = JS_File;

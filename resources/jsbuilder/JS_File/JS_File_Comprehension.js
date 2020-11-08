@@ -49,7 +49,6 @@ class JS_File_Comprehension extends JS_File {
         let code_type;
         let export_name, root_class_name;
 
-
         // Then can do an iteration through the AST.
         //  Want to be able to find things out about nodes in the AST.
         //  Such as if they are 'inline' - as in don't refer to anything out of their scope.
@@ -62,12 +61,8 @@ class JS_File_Comprehension extends JS_File {
         //const in_references = new Reference_Sequence();
         //const out_references = new Reference_Sequence();
 
-
         // go through all root node declatations.
         //  
-
-
-
 
         Object.defineProperty(this, 'code_type', {
             // Using shorthand method names (ES2015 feature).
@@ -96,7 +91,6 @@ class JS_File_Comprehension extends JS_File {
         this.on('recieve-line', e_recieve_line => {
             //console.log('e_recieve_line', e_recieve_line);
             const {str} = e_recieve_line;
-
             if (str.startsWith('module.exports')) {
                 //console.log('str', str);
                 const [mexp, name] = str.split(';').join('').split(' ').join('').split('=');
@@ -115,7 +109,6 @@ class JS_File_Comprehension extends JS_File {
         
         // preparsing? early parsing?
         this.on('parsed-export-name', e_parse => {
-            
             const {value} = e_parse;
             console.log('parsed-export-name', value);
             export_name = value;
@@ -178,13 +171,41 @@ class JS_File_Comprehension extends JS_File {
         // root nodes that are single variable declarations.
         // that are multiple variable declarations.
 
-        this.filter_each_root_node = (fn_filter, callback) => {
+        const filter_each_root_node = this.filter_each_root_node = (fn_filter, callback) => {
             each_root_node(root_node => {
                 if (fn_filter(root_node)) callback(root_node);
             })
         }
 
-        
+        const each_root_declaration = this.each_root_declaration = (callback) => {
+            filter_each_root_node(node => node.is_declaration, (node => {
+                callback(node);
+            }));
+        }
+
+        // map_root_declarations
+
+        Object.defineProperty(this, 'map_root_declarations', {
+            // Using shorthand method names (ES2015 feature).
+            // This is equivalent to:
+            // get: function() { return bValue; },
+            // set: function(newValue) { bValue = newValue; },
+            get() { 
+                const res = {};
+                //return root_babel_declarations; 
+                each_root_declaration(root_dec => {
+                    //res.push(root_dec);
+                    if (root_dec.name) {
+                        res[root_dec.name] = root_dec;
+                    }
+                })
+                return res;
+            },
+            //set(newValue) { bValue = newValue; },
+            enumerable: true,
+            configurable: false
+        });
+
 
 
         // get_root_require_calls
@@ -206,11 +227,6 @@ class JS_File_Comprehension extends JS_File {
 
 
         }
-        
-
-
-
-
 
         this.get_root_declaration_names = () => {
             // can only do this when it's ready, it its been recieved and parsed.

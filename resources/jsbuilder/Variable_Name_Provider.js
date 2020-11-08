@@ -1,5 +1,5 @@
-class Variable_Name_Provider {
-    constructor(spec) {
+class Variable_Name_Provider { //Namer
+    constructor(spec = {}) {
         
         const reserved = {};
 
@@ -13,9 +13,17 @@ class Variable_Name_Provider {
         // for the moment, x, and then a letter.
 
         const map_counts = {
+            'l': 0,
             'x': 0,
             'p': 0,
             'a': 0
+        }
+
+
+        // l as well for local
+
+        this.get_l = () => {
+            return 'l' + map_counts['l']++
         }
 
         this.get_x = () => {

@@ -1,11 +1,9 @@
-const JS_File_Planning = require('./JS_File_4-Planning');
+const JS_File_Planning = require('./JS_File_5-Planning');
 const Variable_Name_Provider = require('../Variable_Name_Provider');
 const { each } = require('lang-mini');
 
 const {transform} = require("@babel/core");
-
 // import { transform } from "@babel/core";
-
 const generate = require("@babel/generator").default;
 //import generate from "@babel/generator";
 //console.log('generate', generate);
@@ -115,7 +113,6 @@ class JS_File_Changing extends JS_File_Planning {
                             });
                             //throw 'stop';
 
-
                             // Having a problem doing the modifications now....
                             //  Possibly making the Babel layer would be of use.
                             //   Could put more Babel functionality there.
@@ -123,11 +120,6 @@ class JS_File_Changing extends JS_File_Planning {
                             //     Move out of comprehension.
                             //      Could call that Basic_Parse? Early_Parse makes sense.
                             //       Comprehension still there, but above Babel.
-
-
-
-
-
                             
 
                             each(own_remappings, (replacement, old) => {
@@ -159,19 +151,12 @@ class JS_File_Changing extends JS_File_Planning {
                     c++;
                 });
 
-                
-
                 // this.source
 
                 const output = generate(babel_ast, this.source);
                 console.log('output.code', output.code);
 
-
-
             }
-
-            
-
 
 
             //if (c >= 4) throw 'stop';
@@ -183,9 +168,6 @@ class JS_File_Changing extends JS_File_Planning {
             //  by name can be implicit.
 
             // Will require accessing the associated babel nodes.
-
-
-
         }
 
     }

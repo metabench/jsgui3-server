@@ -1,6 +1,6 @@
 const {each, tof} = require('lang-mini');
-const JS_File_JS_AST_Node = require('./JS_File_2-JS_AST_Node');
-const JS_AST_Node = require('../JS_AST/JS_AST_Node');
+const JS_File_JS_AST_Node = require('./JS_File_3-JS_AST_Node');
+
 const JS_File_Import_References = require('./JS_File_Import_References');
 //const { default: JS_File_JS_AST_Node } = require('./JS_File_2-JS_AST_Node');
 //const { default: Import_References } = require('./JS_File_Import_References');
@@ -32,10 +32,9 @@ class JS_File_Comprehension extends JS_File_JS_AST_Node {
         //const import_references = new JS_File_Import_References();
 
         // Could have a syntax library - that means syntax that it already knows, and can recognise.
-        
 
-        let code_type;
-        const {each_babel_root_node} = this;
+        
+        
 
         // Then can do an iteration through the AST.
         //  Want to be able to find things out about nodes in the AST.
@@ -55,51 +54,11 @@ class JS_File_Comprehension extends JS_File_JS_AST_Node {
         // babel_ast
 
         
-
-        Object.defineProperty(this, 'code_type', {
-            // Using shorthand method names (ES2015 feature).
-            // This is equivalent to:
-            // get: function() { return bValue; },
-            // set: function(newValue) { bValue = newValue; },
-            get() { return code_type; },
-            //set(newValue) { bValue = newValue; },
-            enumerable: true,
-            configurable: false
-        });
+        
 
         
 
 
-        this.on('recieve-line', e_recieve_line => {
-            //console.log('e_recieve_line', e_recieve_line);
-            const {str} = e_recieve_line;
-            if (str.startsWith('module.exports')) {
-                //console.log('str', str);
-                const [mexp, name] = str.split(';').join('').split(' ').join('').split('=');
-                //console.log('name', name);
-                export_name = name;
-                code_type = 'CommonJS';
-                this.raise('parsed-code-type', {
-                    value: code_type
-                });
-                //console.log('pre raise parsed-export-name');
-                this.raise('parsed-export-name', {
-                    value: name
-                });
-            }
-        });
-        
-        // preparsing? early parsing?
-        this.on('parsed-export-name', e_parse => {
-            const {value} = e_parse;
-            console.log('parsed-export-name', value);
-            export_name = value;
-        });
-        this.on('parsed-root-class-name', e_parse => {
-            const {value} = e_parse;
-            //console.log('parsed-root-class-name', value);
-            root_class_name = value;
-        });
 
         // iterate declatation names.
         //  would be a more versitile function.
@@ -117,47 +76,7 @@ class JS_File_Comprehension extends JS_File_JS_AST_Node {
 
         // give the full source as well as its own source?
 
-        const each_root_node = callback => each_babel_root_node(body_node => callback(new JS_AST_Node({
-            babel_node: body_node,
-            full_source: this.source
-        })));
-            //throw 'stop';
-
-        this.each_root_node = each_root_node;
-
-
-        Object.defineProperty(this, 'root_nodes', {
-            // Using shorthand method names (ES2015 feature).
-            // This is equivalent to:
-            // get: function() { return bValue; },
-            // set: function(newValue) { bValue = newValue; },
-            get() { 
-                const res = [];
-                //return root_babel_declarations; 
-                each_root_node(root_node => {
-                    res.push(root_node);
-                })
-                return res;
-            },
-            //set(newValue) { bValue = newValue; },
-            enumerable: true,
-            configurable: false
-        });
-
-        // root nodes that are single variable declarations.
-        // that are multiple variable declarations.
-
-        const filter_each_root_node = this.filter_each_root_node = (fn_filter, callback) => {
-            each_root_node(root_node => {
-                if (fn_filter(root_node)) callback(root_node);
-            })
-        }
-
-        const each_root_declaration = this.each_root_declaration = (callback) => {
-            filter_each_root_node(node => node.is_declaration, (node => {
-                callback(node);
-            }));
-        }
+        
 
         // map_root_declarations
 
@@ -182,8 +101,6 @@ class JS_File_Comprehension extends JS_File_JS_AST_Node {
             configurable: false
         });
 
-
-
         // get_root_require_calls
 
         // check if it has require
@@ -195,14 +112,6 @@ class JS_File_Comprehension extends JS_File_JS_AST_Node {
 
         // So, need to look for the right patterns for requiring code. Let, const or var usually.
 
-        const assess_require = this.assess_require = () => {
-            // Go through all root nodes.
-            // look for VariableDeclaration type
-
-
-
-
-        }
 
         this.get_root_declaration_names = () => {
             // can only do this when it's ready, it its been recieved and parsed.
@@ -281,9 +190,7 @@ class JS_File_Comprehension extends JS_File_JS_AST_Node {
                 }
             })
             return all_body_dec_names;
-
         }
-
         
         // declaration_details
         //  is it all inline?

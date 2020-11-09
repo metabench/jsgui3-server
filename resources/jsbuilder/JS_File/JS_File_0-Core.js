@@ -1,5 +1,4 @@
 const {each, Evented_Class} = require('lang-mini');
-const parser = require('@babel/parser');
 const crypto = require('crypto');
 
 const whitespace_chars = {
@@ -75,6 +74,12 @@ class JS_File extends Evented_Class {
             configurable: false
         });
 
+        this.on('input-stream-end', (e_end) => {
+            const {str_all} = e_end;
+            sha512 = e_end.sha512;
+            source = str_all;
+        })
+
 
         this.on('recieve-line-char', e_rlc => {
             //console.log('e_rlc', e_rlc);
@@ -127,55 +132,10 @@ class JS_File extends Evented_Class {
                     char_code: s.charCodeAt(c)
                 })
             }
-            // is it the module.exports line?
-            //  babel doesn't see that / removes it.
-            //console.log('str', str);
-            /*
-            if (str.startsWith('module.exports')) {
-                //console.log('str', str);
-                const [mexp, name] = str.split(';').join('').split(' ').join('').split('=');
-                console.log('name', name);
-                export_name = name;
-                code_type = 'CommonJS';
-                this.raise('parsed-code-type', {
-                    value: code_type
-                });
-                console.log('pre raise parsed-export-name');
-                this.raise('parsed-export-name', {
-                    value: name
-                });
-            }
-            */
         });
 
 
-        this.on('input-stream-end', (e_end) => {
-            const {str_all} = e_end;
-            sha512 = e_end.sha512;
-            source = str_all;
-            console.log('str_all.length', str_all.length);
-            //console.log('arr_lines', arr_lines);
-            const ast = parser.parse(str_all, {
-                sourceType: 'module',
-                plugins: [
-                    'asyncGenerators',
-                    'bigInt',
-                    'classPrivateMethods',
-                    'classPrivateProperties',
-                    'classProperties',
-                    'doExpressions',
-                    //'exportDefaultFrom',
-                    'nullishCoalescingOperator',
-                    'numericSeparator',
-                    'objectRestSpread',
-                    'optionalCatchBinding',
-                    'optionalChaining',
-                ]});
-            //console.log('ast', ast);
-            this.raise('parsed-ast', {
-                value: ast
-            });
-        })
+        
 
         this.on('recieve-byte', e_receive_byte => {
             last_recieved_byte = recieved_byte;
@@ -267,12 +227,7 @@ class JS_File extends Evented_Class {
                 // https://esprima.org/
                 // 
 
-                
-
                 //console.log('rs', rs);
-
-                
-                
 
                 rs.on('data', chunk => {
                     //if (!buf1) {buf1 = chunk} else {
@@ -285,7 +240,6 @@ class JS_File extends Evented_Class {
                         });
                     }
                     //}
-                    
                 });
                 let ast;
 
@@ -300,7 +254,7 @@ class JS_File extends Evented_Class {
                         last: true
                     });
                     const str_all = arr_lines.join('\n');
-                    var crypto = require('crypto');
+                    //var crypto = require('crypto');
                     var hash = crypto.createHash('sha512');
                     //passing the data to be hashed
                     //data = hash.update('salt1', 'utf-8');

@@ -1,8 +1,10 @@
-const JS_File_Core = require('./JS_File_0-Core');
+const JS_File_Early_Parse = require('./JS_File_1-Early_Parse');
 const {each, tof} = require('lang-mini');
 
+const parser = require('@babel/parser');
 
-class JS_File_Babel extends JS_File_Core {
+
+class JS_File_Babel extends JS_File_Early_Parse {
     constructor(spec) {
         super(spec);
         let ready = false, babel_ast;
@@ -37,6 +39,34 @@ class JS_File_Babel extends JS_File_Core {
                 throw 'Not ready';
             }
         }
+
+        this.on('input-stream-end', (e_end) => {
+            const {str_all} = e_end;
+            //sha512 = e_end.sha512;
+            //source = str_all;
+            //console.log('str_all.length', str_all.length);
+            //console.log('arr_lines', arr_lines);
+            const ast = parser.parse(str_all, {
+                sourceType: 'module',
+                plugins: [
+                    'asyncGenerators',
+                    'bigInt',
+                    'classPrivateMethods',
+                    'classPrivateProperties',
+                    'classProperties',
+                    'doExpressions',
+                    //'exportDefaultFrom',
+                    'nullishCoalescingOperator',
+                    'numericSeparator',
+                    'objectRestSpread',
+                    'optionalCatchBinding',
+                    'optionalChaining',
+                ]});
+            //console.log('ast', ast);
+            this.raise('parsed-ast', {
+                value: ast
+            });
+        })
 
         this.on('parsed-ast', e_parsed_ast => {
             const {value} = e_parsed_ast;

@@ -1,4 +1,4 @@
-const JS_File_Changing = require('./JS_File_5-Changing');
+const JS_File_Changing = require('./JS_File_6-Changing');
 
 class JS_File extends JS_File_Changing {
     constructor(spec) {

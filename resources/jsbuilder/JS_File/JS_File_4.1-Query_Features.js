@@ -61,11 +61,10 @@ class JS_File_Query_Features extends JS_File_Query {
         //let arr_features_declared_object = [];
 
         const get_declared_object_features = () => {
-            console.log('get_declared_object_features');
-
+            //console.log('get_declared_object_features');
             const res = [];
 
-            this.body.each_child_declaration(node_dec => {
+            this.body.each.child.declaration(node_dec => {
                 //console.log('');
                 //console.log('node_dec', node_dec);
                 //console.log('node_dec.source', node_dec.source);
@@ -92,7 +91,7 @@ class JS_File_Query_Features extends JS_File_Query {
             const get_exports_statement = () => {
                 let res_inner;
 
-                this.body.each_child_expression_statement(child_es => {
+                this.body.each.child.expression_statement(child_es => {
                     //console.log('child_es', child_es);
                     //console.log('child_es.source', child_es.source);
     

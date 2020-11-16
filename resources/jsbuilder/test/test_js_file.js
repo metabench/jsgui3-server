@@ -109,12 +109,18 @@ const test_js_file = () => {
         console.log('jsf.program', jsf.program);
         //console.log('jsf.js_ast_node_program', jsf.js_ast_node_program);
         //console.log('jsf.node_body', jsf.node_body);
-        console.log('jsf.node_body.child_nodes.length', jsf.node_body.child_nodes.length);
+        console.log('jsf.node_body.child_nodes.length', jsf.body.node.child_nodes.length);
 
         const body_child_node_identifier_names = [];
         const map_bcnidns = {};
 
-        jsf.node_body.each_child_node(cn => {
+        // Using a .map object of the jsf file rather than the node?
+
+
+
+
+
+        jsf.body.node.each.child(cn => {
             // would call the indexing function if needed.
 
             // .deep_count?
@@ -143,11 +149,20 @@ const test_js_file = () => {
             // cn.map.identifiers.name
 
             // cn.map.declarations.inner.name ???
-
-
             // map.declaration.identifier
 
+            // but map is a verb too
+            //  .map.create
             const idbns = cn.map.identifier.name;
+            // The .map object will be worked on next.
+            //  but need nicest syntax.
+
+            //  possibly we will have .index too?
+            // .map makes most sense as an object to consult.
+
+
+
+
             console.log('idbns', idbns);
             // map_names_to_declarations
             // maps the declaration nodes by the names that occurs in their identifiers.
@@ -168,193 +183,19 @@ const test_js_file = () => {
             // Looks like now we can write nice syntax for the platform part.
             //  Could write code there as I want (mostly) then get it implemented lower down.
 
-
-
-
-
-            /*
-            cn.deep_iterate(n => {
-
-                
-
-                //console.log('n.is_identifier', n.is_identifier);
-                if (n.is_identifier) {
-
-                    if (n === cn) {
-                        console.log('-----have a body child node-----');
-                    }
-
-                    console.log('n.name', n.name);
-                }
-            });
-            */
-            // An index of all objects inside....
-            // map_inner, would that be better?
-
-            //console.log('cn.obj_index', cn.obj_index);
-
         });
         // For the moment focusing on what is imported and exported is most important.
 
         console.log('jsf.imports', jsf.imports);
         console.log('jsf.exports', jsf.exports);
 
-        // jsf.collect.inner.declaration.name
-        // jsf.collect.child.declaration.name
+        // Compiling a few files together without variable name compression will be a nice start.
+        //  Maybe do AST transformation soon?
 
-        // collect brings them into an array.
-        
-
-
-
-        // then each child node
-        //  then iterate the identifiers inside.
-
-        // Identifiers within the body of something that is declared.
+        // Loading the files into a platform / project seems like an important step to program and take soon.
 
 
 
-        // node_body
-
-        /*
-
-
-        each(jsf.features.declared_objects, obj => {
-            console.log('obj.name', obj.name);
-
-            // Then the statements that each of these are referenced by, within the module.
-            //  Or better yet? the names of the definitions of wherever they are used.
-
-            // find out the name of all objects referenced within the body.
-            
-            // want to be able to accurately and correctly connect up the functions by names, in accordance with which names they declare, use and how.
-
-            // Also will have a VariableReference or VariableUsage feature.
-            //  When a variable / object is used rather than declared, we will be able to then use the information about declarations to trace back to the declaration features,
-            //   and then back to the AST nodes themselves.
-
-
-            // Should continue to do more on identification of features and info about them within JavaScript files. 
-            //  The API level of the Feature class will be such that the information it reveals may be relatively simple, but the main advantage is that it's context and usage is clearer
-            //  programatically.
-
-
-        })
-        */
-
-        // .features.imports
-
-         
-
-
-        // Then, looking into these declared objects will give us more info that the project would use.
-
-        // The project should raise events (internal use I think at first) when it loads / finds various objects.
-        //  Should consider the objects to be found before they are loaded.
-
-        
-
-
-
-
-
-
-
-        // Then that exported object name may be defined in the file.
-        //  Will check it against the Declared_Object list.
-        //   Once found in the declared objects, we can then see the the exported object is itself made out of multiple objects, all also declared in the file.
-        //    Declared_Object features combined to make the object that gets exported from the file.
-        //     Then with that info we are better able to consider the file in terms of its internal declarations, and have them portable / usable within another js file.
-
-        // After doing more work on single files separately, both lang-mini and lang-tools, I will begin separately getting them working as the first file that is loaded into a project.
-        //  With a bit of effort, I should get recursive loading working.
-
-        // Continue doing more work on both individual JS files, and loading individual JS files into empty projects.
-        //  Eventually it will all come together and provide the system that will build jsgui client and the client app quickly and efficiently.
-
-
-
-
-
-
-
-
-
-
-
-        //console.log('jsf.js_ast_node_file.export', jsf.export);
-        // Want an 'export' object.
-        //  lang-mini exports that single declared object.
-        //   want to be clear about the contents of that object.
-
-
-
-
-
-        // Being able to get it from the file (too) would make for an easy to use api.
-
-        // and a single exported name object, if there is one.
-        // the exported object could be more complex, containing multiple names.
-
-        // does the module export a single object by reference?
-        //  then is that object composed of multiple references?
-        //  are all of those references declared in this file?
-        // is it an object that is declared there (including function)?
-        // is it the result of a function call?
-
-
-
-
-
-        const put_to_one_side = () => {
-
-            console.log('js_ast_node_file', js_ast_node_file);
-            console.log('js_ast_node_file.child_nodes.length', js_ast_node_file.child_nodes.length);
-
-            const jn_program = js_ast_node_file.child_nodes[0];
-            console.log('jn_program', jn_program);
-            console.log('jn_program.type', jn_program.type);
-            console.log('jn_program.child_nodes.length', jn_program.child_nodes.length);
-
-            //throw 'stop';
-            let c = 0;
-            jn_program.each_declaration_child_node(js_ast_node => {
-                c++;
-            });
-            console.log('c', c);
-
-            const not_broken = () => {
-                jn_program.each_declaration_child_node(js_ast_node => {
-                    console.log('');
-                    console.log('js_ast_node.source.length', js_ast_node.source.length);
-                    if (js_ast_node.source.length <= 30000) {
-                        const spec = {
-                            source: js_ast_node.source,
-                            root_node: true // should do the babel parsing once it has the source, if it does not already have the babel node.
-                            // actually, only if asked for the babel node.
-                            };
-                        const detached_js_ast_node = JS_AST_Node.from_spec(spec);
-                        console.log('detached_js_ast_node', detached_js_ast_node);
-                        console.log('detached_js_ast_node.source.length', detached_js_ast_node.source.length);
-                        //console.log('detached_js_ast_node.source', detached_js_ast_node.source);
-
-                        if (detached_js_ast_node.source.length < 1024) {
-                            console.log('detached_js_ast_node.source', detached_js_ast_node.source);
-                        }
-                        console.log('detached_js_ast_node.type', detached_js_ast_node.type);
-                        console.log('detached_js_ast_node.category', detached_js_ast_node.category);
-                        if (detached_js_ast_node.category === 'Declaration') {
-                            // get_declared_names
-                            //console.log(detached_js_ast_node.category)
-                            console.log('detached_js_ast_node.get_declared_names()', detached_js_ast_node.get_declared_names());
-                        }
-                    }
-                })
-            }
-            not_broken();
-
-
-        }
 
         
     });

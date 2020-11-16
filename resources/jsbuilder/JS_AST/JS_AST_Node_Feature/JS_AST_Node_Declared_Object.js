@@ -214,7 +214,7 @@ JS_AST_Node_Declared_Object.arr_from_js_ast_node = (js_ast_node) => {
         } else {
             //console.log('js_ast_node.source', js_ast_node.source);
             let index = 0;
-            js_ast_node.each_child_node(vdr => {
+            js_ast_node.each.child(vdr => {
                 if (vdr.type === 'VariableDeclarator') {
                     if (vdr.child_nodes.length === 1) {
                         // just the identifier, no value set.

@@ -40,7 +40,11 @@ const JS_AST_Node_Babel = require('./JS_AST_Node_1-Babel');
 class JS_AST_Node_Query extends JS_AST_Node_Babel {
     constructor(spec = {}) {
         super(spec);
-        const {deep_iterate, each_child_node, filter_each_child_node} = this;
+        //const {deep_iterate, each_child_node, filter_each_child_node} = this;
+
+        const each_child_node = this.each.child;
+        const filter_each_child_node = this.filter.child;
+
         // sets the childnodes here.
         //  will also make available the relevant bable properties.
 
@@ -193,18 +197,11 @@ class JS_AST_Node_Query extends JS_AST_Node_Babel {
             configurable: false
         });
 
-        const find_node = (fn_match => {
-            let res;
-            deep_iterate((js_ast_node, path, depth, stop) => {
-                if (fn_match(js_ast_node)) {
-                    stop();
-                    res = js_ast_node;
-                }
-            });
-            return res;
-        });
+        
 
         // const each_root_assignment_expression = (callback) => each_root_node(node => node.type === 'AssignmentExpression', callback);
+
+        
 
         const each_child_assignment_expression = (callback) => filter_each_child_node(node => node.type === 'AssignmentExpression', callback);
         const each_child_expression_statement = (callback) => filter_each_child_node(node => node.type === 'ExpressionStatement', callback);
@@ -223,23 +220,44 @@ class JS_AST_Node_Query extends JS_AST_Node_Babel {
         // find variables declared within scope.
         //  and in cases of multiple variables [a, b, c] = [1, 2, 3];
 
-        
-        this.find_node = find_node;
+        // .find as a function.
+        // .deep.find
+        // .select
+        // .collect
+
+
+
+        this.each.child.expression_statement = cb => each_child_expression_statement(cb);
+        this.each.child.assignment_expression = cb => each_child_assignment_expression(cb);
+        this.each.child.declaration = cb => each_child_declaration(cb);
+        this.each.inner.declaration = cb => each_inner_declaration(cb);
+
+        // a sign function would be cool.
+
+        // sign.deep().
+
+
+        //this.find_node = find_node;
         this.get_deep_type_signature = get_deep_type_signature;
         
-        this.each_child_assignment_expression = each_child_assignment_expression;
-        this.each_child_expression_statement = each_child_expression_statement;
-        this.each_child_declaration = each_child_declaration;
-        this.each_inner_declaration = each_inner_declaration;
-        this.each_inner_declaration_declarator_identifier = each_inner_declaration_declarator_identifier;
-        this.each_inner_variable_declarator = each_inner_variable_declarator;
-        this.each_inner_identifier = each_inner_identifier;
-
         
+        //this.each_child_expression_statement = each_child_expression_statement;
+        
+        
+        // maybe signatures or another way will be better here?
+        //  or the indexing picks this up well?
+        this.each_inner_declaration_declarator_identifier = each_inner_declaration_declarator_identifier;
 
+
+        this.each.inner.variable_declarator = cb => each_inner_variable_declarator(cb);
+        this.each.inner.identifier = cb => each_inner_identifier(cb);
+
+        // Maybe / likely could have a better name for this or remove it.
+        //  Maybe we will better get what we need with indexing???
         this.each_assignment_expression_child_node = each_assignment_expression_child_node;
         
 
+        // this.each.identifier
         this.deep_iterate_identifiers = deep_iterate_identifiers;
 
 

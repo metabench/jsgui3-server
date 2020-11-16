@@ -10,6 +10,8 @@ class JS_File_JS_AST_Node extends JS_File_Babel {
         let js_ast_node_file;
         let node_body;
 
+
+
         this.on('parsed-ast', e_parsed_ast => {
 
             //console.log('e_parsed_ast', e_parsed_ast);
@@ -59,7 +61,7 @@ class JS_File_JS_AST_Node extends JS_File_Babel {
             configurable: false
         });
 
-        Object.defineProperty(this, 'node_body', {
+        Object.defineProperty(this.body, 'node', {
             get() { 
                 return node_body;
             },
@@ -67,6 +69,7 @@ class JS_File_JS_AST_Node extends JS_File_Babel {
             configurable: false
         });
 
+        /*
         Object.defineProperty(this, 'body', {
             get() { 
                 return node_body;
@@ -74,6 +77,7 @@ class JS_File_JS_AST_Node extends JS_File_Babel {
             enumerable: true,
             configurable: false
         });
+        */
 
     }
 }

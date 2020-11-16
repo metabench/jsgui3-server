@@ -151,6 +151,12 @@ class JS_File_Early_Parse extends JS_File_Core {
             })
         })
 
+        // No, will have an export object or feature?
+        //  .export object that can be queried makes a lot of sense.
+
+        
+
+
         Object.defineProperty(this, 'export_name', {
             // Using shorthand method names (ES2015 feature).
             // This is equivalent to:

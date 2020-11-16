@@ -205,6 +205,14 @@ class JS_AST_Node_Core {
             })
         }
 
+        const filter_by_type_deep_iterate = (type, max_depth, callback) => {
+            if (!callback && typeof max_depth === 'function') {
+                callback = max_depth;
+                max_depth = undefined;
+            }
+            filter_deep_iterate(node => node.type == type, max_depth, callback);
+        }
+
         const inner_deep_iterate = (max_depth, callback) => {
             if (!callback && typeof max_depth === 'function') {
                 callback = max_depth;
@@ -246,11 +254,11 @@ class JS_AST_Node_Core {
         // .collect (gets them in an array)
         // .select (uses a selection filter)
 
-        const select_child_nodes = (selector) => {
-            const res = [];
-            filter_each_child_node(selector, cn => res.push(cn));
-            return res;
-        }
+        //const select_child_nodes = (selector) => {
+        //    const res = [];
+        //    filter_each_child_node(selector, cn => res.push(cn));
+        //    return res;
+        //}
 
         // only finds the first
         const find_child_node = (finder, callback) => {
@@ -264,20 +272,32 @@ class JS_AST_Node_Core {
             return res;
         }
 
+
+        const deep_collect = () => {
+            const res = [];
+            deep_iterate(node => res.push(node));
+            return res;
+        }
+
+        // .all maybe?
+        // .collect or select is the better verb choice.
+
+
         this.deep = {
-            iterate: deep_iterate,
-            filter: filter_deep_iterate
+            iterate: cb => deep_iterate(cb), // ???
+            filter: (fn, cb) => filter_deep_iterate(fn, cb),
+            collect: () => deep_collect()
         }
 
         this.inner = {
-            iterate: inner_deep_iterate,
-            filter: filter_inner_deep_iterate
+            iterate: cb => inner_deep_iterate(cb),
+            filter: (fn, cb) => filter_inner_deep_iterate(fn, cb)
         }
 
 
 
         const child = this.child = {
-            collect: {
+            all: {
 
             },
             //each: each_child_node,
@@ -331,7 +351,7 @@ class JS_AST_Node_Core {
         Object.defineProperty(this.child.shared, 'type', {
             get() { 
                 if (child_shared_type === undefined) {
-                    child.each((cn, idx, stop) => {
+                    each_child_node((cn, idx, stop) => {
                         if (child_shared_type === undefined) {
                             child_shared_type = cn.type;
                         } else {
@@ -356,11 +376,21 @@ class JS_AST_Node_Core {
 
         let arr_child_types;
 
-        Object.defineProperty(this.child.collect, 'type', {
+        // will be collect.child instead.
+
+        // will be on this.collect as well, but that is collect as an action verb.
+
+
+
+        // this.child.nodes?
+        // child.all.type
+
+        Object.defineProperty(this.child.all, 'type', {
             get() { 
+                //throw 'changing api'; // no, the .child property works well, and .verb is the function call.
                 if (arr_child_types === undefined) {
                     arr_child_types = [];
-                    child.each((cn, idx, stop) => {
+                    each_child_node((cn, idx, stop) => {
                         arr_child_types.push(cn.type);
                     })
                 }
@@ -372,11 +402,14 @@ class JS_AST_Node_Core {
 
         let arr_child_categories;
 
-        Object.defineProperty(this.child.collect, 'category', {
+        Object.defineProperty(this.child.all, 'category', {
             get() { 
+                //throw 'changing api';
+
+                // this.collect.child.category
                 if (arr_child_categories === undefined) {
                     arr_child_categories = [];
-                    child.each((cn, idx, stop) => {
+                    each_child_node((cn, idx, stop) => {
                         arr_child_categories.push(cn.category);
                     })
                 }
@@ -386,32 +419,105 @@ class JS_AST_Node_Core {
             configurable: false
         });
 
-
         // Will remove these, change the API, will use more dots and objects.
         //  Will follow more of a pattern and be quite cool.
-        this.each_child_node = each_child_node;
+        //this.each_child_node = each_child_node;
+        
         this.typed_deep_iterate = typed_deep_iterate;
-        this.filter_each_child_node = filter_each_child_node;
-        this.filter_deep_iterate = filter_deep_iterate;
-        this.inner_deep_iterate = inner_deep_iterate;
+
+
+        // .by in order to filter by type
+
+        // this.each.by_type?
+
+        //this.filter_each_child_node = filter_each_child_node;
+        //this.filter_deep_iterate = filter_deep_iterate;
+
+        //this.inner_deep_iterate = inner_deep_iterate;
+
         this.each_inner_node_of_type = each_inner_node_of_type;
 
+        // this.each.inner.typed(t)
+        // this.each.inner.categorised(c)
+
+        // yes we want .by
+
+        // this.each.inner.by.type
+        // this.filter.inner.by.type
+        // this.filter.inner
+        // this.typefilter.inner
+        // this.filter_by_type.inner
 
         // each, filter, collect, select
 
+        // this.map.child.category
+
+        // .filter is the same as .filter.deep???
+
+        const find_node = (fn_match => {
+            let res;
+            deep_iterate((js_ast_node, path, depth, stop) => {
+                if (fn_match(js_ast_node)) {
+                    stop();
+                    res = js_ast_node;
+                }
+            });
+            return res;
+        });
+
+
+
+
         Object.assign(this, {
-            each: {
-                child: each_child_node
+
+            each: cb => deep_iterate(cb),
+
+            filter: (fn_filter, callback) => filter_deep_iterate(fn_filter, callback),
+
+            filter_by_type: (type, callback) => filter_by_type_deep_iterate(type, callback),
+
+            find: (fn_match) => find_node(fn_match),
+
+            // Maybe this will be in the indexing part. Probably best there.
+            map: {
+                child: {
+
+                },
+                deep: {
+
+                },
+                inner: {
+
+                }
             },
-            filter: {
-                child: filter_each_child_node
-            },
-            collect: {
-                child: this.child_nodes
+            
+            //filter: {
+            //    child: fn_filter => filter_each_child_node(fn_filter)
+            //},
+            collect: { 
+                child: () => this.child_nodes
             },
             select: {
-                child: select_child_nodes
+                child: fn_select => select_child_nodes(fn_select)
             }
+        })
+
+        /*
+        { // simpler name than iterate
+                child: cb => each_child_node(cb),
+                inner: cb => inner_deep_iterate(cb)
+            }
+        */
+
+        Object.assign(this.each, {
+            child: cb => each_child_node(cb),
+            inner: cb => inner_deep_iterate(cb)
+        });
+
+        Object.assign(this.filter, {
+            deep: (fn_filter, callback) => filter_deep_iterate(fn_filter, callback),
+            child: (fn_filter, callback) => filter_each_child_node(fn_filter, callback),
+            inner: (fn_filter, callback) => filter_inner_deep_iterate(fn_filter, callback)
         })
     }
 }

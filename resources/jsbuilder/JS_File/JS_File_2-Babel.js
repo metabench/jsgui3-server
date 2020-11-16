@@ -30,7 +30,7 @@ class JS_File_Babel extends JS_File_Early_Parse {
             configurable: false
         });
 
-        const each_babel_root_node = this.each_babel_root_node = (callback) => {
+        const each_babel_root_node = (callback) => {
             if (ready) {
                 each(babel_ast.program.body, body_node => callback(body_node));
             } else {

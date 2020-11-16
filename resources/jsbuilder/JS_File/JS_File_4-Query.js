@@ -40,11 +40,33 @@ class JS_File_Comprehension extends JS_File_JS_AST_Node {
     constructor(spec) {
         super(spec);
 
+        
+
         const {body} = this;
 
         //const {each_root_node} = this;
 
-        const each_root_node = (callback) => body.each_child_node(callback);
+
+
+        const each_root_node = (callback) => this.body.node.each.child(callback);
+        body.each = cb => {
+            throw 'NYI'
+        }
+        body.filter = cb => {
+            throw 'NYI'
+        }
+        body.each.child = (cb) => each_root_node(cb);
+
+        const each_filtered_child_node = (fn, cb) => {
+            body.each.child(node => {if (fn(node)) cb(node)})
+        };
+
+        body.filter.child = (fn, cb) => each_filtered_child_node(fn, cb);
+
+        body.each.child.expression_statement = (cb) => each_filtered_child_node(node => node.type === 'ExpressionStatement', cb);
+        body.each.child.declaration = (cb) => each_filtered_child_node(node => node.is_declaration, cb);
+
+        const deep_iterate = body.each;
 
         const each_root_declaration = callback => {
             filter_each_root_node(node => node.is_declaration, callback);
@@ -68,7 +90,7 @@ class JS_File_Comprehension extends JS_File_JS_AST_Node {
             //console.log('this.body', this.body);
             //console.log('this.body.child_nodes.length', this.body.child_nodes.length);
 
-            this.body.each_child_node(js_ast_node => {
+            this.body.each.child(js_ast_node => {
 
                 //console.log('js_ast_node', js_ast_node);
                 // Then a function to search the node for all declaration names.
@@ -235,10 +257,10 @@ class JS_File_Comprehension extends JS_File_JS_AST_Node {
 
         //const collect
 
+        // this.each_babel_root_node
+
         Object.assign(this, {
-            each: {
-                root: (callback) => each_root_node(callback)
-            },
+            each: cb => deep_iterate(cb),
             collect: {
                 root: () => collect_root_nodes()
             },
@@ -249,6 +271,12 @@ class JS_File_Comprehension extends JS_File_JS_AST_Node {
                 root: (fn_select) => select_root_nodes(fn_select)
             }
         })
+
+        Object.assign(this.each, {
+            root: (callback) => each_root_node(callback)
+        })
+
+        // 
 
         // .each.child(...)
         // .each.child.declaration(...)

@@ -71,8 +71,6 @@ const JS_AST_Node_Query_Features = require('./JS_AST_Node_3.1-Query_Features');
 // I think indexing the identifier nodes' names inside any node makes sense to do.
 
 
-
-
 const get_node_indexed_property_matches = (node) => {
     // Which of the indexed properties are matched here?
 
@@ -152,7 +150,7 @@ class JS_AST_Node_Index extends JS_AST_Node_Query_Features {
                             //console.log('node.source', node.source);
                         }
 
-                        node.child.each(dec => {
+                        node.each.child(dec => {
                             //console.log('dec.babel.node', dec.babel.node);
 
                             const id = dec.child.find(node => node.is_identifier);
@@ -176,17 +174,15 @@ class JS_AST_Node_Index extends JS_AST_Node_Query_Features {
                                 //  {a, b, c} = lib;
 
                                 if (dec.child.count === 2) {
-                                    const child_types = dec.child.collect.type;
+                                    const child_types = dec.child.all.type;
 
                                     // dec.child.collect.category
 
-                                    const child_categories = dec.child.collect.category;
+                                    const child_categories = dec.child.all.category;
                                     //console.log('child_categories', child_categories);
 
                                     // maybe any expression is allowed.
                                     //  seems that way
-
-
 
                                     if (child_types[0] === 'ObjectPattern' && child_categories[1] === 'Expression') {
 
@@ -196,11 +192,10 @@ class JS_AST_Node_Index extends JS_AST_Node_Query_Features {
                                         //console.log('objpat.child.shared.type', objpat.child.shared.type);
 
                                         if (objpat.child.shared.type === 'ObjectProperty') {
-                                            objpat.child.each(objprop => {
+                                            objpat.each.child(objprop => {
                                                 //console.log('objprop', objprop);
                                                 //console.log('objprop.source', objprop.source);
                                                 //console.log('objprop.child.count', objprop.child.count);
-
 
                                                 if (objprop.child.count === 2) {
                                                     //console.log('objprop.child.first', objprop.child.first);
@@ -272,13 +267,13 @@ class JS_AST_Node_Index extends JS_AST_Node_Query_Features {
 
                 //console.log('child.count', child.count);
 
-                if (child.count > 0) {
+                //if (child.count > 0) {
                     
-                    child.each(cn => {
+                //    child.each(cn => {
 
-                    })
+                //    })
 
-                }
+                //}
             })
             is_indexed = true;
         }

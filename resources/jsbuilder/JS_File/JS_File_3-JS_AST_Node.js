@@ -2,51 +2,78 @@ const JS_File_Babel = require('./JS_File_2-Babel');
 const JS_AST_Node = require('../JS_AST/JS_AST_Node');
 class JS_File_JS_AST_Node extends JS_File_Babel {
     constructor(spec) {
-        super(spec);
+        super(spec);0
 
-        const {each_babel_root_node} = this;
+        // This looks like the place to create the mirror of the Babel structure.
+        //  Respond to ast-ready.
 
-        const each_root_node = callback => each_babel_root_node(body_node => callback(new JS_AST_Node({
-            babel_node: body_node,
-            full_source: this.source
-        })));
+        let js_ast_node_file;
+        let node_body;
+
+        this.on('parsed-ast', e_parsed_ast => {
+
+            //console.log('e_parsed_ast', e_parsed_ast);
             //throw 'stop';
 
-        this.each_root_node = each_root_node;
+            // This is the point where the mirror AST_Node construction gets made.
+            //  Each of these nodes will have a path from the root of the document.
+
+            // Will later work on 
+
+            // Create an AST node that represents the document.
+            //  then there will be a body node
+
+            //console.log('e_parsed_ast', e_parsed_ast);
+            //throw 'stop';
 
 
-        Object.defineProperty(this, 'root_nodes', {
-            // Using shorthand method names (ES2015 feature).
-            // This is equivalent to:
-            // get: function() { return bValue; },
-            // set: function(newValue) { bValue = newValue; },
+            js_ast_node_file = new JS_AST_Node({
+                babel_node: e_parsed_ast.value,
+                source: this.source,
+                root_node: true
+            });
+
+            console.log('Object.keys(js_ast_node_file)', Object.keys(js_ast_node_file));
+            console.log('(js_ast_node_file.type)', (js_ast_node_file.type));
+            //const node_body = js_ast_node_file.child_nodes[0].child_nodes[0];
+            node_body = js_ast_node_file.child_nodes[0];
+
+
+            console.log('(node_body.type)', (node_body.type));
+            //throw 'stop';
+
+            
+
+            //console.log('js_ast_node_file', js_ast_node_file);
+            //console.log('js_ast_node_file.type', js_ast_node_file.type);
+            //console.log('js_ast_node_file.babel.type', js_ast_node_file.babel.type);
+            //console.log('js_ast_node_file.babel.node', js_ast_node_file.babel.node);
+            //throw 'stop';
+        });
+
+        Object.defineProperty(this, 'js_ast_node_file', {
             get() { 
-                const res = [];
-                //return root_babel_declarations; 
-                each_root_node(root_node => {
-                    res.push(root_node);
-                })
-                return res;
+                return js_ast_node_file;
             },
-            //set(newValue) { bValue = newValue; },
             enumerable: true,
             configurable: false
         });
 
-        // root nodes that are single variable declarations.
-        // that are multiple variable declarations.
+        Object.defineProperty(this, 'node_body', {
+            get() { 
+                return node_body;
+            },
+            enumerable: true,
+            configurable: false
+        });
 
-        const filter_each_root_node = this.filter_each_root_node = (fn_filter, callback) => {
-            each_root_node(root_node => {
-                if (fn_filter(root_node)) callback(root_node);
-            })
-        }
-
-        const each_root_declaration = this.each_root_declaration = (callback) => {
-            filter_each_root_node(node => node.is_declaration, (node => {
-                callback(node);
-            }));
-        }
+        Object.defineProperty(this, 'body', {
+            get() { 
+                return node_body;
+            },
+            enumerable: true,
+            configurable: false
+        });
 
     }
 }

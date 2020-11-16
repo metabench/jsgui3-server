@@ -5,6 +5,8 @@ const whitespace_chars = {
     '32': true
 }
 
+/*
+
 const get_char_type = e_rlc => {
     const {char, char_code} = e_rlc;
 
@@ -22,6 +24,7 @@ const get_char_type = e_rlc => {
     console.log('e_rlc', e_rlc);
     throw 'unknown';
 }
+*/
 
 class JS_File extends Evented_Class {
     constructor(spec = {}) {
@@ -31,28 +34,6 @@ class JS_File extends Evented_Class {
         const line_break_hex = (() => spec.line_break_hex || '0A')();
 
         let path = spec.path;
-        
-        const ta_line_buffer = new Uint8Array(1024);
-        let byte_in_line_num = 0;
-
-        let line_num = 0;
-        //let last_recieved_byte;
-        //let recieved_byte;
-        // Separate the chunks and the raise an event for each line.
-        //  Charactrer by character???
-
-        // Array or something of the tokens?
-
-        //let first_token_of_line_char_pos = -1;
-        //let began_first_token_of_line = false;
-        //this.on('readline', e_readline => {
-
-        //});
-
-
-
-        let last_recieved_byte;
-        let recieved_byte;
 
         let sha512, source;
 
@@ -74,104 +55,38 @@ class JS_File extends Evented_Class {
             configurable: false
         });
 
-        this.on('input-stream-end', (e_end) => {
-            const {str_all} = e_end;
-            sha512 = e_end.sha512;
-            source = str_all;
-        })
+        //if (spec.source) source = spec.source;
 
+        
+        //this.on('recieve-line-char', e_rlc => {
+        //    //console.log('e_rlc', e_rlc);
+        //    const char_type = get_char_type(e_rlc)
+        //    //console.log('char_type', char_type);
+        //    /*
+        //    if (!began_first_token_of_line) {
+        //        if (whitespace_chars[e_rlc.char_code]) {
 
-        this.on('recieve-line-char', e_rlc => {
-            //console.log('e_rlc', e_rlc);
-            const char_type = get_char_type(e_rlc)
-            //console.log('char_type', char_type);
-            /*
-            if (!began_first_token_of_line) {
-                if (whitespace_chars[e_rlc.char_code]) {
-
-                } else {
-                    began_first_token_of_line = true;
-                }
-            }
-            */
-
-        })
-
-        const arr_lines = [];
-
-
-
-        this.on('recieve-line', e_recieve_line => {
-            //console.log('e_recieve_line', e_recieve_line);
-            const {str} = e_recieve_line;
-
-            // and strip the tabs and whitespace.
-            arr_lines.push(str);
-        });
-
-
-        this.on('recieve-line', e_recieve_line => {
-            //console.log('e_recieve_line', e_recieve_line);
-            const {str} = e_recieve_line;
-
-            // and strip the tabs and whitespace.
-            //arr_lines.push(str);
-
-            // process the line character by character.
-            
-            //console.log('e_recieve_linestr', str);
-
-            // And break up the line into statements;
-
-            const s = e_recieve_line.str, l = s.length;
-            for (let c = 0; c < l; c++) {
-                const ch = s[c];
-                this.raise('recieve-line-char', {
-                    line_num: line_num,
-                    char: ch,
-                    char_code: s.charCodeAt(c)
-                })
-            }
-        });
-
+        //        } else {
+        //            began_first_token_of_line = true;
+        //        }
+        //    }
+        //    */
+        //})
 
         
 
-        this.on('recieve-byte', e_receive_byte => {
-            last_recieved_byte = recieved_byte;
-            recieved_byte = e_receive_byte.byte_value;
-            ta_line_buffer[byte_in_line_num++] = recieved_byte;
-            //console.log('e_receive_byte', e_receive_byte);
-
-            if (recieved_byte === 10) {
-                // lf
-                if (last_recieved_byte === 13) {
-                    // cr, for windows
-
-                    const line_until_crlf = new Uint8Array(ta_line_buffer.subarray(0, byte_in_line_num - 2));
-
-                    this.raise('recieve-line', {
-                        ta_line: line_until_crlf,
-                        bytes_length: byte_in_line_num,
-                        str: String.fromCharCode.apply(null, line_until_crlf)
-                    })
-
-                } else {
-
-                    const line_until_lf = new Uint8Array(ta_line_buffer.subarray(0, byte_in_line_num - 1));
-                    this.raise('recieve-line', {
-                        ta_line: line_until_lf,
-                        bytes_length: byte_in_line_num,
-                        str: String.fromCharCode.apply(null, line_until_lf)
-                    })
-                }
-                ta_line_buffer.fill(0);
-                line_num++;
-                byte_in_line_num = 0;
-            }
-        });
-
         if (rs) {
+            this.on('complete-file-recieved', (e_end) => {
+                const {str_all} = e_end;
+                //console.log('e_end', e_end);
+
+                // Work out the hash value here?
+
+                //sha512 = e_end.sha512;
+                source = str_all;
+                //console.log('source', source);
+                //throw 'stop';
+            })
 
             // Wait for subclass listeners to be set up.
             //setTimeout(() => {
@@ -183,19 +98,7 @@ class JS_File extends Evented_Class {
 
                 //let buf1;
 
-                const ta_line_buffer = new Uint8Array(1024);
-                let byte_in_line_num = 0;
-
-                let line_num = 0;
-                let last_recieved_byte;
-                let recieved_byte;
-                // Separate the chunks and the raise an event for each line.
-                //  Charactrer by character???
-
-                // Array or something of the tokens?
-
-                //let first_token_of_line_char_pos = -1;
-                let began_first_token_of_line = false;
+                
 
                 
 
@@ -245,29 +148,12 @@ class JS_File extends Evented_Class {
 
                 rs.on('end', e_end => {
 
-                    const line_until_end = new Uint8Array(ta_line_buffer.subarray(0, byte_in_line_num));
-                    const str = String.fromCharCode.apply(null, line_until_end);
-                    this.raise('recieve-line', {
-                        ta_line: line_until_end,
-                        bytes_length: byte_in_line_num,
-                        str: str,
-                        last: true
-                    });
-                    const str_all = arr_lines.join('\n');
-                    //var crypto = require('crypto');
-                    var hash = crypto.createHash('sha512');
-                    //passing the data to be hashed
-                    //data = hash.update('salt1', 'utf-8');
-                    const data = hash.update('str_all', 'utf-8');
-                    //Creating the hash in the required format
-                    const gen_hash = data.digest('hex');
-                    //Printing the output on the console
-                    console.log("hash : " + gen_hash);
+                    
 
                     //console.log('arr_lines.length', arr_lines.length);
                     this.raise('input-stream-end', {
-                        str_all: str_all,
-                        sha512: gen_hash
+                        //str_all: str_all,
+                        //sha512: gen_hash
                     });
 
                     this.raise('ready');
@@ -275,10 +161,19 @@ class JS_File extends Evented_Class {
             //}, 0);
             // then divide by line break character?
             //  not sure of the formating, probably unicode.
+        } else {
+
+            // may have been given the source in the constructor.
+
+            throw 'stop';
         }
 
     }
 }
+
+// Worth being able to load this abstraction from the string text too.
+
+
 JS_File.load_from_stream = (rs, path) => {
     const res = new JS_File({rs: rs, path: path});
     return res;

@@ -1,16 +1,14 @@
 // Make a platform about providing variables.
 
 const {each, Evented_Class} = require('lang-mini');
-const Declaration_Sequence = require('./Declaration_Sequence');
+const Declaration_Sequence = require('./Abstract_Single_Declaration_Sequence');
 
 class Platform extends Evented_Class {
     constructor(spec) {
-
-
         super(spec);
 
+        /*
         const ds = new Declaration_Sequence();
-
         Object.defineProperty(this, 'declarations', {
             // Using shorthand method names (ES2015 feature).
             // This is equivalent to:
@@ -21,6 +19,57 @@ class Platform extends Evented_Class {
             enumerable: true,
             configurable: false
         });
+        */
+
+        // For the moment, let's focus on loading files, and effective indexing and querying of those files.
+
+        // Use a Virtual Global Scope.
+        //  load functions into that.
+
+        // Try loading functions, values into a Scope object.
+        //  Scope is more specifically named than Platform.
+        //  Plaftorm should contain a single Scope.
+
+        const map_local_module_directories = {};
+        const scope = new Scope();
+
+        // Want to load a file, and follow all the code and references to create the codebase where it can run.
+        //  We can start with / do more work on the jsgui-client file.
+
+        // Within that will be defined quite a lot of objects.
+        //  With some of them, we will trace back the references to their declarations, and also have those declarations within the application in a way which
+        //  allows them to be used within a platform.
+
+        // Will allow both bottom-up building of a platform and project, and top-down loading and building.
+
+
+        // Can load files in any order, but can also load the main file, and have it automatically load all relevant files.
+
+
+
+
+
+
+
+
+
+
+
+
+        // Adding files and functions to platforms.
+        //  will be nice to create actual files using referenced code.
+        //   want to make more of a system that accepts the file names and is easy to use.
+        
+        // Work on the more basic babel transforms would make sense too.
+        //  Could generate code from the tree I have.
+        //   Not sure of the importance, Babel code gen is probably fine.
+
+
+
+
+
+
+
 
         // Functionality concerning bringing code into the platform.
 

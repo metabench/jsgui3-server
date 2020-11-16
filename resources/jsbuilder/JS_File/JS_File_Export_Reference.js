@@ -7,3 +7,6 @@
 //  Eg libraries of utility functions.
 
 // Spot class non prototype functions too?
+
+// Maybe make JSGUI_Module_Exports declaration.
+

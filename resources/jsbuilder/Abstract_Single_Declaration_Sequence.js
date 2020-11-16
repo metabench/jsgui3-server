@@ -10,6 +10,9 @@ class Declaration_Sequence extends Evented_Class {
     constructor(spec = {}) {
         super();
 
+
+        // A double linked list could be better though.
+
         const arr = [];
 
         this.push = (declaration) => {

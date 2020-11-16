@@ -1,17 +1,19 @@
-const JS_File_Comprehension = require('./JS_File_4-Comprehension');
+const JS_File_Query_Features = require('./JS_File_4.1-Query_Features.js');
 const Variable_Name_Provider = require('../Variable_Name_Provider');
 const { each } = require('lang-mini');
-class JS_File_Planning extends JS_File_Comprehension {
+class JS_File_Planning extends JS_File_Query_Features {
     constructor(spec) {
         super(spec);
-
 
         // string path of the variable within the ast.
         //  can use that path to find the position at a later stage.
         //  Need to keep the planning stage separate for the moment.
 
+        // Want a way to access the paths of the nodes too.
 
+        // (node, path)
 
+        // propose_local_variable_name_remapping
 
         const get_proposed_root_definitions_inner_name_remappings = this.get_proposed_root_definitions_inner_name_remappings = () => {
             const res = {};
@@ -43,8 +45,6 @@ class JS_File_Planning extends JS_File_Comprehension {
                             //console.log('map_renames', map_renames);
                             res[own_name] = map_renames;
                         }
-
-
                     } else {
                         console.log('node', node);
                         throw 'stop';

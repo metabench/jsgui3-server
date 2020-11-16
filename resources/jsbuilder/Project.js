@@ -40,7 +40,9 @@ class Project extends Evented_Class {
     //  Combining multiple platforms into one platform.
     //   Application code sits on top of those platforms.
 
-
+    // Moving closer towards a project system where JavaScript code gets put together.
+    //  Want the jsgui build project to be really simple, much / most of it done using the structures built into the system.
+    //   Maybe this is where structure definitions will be loaded.
     
 
 
@@ -54,10 +56,8 @@ class Project extends Evented_Class {
 
 
 
+
     //  The platform that is used as 
-
-
-
 
     constructor(spec) {
         super(spec = {});

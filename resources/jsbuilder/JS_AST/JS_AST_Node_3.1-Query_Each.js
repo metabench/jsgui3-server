@@ -1,5 +1,5 @@
 
-const JS_AST_Node_Query_First = require('./JS_AST_Node_3.0.0-Query_First');
+const JS_AST_Node_Query_Last = require('./JS_AST_Node_3.0.99-Query_Last');
 const JS_AST_Operation = require('./JS_AST_Operation');
 const JS_AST_Relationship = require('./JS_AST_Relationship_Node_To_Group');
 
@@ -29,7 +29,7 @@ const JS_AST_Operation_On_Relationship = require('./JS_AST_Operation_On_Relation
 
 // basically 'deep iterate', though could apply to .child or .ancestor
 
-class JS_AST_Node_Query_Each extends JS_AST_Node_Query_First {
+class JS_AST_Node_Query_Each extends JS_AST_Node_Query_Last {
     constructor(spec = {}) {
         super(spec);
         const {each_child_node, filter_each_child_node} = this;

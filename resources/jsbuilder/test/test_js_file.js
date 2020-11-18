@@ -89,7 +89,7 @@ const test_js_file = () => {
 
         
         //console.log('jsf.features.export.exported_object_name', jsf.features.export.exported_object_name);
-        const deco = jsf.features.declared_objects;
+        //const deco = jsf.features.declared_objects;
         //console.log('jsf.features.declared_objects', deco);
         //console.log('jsf.features.declared_objects.length', deco.length);
 
@@ -142,7 +142,7 @@ const test_js_file = () => {
     
             });
         }
-        //try_identifier_mapping();
+        try_identifier_mapping();
         
         // For the moment focusing on what is imported and exported is most important.
 

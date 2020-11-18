@@ -81,7 +81,11 @@ const test_js_ast_node = () => {
     const ids = js_ast_node.select.all(node => node.is_identifier);
     console.log('ids', ids);
     
+    console.log('js_ast_node.child', js_ast_node.child);
+    console.log('js_ast_node.child.shared.type', js_ast_node.child.shared.type);
+    console.log('js_ast_node.child.count', js_ast_node.child.count);
 
+    // child.filter(fn)
 
 
     const older_than_now = () => {

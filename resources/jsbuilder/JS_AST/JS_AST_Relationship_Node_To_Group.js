@@ -15,24 +15,86 @@ class JS_AST_Relationship_Node_To_Group {
 
         // eg 'child'
 
-        this.iterate_group = callback => {
+        const iterate_group = this.each = callback => {
             if (name === 'all') {
                 origin.deep_iterate(callback);
             } else if (name === 'inner') {
                 origin.inner_deep_iterate(callback);
             } else if (name === 'child') {
-                origin.each_child(callback);
+
+                each(origin.child_nodes, callback);
+                //origin.each_child(callback);
             } else {
                 throw 'stop';
             }
         }
 
-        this.collect_group = () => {
-            const res = [];
-            this.iterate_group(node => res.push(node));
-            return res;
+
+        // And collect is still a verb here.
+        //  Use property sugar with a different name.
+        let _collected;
+        this.collect = () => {
+            if (!_collected) {
+                const _collected = [];
+                iterate_group(node => res.push(node));
+            }
+            return _collected;
         }
 
+
+        // and .all could be like .collect but a property.
+        //  and with groups could be used in a fair few places.
+
+        Object.defineProperty(this, 'all', {
+            get() { 
+                return this.collect();
+            },
+            //set(newValue) { bValue = newValue; },
+            enumerable: true,
+            configurable: false
+        });
+
+        let _count;
+
+        const count = () => {
+            if (_count === undefined) {
+                if (_collected) {
+                    _count = _collected.length;
+                } else {
+
+                    if (name === 'child') {
+                        _count = origin.child_nodes.length;
+                    } else {
+                        _count = 0;
+                        iterate_group(node => _count++);
+                    }
+
+                    
+                }
+            }
+            return _count;
+        }
+
+        Object.defineProperty(this, 'count', {
+            get() { 
+                return count();
+            },
+            //set(newValue) { bValue = newValue; },
+            enumerable: true,
+            configurable: false
+        });
+
+
+        this.select = (fn_select) => {
+            // Could return another group?
+            //  
+
+            const res = [];
+            iterate_group(node => {
+                if (fn_select(node)) res.push(node);
+            });
+            return res;
+        }
     }
 }
 

@@ -1,6 +1,6 @@
 
 const { each } = require('../../../../../tools/arr-tools/arr-tools');
-const JS_AST_Node_Query_First = require('./JS_AST_Node_3.0.0-Query_First');
+const JS_AST_Node_Query_Second = require('./JS_AST_Node_3.0.1-Query_Second');
 
 const JS_AST_Abstract_Node = require('./JS_AST_Abstract_Node');
 const JS_AST_Ordinal = require('./JS_AST_Ordinal');

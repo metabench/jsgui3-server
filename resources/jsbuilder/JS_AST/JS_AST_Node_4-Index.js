@@ -180,8 +180,9 @@ class JS_AST_Node_Index extends JS_AST_Node_Query_Features {
                 if (node.is_declaration) {
                     //console.log('have declaration node in index loop');
                     //console.log('node.child_nodes.length', node.child_nodes.length);
-                    //console.log('node.signature', node.signature);
-                    //console.log('node.child.shared.type', node.child.shared.type);
+                    console.log('node.signature', node.signature);
+                    console.log('node', node);
+                    console.log('node.child', node.child);
                     //console.log('node.child.count', node.child.count);
                     // node.child.collected.names???
 

@@ -23,7 +23,7 @@ class JS_AST_Node_Query_Collect extends JS_AST_Node_Query_Filter {
         
         // or 'deep'? Or just know that 'all' does not include ancestors.
         const {child, inner, all} = this;
-        const {inner_deep_iterate, deep_iterate} = this;
+        const {inner_deep_iterate, deep_iterate, filter_deep_iterate} = this;
 
         const collect_child = new JS_AST_Operation_On_Relationship({
             operation: collect,
@@ -140,6 +140,13 @@ class JS_AST_Node_Query_Collect extends JS_AST_Node_Query_Filter {
         let fn_collect_all, fn_collect_child, fn_collect_inner;
 
 
+        const _collect_all_identifiers = () => {
+            const res = [];
+            filter_deep_iterate(node => node.is_identifier, node => res.push(node));
+            return res;
+        }
+
+
         Object.defineProperty(collect, 'all', {
             get() {
                 // iterate through the relationship objects.
@@ -152,7 +159,7 @@ class JS_AST_Node_Query_Collect extends JS_AST_Node_Query_Filter {
                         get() {
 
                             // because collect is a verb
-                            return () => collect.all(node => node.is_identifier);
+                            return () => _collect_all_identifiers();
 
                             //throw 'stop';
                             //return 
@@ -175,7 +182,7 @@ class JS_AST_Node_Query_Collect extends JS_AST_Node_Query_Filter {
                     Object.defineProperty(fn_collect_child, 'identifier', {
                         get() {
                             // because collect is a verb
-                            return () => collect.child(node => node.is_identifier);
+                            return () => this.child_nodes.filter(node => node.is_identifier);
                         }
                     });
 

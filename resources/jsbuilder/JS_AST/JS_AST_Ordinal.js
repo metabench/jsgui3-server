@@ -1,4 +1,12 @@
 class JS_AST_Ordinal {
+
+
+    // Not a relationship
+    // First child is an ordinal relationship
+
+
+
+
     constructor(spec = {}) {
 
 
@@ -6,7 +14,7 @@ class JS_AST_Ordinal {
         
         let origin, obtainer, number;
 
-        let relationship_to;
+        //let relationship_to;
 
         if (spec.origin) {
             origin = spec.origin;

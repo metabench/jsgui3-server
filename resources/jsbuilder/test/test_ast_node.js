@@ -61,6 +61,7 @@ const test_js_ast_node = () => {
 
     console.log('js_ast_node.inner', js_ast_node.inner);
     console.log('js_ast_node.inner.count', js_ast_node.inner.count);
+    console.log('js_ast_node.all.count', js_ast_node.all.count);
 
     // inner.declaration
 
@@ -78,6 +79,16 @@ const test_js_ast_node = () => {
     const decs = js_ast_node.select.all(node => node.is_declaration);
     console.log('decs', decs);
 
+
+
+
+
+    // js_ast_node.collect.all.identifier
+
+    // and then .all should use .collect but work as a property.
+    //  do that later.
+
+
     const ids = js_ast_node.select.all(node => node.is_identifier);
     console.log('ids', ids);
     
@@ -86,6 +97,11 @@ const test_js_ast_node = () => {
     console.log('js_ast_node.child.count', js_ast_node.child.count);
 
     // child.filter(fn)
+
+    const ids2 = js_ast_node.collect.inner.identifier();
+    console.log('ids2', ids2);
+
+
 
 
     const older_than_now = () => {
@@ -102,9 +118,28 @@ const test_js_ast_node = () => {
             //console.log('declaration0.child_nodes[0].type', declaration0.child_nodes[0].type);
             //console.log('declaration0.child_nodes[1].type', declaration0.child_nodes[1].type);
     
-            const identifier = declaration0.child_nodes[0];
+
+            // dec.find.inner.identifier
+            // dec.collect.inner.identifier
+            //  that seems like it would be convenient syntax.
+
+            // dec.collect.inner.node (or nodes may actually be clearer, better, possible)
+            //  and the logic to do that would need to be within collect.
+            //   
+
+            
+
+
+
+
+            // 
+
+            //const identifier = declaration0.child_nodes[0];
+            const identifier = declaration0.first.child.node;
             console.log('identifier', identifier);
     
+            // .first.identifier
+            //  could be an interesting bit of logic within 'first'.
     
             // .find.node.by.type
     
@@ -238,6 +273,8 @@ const test_js_ast_node = () => {
 
 
     }
+
+    //older_than_now();
 
     
     // Find out how many declarators it has.

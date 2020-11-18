@@ -4,7 +4,7 @@ const JS_AST_Node_Query = require('./JS_AST_Node_3-Query');
 
 const JS_AST_Abstract_Node = require('./JS_AST_Abstract_Node');
 const JS_AST_Ordinal = require('./JS_AST_Ordinal');
-const JS_AST_Relationship = require('./JS_AST_Relationship_Node_To_Group');
+//const JS_AST_Relationship = require('./JS_AST_Relationship_Node_To_Group');
 const JS_AST_Ordinal_Relationship = require('./JS_AST_Ordinal_Relationship');
 
 // Could make a more specific feature extraction part.
@@ -58,15 +58,17 @@ class JS_AST_Node_Query_First extends JS_AST_Node_Query {
 
         // JS_AST_Ordinal
 
+        
         const ordinal = this.first = new JS_AST_Ordinal({
             origin: this,
             //relationship_to: 'first',
             number: index
         });
 
-        const child = new JS_AST_Relationship({
-            name: 'child'
-        });
+        const {child} = this;
+        
+
+
 
         // JS_AST_Ordinal_Relationship
 

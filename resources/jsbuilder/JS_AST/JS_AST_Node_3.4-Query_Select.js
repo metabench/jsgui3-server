@@ -13,6 +13,11 @@ class JS_AST_Node_Query_Select extends JS_AST_Node_Query_Collect {
         const select = new JS_AST_Operation({name: 'select'});
 
 
+        // And means to give the operation function calls to carry it out?
+
+
+
+
         /*
         const child = new JS_AST_Relationship({
             name: 'child'
@@ -39,8 +44,15 @@ class JS_AST_Node_Query_Select extends JS_AST_Node_Query_Collect {
             operation: select,
             related: all
         });
-        select.child = select_child;
-        select.inner = select_inner;
+        //select.child = select_child;
+        //select.inner = select_inner;
+        //select.all = select_all;
+
+        // JS_AST_Multi_Relationship_Operation
+        //  So it deals with all of the JS_AST_Operation_On_Relationship objects.
+
+
+
 
         // try property access
         //  so it sees it's an operation on a relationship
@@ -78,6 +90,22 @@ class JS_AST_Node_Query_Select extends JS_AST_Node_Query_Collect {
                 // iterate through the relationship objects.
                 if (!fn_select_all) {
                     fn_select_all = fn_select => _select_all(fn_select);
+
+
+                    // select.all.identifier
+                    Object.defineProperty(fn_select_all, 'identifier', {
+                        get() {
+
+                            // because select is a verb
+                            return () => select.all(node => node.is_identifier);
+
+                            //throw 'stop';
+                            //return 
+                        }
+                    });
+
+
+
                 }
                 return fn_select_all;
             },
@@ -89,6 +117,13 @@ class JS_AST_Node_Query_Select extends JS_AST_Node_Query_Collect {
                 // iterate through the relationship objects.
                 if (!fn_select_child) {
                     fn_select_child = fn_select => _select_child(fn_select);
+                    Object.defineProperty(fn_select_child, 'identifier', {
+                        get() {
+                            // because select is a verb
+                            return () => select.child(node => node.is_identifier);
+                        }
+                    });
+
                 }
                 return fn_select_child;
             },
@@ -100,6 +135,11 @@ class JS_AST_Node_Query_Select extends JS_AST_Node_Query_Collect {
                 // iterate through the relationship objects.
                 if (!fn_select_inner) {
                     fn_select_inner = fn_select => _select_inner(fn_select);
+                    Object.defineProperty(fn_select_inner, 'identifier', {
+                        get() {
+                            return () => select.inner(node => node.is_identifier);
+                        }
+                    });
                 }
                 return fn_select_inner;
             },

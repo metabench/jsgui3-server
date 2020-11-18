@@ -19,18 +19,11 @@ class JS_AST_Node_Query_Collect extends JS_AST_Node_Query_Filter {
         super(spec);
 
         const collect = new JS_AST_Operation({name: 'collect'});
-
-
+        
+        
         // or 'deep'? Or just know that 'all' does not include ancestors.
-        const all = new JS_AST_Relationship({
-            name: 'all'
-        });
-        const child = new JS_AST_Relationship({
-            name: 'child'
-        });
-        const inner = new JS_AST_Relationship({
-            name: 'inner'
-        });
+        const {child, inner, all} = this;
+        const {inner_deep_iterate, deep_iterate} = this;
 
         const collect_child = new JS_AST_Operation_On_Relationship({
             operation: collect,
@@ -44,9 +37,9 @@ class JS_AST_Node_Query_Collect extends JS_AST_Node_Query_Filter {
             operation: collect,
             related: all
         });
-        collect.child = collect_child;
-        collect.inner = collect_inner;
-        collect.all = collect_all;
+        //collect.child = collect_child;
+        //collect.inner = collect_inner;
+        //collect.all = collect_all;
 
 
         // collect.child.node
@@ -56,9 +49,9 @@ class JS_AST_Node_Query_Collect extends JS_AST_Node_Query_Filter {
         const collect_child_identifiers = () => this.child_nodes.filter(node => node.is_identifier);
         const collect_child_declarations = () => this.child_nodes.filter(node => node.is_declaration);
         
-        collect.child.node = () => collect_child_nodes();
-        collect.child.identifier = () => collect_child_identifiers();
-        collect.child.declaration = () => collect_child_declarations();
+        //collect.child.node = () => collect_child_nodes();
+        //collect.child.identifier = () => collect_child_identifiers();
+        //collect.child.declaration = () => collect_child_declarations();
 
         // can run the collect function on 
 
@@ -118,6 +111,99 @@ class JS_AST_Node_Query_Collect extends JS_AST_Node_Query_Filter {
             }
             return _collected_inner_nodes;
         }
+
+
+
+
+
+
+
+
+        const _collect_all = () => {
+            const res = [];
+            deep_iterate(node => res.push(node));
+            return res;
+        }
+        const _collect_child = () => {
+            return this.child_nodes; // maybe into a new array?
+        }
+        const _collect_inner = () => {
+            const res = [];
+            inner_deep_iterate(node => {
+                if (node !== this) {
+                    res.push(node);
+                }
+            });
+            return res;
+        }
+
+        let fn_collect_all, fn_collect_child, fn_collect_inner;
+
+
+        Object.defineProperty(collect, 'all', {
+            get() {
+                // iterate through the relationship objects.
+                if (!fn_collect_all) {
+                    fn_collect_all = fn_collect => _collect_all(fn_collect);
+
+
+                    // collect.all.identifier
+                    Object.defineProperty(fn_collect_all, 'identifier', {
+                        get() {
+
+                            // because collect is a verb
+                            return () => collect.all(node => node.is_identifier);
+
+                            //throw 'stop';
+                            //return 
+                        }
+                    });
+
+
+
+                }
+                return fn_collect_all;
+            },
+            enumerable: true,
+            configurable: false
+        });
+        Object.defineProperty(collect, 'child', {
+            get() {
+                // iterate through the relationship objects.
+                if (!fn_collect_child) {
+                    fn_collect_child = fn_collect => _collect_child(fn_collect);
+                    Object.defineProperty(fn_collect_child, 'identifier', {
+                        get() {
+                            // because collect is a verb
+                            return () => collect.child(node => node.is_identifier);
+                        }
+                    });
+
+                }
+                return fn_collect_child;
+            },
+            enumerable: true,
+            configurable: false
+        });
+        Object.defineProperty(collect, 'inner', {
+            get() {
+                // iterate through the relationship objects.
+                if (!fn_collect_inner) {
+                    fn_collect_inner = fn_collect => _collect_inner(fn_collect);
+                    Object.defineProperty(fn_collect_inner, 'identifier', {
+                        get() {
+                            return () => collect.inner(node => node.is_identifier);
+                        }
+                    });
+                }
+                return fn_collect_inner;
+            },
+            enumerable: true,
+            configurable: false
+        });
+
+
+
 
         /*
 
@@ -196,11 +282,8 @@ class JS_AST_Node_Query_Collect extends JS_AST_Node_Query_Filter {
                 return _collected_child_identifier_names;
             }
         });
-
         */
-
         this.collect = collect;
-
     }
 }
 

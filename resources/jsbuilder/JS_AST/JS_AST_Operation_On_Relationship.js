@@ -15,6 +15,17 @@ class JS_AST_Operation_On_Relationship {
         }
 
 
+        // From things like collect all.
+
+        // May be better to use the select command for the moment.
+
+        // collect.all.declaration
+
+
+
+
+
+
     }
 }
 

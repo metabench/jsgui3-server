@@ -32,7 +32,7 @@ class JS_File extends Evented_Class {
 
         const rs = (() => spec.rs || undefined)();
         const line_break_hex = (() => spec.line_break_hex || '0A')();
-        const body = this.body = {};
+        
 
         let path = spec.path;
 

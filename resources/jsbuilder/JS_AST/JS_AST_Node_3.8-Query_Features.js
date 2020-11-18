@@ -1,7 +1,7 @@
 //const babel_node_tools = require('../babel/babel_node_tools');
 
 const { each } = require('../../../../../tools/arr-tools/arr-tools');
-const JS_AST_Node_Query = require('./JS_AST_Node_3-Query');
+const JS_AST_Node_Query_Find = require('./JS_AST_Node_3.5-Query_Find');
 
 // Could make a more specific feature extraction part.
 //  Will come up with more:
@@ -19,12 +19,10 @@ const JS_AST_Node_Query = require('./JS_AST_Node_3-Query');
 // .matches_type_signature(signature)
 // . but using a tree is better for checking multiple signatures at once.
 
-class JS_AST_Node_Query_Features extends JS_AST_Node_Query {
+class JS_AST_Node_Query_Features extends JS_AST_Node_Query_Find {
     constructor(spec = {}) {
         super(spec);
-
         // Getting the assigned values also seems important.
-
         // Possibly will be made into some kind of autoquery? Or may be better to do queries lazily, and store the results.
         
         // Declared Object features inside a node.
@@ -32,15 +30,15 @@ class JS_AST_Node_Query_Features extends JS_AST_Node_Query {
         // If a node 'features' declared objects, then the syntax in which they are declared is not so important.
         //  This is an abstraction level above that.
 
-
+        // Want to keep it faitrly generic at this stage
+        //  Will do more with root node interpretation for the moment I expect.
+        //  First priority is to get everything linking together properly in an output file.
+        //  
         const arr_features_declared_object = [];
-
-
         const features = [];
         const map_arr_features_by_feature_name = {
             
         }
-
         Object.defineProperty(this, 'features', {
             get() { 
                 //if (!features) {
@@ -53,18 +51,10 @@ class JS_AST_Node_Query_Features extends JS_AST_Node_Query {
             configurable: false
         });
 
-
-
-
-        
-
         // get literal names
         //  or is it value
 
         // // Assignment Feature?
-
-
-
         
     }
 }

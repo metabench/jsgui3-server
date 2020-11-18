@@ -10,8 +10,6 @@ class JS_File_JS_AST_Node extends JS_File_Babel {
         let js_ast_node_file;
         let node_body;
 
-
-
         this.on('parsed-ast', e_parsed_ast => {
 
             //console.log('e_parsed_ast', e_parsed_ast);
@@ -28,23 +26,23 @@ class JS_File_JS_AST_Node extends JS_File_Babel {
             //console.log('e_parsed_ast', e_parsed_ast);
             //throw 'stop';
 
-
             js_ast_node_file = new JS_AST_Node({
                 babel_node: e_parsed_ast.value,
                 source: this.source,
                 root_node: true
             });
 
-            console.log('Object.keys(js_ast_node_file)', Object.keys(js_ast_node_file));
-            console.log('(js_ast_node_file.type)', (js_ast_node_file.type));
+            //console.log('Object.keys(js_ast_node_file)', Object.keys(js_ast_node_file));
+            //console.log('(js_ast_node_file.type)', (js_ast_node_file.type));
             //const node_body = js_ast_node_file.child_nodes[0].child_nodes[0];
             node_body = js_ast_node_file.child_nodes[0];
 
-
-            console.log('(node_body.type)', (node_body.type));
+            //console.log('(node_body.type)', (node_body.type));
             //throw 'stop';
 
-            
+            this.raise('parsed-node_body', {
+                value: node_body
+            });
 
             //console.log('js_ast_node_file', js_ast_node_file);
             //console.log('js_ast_node_file.type', js_ast_node_file.type);
@@ -61,6 +59,8 @@ class JS_File_JS_AST_Node extends JS_File_Babel {
             configurable: false
         });
 
+        /*
+
         Object.defineProperty(this.body, 'node', {
             get() { 
                 return node_body;
@@ -68,6 +68,8 @@ class JS_File_JS_AST_Node extends JS_File_Babel {
             enumerable: true,
             configurable: false
         });
+
+        */
 
         /*
         Object.defineProperty(this, 'body', {

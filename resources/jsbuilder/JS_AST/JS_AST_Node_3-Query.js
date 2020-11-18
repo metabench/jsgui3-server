@@ -8,14 +8,8 @@
 // Indexing at every level looks like it would be useful.
 //  so in order to get the info about how the names relate to nodes we consult indexes.
 
-
-
-
-
-
-
 const { each } = require('../../../../../tools/arr-tools/arr-tools');
-const JS_AST_Node_Babel = require('./JS_AST_Node_1-Babel');
+const JS_AST_Node_Signature = require('./JS_AST_Node_2.5-Signature');
 
 // Could make a more specific feature extraction part.
 //  Will come up with more:
@@ -37,13 +31,15 @@ const JS_AST_Node_Babel = require('./JS_AST_Node_1-Babel');
 // . but using a tree is better for checking multiple signatures at once.
 
 
-class JS_AST_Node_Query extends JS_AST_Node_Babel {
+class JS_AST_Node_Query extends JS_AST_Node_Signature {
     constructor(spec = {}) {
         super(spec);
         //const {deep_iterate, each_child_node, filter_each_child_node} = this;
 
-        const each_child_node = this.each.child;
-        const filter_each_child_node = this.filter.child;
+        const {child_nodes, deep_iterate} = this;
+
+        //const each_child_node = this.each.child;
+        //const filter_each_child_node = this.filter.child;
 
         // sets the childnodes here.
         //  will also make available the relevant bable properties.
@@ -52,38 +48,240 @@ class JS_AST_Node_Query extends JS_AST_Node_Babel {
         //  Provide property getters that will do this.
 
         // Seeing what pattern / recognised object / pattern it is.
-        
 
-        
+        const filter_deep_iterate = (fn_filter, max_depth, callback) => {
 
-        this.each_declaration_child_node = (callback) => filter_each_child_node(js_ast_node => js_ast_node.is_declaration, callback);
-        const each_assignment_expression_child_node = callback => filter_each_child_node(node => node.type === "AssignmentExpression");
+            if (!callback && typeof max_depth === 'function') {
+                callback = max_depth;
+                max_depth = undefined;
+            }
 
-
-        
-
-        const each_inner_declaration = (callback) => {
-            filter_inner_deep_iterate(node => node.is_declaration, node => {
-                callback(node);
+            deep_iterate(max_depth, (js_ast_node, depth, path) => {
+                if (fn_filter(js_ast_node)) callback(js_ast_node, path, depth);
             })
         }
-        
+        const inner_deep_iterate = (max_depth, callback) => {
+            if (!callback && typeof max_depth === 'function') {
+                callback = max_depth;
+                max_depth = undefined;
+            }
+            filter_deep_iterate(js_ast_node => js_ast_node !== this, max_depth, callback);
+        }
+        //const filter_inner_deep_iterate = (filter, callback) => inner_deep_iterate((node) => filter(node) ? callback(node) : undefined)
+
+        const filter_by_type_deep_iterate = (type, max_depth, callback) => {
+            if (!callback && typeof max_depth === 'function') {
+                callback = max_depth;
+                max_depth = undefined;
+            }
+            filter_deep_iterate(node => node.type == type, max_depth, callback);
+        }
 
         
 
         
-        const each_inner_variable_declarator = callback => each_inner_node_of_type('VariableDeclarator', callback);
-        const each_inner_identifier = callback => each_inner_node_of_type('Identifier', callback);
+
+        const typed_deep_iterate = (babel_type, max_depth, callback) => {
+            if (!callback && typeof max_depth === 'function') {
+                callback = max_depth;
+                max_depth = undefined;
+            }
+            filter_deep_iterate(js_ast_node => js_ast_node.type === babel_type, max_depth, callback);
+        }
         
+        
+        
+        const filter_inner_nodes_by_type = (type, callback) => {
+            filter_inner_deep_iterate(node => node.type === type, node => callback(node));
+        }
+
+        // filter_inner_nodes_by_type
+
+
+
+
+
+        // .collect (gets them in an array)
+        // .select (uses a selection filter)
+
+        //const select_child_nodes = (selector) => {
+        //    const res = [];
+        //    filter_each_child_node(selector, cn => res.push(cn));
+        //    return res;
+        //}
+
+        // only finds the first
+        
+
+
+        const deep_collect = () => {
+            const res = [];
+            deep_iterate(node => res.push(node));
+            return res;
+        }
+
+        // .all maybe?
+        // .collect or select is the better verb choice.
+
+
+        /*
+
+        // depracating
+
+        this.deep = {
+            iterate: cb => deep_iterate(cb), // ???
+            filter: (fn, cb) => filter_deep_iterate(fn, cb),
+            collect: () => deep_collect()
+        }
+
+        this.inner = {
+            iterate: cb => inner_deep_iterate(cb),
+            filter: (fn, cb) => filter_inner_deep_iterate(fn, cb)
+        }
+
+        */
+
+
+
+        
+
+        // Will remove these, change the API, will use more dots and objects.
+        //  Will follow more of a pattern and be quite cool.
+        //this.each_child_node = each_child_node;
+
+        // this.filter_by_type
+        
+        //this.typed_deep_iterate = typed_deep_iterate;
+
+
+        // .by in order to filter by type
+
+        // this.each.by_type?
+
+        //this.filter_each_child_node = filter_each_child_node;
+        //this.filter_deep_iterate = filter_deep_iterate;
+
+        //this.inner_deep_iterate = inner_deep_iterate;
+
+        // .filter_by_type.inner
+
+        //this.each_inner_node_of_type = each_inner_node_of_type;
+
+        // this.each.inner.typed(t)
+        // this.each.inner.categorised(c)
+
+        // yes we want .by
+
+        // this.each.inner.by.type
+        // this.filter.inner.by.type
+        // this.filter.inner
+        // this.typefilter.inner
+        // this.filter_by_type.inner
+
+        // each, filter, collect, select
+
+        // this.map.child.category
+
+        // .filter is the same as .filter.deep???
+
+        
+
+        let _collected_nodes;
+
+        const collect = () => {
+            if (!_collected_nodes) {
+                _collected_nodes = [];
+                deep_iterate(node => _collected_nodes.push(node));
+            }
+            return _collected_nodes;
+        }
+
+        
+
+        /*
+        const select_child_nodes = (fn_select) => {
+            const res = [];
+            filter_each_child_node(fn_select, node => res.push(node));
+            return res;
+        }
+        */
+
+        /*
+
+        const select_inner_nodes = (fn_select) => {
+            const res = [];
+            filter_inner_deep_iterate(fn_select, node => res.push(node));
+            return res;
+        }
+
+        */
+
+
+
+
+        Object.assign(this, {
+
+            
+
+            //filter: (fn_filter, callback) => filter_deep_iterate(fn_filter, callback),
+
+            //filter_by_type: (type, callback) => filter_by_type_deep_iterate(type, callback),
+
+            //find: (fn_match) => find_node(fn_match),
+
+            // Maybe this will be in the indexing part. Probably best there.
+            map: {
+                child: {
+
+                },
+                deep: {
+
+                },
+                inner: {
+
+                }
+            },
+            
+            //filter: {
+            //    child: fn_filter => filter_each_child_node(fn_filter)
+            //},
+
+            // node.collect() should collect all it's nodes?
+            //  Does actually make sense.
+
+            //collect: () => collect(),
+            //select: (fn_select) => select(fn_select)
+        })
+
+
+        /*
+        
+
+        Object.assign(this.find, {
+            child: (fn_match) => find_child_node(fn_match),
+            //inner: fn_select => select_inner_nodes(fn_select)
+        });
+
+        
+
+
+        Object.assign(this.select, {
+            child: (fn_select) => select_child_nodes(fn_select),
+            inner: fn_select => select_inner_nodes(fn_select)
+        });
+        
+
+        */
         // Structure signatures of nodes (and all nodes below them) would be relatively easy to put together, and possibly useful.
         //  Will be able to find a programmatic pattern, where parts would often be interchangable.
         
+        /*
         const each_inner_declaration_declarator_identifier = (callback) => 
             this.each_inner_declaration(node_inner_declaration => 
             node_inner_declaration.each_inner_variable_declarator(decl =>
             decl.each_inner_identifier(ident =>
             callback(ident))))
-        
+        */
         
 
         // [TypeName]([TypeName2](...),[TypeName3](...))
@@ -94,75 +292,10 @@ class JS_AST_Node_Query extends JS_AST_Node_Babel {
 
         //this.structure_signature = 
 
-        let deep_type_signature, type_signature;
-        // and then a more shallow type signature.
-        //   type_signature could go to depth 2 or 3. Let's try it.
-        // Want to be able to get small and usable signatures.
+        
 
-        // Want max depth for the iteration.
-        //  The stop function integrated within the iteration would be useful there to get that done.
-        //  Maybe an 'options' object now params have got more complex.
 
-        const get_deep_type_signature = () => {
-            //let res = '[' + this.type + '(';
-            //if (!deep_type_signature) {
-            //console.log('');
-            //console.log('this.path', this.path);
-            //console.log('this.type', this.type);
-            let res = '' + this.abbreviated_type, inner_res = '', first = true;
-
-            // Only look at child nodes, not full tree here.
-            // each_child_node   inner_deep_iterate
-            //  seems fixed now.
-            // no longer supports max_depth but at least it works now.
-
-            each_child_node(inner_node => {
-                if (!first) inner_res = inner_res + ','
-                inner_res = inner_res + inner_node.deep_type_signature
-                first = false;
-            });
-            //res = res + ')';
-            if (inner_res.length > 0) {
-                res = res + '(' + inner_res + ')';
-            } else {
-
-            }
-            return res;
-        }
-
-        Object.defineProperty(this, 'type_signature', {
-            get() { 
-                if (!type_signature) type_signature = get_deep_type_signature(1);
-                //if (deep_type_signature) return deep_type_signature;
-                return type_signature;
-                
-            },
-            //set(newValue) { bValue = newValue; },
-            enumerable: true,
-            configurable: false
-        });
-
-        Object.defineProperty(this, 'deep_type_signature', {
-            get() { 
-                if (!deep_type_signature) deep_type_signature = get_deep_type_signature();
-                //if (deep_type_signature) return deep_type_signature;
-                return deep_type_signature;
-                
-            },
-            //set(newValue) { bValue = newValue; },
-            enumerable: true,
-            configurable: false
-        });
-
-        Object.defineProperty(this, 'signature', {
-            get() { 
-                return this.type_signature
-            },
-            //set(newValue) { bValue = newValue; },
-            enumerable: true,
-            configurable: false
-        });
-
+        /*
         Object.defineProperty(this, 'inner_declaration_names', {
             get() { 
                 const res = []; const tm = {};
@@ -178,7 +311,9 @@ class JS_AST_Node_Query extends JS_AST_Node_Babel {
             enumerable: true,
             configurable: false
         });
+        */
 
+        /*
         Object.defineProperty(this, 'child_declarations', {
             get() { 
                 const cns = this.child_nodes;
@@ -196,73 +331,44 @@ class JS_AST_Node_Query extends JS_AST_Node_Babel {
             enumerable: true,
             configurable: false
         });
+        */
 
-        
+        Object.defineProperty(this, 'value', {
+            get() { 
+                if (this.type === 'StringLiteral') {
+                    console.log(this.node);
+                    throw 'stop';
+                } else {
+                    throw 'NYI';
+                }
+
+            },
+            //set(newValue) { bValue = newValue; },
+            enumerable: true,
+            configurable: false
+        });
+
+        Object.defineProperty(this, 'identifier', {
+            get() { 
+
+                //return this.find.child(n => n.type === 'Identifier');
+
+                return this.find(n => n.type === 'Identifier');
+
+            },
+            //set(newValue) { bValue = newValue; },
+            enumerable: true,
+            configurable: false
+        });
 
         // const each_root_assignment_expression = (callback) => each_root_node(node => node.type === 'AssignmentExpression', callback);
-
+        // //this.index_named_node = index_named_node; this.get_arr_named_node = get_arr_named_node;
         
 
-        const each_child_assignment_expression = (callback) => filter_each_child_node(node => node.type === 'AssignmentExpression', callback);
-        const each_child_expression_statement = (callback) => filter_each_child_node(node => node.type === 'ExpressionStatement', callback);
-        const each_child_declaration = (callback) => filter_each_child_node(node => node.is_declaration, callback);
         const deep_iterate_identifiers = (max_depth, callback) => typed_deep_iterate('Identifier', max_depth, callback);
-        
-        // Identifying if it matches any registered signatures...
-        //  Provide functionality for it here, but will use it in subclasses of this.
-        //   Somewhere or other will make use of new Signature_Tree functionality.
-        //    These signatures are a recursive structure, and if a good algorithm is used, they will be able to be compared and identified quickly.
-        //     Will be able to check for multiple possible types of node structures.
-
-        // This will be useful for identifying and extracting features within heirachical documents.
-        //  Declarative structures and signatures using rules - will not be so hard to specify what to do with what things, but it's in a flexible system.
-
-        // find variables declared within scope.
-        //  and in cases of multiple variables [a, b, c] = [1, 2, 3];
-
-        // .find as a function.
-        // .deep.find
-        // .select
-        // .collect
-
-
-
-        this.each.child.expression_statement = cb => each_child_expression_statement(cb);
-        this.each.child.assignment_expression = cb => each_child_assignment_expression(cb);
-        this.each.child.declaration = cb => each_child_declaration(cb);
-        this.each.inner.declaration = cb => each_inner_declaration(cb);
-
-        // a sign function would be cool.
-
-        // sign.deep().
-
-
-        //this.find_node = find_node;
-        this.get_deep_type_signature = get_deep_type_signature;
-        
-        
-        //this.each_child_expression_statement = each_child_expression_statement;
-        
-        
-        // maybe signatures or another way will be better here?
-        //  or the indexing picks this up well?
-        this.each_inner_declaration_declarator_identifier = each_inner_declaration_declarator_identifier;
-
-
-        this.each.inner.variable_declarator = cb => each_inner_variable_declarator(cb);
-        this.each.inner.identifier = cb => each_inner_identifier(cb);
-
-        // Maybe / likely could have a better name for this or remove it.
-        //  Maybe we will better get what we need with indexing???
-        this.each_assignment_expression_child_node = each_assignment_expression_child_node;
-        
-
-        // this.each.identifier
         this.deep_iterate_identifiers = deep_iterate_identifiers;
-
-
-
-
+        this.inner_deep_iterate = inner_deep_iterate;
+        this.filter_deep_iterate = filter_deep_iterate;
 
     }
 }

@@ -15,7 +15,7 @@
 
 
 const { each } = require('../../../../../tools/arr-tools/arr-tools');
-const JS_AST_Node_Query_Features = require('./JS_AST_Node_3.1-Query_Features');
+const JS_AST_Node_Query_Features = require('./JS_AST_Node_3.8-Query_Features');
 
 // Could make a more specific feature extraction part.
 //  Will come up with more:
@@ -93,6 +93,46 @@ class JS_AST_Node_Index extends JS_AST_Node_Query_Features {
         const _map_identifiers_by_name = new Map();
         let is_indexed = false;
 
+        // Makes sense after querying functionality has been set up.
+
+        // Maybe we should have another level for querying, maybe indexed-query
+        //  Indexes will be nice for connecting things together quickly.
+
+        // Index of the names of all functions being called.
+        // Index of the full.dotted.object.paths of every one that is used.
+
+        // Want flexibility and concise code with different indexes.
+
+        // access the indexes as functions for the moment.
+
+        const indexes = new Map();
+        const maps = new Map();
+
+
+
+
+        // .indexed.
+
+        // .index_system.define_index(index_name, fn_indexer)
+
+        // index.get(value)
+        // index_system.get(index_name, value);
+
+        // .cmap as a verb to create a map
+
+        // .map.create(name, fn_mapper)
+
+
+
+        // .map.identifier.name
+        
+
+
+
+
+
+
+
         // and do a map of declarations by name as well.
         //  though that's tricky in some ways.
         //  could navigate the tree back from any node to see if it's part of a declaration or reference.
@@ -101,31 +141,33 @@ class JS_AST_Node_Index extends JS_AST_Node_Query_Features {
 
         const _map_names_to_declarations = new Map();
 
+        const _map_fn_call_names = new Map();
+
+        maps.set('names_to_declarations', _map_names_to_declarations);
+
         // The name could possibly occur multiple times internally.
         //  As in, be declared multiple times, should be in different scopes. Maybe var does this?
 
 
 
         const build_index = () => {
+
+            // Will find function names too :) The functions being called
+            //  
+
             // could we make a shallower version that is more efficient?
             //  ie, it gets the map from below, and adds any relevant items at the current level.
 
             // Making use of child nodes' own indexes would be the optimization here.
             //  Building it out of the indexes of the child nodes, if they have indexes.
 
-
             deep_iterate(node => {
 
                 // Are the child nodes all of the same type?
                 // .child_node_shared_type property
 
-
-
-
-
                 if (node.is_identifier) {
                     const name = node.name;
-
                     // 
 
                     //console.log('name', name);
@@ -141,19 +183,20 @@ class JS_AST_Node_Index extends JS_AST_Node_Query_Features {
                     //console.log('node.signature', node.signature);
                     //console.log('node.child.shared.type', node.child.shared.type);
                     //console.log('node.child.count', node.child.count);
-
                     // node.child.collected.names???
 
                     if (node.child.shared.type === 'VariableDeclarator') {
-
                         if (node.source.length < 800) {
                             //console.log('node.source', node.source);
                         }
-
                         node.each.child(dec => {
                             //console.log('dec.babel.node', dec.babel.node);
 
-                            const id = dec.child.find(node => node.is_identifier);
+                            //const id = dec.child.find(node => node.is_identifier);
+                            const id = dec.find(node => node.is_identifier);
+
+
+
 
                             if (id) {
                                 //console.log('id', id);
@@ -236,27 +279,15 @@ class JS_AST_Node_Index extends JS_AST_Node_Query_Features {
                                 } else {
                                     throw 'stop';
                                 }
-
-
-
-
-
-                                
                             }
-
-                            
 
                             // dec.id?
                             //  gets the identifier?
-                            // dec.child.identifier?
-                            
+                            // dec.child.identifier?  
 
                         })
-                        
                     }
-
                     // then are all the child nodes of type 'VariableDeclarator'
-
 
                     // .deep (self then inner)
                     // .inner (recursively child nodes)
@@ -264,6 +295,81 @@ class JS_AST_Node_Index extends JS_AST_Node_Query_Features {
                     //node.child.declarators
 
                 }
+
+                if (node.is_expression) {
+                    if (node.type === 'CallExpression') {
+
+                        //console.log('node.source', node.source);
+                        //console.log('node', node);
+                        //console.log('node.babel.node', node.babel.node);
+
+                        const callee = node.first.child.node;
+                        if (callee.is_identifier) {
+                            const fncall_name = callee.name;
+                            //console.log('fncall_name', fncall_name);
+                            _map_fn_call_names.set(fncall_name, node);
+                        } else {
+
+                            if (callee.type === 'MemberExpression') {
+                                //console.log('callee.child.count', callee.child.count);
+
+                                let fncall_path = '';
+                                let first = true;
+
+
+
+
+                                // .child.node.count ???
+                                // .child.declaration.count
+
+                                // .count.child?
+                                //  // don't properly have .child any longer.
+                                //    this would be under callee.count.child.node
+
+
+
+
+
+
+                                if (callee.child_nodes.length > 1) {
+                                    callee.each.child(id => {
+                                        if (id.is_identifier) {
+                                            if (!first) {
+                                                fncall_path += '.';
+                                            } else {
+                                                first = false;
+                                            }
+                                            fncall_path += id.name;
+                                        } else {
+                                            //console.log('node.source', node.source);
+
+                                            // Calling a function that is a property of an object.
+                                            //  Not so interested right now.
+
+                                            // Not looking for this now
+
+                                            //throw 'stop';
+                                        }
+                                    })
+                                    _map_fn_call_names.set(fncall_path, node);
+                                } else {
+                                    throw 'stop';
+                                }
+
+                                
+
+                            }
+
+                            //
+                            //throw 'stop';
+                        }
+
+                        //throw 'stop';
+
+                    }
+
+                }
+
 
                 //console.log('child.count', child.count);
 
@@ -299,10 +405,21 @@ class JS_AST_Node_Index extends JS_AST_Node_Query_Features {
             configurable: false
         });
 
+        /*
+        Object.defineProperty(this, 'maps', {
+            get() { 
+                return maps;
+            },
+            //set(newValue) { bValue = newValue; },
+            enumerable: true,
+            configurable: false
+        });
+        */
+
 
 
         
-
+        /*
         Object.defineProperty(this, 'map_identifiers_by_name', {
             get() { 
                 ensure_index();
@@ -313,12 +430,18 @@ class JS_AST_Node_Index extends JS_AST_Node_Query_Features {
             enumerable: true,
             configurable: false
         });
+        */
 
         
 
         // _map_names_to_declarations
 
         // declaration.identifier.name
+
+        // Not so sure about the map object here.
+
+        // Makes sense as a verb, a means to access it.
+
 
         const map = {
             declaration: {
@@ -362,60 +485,6 @@ class JS_AST_Node_Index extends JS_AST_Node_Query_Features {
             enumerable: true,
             configurable: false
         });
-
-        
-
-
-        const attempt = () => {
-            const each_child_node = callback => each(this.child_nodes, callback);
-            let obj_index;
-
-            // A separate index building system may be better.
-            //  
-
-
-            const get_obj_index = () => {
-                const res = {};
-                each_child_node(cn => {
-                    const oicn = cn.obj_index;
-                    each(oicn, (arr_references, obj_name) => {
-                        res[obj_name] = res[obj_name] || [];
-                        //res[obj_name].push()
-                        each(arr_references, ref => res[obj_name].push(ref));
-                    })
-
-                });
-
-                if (this.is_identifier) {
-                    console.log('this.name', this.name);
-                    console.log('res[this.name]', res[this.name]);
-                    res[this.name] = res[this.name] || [];
-                    res[this.name].push(this);
-                }
-
-                return res;
-
-
-            }
-
-
-            Object.defineProperty(this, 'obj_index', {
-                get() { 
-                    if (!obj_index) obj_index = get_obj_index();
-                    //if (deep_type_signature) return deep_type_signature;
-                    return obj_index;
-                    
-                },
-                //set(newValue) { bValue = newValue; },
-                enumerable: true,
-                configurable: false
-            });
-
-
-            // Try with a single iteration
-            // Index the identifier names as
-        }
-
         
 
     }

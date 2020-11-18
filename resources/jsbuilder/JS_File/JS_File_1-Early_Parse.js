@@ -32,7 +32,7 @@ class JS_File_Early_Parse extends JS_File_Core {
         // preparsing? early parsing?
         this.on('parsed-export-name', e_parse => {
             const {value} = e_parse;
-            console.log('parsed-export-name', value);
+            //console.log('parsed-export-name', value);
             export_name = value;
         });
         this.on('parsed-root-class-name', e_parse => {

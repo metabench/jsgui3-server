@@ -45,7 +45,9 @@ const test_js_ast_node = () => {
     const js_ast_node = JS_AST_Node.from_spec(spec);
     console.log('js_ast_node.category', js_ast_node.category);
     console.log('js_ast_node.source', js_ast_node.source);
-    console.log('js_ast_node.babel.node', js_ast_node.babel.node);
+    console.log('js_ast_node', js_ast_node);
+    console.log('');
+    //console.log('js_ast_node.babel.node', js_ast_node.babel.node);
 
     //console.log('js_ast_node', js_ast_node);
     //console.log('js_ast_node.path', js_ast_node.path);
@@ -54,104 +56,186 @@ const test_js_ast_node = () => {
     //console.log('js_ast_node.is_declaration', js_ast_node.is_declaration);
     //console.log('js_ast_node.child_nodes.length', js_ast_node.child_nodes.length);
 
-    if (js_ast_node.child_nodes.length === 1) {
-        const declaration0 = js_ast_node.child_nodes[0];
-        //console.log('declaration0', declaration0);
-        console.log('declaration0.source', declaration0.source);
-        console.log('declaration0.child_nodes.length', declaration0.child_nodes.length);
-        //console.log('declaration0.child_nodes', declaration0.child_nodes);
-        //console.log('declaration0.child_nodes[0].type', declaration0.child_nodes[0].type);
-        //console.log('declaration0.child_nodes[1].type', declaration0.child_nodes[1].type);
 
-        const identifier = declaration0.child_nodes[0];
-        console.log('identifier', identifier);
+    //js_ast_node.inner;
 
-        const iref2 = declaration0.find_node(node => node.type === 'Identifier');
-        console.log('iref2', iref2);
+    console.log('js_ast_node.inner', js_ast_node.inner);
+    console.log('js_ast_node.inner.count', js_ast_node.inner.count);
 
-        // Seems like a JSGUI_Singular_Declaration would be useful.
-        //  Then could be compiled into some sort of sequence.
+    // inner.declaration
 
-        console.log('iref2.type_signature', iref2.type_signature);
-        console.log('js_ast_node.type_signature', js_ast_node.type_signature);
-        
+    // inner.node
 
-        // Looks like we now have decent parsing / representation of single objects.
+    // js_ast_node.collect.all()
 
-        js_ast_node.deep_iterate(node => {
-            //console.log('deep_iterate: node', node);
-        })
-        // get_declared_names
-        
+    // collect.all.declaration
+    //  seems like that could be built on top of the select syntax.
 
-        // And having a wildcard in the signature...
-        //  Would need to make a matching algorithm that deals with these wildcards.
-        //  I suppose splitting into an array and doing comparisons.
-        
-        // Signature: VDn(VDr(ID,SL))
 
-        // How about VDn(VDr(ID,x)) where it's clear that x is a variable (not sure that we say wildcard)
+    const o_select_all =  js_ast_node.select.all;
+    console.log('o_select_all', o_select_all);
 
-        // Consistent text width signatures would help with a matching process.
-        //  A quicker way of matching against keys - at least quicker to implement, less thorough in some ways.
-        //   Would need to be matched at the right depth level.
+    const decs = js_ast_node.select.all(node => node.is_declaration);
+    console.log('decs', decs);
 
-        // Such as shallow_type_signature
+    const ids = js_ast_node.select.all(node => node.is_identifier);
+    console.log('ids', ids);
+    
 
 
 
-        // Names of all variables declared within.
-        //  Variables' declared names
+    const older_than_now = () => {
 
 
 
 
+        if (js_ast_node.child_nodes.length === 1) {
+            const declaration0 = js_ast_node.first.child.node;
+            //console.log('declaration0', declaration0);
+            console.log('declaration0.source', declaration0.source);
+            console.log('declaration0.child_nodes.length', declaration0.child_nodes.length);
+            //console.log('declaration0.child_nodes', declaration0.child_nodes);
+            //console.log('declaration0.child_nodes[0].type', declaration0.child_nodes[0].type);
+            //console.log('declaration0.child_nodes[1].type', declaration0.child_nodes[1].type);
+    
+            const identifier = declaration0.child_nodes[0];
+            console.log('identifier', identifier);
+    
+    
+            // .find.node.by.type
+    
+            // find.node would be ok syntax (at least for the moment.)
+    
+    
+            // Maybe the convenient syntax will be used just for query composition
+            //  Then the query will be executed in a further step.
+            //  Seems worthwhile to sweeten the syntax.
+    
+            // dec.find.node.by.type('Identifier');
+            //  
+    
+            // dec.find.node(node => ... )
+    
+    
+            const iref2 = declaration0.find.node(node => node.type === 'Identifier');
+            console.log('iref2', iref2);
+    
+            // Seems like a JSGUI_Singular_Declaration would be useful.
+            //  Then could be compiled into some sort of sequence.
+    
+            console.log('iref2.type_signature', iref2.type_signature);
+            console.log('js_ast_node.type_signature', js_ast_node.type_signature);
+    
+            const first_child_node = js_ast_node.first.child.node;
+            console.log('first_child_node', first_child_node);
+    
+            console.log('js_ast_node.child_nodes.length', js_ast_node.child_nodes.length);
+    
+    
+    
+            // want to try node.all.select
+    
+            // node.all.select(fn_selector)
+    
+    
+    
+    
+    
+            // .count could be a JS_AST_Operation
+            //  
+    
+    
+            // 3.1.5
+            // Query_Count
+    
+    
+    
+            // .count.child.node
+    
+            // Looks like we now have decent parsing / representation of single objects.
+    
+            //js_ast_node.deep_iterate(node => {
+            //    console.log('deep_iterate: node', node);
+            //})
+            // get_declared_names
+            
+    
+            // And having a wildcard in the signature...
+            //  Would need to make a matching algorithm that deals with these wildcards.
+            //  I suppose splitting into an array and doing comparisons.
+            
+            // Signature: VDn(VDr(ID,SL))
+    
+            // How about VDn(VDr(ID,x)) where it's clear that x is a variable (not sure that we say wildcard)
+    
+            // Consistent text width signatures would help with a matching process.
+            //  A quicker way of matching against keys - at least quicker to implement, less thorough in some ways.
+            //   Would need to be matched at the right depth level.
+    
+            // Such as shallow_type_signature
+    
+    
+    
+            // Names of all variables declared within.
+            //  Variables' declared names
+    
+    
+    
+    
+    
+    
+    
+    
+        } else {
+            //throw 'NYI';
+            //console.log('js_ast_node.child_nodes', js_ast_node.child_nodes);
+            console.log('js_ast_node.type_signature', js_ast_node.type_signature);
+            console.log('js_ast_node.deep_type_signature', js_ast_node.deep_type_signature);
+    
+            console.log('js_ast_node', js_ast_node);
+    
+            //console.log('js_ast_node.get_declared_names()', js_ast_node.get_declared_names());
+    
+            // Could be identifiers that are not within a declaration.
+    
+    
+    
+            // then get the names that are locally declared within a block.
+            // all references made.
+    
+            // All 
+    
+    
+    
+            // want the declared items.
+            //  meaning it joins together its identifier name as well as what it gets set to.
+    
+    
+    
+            // Parse it into multiple Declaration objects.
+            //  JSGUI_Declaration?
+    
+            // May be the better coding strategy to add more functionality to the existing classes, possibly further interpretation.
+            //  Could hard-code a few structures.
+    
+            // Or use extensions of existing types.
+    
+            // Or Abstract_Declaration, meaning the statements used to render it have not been chosen.
+            // Abstract_Single_Declaration
+            //  Not related to the language syntax like the AST_Node and Babel declaration objects are.
+    
+    
+    
+    
+        }
 
-
-
-
-    } else {
-        //throw 'NYI';
-        //console.log('js_ast_node.child_nodes', js_ast_node.child_nodes);
-        console.log('js_ast_node.type_signature', js_ast_node.type_signature);
-        console.log('js_ast_node.deep_type_signature', js_ast_node.deep_type_signature);
-
-        console.log('js_ast_node', js_ast_node);
-
-        //console.log('js_ast_node.get_declared_names()', js_ast_node.get_declared_names());
-
-        // Could be identifiers that are not within a declaration.
-
-
-
-        // then get the names that are locally declared within a block.
-        // all references made.
-
-        // All 
-
-
-
-        // want the declared items.
-        //  meaning it joins together its identifier name as well as what it gets set to.
-
-
-
-        // Parse it into multiple Declaration objects.
-        //  JSGUI_Declaration?
-
-        // May be the better coding strategy to add more functionality to the existing classes, possibly further interpretation.
-        //  Could hard-code a few structures.
-
-        // Or use extensions of existing types.
-
-        // Or Abstract_Declaration, meaning the statements used to render it have not been chosen.
-        // Abstract_Single_Declaration
-        //  Not related to the language syntax like the AST_Node and Babel declaration objects are.
 
 
 
 
     }
+
+    
     // Find out how many declarators it has.
 
     

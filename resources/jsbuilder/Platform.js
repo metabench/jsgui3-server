@@ -33,6 +33,34 @@ class Platform extends Evented_Class {
         const map_local_module_directories = {};
         const scope = new Scope();
 
+
+
+        // Loading a file / AST onto a platform
+
+        // Platform maps / indexes:
+
+        // from the name of a function:
+        //  which module contains its definition, and reference to the definition AST node.
+        //  is it exported by the module
+
+        // Getting better exports information looks like a good first step.
+        //  Dealing with exporting an object that itself has multiple keys.
+
+        // exported.keys
+        // exports.keys?
+
+        // exported makes sense.
+
+        // exported.keys will be a useful property.
+        //  very useful for determining when it is loaded in a different module? or just for cross-referencing? Exactly that, it's cross-referencing.
+
+        
+
+
+
+
+
+
         // Want to load a file, and follow all the code and references to create the codebase where it can run.
         //  We can start with / do more work on the jsgui-client file.
 

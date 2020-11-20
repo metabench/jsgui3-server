@@ -35,7 +35,7 @@ class JS_AST_Relationship_Node_To_Group {
 
 
 
-        const iterate_group = this.each = callback => {
+        const iterate_group = callback => {
             if (name === 'sibling') {
                 if (origin.parent_node) {
                     each(origin.parent_node.child_nodes, (node, idx, stop) => {
@@ -57,6 +57,17 @@ class JS_AST_Relationship_Node_To_Group {
             }
         }
 
+        const find = (finder) => {
+            let res;
+            iterate_group(node, idx, stop => {
+                if (finder(node)) {
+                    res = node;
+                    stop();
+                }
+            })
+            return res;
+        }
+
         const shared = new JS_AST_Group_Shared({
             group_iterator: iterate_group
         });
@@ -65,7 +76,7 @@ class JS_AST_Relationship_Node_To_Group {
         // And collect is still a verb here.
         //  Use property sugar with a different name.
         let _collected;
-        this.collect = () => {
+        const collect = () => {
             if (!_collected) {
                 _collected = [];
                 iterate_group(node => _collected.push(node));
@@ -117,7 +128,7 @@ class JS_AST_Relationship_Node_To_Group {
         });
 
 
-        this.select = (fn_select) => {
+        const select = (fn_select) => {
             // Could return another group?
             //  
 
@@ -127,7 +138,24 @@ class JS_AST_Relationship_Node_To_Group {
             });
             return res;
         }
+
+
+        Object.assign(this, {
+            select: select,
+            shared: shared,
+            each: iterate_group,
+            find: find,
+            collect: collect
+        });
+        
+        
+        /*
+        this.select = select;
         this.shared = shared;
+        this.each = iterate_group;
+        this.find = find;
+        this.collect = collect;
+        */
     }
 }
 

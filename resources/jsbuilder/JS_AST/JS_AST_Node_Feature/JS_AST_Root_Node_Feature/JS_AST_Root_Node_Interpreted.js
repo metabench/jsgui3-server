@@ -76,11 +76,21 @@ class JS_AST_Root_Node_Interpreted extends JS_AST_Node {
                     if (sibling.name === 'exports') {
                         console.log('node.parent_node.parent_node', node.parent_node.parent_node);
                         console.log('node.parent_node.parent_node.parent_node', node.parent_node.parent_node.parent_node);
+                        console.log('node.parent.node.parent.node.parent.node', node.parent.node.parent.node.parent.node);
+
+                        // node.ancestor.find(ancestor => ancestor.index = 2);
+
+
+                        // .gparent_node, ggparent_node
+
+                        // node.ggparent relationship for example
+
+                        // node.ancestor.at(2)
 
 
 
                         // parent and ancestor relationships could use some work.
-                        
+
 
 
                         // parent. ...

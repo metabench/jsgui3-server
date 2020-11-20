@@ -17,6 +17,25 @@ class JS_AST_Relationship_Node_Within_Group_To_Node {
             origin_ordinal_value_within_node = spec.origin_ordinal_value_within_node;
         }
         
+        Object.defineProperty(this, 'node', {
+            get() { 
+                return node;
+            },
+            enumerable: true,
+            configurable: false
+        });
+        Object.defineProperty(this, 'origin', {
+            get() { 
+                return origin;
+            },
+            set(new_value) { 
+                origin = new_value;
+            },
+            enumerable: true,
+            configurable: false
+        });
+        
+        
     }
 }
 

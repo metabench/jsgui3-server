@@ -3,7 +3,6 @@ const { each } = require('../../../../../tools/arr-tools/arr-tools');
 const JS_AST_Node_Query_Babel = require('./JS_AST_Node_1-Babel');
 
 const JS_AST_Relationship_Node_To_Group = require('./JS_AST_Relationship_Node_To_Group');
-
 class JS_AST_Node_Child extends JS_AST_Node_Query_Babel {
     constructor(spec = {}) {
         super(spec);
@@ -33,12 +32,6 @@ class JS_AST_Node_Child extends JS_AST_Node_Query_Babel {
 
         let child_shared_type;
 
-        // Make a shared property class?
-        //  Group_Shared_Properties class
-
-
-        
-
         child.shared = {
             
         }
@@ -66,28 +59,6 @@ class JS_AST_Node_Child extends JS_AST_Node_Query_Babel {
             enumerable: true,
             configurable: false
         });
-
-        /*
-        const child = this.child = {
-            all: {
-
-            },
-            //each: each_child_node,
-            //filter: filter_each_child_node,
-            find: find_child_node,
-            select: select_child_nodes,
-            shared: {
-
-            }
-        }
-        */
-
-       // const each_child_node = callback => each(this.child_nodes, callback);
-
-
-
-       // going for verb first dotted systax for the moment.
-        
         const find_child_node = (finder, callback) => {
             let res;
             each_child_node((cn, idx, stop) => {
@@ -100,62 +71,8 @@ class JS_AST_Node_Child extends JS_AST_Node_Query_Babel {
         }
         
         let arr_child_types;
-
-        // will be collect.child instead.
-
-        // will be on this.collect as well, but that is collect as an action verb.
-
-
-
-        // this.child.nodes?
-        // child.all.type
-
-        // also available on .collect.child.type
-
-        /*
-        Object.defineProperty(this.child.all, 'type', {
-            get() { 
-                //throw 'changing api'; // no, the .child property works well, and .verb is the function call.
-                if (arr_child_types === undefined) {
-                    arr_child_types = [];
-                    each_child_node((cn, idx, stop) => {
-                        arr_child_types.push(cn.type);
-                    })
-                }
-                return arr_child_types;
-            },
-            enumerable: true,
-            configurable: false
-        });
-        */
-
         let arr_child_categories;
-
-
-        // .collect may be the better syntax?
-
-        // maybe just child.category.
-
-        /*
-
-        let local1;
-        Object.defineProperty(this, 'name', {
-            get() { 
-                return local1;
-            },
-            enumerable: true,
-            configurable: false
-        });
-        */
-
         this.child = child;
-
-
-        // will be part of the each query.
-        
-        
-
-
     }
 }
 

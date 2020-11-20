@@ -1,6 +1,7 @@
 
 
 const JS_AST_Node = require('../../JS_AST_Node');
+const JS_AST_Root_Node_Feature_Exports = require('./JS_AST_Root_Node_Feature_Exports');
 
 // A map of named / relevant inner nodes could be a useful feature of the ast node overall.
 
@@ -44,6 +45,42 @@ class JS_AST_Root_Node_Interpreted extends JS_AST_Node {
         let ast_node_exports_statement;
         let arr_ast_node_import_statements = [];
 
+        const get_module_exports_statement_node = () => {
+            // Get the Member Expression module.exports
+
+            //  Signature matches probably are the best way to compare for the moment.
+            //   How about just indexing shallow signatures?
+
+            // Looking it up from the index seems like it makes the most sense.
+
+            // sig_from_source
+            // sig(src)
+
+
+            // Maybe set this up before.
+            // Nodes by type as well?
+            this.setup_node_index('identifiers_by_name', node => node.is_identifier, node => node.name);
+
+
+            const mod_ids = this.get_indexed_nodes_by_key('identifiers_by_name', 'module');
+            each(mod_ids, node => {
+                // want to be able to get the next sibling from a node easily.
+
+                // .nextSibling property
+                // .siblings
+                // .next_siblings
+                // .previous_siblings
+                // .siblings.next
+
+
+            });
+            
+            
+
+            console.log('mod_ids', mod_ids);
+
+        }
+
         const interpret = () => {
             // what it finds, in terms of the object that gets exported
             // a one word summary of the module type.
@@ -60,6 +97,9 @@ class JS_AST_Root_Node_Interpreted extends JS_AST_Node {
             //  'module' or 'class' - meaning that it's noticed some other things going on which need attention or may be helpful for interpreting the file.
             //   
 
+
+
+
             // Failure case
             //  Can not identify exports statement
             //   Though maybe that's fine on the application level rather than library level.
@@ -67,11 +107,57 @@ class JS_AST_Root_Node_Interpreted extends JS_AST_Node {
             //  
         }
 
+        let exports;
+        Object.defineProperty(this, 'exports', {
+            get() { 
+                if (exports === undefined) {
+                    // Worth creating some kind of 'feature' object here.
+                    //  Would have more understanding of the node being exported?
+
+                    // Create the exports feature, and that will be given the module.exports statement (or maybe the exported statement)
+
+                    // exports.exported.node
+                    //  could be ok for the moment.
+
+                    // will really be querying the exports object
+                    //  exports.exported.keys
+                    //  exports.exported.type
+
+                    // // const $1 = new $2($3);\n 
+                    // const $1 = new $2($3);\n 
+
+                    // find the exports statement.
+                    //this.select
+
+
+                    //exports = new JS_AST_Root_Node_Exports_Feature({});
+
+                    const module_exports_statement = get_module_exports_statement_node();
+                    console.log('module_exports_statement', module_exports_statement);
+                     
+                     
+
+                    
+
+
+
+
+
+
+                }
+                return exports;
+            },
+            enumerable: true,
+            configurable: false
+        });
+        
+        
+        //
         // Further properties.
         //  Need to look into .exports.
         //   Don't want so much functionality on the JS_File side of things, it's better to layer the relevant abstractions on top of JS_AST_Node.
 
-        
+
 
 
 

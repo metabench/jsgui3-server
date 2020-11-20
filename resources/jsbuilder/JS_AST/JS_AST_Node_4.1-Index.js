@@ -33,12 +33,12 @@ class JS_AST_Node_Index extends JS_AST_Node_Query_Find {
         let is_indexed = false;
         const indexes = new JS_AST_Node_Indexes();
         const handle_found = (index_name, key, value) => {
-            indexes.set(index_name, key, value);
+            return indexes.set(index_name, key, value);
         }
 
         const setup_node_index = (index_name, fn_selector, fn_key) => {
 
-            if (indexes.has(index_name)) {
+            if (indexes.has_index(index_name)) {
                 throw 'NYI - index already exists'
             } else {
                 deep_iterate(node => {
@@ -48,12 +48,24 @@ class JS_AST_Node_Index extends JS_AST_Node_Query_Find {
                     }
                 })
             }
+            //return indexes.get_index(index_name);
             
         }
 
         const get_indexed_nodes_by_key = (index_name, key) => {
             return indexes.get(index_name, key);
         }
+
+        // calling multiple indexing functions on a single iteration?
+
+        // .find.all.identifiers(node => node.name = name)
+        // .find.identifiers.by.name(name) could substitute for the index.
+
+
+
+        // .idx_lookup_
+
+        // .nodes_by_name
 
         const do_default_indexing = () => {
             // Will find function names too :) The functions being called
@@ -169,8 +181,6 @@ class JS_AST_Node_Index extends JS_AST_Node_Query_Find {
                     // .child
                     //node.child.declarators
                 }
-
-            
                 
 
                 if (node.is_expression) {
@@ -242,6 +252,8 @@ class JS_AST_Node_Index extends JS_AST_Node_Query_Find {
             })
             is_indexed = true;
         }
+
+
         const ensure_index = () => {
             // maybe call it standard indexing here.
 

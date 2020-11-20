@@ -15,8 +15,29 @@ class JS_AST_Relationship_Node_To_Group {
 
         // eg 'child'
 
+        // Iteration of sibling and ancestor groups here.
+
+        // And a sibling_nodes property.
+
+        // Integrate sibling iteration into the system.
+        //  Will make some queries / other parts of the system easier to write.
+
+        // A version of this that is ordinal as well, with .next and .previous.
+        //  so we start by knowing the ordinal value and the origin
+
+
+
+
         const iterate_group = this.each = callback => {
-            if (name === 'all') {
+            if (name === 'sibling') {
+                if (origin.parent_node) {
+                    each(origin.parent_node.child_nodes, (node, idx, stop) => {
+                        if (node !== this) {
+                            callback(node, idx, stop);
+                        }
+                    });
+                }
+            } else if (name === 'all') {
                 origin.deep_iterate(callback);
             } else if (name === 'inner') {
                 origin.inner_deep_iterate(callback);

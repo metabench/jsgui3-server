@@ -78,7 +78,7 @@ const test_js_file = () => {
 
         const root = jsf.node_root;
         console.log('root.exports', root.exports);
-        
+
 
 
         // Then can use the JS_AST_Root_Node_Interpreted functionality.
@@ -125,7 +125,7 @@ const test_js_file = () => {
             console.log('jsf.imports', jsf.imports);
             console.log('jsf.exports', jsf.exports);
             //console.log('jsf.exports', jsf.exports);
-
+            
             // .map.child.decla...
 
             const mdecnames = jsf.body.node.map.declaration.identifier.name;
@@ -138,6 +138,7 @@ const test_js_file = () => {
             const export_dec = mdecnames.get(jsf.features.export.exported_object_name);
             console.log('export_dec', export_dec);
             console.log('export_dec.source', export_dec.source);
+            
 
             //console.log('export_dec.collect.child.identifier.name', export_dec.collect.child.identifier.name);
 
@@ -148,8 +149,7 @@ const test_js_file = () => {
             console.log('export_dec.child.first.collect.child.type()', export_dec.child.first.collect.child.type());
             console.log('export_dec.child.first.collect.child.category()', export_dec.child.first.collect.child.category());
 
-            // .collect.type
-
+            
 
             const cats = export_dec.child.first.collect.child.category();
             const types = export_dec.child.first.collect.child.type();

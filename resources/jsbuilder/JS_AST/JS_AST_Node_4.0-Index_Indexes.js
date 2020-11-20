@@ -33,8 +33,11 @@ class JS_AST_Node_Indexes {
             }
         }
 
+        const has_index = (index_name) => map_indexes.has(index_name);
+
         this.set = set;
         this.get = get;
+        this.has_index = has_index;
 
 
     }

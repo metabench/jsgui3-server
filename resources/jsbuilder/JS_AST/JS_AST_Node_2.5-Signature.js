@@ -1,9 +1,9 @@
 
 const { each } = require('../../../../../tools/arr-tools/arr-tools');
-const JS_AST_Node_All = require('./JS_AST_Node_2.3-All');
+const JS_AST_Node_Sibling = require('./JS_AST_Node_2.4-Sibling');
 
 
-class JS_AST_Node_Signature extends JS_AST_Node_All {
+class JS_AST_Node_Signature extends JS_AST_Node_Sibling {
     constructor(spec = {}) {
         super(spec);
         const {each_child_node} = this;

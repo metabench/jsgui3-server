@@ -10,6 +10,7 @@
 const { each } = require('../../../../../tools/arr-tools/arr-tools');
 const JS_AST_Node_All = require('./JS_AST_Node_2.3-All');
 
+const JS_AST_Relationship_Node_To_Group = require('./JS_AST_Relationship_Node_To_Group');
 
 class JS_AST_Node_Sibling extends JS_AST_Node_All {
     constructor(spec = {}) {
@@ -31,6 +32,8 @@ class JS_AST_Node_Sibling extends JS_AST_Node_All {
             //each: callback => each(this.child_nodes, callback)//,
             //select: fn_select => select_child_nodes(fn_select)
         });
+
+        this.sibling = sibling;
 
         
 

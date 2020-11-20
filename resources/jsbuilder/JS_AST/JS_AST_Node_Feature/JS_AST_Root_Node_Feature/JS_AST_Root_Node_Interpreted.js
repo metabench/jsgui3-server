@@ -2,7 +2,7 @@
 
 const JS_AST_Node = require('../../JS_AST_Node');
 const JS_AST_Root_Node_Feature_Exports = require('./JS_AST_Root_Node_Feature_Exports');
-
+const {each} = require('lang-mini');
 // A map of named / relevant inner nodes could be a useful feature of the ast node overall.
 
 // or is it an index if it's mapping to an array?
@@ -65,6 +65,10 @@ class JS_AST_Root_Node_Interpreted extends JS_AST_Node {
             const mod_ids = this.get_indexed_nodes_by_key('identifiers_by_name', 'module');
             each(mod_ids, node => {
                 // want to be able to get the next sibling from a node easily.
+                console.log('node', node);
+                console.log('node.parent_node', node.parent_node);
+
+                console.log('node.sibling.count', node.sibling.count);
 
                 // .nextSibling property
                 // .siblings

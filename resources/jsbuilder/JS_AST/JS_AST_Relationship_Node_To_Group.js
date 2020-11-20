@@ -23,7 +23,7 @@ class JS_AST_Relationship_Node_To_Group {
         //  Will make some queries / other parts of the system easier to write.
 
         // A version of this that is ordinal as well, with .next and .previous.
-        //  so we start by knowing the ordinal value and the origin
+        //  so we start by knowing the ordinal and the origin
 
 
 
@@ -32,7 +32,7 @@ class JS_AST_Relationship_Node_To_Group {
             if (name === 'sibling') {
                 if (origin.parent_node) {
                     each(origin.parent_node.child_nodes, (node, idx, stop) => {
-                        if (node !== this) {
+                        if (node !== origin) {
                             callback(node, idx, stop);
                         }
                     });

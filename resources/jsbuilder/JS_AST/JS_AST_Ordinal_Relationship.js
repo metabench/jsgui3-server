@@ -7,7 +7,7 @@ class JS_AST_Ordinal_Relationship {
         if (spec.ordinal !== undefined) ordinal = spec.ordinal;
         if (spec.relationship !== undefined) relationship = spec.relationship;
 
-
+        
         
         Object.defineProperty(this, 'origin', {
             get() { 

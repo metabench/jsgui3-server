@@ -3,8 +3,6 @@ const JS_File_Feature = require('./JS_File_Feature');
 class JS_File_Exports extends JS_File_Feature {
     constructor(spec = {}) {
         spec.name = "Exports";
-
-
         let ast_node_exports_statement;
         let exported_object_name;
         let value;

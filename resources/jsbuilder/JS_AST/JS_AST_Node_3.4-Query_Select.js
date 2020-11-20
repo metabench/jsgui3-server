@@ -16,8 +16,6 @@ class JS_AST_Node_Query_Select extends JS_AST_Node_Query_Collect {
         // And means to give the operation function calls to carry it out?
 
 
-
-
         /*
         const child = new JS_AST_Relationship({
             name: 'child'
@@ -147,16 +145,11 @@ class JS_AST_Node_Query_Select extends JS_AST_Node_Query_Collect {
             configurable: false
         });
 
-
-
         //select.all = select_all;
 
         // select.child.declaration(node => node.name = 'hello')
 
-
-
-
-
+        
 
         this.select = select;
         //Object.assign(this, {

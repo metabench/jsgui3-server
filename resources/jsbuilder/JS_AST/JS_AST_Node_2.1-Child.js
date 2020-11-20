@@ -98,82 +98,7 @@ class JS_AST_Node_Child extends JS_AST_Node_Query_Babel {
             });
             return res;
         }
-
-
-        /*
-
-
-        Object.defineProperty(this.child, 'first', {
-            get() { 
-                //throw 'stop';
-                // change to this.first.child
-                if (child_nodes.length > 0) {
-                    return child_nodes[0];
-                }
-                
-            },
-            enumerable: true,
-            configurable: false
-        });
-        Object.defineProperty(this.child, 'last', {
-            get() { 
-                //throw 'stop';
-                if (child_nodes.length > 0) {
-                    return child_nodes[child_nodes.length - 1];
-                }
-                
-            },
-            enumerable: true,
-            configurable: false
-        });
-
-        Object.defineProperty(this.child, 'count', {
-            get() { 
-                return child_nodes.length;
-            },
-            enumerable: true,
-            configurable: false
-        });
-
-        Object.defineProperty(this.child, 'nodes', {
-            get() { 
-                return child_nodes;
-            },
-            enumerable: true,
-            configurable: false
-        });
-
-        let child_shared_type;
-
-        Object.defineProperty(this.child.shared, 'type', {
-            get() { 
-                if (child_shared_type === undefined) {
-                    each_child_node((cn, idx, stop) => {
-                        if (child_shared_type === undefined) {
-                            child_shared_type = cn.type;
-                        } else {
-                            if (cn.type === child_shared_type) {
-                                // all good
-                            } else {
-                                child_shared_type = false;
-                                stop();
-                            }
-                        }
-
-                    })
-                }
-                return child_shared_type;
-                //return child_nodes.length;
-            },
-            enumerable: true,
-            configurable: false
-        });
-        // then this.child.each
-        //  this.child.deep  effectively this inner
-
-        */    
-
-
+        
         let arr_child_types;
 
         // will be collect.child instead.
@@ -212,18 +137,11 @@ class JS_AST_Node_Child extends JS_AST_Node_Query_Babel {
         // maybe just child.category.
 
         /*
-        Object.defineProperty(this.child.all, 'category', {
-            get() { 
-                //throw 'changing api';
 
-                // this.collect.child.category
-                if (arr_child_categories === undefined) {
-                    arr_child_categories = [];
-                    each_child_node((cn, idx, stop) => {
-                        arr_child_categories.push(cn.category);
-                    })
-                }
-                return arr_child_categories;
+        let local1;
+        Object.defineProperty(this, 'name', {
+            get() { 
+                return local1;
             },
             enumerable: true,
             configurable: false

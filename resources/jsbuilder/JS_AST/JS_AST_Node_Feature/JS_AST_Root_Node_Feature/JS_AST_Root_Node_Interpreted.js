@@ -13,7 +13,7 @@ const JS_AST_Node = require('../../JS_AST_Node');
 // map_named_inner_nodes['exports'] = [...] // always an array
 
 
-class Root_Node_Interpreted extends JS_AST_Node {
+class JS_AST_Root_Node_Interpreted extends JS_AST_Node {
 
     // Root node features could be of use.
     //  Want to recognise features in a convenient way.
@@ -25,8 +25,8 @@ class Root_Node_Interpreted extends JS_AST_Node {
     //  
 
 
-
-
+    // This is the best place for it to come up with more info on the import and export?
+    //  Or further down near the core?
 
     constructor(spec) {
         super(spec);
@@ -65,18 +65,19 @@ class Root_Node_Interpreted extends JS_AST_Node {
             //   Though maybe that's fine on the application level rather than library level.
             //  Failed to parse / is not JS??? Probably not at this stage.
             //  
-
-
-
-
-
-
-
-
-
-
         }
+
+        // Further properties.
+        //  Need to look into .exports.
+        //   Don't want so much functionality on the JS_File side of things, it's better to layer the relevant abstractions on top of JS_AST_Node.
+
+        
+
+
+
 
 
     }
 }
+
+module.exports = JS_AST_Root_Node_Interpreted;

@@ -36,9 +36,8 @@ class JS_AST_Node_Query_Each extends JS_AST_Node_Query_Last {
 
         const myeach = new JS_AST_Operation({name: 'each'});
 
-        //const myeach = cb => deep_iterate(cb);
-
-        
+        ////const myeach = cb => deep_iterate(cb);
+               
         Object.assign(this, {
             each: myeach
         });
@@ -52,7 +51,7 @@ class JS_AST_Node_Query_Each extends JS_AST_Node_Query_Last {
             name: 'child'
         });
 
-        // And an Operation_Relationship?
+        // And an Operation_Relationship?   
         //  each child
 
         // Operation_Relationship_Node?
@@ -85,12 +84,10 @@ class JS_AST_Node_Query_Each extends JS_AST_Node_Query_Last {
         const each_inner_variable_declarator = callback => each_inner_node_of_type('VariableDeclarator', callback);
         const each_inner_identifier = callback => each_inner_node_of_type('Identifier', callback);
 
-
         each_child.node = cb => each_child_node(callback);
 
         const mechild = myeach.child = cb => each_child_node(cb);
         
-
         mechild.expression_statement = cb => each_child_expression_statement(cb);
         mechild.assignment_expression = cb => each_child_assignment_expression(cb);
         mechild.declaration = cb => each_child_declaration(cb);

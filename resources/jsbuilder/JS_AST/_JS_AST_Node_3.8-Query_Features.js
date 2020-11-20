@@ -55,6 +55,21 @@ class JS_AST_Node_Query_Features extends JS_AST_Node_Query_Find {
         //  or is it value
 
         // // Assignment Feature?
+
+
+        // Document features make the most sense to work on from the API point of view.
+        //  Or root node features really.
+
+        // Will try loading up and querying an interpreted root node.
+        //  Or jsgui root node interpreted?
+        // Even with that Object.assign trick, we can make it aware, keep that in the general purpose code.
+
+
+        // The imports and exports features are important for linking together the documents.
+
+
+
+
         
     }
 }

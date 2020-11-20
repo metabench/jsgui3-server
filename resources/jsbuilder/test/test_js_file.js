@@ -14,20 +14,11 @@
 // Declaration features
 // Object features
 
-
 // Let's make it so that any node can be tagged as having / representing / being part of a feature of some kind.
 //  To begin with focus on what variables are being declared and used.
 
 // Will be great to load in a whole load of JSGUI projects in such a way that the system / platform understands the ordering and 
 // recomposes them into a flat system where many / all declarations are local rather than using any import
-
-
-
-
-
-
-
-
 
 // jsgui-lang
 // ----------
@@ -37,6 +28,10 @@
 // Recognise the exports object at the end exports an object that is composed from same-name references to items declared within lang-mini
 //  and only items declared within jsgui
 //  that it has no external references
+
+// JSGUI_JS_File?
+
+
 
 const JS_File = require('..//JS_File/JS_File');
 //const JS_File_Comprehension = require('../JS_File_Comprehension');
@@ -59,16 +54,14 @@ const test_js_file = () => {
     const jsbuilder_path = '../JS_Builder.js';
     //const file_path = '../JS_File.js';
     const file_path = lt_path;
-    // path of lang mini....
+    // path of lang mini...
 
     // Write and test a simple and convenient way for analysing JS files and recompiling them.
     // To start with, find the ways to arrange parts of the JS into 'platforms'.
     // How to then build platforms into JS files.
     //  Will be about closures and sequences.
     //  A lot about unique naming, closures, and getting the sequence of definitions correct.
-
     // ObjectPattern
-
     const resolved_path = path.resolve(file_path);
     //console.log('resolved_path', resolved_path);
 
@@ -76,79 +69,59 @@ const test_js_file = () => {
 
     const jsf = JS_File.load_from_stream(fstream, file_path);
     jsf.on('ready', () => {
-        //console.log('jsf ready');
-        //console.log('jsf.sha512', jsf.sha512);
-        //const {babel_root_declarations} = jsf;
-        // Go through each of these Babel declarations.
-        //  Basically see what they are.
-        //   
         const {js_ast_node_file} = jsf;
-
-        //console.log('js_ast_node_file.root_declared_names', js_ast_node_file.root_declared_names);
-        //console.log('jsf.root_declared_names', jsf.root_declared_names);
-
-        
-        //console.log('jsf.features.export.exported_object_name', jsf.features.export.exported_object_name);
-        //const deco = jsf.features.declared_objects;
-        //console.log('jsf.features.declared_objects', deco);
-        //console.log('jsf.features.declared_objects.length', deco.length);
-
-
-        /*
-        jsf.js_ast_node_file.deep_iterate(jan => {
-            console.log('jan', jan);
-            if (jan.type === 'Identifier') {
-                console.log('jan.name', jan.name);
-            }
-        });
-        */
-        // We index the identifiers by name at a later stage
-
-
-        //console.log('jsf.js_ast_node_file.child_nodes.length', jsf.js_ast_node_file.child_nodes.length);
-        //console.log('jsf.program', jsf.program);
-        //console.log('jsf.js_ast_node_program', jsf.js_ast_node_program);
-        //console.log('jsf.node_body', jsf.node_body);
-        //console.log('jsf.node_body.child_nodes.length', jsf.body.node.child_nodes.length);
-
         const body_child_node_identifier_names = [];
         const map_bcnidns = {};
+
+        //console.log('jsf.root.constructor', jsf.root.constructor);
+        console.log('jsf.node_root.constructor', jsf.node_root.constructor);
+
+        const root = jsf.node_root;
+        console.log('root.exports', root.exports);
+        
+
+
+        // Then can use the JS_AST_Root_Node_Interpreted functionality.
+
+        // .imports
+        //   multiple object description objects make sense here.
+        //    ability to look up those object descriptions from the place it refers to
+        //     or cached within an object that the .imports property handler has access to.
+
+        // JS_File_Imports
+        //  covers everything that gets imported.
+        //   local variable name, import type (eg require), string path of where it gets imported from direct from the JS, resolved path of import on disk, or the library name.
+
+        // Consider libraries - are the linked using npm?
+        //  Does a library correspond to a path on disk?
+        //  Specify that a library / module corresponds to a path on disk.
+
+        // .exports
+        //  An Object_Description object could help to describe the object exported.
+        //   array, function, object (with specified keys), class constructor
+        
+        //console.log('jsf.root_node.constructor', jsf.root_node.constructor);
+        //console.log('jsf.body.node.constructor', jsf.body.node.constructor);
 
         // Hard work now already done for this.
         const try_identifier_mapping = () => {
             jsf.body.node.each.child(cn => {
-
                 const idbns = cn.map.identifier.name;
-    
-                console.log('idbns', idbns);
-                // map_names_to_declarations
+                //console.log('idbns', idbns);
+                //// map_names_to_declarations
                 // maps the declaration nodes by the names that occurs in their identifiers.
-    
-                // .map.declaration.identifier.name
-    
+                
+                //// .map.declaration.identifier.name
+                
                 const idtodecs = cn.map.declaration.identifier.name;
-                console.log('');
-                console.log('idtodecs.size', idtodecs.size);
-    
-                //console.log('idtodecs', idtodecs);
-                console.log('idtodecs.keys()', idtodecs.keys());
-                //console.log('idtodecs.entries', idtodecs.entries());
-                // map of declaration identifiers by name to their declarations
-    
-                // .map.assignment.left.name  /.right.name
-    
-                // Looks like now we can write nice syntax for the platform part.
-                //  Could write code there as I want (mostly) then get it implemented lower down.
-    
+                //console.log('');
+                //console.log('idtodecs.size', idtodecs.size);
+                //console.log('idtodecs.keys()', idtodecs.keys());
             });
         }
-        try_identifier_mapping();
-        
-        // For the moment focusing on what is imported and exported is most important.
 
+        //try_identifier_mapping();
         const work_on_exporting_keys = () => {
-
-
             console.log('jsf.imports', jsf.imports);
             console.log('jsf.exports', jsf.exports);
             //console.log('jsf.exports', jsf.exports);
@@ -176,6 +149,7 @@ const test_js_file = () => {
             console.log('export_dec.child.first.collect.child.category()', export_dec.child.first.collect.child.category());
 
             // .collect.type
+
 
             const cats = export_dec.child.first.collect.child.category();
             const types = export_dec.child.first.collect.child.type();
@@ -206,40 +180,7 @@ const test_js_file = () => {
             } else {
                 throw 'stop';
             }
-
         }
-
-        //console.log('jsf.features.export.keys', jsf.features.export.keys);
-
-        // I like that syntax more.
-        //console.log('jsf.exported.keys', jsf.exported.keys);
-        //console.log('jsf.exported.node', jsf.exported.node);
-        //console.log('jsf.exported.type', jsf.exported.type);
-        //console.log('jsf.exported', jsf.exported);
-
-
-        //console.log('jsf.imported', jsf.imported);
-
-        // Can focus by far the most on what gets exported and imported.
-        //  The sub-exports or export properties are particularly important.
-        //   As in, the export keys.
-        
-
-
-
-
-
-
-
-        // jsf.exported.keys property reads well.
-        // Think we have a really nice syntax here and structure for it to expand.
-
-        // And we can use that map too lookup the lang-mini object.
-        //console.log('jsf.exported', jsf.exported);
-        // Compiling a few files together without variable name compression will be a nice start.
-        //  Maybe do AST transformation soon?
-        // Loading the files into a platform / project seems like an important step to program and take soon.
-        
     });
 }
 

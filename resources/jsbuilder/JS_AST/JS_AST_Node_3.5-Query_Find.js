@@ -12,7 +12,7 @@ class JS_AST_Node_Query_Find extends JS_AST_Node_Query_Select {
         const {deep_iterate} = this;
 
         const find = new JS_AST_Operation({name: 'find'});
-
+        
         const find_node = (fn_match => {
             let res;
             deep_iterate((js_ast_node, path, depth, stop) => {
@@ -26,14 +26,13 @@ class JS_AST_Node_Query_Find extends JS_AST_Node_Query_Select {
 
         // find.child.node?
         // 
-
-
+        
+        
         find.node = fn_match => find_node(fn_match);
         this.find = find;
 
-
-
-        // 
+        
+        
 
     }
 }

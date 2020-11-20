@@ -1,5 +1,10 @@
 const JS_File_Babel = require('./JS_File_2-Babel');
 const JS_AST_Node = require('../JS_AST/JS_AST_Node');
+
+//const JS_AST_Node_Root_Interpreted = require('../JS_AST/JS_AST_Node_Feature/JS_AST_Root_Node_Feature/JS_AST_Root_Node_Interpreted');
+
+const JS_AST_Node_Root_Interpreted = require('../JS_AST/JS_AST_Node_Feature/JS_AST_Root_Node_Feature/JS_AST_Root_Node_Interpreted');
+
 class JS_File_JS_AST_Node extends JS_File_Babel {
     constructor(spec) {
         super(spec);0
@@ -8,7 +13,7 @@ class JS_File_JS_AST_Node extends JS_File_Babel {
         //  Respond to ast-ready.
 
         let js_ast_node_file;
-        let node_body;
+        let node_body, node_root;
 
         this.on('parsed-ast', e_parsed_ast => {
 
@@ -26,12 +31,21 @@ class JS_File_JS_AST_Node extends JS_File_Babel {
             //console.log('e_parsed_ast', e_parsed_ast);
             //throw 'stop';
 
-            js_ast_node_file = new JS_AST_Node({
+            // Make a root node with extra feature detection capabilities.
+            //  with
+
+            // The root node is the file node. That's questionable though.
+            //  Prefer to think of the body root.
+            //  But need to start saying body rather than root.
+
+
+            js_ast_node_file = new JS_AST_Node_Root_Interpreted({
                 babel_node: e_parsed_ast.value,
                 source: this.source,
                 root_node: true
             });
 
+            node_root = js_ast_node_file;
             //console.log('Object.keys(js_ast_node_file)', Object.keys(js_ast_node_file));
             //console.log('(js_ast_node_file.type)', (js_ast_node_file.type));
             //const node_body = js_ast_node_file.child_nodes[0].child_nodes[0];
@@ -58,28 +72,13 @@ class JS_File_JS_AST_Node extends JS_File_Babel {
             enumerable: true,
             configurable: false
         });
-
-        /*
-
-        Object.defineProperty(this.body, 'node', {
+        Object.defineProperty(this, 'node_root', {
             get() { 
-                return node_body;
+                return node_root;
             },
             enumerable: true,
             configurable: false
         });
-
-        */
-
-        /*
-        Object.defineProperty(this, 'body', {
-            get() { 
-                return node_body;
-            },
-            enumerable: true,
-            configurable: false
-        });
-        */
 
     }
 }

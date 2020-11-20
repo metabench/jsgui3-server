@@ -83,6 +83,16 @@ const map_literal_categories = {
 
 }
 
+const map_statement_categories = {
+    BlockStatement: true,
+    EmptyStatement: true,
+    ExpressionStatement: true,
+    ForStatement: true,
+    ReturnStatement: true,
+    ThrowStatement: true,
+    WhileStatement: true
+}
+
 const map_categories = {
     //'ArrowFunctionExpression': 'AFE',
     'ArrowFunctionExpression': 'Expression',
@@ -128,5 +138,6 @@ module.exports = {
     type_abbreviations: type_abbreviations,
     map_expression_categories: map_expression_categories,
     map_literal_categories: map_literal_categories,
-    map_categories: map_categories
+    map_categories: map_categories,
+    map_statement_categories: map_statement_categories
 }

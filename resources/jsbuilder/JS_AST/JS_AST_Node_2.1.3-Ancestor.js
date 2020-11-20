@@ -28,7 +28,34 @@ class JS_AST_Node_Ancestor extends JS_AST_Node_Query_Parent {
 
         // Group properties....
 
+
+        const parent = this.parent;
+        let gparent, ggparent;
+        if (parent.node) {
+            gparent = parent.node.parent;
+            if (gparent && gparent.node) {
+                ggparent = gparent.node.parent;
+            }
+
+        }
+        
+        
+        
+         
+
+
+        
+
+        Object.assign(this, {
+            ancestor: ancestor,
+            gparent: gparent,
+            ggparent: ggparent
+        });
+        
+
         this.ancestor = ancestor;
+        this.gparent = gparent;
+        this.ggparent = ggparent;
     }
 }
 

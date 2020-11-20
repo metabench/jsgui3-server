@@ -77,6 +77,8 @@ class JS_AST_Root_Node_Interpreted extends JS_AST_Node {
                         console.log('node.parent_node.parent_node', node.parent_node.parent_node);
                         console.log('node.parent_node.parent_node.parent_node', node.parent_node.parent_node.parent_node);
                         console.log('node.parent.node.parent.node.parent.node', node.parent.node.parent.node.parent.node);
+                        console.log('node.ggparent.node', node.ggparent.node);
+                        console.log('node.ggparent.node.is_statement', node.ggparent.node.is_statement);
 
                         // node.ancestor.find(ancestor => ancestor.index = 2);
 

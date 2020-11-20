@@ -5,7 +5,7 @@ const parser = require('@babel/parser');
 const JS_AST_Node_Core = require('./JS_AST_Node_0-Core');
 const { resolvePlugin } = require('@babel/core');
 
-const {type_abbreviations, map_expression_categories, map_literal_categories, map_categories} = require('../babel/babel_consts');
+const {type_abbreviations, map_expression_categories, map_literal_categories, map_statement_categories, map_categories} = require('../babel/babel_consts');
 /*
 
 module.exports = {
@@ -291,6 +291,13 @@ class JS_AST_Node_Babel extends JS_AST_Node_Core {
             enumerable: true,
             configurable: false
         });
+        Object.defineProperty(babel, 'is_statement', {
+            get() { 
+                return !!map_statement_categories[babel.type];
+            },
+            enumerable: true,
+            configurable: false
+        });
         Object.defineProperty(babel, 'is_literal', {
             get() { 
                 return !!map_literal_categories[babel.type];
@@ -301,6 +308,13 @@ class JS_AST_Node_Babel extends JS_AST_Node_Core {
         Object.defineProperty(this, 'is_declaration', {
             get() { 
                 return babel.is_declaration;
+            },
+            enumerable: true,
+            configurable: false
+        });
+        Object.defineProperty(this, 'is_statement', {
+            get() { 
+                return babel.is_statement;
             },
             enumerable: true,
             configurable: false

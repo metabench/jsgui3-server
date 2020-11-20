@@ -3,6 +3,9 @@ const { each } = require('../../../../../tools/arr-tools/arr-tools');
 const JS_AST_Node_Query_Babel = require('./JS_AST_Node_1-Babel');
 
 const JS_AST_Relationship_Node_To_Group = require('./JS_AST_Relationship_Node_To_Group');
+
+const JS_AST_Group_Shared = require('./JS_AST_Group_Shared');
+
 class JS_AST_Node_Child extends JS_AST_Node_Query_Babel {
     constructor(spec = {}) {
         super(spec);
@@ -30,11 +33,19 @@ class JS_AST_Node_Child extends JS_AST_Node_Query_Babel {
 
         // Group properties....
 
+        /*
         let child_shared_type;
 
-        child.shared = {
+        // Could benefit from making some kind of group shared class
+        //  so the shared type property definition would work on multiple different groups.
+        //  as would a find function.
+
+
+
+
+        //child.shared = {
             
-        }
+        //}
 
         Object.defineProperty(child.shared, 'type', {
             get() { 
@@ -59,6 +70,9 @@ class JS_AST_Node_Child extends JS_AST_Node_Query_Babel {
             enumerable: true,
             configurable: false
         });
+        */
+
+        
         const find_child_node = (finder, callback) => {
             let res;
             each_child_node((cn, idx, stop) => {
@@ -69,6 +83,8 @@ class JS_AST_Node_Child extends JS_AST_Node_Query_Babel {
             });
             return res;
         }
+
+
         
         let arr_child_types;
         let arr_child_categories;

@@ -1,5 +1,8 @@
 // Change to Group_Relationship?
 const {each} = require('lang-mini');
+const JS_AST_Group_Shared = require('./JS_AST_Group_Shared');
+
+
 
 class JS_AST_Relationship_Node_To_Group {
     constructor(spec = {}) {
@@ -12,6 +15,10 @@ class JS_AST_Relationship_Node_To_Group {
         if (spec.origin !== undefined) {
             origin = spec.origin;
         }
+
+        
+
+
 
         // eg 'child'
 
@@ -50,14 +57,18 @@ class JS_AST_Relationship_Node_To_Group {
             }
         }
 
+        const shared = new JS_AST_Group_Shared({
+            group_iterator: iterate_group
+        });
+
 
         // And collect is still a verb here.
         //  Use property sugar with a different name.
         let _collected;
         this.collect = () => {
             if (!_collected) {
-                const _collected = [];
-                iterate_group(node => res.push(node));
+                _collected = [];
+                iterate_group(node => _collected.push(node));
             }
             return _collected;
         }
@@ -116,6 +127,7 @@ class JS_AST_Relationship_Node_To_Group {
             });
             return res;
         }
+        this.shared = shared;
     }
 }
 

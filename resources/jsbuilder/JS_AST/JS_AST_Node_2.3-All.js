@@ -26,10 +26,17 @@ class JS_AST_Node_All extends JS_AST_Node_Inner {
 
         // Group properties....
 
+        /*
+
         let all_shared_type;
 
         // Make a shared property class?
         //  Group_Shared_Properties class
+
+        // Just a group_shared class for the moment.
+
+
+
 
         all.shared = {
             
@@ -58,6 +65,7 @@ class JS_AST_Node_All extends JS_AST_Node_Inner {
             enumerable: true,
             configurable: false
         });
+        */
         this.all = all;
     }
 }

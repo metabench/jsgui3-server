@@ -61,7 +61,7 @@ class JS_AST_Root_Node_Interpreted extends JS_AST_Node {
             // Nodes by type as well?
             this.setup_node_index('identifiers_by_name', node => node.is_identifier, node => node.name);
 
-
+            let res;
             const mod_ids = this.get_indexed_nodes_by_key('identifiers_by_name', 'module');
             each(mod_ids, node => {
                 // want to be able to get the next sibling from a node easily.
@@ -69,6 +69,28 @@ class JS_AST_Root_Node_Interpreted extends JS_AST_Node {
                 console.log('node.parent_node', node.parent_node);
 
                 console.log('node.sibling.count', node.sibling.count);
+
+                if (node.sibling.count === 1) {
+                    const sibling = node.sibling.collect()[0];
+                    console.log('sibling.name', sibling.name);
+                    if (sibling.name === 'exports') {
+                        console.log('node.parent_node.parent_node', node.parent_node.parent_node);
+                        console.log('node.parent_node.parent_node.parent_node', node.parent_node.parent_node.parent_node);
+
+
+
+                        // parent and ancestor relationships could use some work.
+                        
+
+
+                        // parent. ...
+                        // ancestor.find.statement
+
+                        // ancestor.statement
+
+                        res = node.parent_node;
+                    }
+                }
 
                 // .nextSibling property
                 // .siblings
@@ -81,7 +103,8 @@ class JS_AST_Root_Node_Interpreted extends JS_AST_Node {
             
             
 
-            console.log('mod_ids', mod_ids);
+            //console.log('mod_ids', mod_ids);
+            return res;
 
         }
 

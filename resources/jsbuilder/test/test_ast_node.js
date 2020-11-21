@@ -39,7 +39,7 @@ const test_js_ast_node = () => {
     //   If it has no parent_node.
 
     const spec = {
-        source: test_script_2
+        source: test_script_1
     };
 
     const js_ast_node = JS_AST_Node.from_spec(spec);

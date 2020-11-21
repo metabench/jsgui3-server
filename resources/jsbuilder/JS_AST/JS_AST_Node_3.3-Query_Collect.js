@@ -25,25 +25,6 @@ class JS_AST_Node_Query_Collect extends JS_AST_Node_Query_Filter {
         const {child, inner, all} = this;
         const {inner_deep_iterate, deep_iterate, filter_deep_iterate} = this;
 
-        const collect_child = new JS_AST_Operation_On_Relationship({
-            operation: collect,
-            related: child
-        });
-        const collect_inner = new JS_AST_Operation_On_Relationship({
-            operation: collect,
-            related: inner
-        });
-        const collect_all = new JS_AST_Operation_On_Relationship({
-            operation: collect,
-            related: all
-        });
-        //collect.child = collect_child;
-        //collect.inner = collect_inner;
-        //collect.all = collect_all;
-
-
-        // collect.child.node
-        // collect.child.identifier.name
 
         const collect_child_nodes = () => this.child_nodes;
         const collect_child_identifiers = () => this.child_nodes.filter(node => node.is_identifier);
@@ -52,53 +33,6 @@ class JS_AST_Node_Query_Collect extends JS_AST_Node_Query_Filter {
         //collect.child.node = () => collect_child_nodes();
         //collect.child.identifier = () => collect_child_identifiers();
         //collect.child.declaration = () => collect_child_declarations();
-
-        // can run the collect function on 
-
-        // A .collect and .all object.
-        //  .group
-
-        // collect.child.identifier
-        //  seems like a useful case
-        // collect.inner.identifier
-
-        // the interchangable words separated by '.' could make for easy coding.
-
-
-
-
-        // Would likely be better built with this relationships and query system.
-
-        // collect.child collect.inner
-        // collect.all would make sense too
-        //  since all is not a verb
-
-        // but if there is a shorthand / alias system, .all can be collect.all.
-
-
-
-
-
-
-
-
-
-        // this.all.identifier
-        // this.all.child.identifier
-        // this.all.child.node
-
-        // Really it's collect_all
-        //  Maybe collect is clearer / better.
-
-        // this.collect.identifier
-        //  Collect is much clearer because it's a verb.
-
-
-
-
-
-
-
         
         //Object.assign(this, {
         //    collect: () => collect()
@@ -111,13 +45,6 @@ class JS_AST_Node_Query_Collect extends JS_AST_Node_Query_Filter {
             }
             return _collected_inner_nodes;
         }
-
-
-
-
-
-
-
 
         const _collect_all = () => {
             const res = [];
@@ -146,7 +73,15 @@ class JS_AST_Node_Query_Collect extends JS_AST_Node_Query_Filter {
             return res;
         }
 
-
+        const _select_inner = (fn_select) => {
+            const res = [];
+            inner_deep_iterate(node => {
+                if (node !== this && fn_select(node)) {
+                    res.push(node);
+                }
+            });
+            return res;
+        }
         Object.defineProperty(collect, 'all', {
             get() {
                 // iterate through the relationship objects.
@@ -165,9 +100,6 @@ class JS_AST_Node_Query_Collect extends JS_AST_Node_Query_Filter {
                             //return 
                         }
                     });
-
-
-
                 }
                 return fn_collect_all;
             },
@@ -199,7 +131,17 @@ class JS_AST_Node_Query_Collect extends JS_AST_Node_Query_Filter {
                     fn_collect_inner = fn_collect => _collect_inner(fn_collect);
                     Object.defineProperty(fn_collect_inner, 'identifier', {
                         get() {
-                            return () => collect.inner(node => node.is_identifier);
+                            return () => _select_inner(node => node.is_identifier);
+                        }
+                    });
+                    Object.defineProperty(fn_collect_inner, 'declaration', {
+                        get() {
+                            return () => _select_inner(node => node.is_declaration);
+                        }
+                    });
+                    Object.defineProperty(fn_collect_inner, 'statement', {
+                        get() {
+                            return () => _select_inner(node => node.is_statement);
                         }
                     });
                 }

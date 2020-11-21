@@ -91,64 +91,83 @@ class JS_AST_Node_Query extends JS_AST_Node_Signature {
             filter_inner_deep_iterate(node => node.type === type, node => callback(node));
         }
 
-        Object.assign(this, {
+
+        const unused = () => {
+
+
+            Object.assign(this, {
 
             
 
-            //filter: (fn_filter, callback) => filter_deep_iterate(fn_filter, callback),
-
-            //filter_by_type: (type, callback) => filter_by_type_deep_iterate(type, callback),
-
-            //find: (fn_match) => find_node(fn_match),
-
-            // Maybe this will be in the indexing part. Probably best there.
-            map: {
-                child: {
-
-                },
-                deep: {
-
-                },
-                inner: {
-
+                //filter: (fn_filter, callback) => filter_deep_iterate(fn_filter, callback),
+    
+                //filter_by_type: (type, callback) => filter_by_type_deep_iterate(type, callback),
+    
+                //find: (fn_match) => find_node(fn_match),
+    
+                // Maybe this will be in the indexing part. Probably best there.
+                map: {
+                    child: {
+    
+                    },
+                    deep: {
+    
+                    },
+                    inner: {
+    
+                    }
                 }
-            }
-        });
+            });
+    
+            Object.defineProperty(this, 'value', {
+                get() { 
+                    if (this.type === 'StringLiteral') {
+                        console.log(this.node);
+                        throw 'stop';
+                    } else {
+                        throw 'NYI';
+                    }
+    
+                },
+                //set(newValue) { bValue = newValue; },
+                enumerable: true,
+                configurable: false
+            });
 
-        Object.defineProperty(this, 'value', {
-            get() { 
-                if (this.type === 'StringLiteral') {
-                    console.log(this.node);
-                    throw 'stop';
-                } else {
-                    throw 'NYI';
-                }
+            Object.defineProperty(this, 'identifier', {
+                get() { 
+    
+                    //return this.find.child(n => n.type === 'Identifier');
+    
+                    return this.find(n => n.type === 'Identifier');
+    
+                },
+                //set(newValue) { bValue = newValue; },
+                enumerable: true,
+                configurable: false
+            });
 
-            },
-            //set(newValue) { bValue = newValue; },
-            enumerable: true,
-            configurable: false
-        });
 
-        Object.defineProperty(this, 'identifier', {
-            get() { 
+        }
+        
+        
 
-                //return this.find.child(n => n.type === 'Identifier');
 
-                return this.find(n => n.type === 'Identifier');
+        // just .find.identifier?
+        //  then arrange a shortcut for that to be clearer?
 
-            },
-            //set(newValue) { bValue = newValue; },
-            enumerable: true,
-            configurable: false
-        });
+        /*
+
+        
 
         // const each_root_assignment_expression = (callback) => each_root_node(node => node.type === 'AssignmentExpression', callback);
         // //this.index_named_node = index_named_node; this.get_arr_named_node = get_arr_named_node;
         
 
         const deep_iterate_identifiers = (max_depth, callback) => typed_deep_iterate('Identifier', max_depth, callback);
-        this.deep_iterate_identifiers = deep_iterate_identifiers;
+        */
+
+        //this.deep_iterate_identifiers = deep_iterate_identifiers;
         this.inner_deep_iterate = inner_deep_iterate;
         this.filter_deep_iterate = filter_deep_iterate;
 

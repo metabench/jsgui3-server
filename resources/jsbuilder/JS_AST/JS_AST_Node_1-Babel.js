@@ -41,7 +41,6 @@ const get_category = (type) => {
 
     // Identifier - Seem not to fit a category, or be one of its own.
 }
-
 class JS_AST_Node_Babel extends JS_AST_Node_Core {
     constructor(spec = {}) {
         super(spec);
@@ -143,12 +142,7 @@ class JS_AST_Node_Babel extends JS_AST_Node_Core {
         //    full_source = spec.full_source;
         //}
         
-        Object.defineProperty(this, 'type', {
-            get() { return babel.node.type; },
-            //set(newValue) { bValue = newValue; },
-            enumerable: true,
-            configurable: false
-        });
+        
 
         // Abbreviated_type....
 
@@ -160,30 +154,7 @@ class JS_AST_Node_Babel extends JS_AST_Node_Core {
         //  Signature_Tree object. Will be abstract in that it's not closely integrated with the AST tree functionality, could be reused elsewhere.
 
 
-        Object.defineProperty(this, 'abbreviated_type', {
-            get() { 
-                const abb = type_abbreviations[babel.type];
-                if (abb) {
-                    return abb;
-                } else {
-                    console.log('babel.type', babel.type);
-                    throw 'stop';
-                }
-               
-            },
-            //set(newValue) { bValue = newValue; },
-            enumerable: true,
-            configurable: false
-        });
-        Object.defineProperty(this, 't', {
-            get() { 
-                return this.abbreviated_type;
-               
-            },
-            //set(newValue) { bValue = newValue; },
-            enumerable: true,
-            configurable: false
-        });
+        
 
         Object.defineProperty(babel, 'start', {
             get() { return babel_node.start; },
@@ -204,13 +175,10 @@ class JS_AST_Node_Babel extends JS_AST_Node_Core {
             configurable: true
         });
 
-        // Overwrite the name property later on?
-        Object.defineProperty(this, 'name', {
-            get() { return babel.name; },
-            //set(newValue) { bValue = newValue; },
-            enumerable: true,
-            configurable: false
-        });
+
+        // only for identifiers.
+
+        
 
         Object.defineProperty(babel, 'node', {
             get() { 
@@ -232,42 +200,20 @@ class JS_AST_Node_Babel extends JS_AST_Node_Core {
             configurable: false
         });
 
-        let category;
+        //let category;
         Object.defineProperty(babel, 'category', {
             get() { 
                 //console.log('babel', babel);
                 //console.log('babel_node', babel_node);
                 //console.log('babel.node', babel.node);
-                category = get_category(babel_node.type);
-                return category; 
+                //category = ;
+                return get_category(babel_node.type); 
             },
             //set(newValue) { bValue = newValue; },
             enumerable: true,
             configurable: false
         });
-        Object.defineProperty(this, 'category', {
-            get() { 
-                //console.log('babel', babel);
-                //console.log('babel_node', babel_node);
-                //console.log('babel.node', babel.node);
-                return babel.category;
-            },
-            //set(newValue) { bValue = newValue; },
-            enumerable: true,
-            configurable: false
-        });
-        Object.defineProperty(this, 'cat', {
-            get() { 
-                throw 'NYI'
-                //console.log('babel', babel);
-                //console.log('babel_node', babel_node);
-                //console.log('babel.node', babel.node);
-                return babel.abbreviated_category;
-            },
-            //set(newValue) { bValue = newValue; },
-            enumerable: true,
-            configurable: false
-        });
+        
 
         Object.defineProperty(babel, 'is_identifier', {
             get() { 
@@ -305,41 +251,11 @@ class JS_AST_Node_Babel extends JS_AST_Node_Core {
             enumerable: true,
             configurable: false
         });
-        Object.defineProperty(this, 'is_declaration', {
-            get() { 
-                return babel.is_declaration;
-            },
-            enumerable: true,
-            configurable: false
-        });
-        Object.defineProperty(this, 'is_statement', {
-            get() { 
-                return babel.is_statement;
-            },
-            enumerable: true,
-            configurable: false
-        });
-        Object.defineProperty(this, 'is_identifier', {
-            get() { 
-                return babel.is_identifier;
-            },
-            enumerable: true,
-            configurable: false
-        });
-        Object.defineProperty(this, 'is_expression', {
-            get() { 
-                return babel.is_expression;
-            },
-            enumerable: true,
-            configurable: false
-        });
-        Object.defineProperty(this, 'is_literal', {
-            get() { 
-                return babel.is_literal;
-            },
-            enumerable: true,
-            configurable: false
-        });
+        
+        
+        
+        
+        
         Object.defineProperty(babel, 'ast', {
             get() { 
 

@@ -39,9 +39,6 @@ class JS_AST_Relationship_Node_To_Group {
 
 
         const iterate_group = callback => {
-
-
-
             // available_in_scope
             //  all previous siblings that are declarations / assignment expressions (of the right sort)
             //  iterate ancestors
@@ -51,7 +48,18 @@ class JS_AST_Relationship_Node_To_Group {
             // or something like above
             //
 
-            if (name === 'previous-sibling') {
+            if (name === 'post-sibling') {
+                if (origin.parent_node) {
+                    //const postsibs = [];
+                    let i2 = 0;
+                    each(origin.parent_node.child_nodes, (node, idx, stop) => {
+                        if (idx > origin.index) {
+                            callback(node, i2++, stop);
+                        } else {
+                        }
+                    });
+                }
+            } else if (name === 'previous-sibling') {
                 if (origin.parent_node) {
                     const presibs = [];
                     each(origin.parent_node.child_nodes, (node, idx, stop) => {
@@ -60,10 +68,6 @@ class JS_AST_Relationship_Node_To_Group {
                         } else {
                             stop();
                         }
-                        
-                        //if (node !== origin) {
-                        //    callback(node, idx, stop);
-                        //}
                     });
                     presibs.reverse();
                     each(presibs, (node, idx, stop) => callback(node, idx, stop));
@@ -87,6 +91,7 @@ class JS_AST_Relationship_Node_To_Group {
             } else if (name === 'available_in_scope') {
                 throw 'NYI';
             } else {
+                console.log('name', name);
                 throw 'stop';
             }
         }

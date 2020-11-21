@@ -113,6 +113,12 @@ const test_js_ast_node = () => {
     // .iterate.all.identifier?
     js_ast_node.each.identifier(id => {
         console.log('id.source', id.source);
+        console.log('id.sibling.count', id.sibling.count);
+
+        console.log('id.sibling.previous.count', id.sibling.previous.count);
+        console.log('id.sibling.post.count', id.sibling.post.count);
+
+
 
     })
 

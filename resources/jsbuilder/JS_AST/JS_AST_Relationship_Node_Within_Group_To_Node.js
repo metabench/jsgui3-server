@@ -16,6 +16,8 @@ class JS_AST_Relationship_Node_Within_Group_To_Node {
         if (spec.origin_ordinal_value_within_node !== undefined) {
             origin_ordinal_value_within_node = spec.origin_ordinal_value_within_node;
         }
+
+        
         
         Object.defineProperty(this, 'node', {
             get() { 

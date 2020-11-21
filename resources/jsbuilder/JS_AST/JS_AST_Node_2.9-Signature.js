@@ -1,9 +1,9 @@
 
 const { each } = require('../../../../../tools/arr-tools/arr-tools');
-const JS_AST_Node_Sibling = require('./JS_AST_Node_2.4-Sibling');
+const JS_AST_Node_Available_In_Scope = require('./JS_AST_Node_2.5-Available_In_Scope');
 
 
-class JS_AST_Node_Signature extends JS_AST_Node_Sibling {
+class JS_AST_Node_Signature extends JS_AST_Node_Available_In_Scope {
     constructor(spec = {}) {
         super(spec);
         const {each_child_node} = this;
@@ -82,3 +82,35 @@ class JS_AST_Node_Signature extends JS_AST_Node_Sibling {
 }
 
 module.exports = JS_AST_Node_Signature;
+
+
+
+// Scope next...?
+//  A function that iterates backwards through the scope.
+
+// .scoped being a group of those scoped nodes
+
+// node.scope.find.identifier.by.name(n)
+
+// node.scope.all.declaration
+
+// node.scope.each.declaration()
+
+// node.shared.scope.all being all nodes in the shared scope
+// node.scope being the scope internal to that node itself?
+
+// Will have some kinds of more basic processes that deal with scope.
+//  not so OO to begin with, but ability to get the names of all declarations in scope.
+
+// The scope or maybe in_scope relationship could be a useful way to do it.
+//  Also_In_Scope relationship?
+//  Available_In_Scope
+// 2.5-Available_Declarations_In_Scope
+//  Just In_Scope as a relationship works OK.
+//   Available_In_Scope is a bit clearer though. Maybe In_Scope is fine when it's a relationship, it's clear enough maybe.
+
+
+
+
+
+

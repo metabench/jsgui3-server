@@ -2,6 +2,8 @@
 
 const JS_AST_Node = require('../../JS_AST_Node');
 const JS_AST_Root_Node_Feature_Exports = require('./JS_AST_Root_Node_Feature_Exports');
+
+
 const {each} = require('lang-mini');
 // A map of named / relevant inner nodes could be a useful feature of the ast node overall.
 
@@ -43,9 +45,42 @@ class JS_AST_Root_Node_Interpreted extends JS_AST_Node {
         // An index of the relevant statements.
 
         let ast_node_exports_statement;
-        let arr_ast_node_import_statements = [];
+        //let arr_ast_node_import_statements = [];
 
         const get_module_exports_statement_node = () => {
+
+            if (!ast_node_exports_statement) {
+
+
+                this.setup_node_index('identifiers_by_name', node => node.is_identifier, node => node.name);
+
+                //let res;
+                const mod_ids = this.get_indexed_nodes_by_key('identifiers_by_name', 'module');
+                each(mod_ids, node => {
+                    // want to be able to get the next sibling from a node easily.
+                    console.log('node', node);
+                    console.log('node.parent_node', node.parent_node);
+
+                    console.log('node.sibling.count', node.sibling.count);
+
+                    if (node.sibling.count === 1) {
+                        const sibling = node.sibling.collect()[0];
+                        console.log('sibling.name', sibling.name);
+                        if (sibling.name === 'exports') {
+                            console.log('node.parent_node.parent_node', node.parent_node.parent_node);
+                            console.log('node.parent_node.parent_node.parent_node', node.parent_node.parent_node.parent_node);
+                            console.log('node.parent.node.parent.node.parent.node', node.parent.node.parent.node.parent.node);
+                            console.log('node.ggparent.node', node.ggparent.node);
+                            console.log('node.ggparent.node.is_statement', node.ggparent.node.is_statement);
+
+                            if (node.ggparent.node && node.ggparent.node.is_statement) {
+                                ast_node_exports_statement = node.ggparent.node;
+                            }
+                        }
+                    }
+                });
+            }
+
             // Get the Member Expression module.exports
 
             //  Signature matches probably are the best way to compare for the moment.
@@ -56,94 +91,12 @@ class JS_AST_Root_Node_Interpreted extends JS_AST_Node {
             // sig_from_source
             // sig(src)
 
-
             // Maybe set this up before.
             // Nodes by type as well?
-            this.setup_node_index('identifiers_by_name', node => node.is_identifier, node => node.name);
-
-            let res;
-            const mod_ids = this.get_indexed_nodes_by_key('identifiers_by_name', 'module');
-            each(mod_ids, node => {
-                // want to be able to get the next sibling from a node easily.
-                console.log('node', node);
-                console.log('node.parent_node', node.parent_node);
-
-                console.log('node.sibling.count', node.sibling.count);
-
-                if (node.sibling.count === 1) {
-                    const sibling = node.sibling.collect()[0];
-                    console.log('sibling.name', sibling.name);
-                    if (sibling.name === 'exports') {
-                        console.log('node.parent_node.parent_node', node.parent_node.parent_node);
-                        console.log('node.parent_node.parent_node.parent_node', node.parent_node.parent_node.parent_node);
-                        console.log('node.parent.node.parent.node.parent.node', node.parent.node.parent.node.parent.node);
-                        console.log('node.ggparent.node', node.ggparent.node);
-                        console.log('node.ggparent.node.is_statement', node.ggparent.node.is_statement);
-
-                        // node.ancestor.find(ancestor => ancestor.index = 2);
-
-
-                        // .gparent_node, ggparent_node
-
-                        // node.ggparent relationship for example
-
-                        // node.ancestor.at(2)
-
-
-
-                        // parent and ancestor relationships could use some work.
-
-
-
-                        // parent. ...
-                        // ancestor.find.statement
-
-                        // ancestor.statement
-
-                        res = node.parent_node;
-                    }
-                }
-
-                // .nextSibling property
-                // .siblings
-                // .next_siblings
-                // .previous_siblings
-                // .siblings.next
-
-
-            });
-            
-            
 
             //console.log('mod_ids', mod_ids);
-            return res;
+            return ast_node_exports_statement;
 
-        }
-
-        const interpret = () => {
-            // what it finds, in terms of the object that gets exported
-            // a one word summary of the module type.
-
-            // interpreted summary type name
-
-            // type_name would do as a property of the interpretation object.
-
-            // The exports statement.
-
-            // has exports boolean?
-
-            // summary type ('simple-class'), '('simple-module')', 
-            //  'module' or 'class' - meaning that it's noticed some other things going on which need attention or may be helpful for interpreting the file.
-            //   
-
-
-
-
-            // Failure case
-            //  Can not identify exports statement
-            //   Though maybe that's fine on the application level rather than library level.
-            //  Failed to parse / is not JS??? Probably not at this stage.
-            //  
         }
 
         let exports;
@@ -168,11 +121,30 @@ class JS_AST_Root_Node_Interpreted extends JS_AST_Node {
                     // find the exports statement.
                     //this.select
 
+                    const exports_statement_node = get_module_exports_statement_node();
+                    console.log('exports_statement_node', exports_statement_node);
 
-                    //exports = new JS_AST_Root_Node_Exports_Feature({});
+                    exports = new JS_AST_Root_Node_Feature_Exports({
+                        node: exports_statement_node
+                    });
 
-                    const module_exports_statement = get_module_exports_statement_node();
-                    console.log('module_exports_statement', module_exports_statement);
+                    //let node;
+
+                    /*
+                    Object.defineProperty(exports, 'node', {
+                        get() { 
+                            return ;
+                        },
+                        enumerable: true,
+                        configurable: false
+                    });
+                    */
+                    
+
+                    //const module_exports_statement_node = get_module_exports_statement_node();
+                    //console.log('module_exports_statement_node', module_exports_statement_node);
+
+
                      
                      
 

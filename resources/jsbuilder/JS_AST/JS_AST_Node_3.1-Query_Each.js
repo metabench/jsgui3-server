@@ -51,6 +51,14 @@ class JS_AST_Node_Query_Each extends JS_AST_Node_Query_Last {
             name: 'child'
         });
 
+        // each.identifier is another relationship?
+        //  is_within??? or the within relationship?
+
+
+
+
+
+
         // And an Operation_Relationship?   
         //  each child
 
@@ -64,6 +72,23 @@ class JS_AST_Node_Query_Each extends JS_AST_Node_Query_Last {
 
 
         myeach.child = each_child;
+
+
+        // each.identifier
+        //  has to be a function for the nicest syntax.
+
+        myeach.identifier = callback => {
+            this.filter_deep_iterate(node => node.is_identifier, callback);
+        }
+        myeach.declaration = callback => {
+            this.filter_deep_iterate(node => node.is_declaration, callback);
+        }
+        myeach.statement = callback => {
+            this.filter_deep_iterate(node => node.is_statement, callback);
+        }
+
+
+
 
 
         //child.each = each_child;

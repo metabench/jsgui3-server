@@ -24,7 +24,7 @@ const test_js_ast_node = () => {
     // That's a simple declaration.
     //const test_script_1 = 'const firstname = "James", surname = "Vickers", name = firstname + " " + surname, [a, b, c] = [1, 2, 3];';
     const test_script_2 = 'module.exports = lang_mini;';
-    //const test_script_1 = 'const [a, b, c] = [1, 2, 3];';
+    const test_script_1 = 'const [a, b, c] = [1, 2, 3];';
 
 
     // Item declared as an array.
@@ -107,6 +107,16 @@ const test_js_ast_node = () => {
 
 
     console.log('js_ast_node.collect.all.identifier', js_ast_node.collect.all.identifier());
+
+    // .each.identifier
+
+    // .iterate.all.identifier?
+    js_ast_node.each.identifier(id => {
+        console.log('id.source', id.source);
+
+    })
+
+
     
     // Find out how many declarators it has.
 

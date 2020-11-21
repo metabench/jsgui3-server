@@ -4,7 +4,47 @@ class JS_AST_Node_Indexes {
     // Not a type of JS_AST_Node! Change the name?
     constructor(spec = {}) {
 
-         
+        // scope.find.declared.name
+        // scope.find.name
+
+        // scope.parent
+        // scope.declarations
+        // scope.declarations.count
+
+        // 3.8 scope would make sense
+        // before 4.0 index
+        // or as a new 4
+        //  Querying what is in the scope of a node would definitely be useful.
+        //  Previous sibling declarations
+        //  Declarations in all ancestor scopes
+
+        // An index of all declarations by name within scope.
+        //  Possibly a Declaration / Declarations level would help?
+        //   Or it gets done in the indexing part?
+
+        // Indexes of all objects within scope?
+        
+        // A Scope object which has got properties on it would help.
+        //  Scope iterator is one of the main things.
+
+        // Variables defined within the scope (or here I mean as siblings?) of the parents.
+
+        
+        
+
+
+
+
+        
+
+
+        // scope.node.with.name?
+
+
+        // scope.find.declaration(name)
+        // .scope.declarations.name.is(n)
+        
+                
         const map_indexes = new Map();
 
         const get_index = index_name => {
@@ -30,16 +70,18 @@ class JS_AST_Node_Indexes {
             if (map_idx) {
                 const arr_items = map_idx.get(key);
                 return arr_items;
+            } else {
+                throw 'stop';
             }
         }
 
         const has_index = (index_name) => map_indexes.has(index_name);
 
-        this.set = set;
-        this.get = get;
-        this.has_index = has_index;
-
-
+        Object.assign(this, {
+            set: set,
+            get: get,
+            has_index: has_index
+        });
     }
 }
 

@@ -10,7 +10,7 @@
 const { each } = require('../../../../../tools/arr-tools/arr-tools');
 const JS_AST_Node_All = require('./JS_AST_Node_2.3-All');
 
-const JS_AST_Relationship_Node_To_Group = require('./JS_AST_Relationship_Node_To_Group');
+const JS_AST_Ordered_Relationship_Node_To_Group = require('./JS_AST_Ordered_Relationship_Node_To_Group');
 
 class JS_AST_Node_Sibling extends JS_AST_Node_All {
     constructor(spec = {}) {
@@ -18,22 +18,67 @@ class JS_AST_Node_Sibling extends JS_AST_Node_All {
         const {each_child_node} = this;
 
 
+
+        let index;
+        Object.defineProperty(this, 'index', {
+            get() { 
+
+                if (index === undefined) {
+                    console.log('this.path', this.path);
+
+                    throw 'NYI';
+                }
+
+                return index;
+            },
+            enumerable: true,
+            configurable: false
+        });
+        
+
         // sibling.all?
 
         // .siblings
         // .siblings.next
 
         // could say it's an ordinal relationship.
-        const sibling = new JS_AST_Relationship_Node_To_Group({
+
+        // Ordered_Relationship_Node_To_Group
+
+        //  with an index property.
+
+        const sibling = new JS_AST_Ordered_Relationship_Node_To_Group({
             origin: this,
-            name: 'sibling'//,
+            name: 'sibling',
+            index: index//,
             //obtainer: () => this.child_nodes,
             //iterator: callback => each(this.child_nodes, callback),
             //each: callback => each(this.child_nodes, callback)//,
             //select: fn_select => select_child_nodes(fn_select)
         });
 
+        sibling.previous = new JS_AST_Ordered_Relationship_Node_To_Group({
+            origin: this,
+            name: 'previous-sibling'
+        });
+        sibling.post = new JS_AST_Ordered_Relationship_Node_To_Group({
+            origin: this,
+            name: 'post-sibling'
+        });
+
         this.sibling = sibling;
+
+        //.previous .next
+        //.pre .post
+
+        // Need to know the position / index within the parent.
+
+
+        // this.sibling.number
+        //  .own_number?
+
+
+
 
         
 

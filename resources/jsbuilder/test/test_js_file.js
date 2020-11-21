@@ -78,6 +78,14 @@ const test_js_file = () => {
 
         const root = jsf.node_root;
         console.log('root.exports', root.exports);
+        console.log('root.exports.exported', root.exports.exported);
+        console.log('root.exports.exported.node', root.exports.exported.node);
+        console.log('root.exports.exported.node.type', root.exports.exported.node.type);
+        console.log('root.exports.exported.keys', root.exports.exported.keys);
+        //console.log('root.exports.type', root.exports.type);
+
+        //console.log('root.exports.keys', root.exports.keys);
+        // The keys exported is important.
 
 
 

@@ -32,7 +32,7 @@ class JS_AST_Root_Node_Feature_Exported {
 
                     // Need to be able to iterate back through previous siblings.
                     //  So set up more code for that .siblings.previous.each
-
+                    console.trace();
 
                     throw 'NYI';
 

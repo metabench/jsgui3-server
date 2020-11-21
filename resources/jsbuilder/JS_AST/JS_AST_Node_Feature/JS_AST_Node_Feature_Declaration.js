@@ -17,10 +17,10 @@ class JS_AST_Node_Feature_Declaration extends JS_AST_Node_Feature {
                     keys = [];
                     const vdrs = node.select.child(node => node.type === 'VariableDeclarator');
                     if (vdrs.length > 0) {
-                        console.log('vdrs', vdrs);
+                        //console.log('vdrs', vdrs);
                         each(vdrs, vdr => {
                             const dtr = vdr.declarator;
-                            console.log('dtr', dtr);
+                            //console.log('dtr', dtr);
                             const dtr_keys = dtr.keys;
                             //console.log('dtr_keys', dtr_keys);
                             each(dtr_keys, key => keys.push(key));

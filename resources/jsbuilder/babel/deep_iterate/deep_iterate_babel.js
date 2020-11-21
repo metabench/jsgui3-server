@@ -253,7 +253,7 @@ const deep_iterate_babel_call_expression_node = (babel_node, depth, path, common
 }
 
 const deep_iterate_babel_object_property_node = (babel_node, depth, path, common, callback) => {
-    //console.log('deep_iterate_babel_object_property_node', babel_node);
+    console.log('deep_iterate_babel_object_property_node', babel_node);
 
     const {method, key, computed, shorthand, value} = babel_node;
     //const {properties} = babel_node;
@@ -264,8 +264,17 @@ const deep_iterate_babel_object_property_node = (babel_node, depth, path, common
     //console.log('key', key);
     //console.log('value', value);
 
+    // Key and value being the same thing?
+
+
+
     deep_iterate_babel_node_$INTERNAL(key, depth + 1, path + sibling_number++ + '/', common, callback);
-    deep_iterate_babel_node_$INTERNAL(value, depth + 1, path + sibling_number++ + '/', common, callback);
+    
+    if (value.start !== key.start) {
+        throw 'stop';
+        deep_iterate_babel_node_$INTERNAL(value, depth + 1, path + sibling_number++ + '/', common, callback);
+    }
+    //
 
     //throw 'stop';
 }

@@ -7,6 +7,8 @@ class JS_AST_Root_Node_Feature_Exports extends JS_AST_Root_Node_Feature {
     constructor(spec = {}) {
         super(spec);
 
+        const {node} = this;
+        /*
         let node;
         // exports.node
         if (spec.node !== undefined) node = spec.node;
@@ -21,6 +23,7 @@ class JS_AST_Root_Node_Feature_Exports extends JS_AST_Root_Node_Feature {
             enumerable: true,
             configurable: false
         });
+        */
 
         let exported;
         Object.defineProperty(this, 'exported', {

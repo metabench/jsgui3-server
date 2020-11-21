@@ -16,7 +16,7 @@ class JS_AST_Node_Category_Identifier extends JS_AST_Node_Category {
 
         if (this.is_identifier) {
             Object.defineProperty(this, 'name', {
-                get() { return babel.name; },
+                get() { return this.babel.name; },
                 //set(newValue) { bValue = newValue; },
                 enumerable: true,
                 configurable: false

@@ -1,24 +1,36 @@
 class JS_AST_Node_Feature {
-    constructor(spec = {}) {
-        let name, type;
 
-        let js_ast_node, index_in_js_ast_node, value_name;
+    // Feature_Declaration subclass too?
+    //  
+
+
+    constructor(spec = {}) {
+        //let name, type;
+
+        let node, value_name;
 
         if (spec.name) {
             name = spec.name;
         }
-        if (spec.type) {
-            type = spec.type;
-        }
+        //if (spec.type) {
+        //    type = spec.type;
+        //}
 
         if (spec.js_ast_node) { //check / confirm type?
-            js_ast_node = spec.js_ast_node;
+            node = spec.js_ast_node;
+        } else if (spec.node) { //check / confirm type?
+            node = spec.node;
         }
 
+        /*
         if (spec.index_in_js_ast_node !== undefined) {
-            index_in_js_ast_node = spec.index_in_js_ast_node;
+            index_in_node = spec.index_in_js_ast_node;
+        } else if (spec.index_in_node !== undefined) {
+            index_in_node = spec.index_in_node;
         }
+        */
 
+        /*
         Object.defineProperty(this, 'name', {
             get() {
                 return name;
@@ -27,7 +39,9 @@ class JS_AST_Node_Feature {
             enumerable: true,
             configurable: false
         });
+        */
 
+        /*
         Object.defineProperty(this, 'value_name', {
             get() {
                 return value_name;
@@ -36,16 +50,20 @@ class JS_AST_Node_Feature {
             enumerable: true,
             configurable: false
         });
-
-        Object.defineProperty(this, 'js_ast_node', {
+        */
+        Object.defineProperty(this, 'node', {
             get() { 
-                return js_ast_node;
+                return node;
             },
             //set(newValue) { bValue = newValue; },
             enumerable: true,
             configurable: false
         });
-        Object.defineProperty(this, 'index_in_js_ast_node', {
+
+        // Maybe don't need this, with improved sibling and index property in the node itself.
+
+        /*
+        Object.defineProperty(this, 'index_in_node', {
             get() { 
                 return index_in_js_ast_node;
             },
@@ -54,6 +72,7 @@ class JS_AST_Node_Feature {
             enumerable: true,
             configurable: false
         });
+        */
     }
 }
 module.exports = JS_AST_Node_Feature;

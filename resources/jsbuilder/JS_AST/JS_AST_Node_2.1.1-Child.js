@@ -72,7 +72,8 @@ class JS_AST_Node_Child extends JS_AST_Node_Query_Babel {
         });
         */
 
-        
+
+        /*
         const find_child_node = (finder, callback) => {
             let res;
             each_child_node((cn, idx, stop) => {
@@ -83,6 +84,7 @@ class JS_AST_Node_Child extends JS_AST_Node_Query_Babel {
             });
             return res;
         }
+        */
 
 
         

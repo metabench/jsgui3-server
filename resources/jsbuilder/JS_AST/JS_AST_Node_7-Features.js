@@ -1,7 +1,7 @@
 //const babel_node_tools = require('../babel/babel_node_tools');
 
 const { each } = require('../../../../../tools/arr-tools/arr-tools');
-const JS_AST_Node_Index = require('./JS_AST_Node_6.0-Type');
+const JS_AST_Node_Type_Variable_Declarator = require('./JS_AST_Node_6.3-Type_Variable_Declarator');
 
 // Could make a more specific feature extraction part.
 //  Will come up with more:
@@ -69,7 +69,7 @@ const JS_AST_Node_Index = require('./JS_AST_Node_6.0-Type');
 
 
 
-class JS_AST_Node_Query_Features extends JS_AST_Node_Index {
+class JS_AST_Node_Query_Features extends JS_AST_Node_Type_Variable_Declarator {
     constructor(spec = {}) {
         super(spec);
         // Getting the assigned values also seems important.

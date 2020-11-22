@@ -204,6 +204,12 @@ const create_query_execution_fn = (node, words) => {
         return res;
     }
 
+    const count_all_nodes = () => {
+        let res = 0;
+        deep_iterate(n => res++);
+        return res;
+    }
+
     // signature_callmap_deep_iterate
 
     if (sentence === 'callmap by signature' || sentence === 'callmap deep iterate by signature') {
@@ -480,6 +486,9 @@ const create_query_execution_fn = (node, words) => {
         return () => node.child_nodes.length;
     }
 
+    if (sentence === 'count all' || sentence === 'count all node') {
+        return count_all_nodes;
+    }
     
 
     if (sentence === 'count identifier node' || sentence === 'count identifier' || sentence === 'identifier count' || sentence === 'identifier node count') {

@@ -53,6 +53,8 @@ const test_js_ast_node = () => {
 
     console.log('js_ast_node.child.count', js_ast_node.child.count);
 
+    console.log('js_ast_node.query.count.all.exe()', js_ast_node.query.count.all.exe());
+
     // mapcall_deep_iterate
     // mapcall_child_nodes
     // deep_iterate_mapcall
@@ -83,27 +85,31 @@ const test_js_ast_node = () => {
         });
     }
 
-    js_ast_node.query.callmap.exe(node => node.signature, {
-        'ArE(NumL,NumL,NumL)': (node) => {
-            console.log('are 3 numlit node', node);
-        },
-        'ArP(ID,ID,ID)': (node) => {
-            console.log('arp 3 id node', node);
-        }
-    }, node => {
-        console.log('default node', node);
-    });
+    const callmap_calling = () => {
+        js_ast_node.query.callmap.exe(node => node.signature, {
+            'ArE(NumL,NumL,NumL)': (node) => {
+                console.log('are 3 numlit node', node);
+            },
+            'ArP(ID,ID,ID)': (node) => {
+                console.log('arp 3 id node', node);
+            }
+        }, node => {
+            console.log('default node', node);
+        });
+    
+        js_ast_node.query.callmap.by.signature.exe({
+            'ArE(NumL,NumL,NumL)': (node) => {
+                console.log('!!are 3 numlit node', node);
+            },
+            'ArP(ID,ID,ID)': (node) => {
+                console.log('!!arp 3 id node', node);
+            }
+        }, node => {
+            console.log('!!default node', node);
+        });
+    }
 
-    js_ast_node.query.callmap.by.signature.exe({
-        'ArE(NumL,NumL,NumL)': (node) => {
-            console.log('!!are 3 numlit node', node);
-        },
-        'ArP(ID,ID,ID)': (node) => {
-            console.log('!!arp 3 id node', node);
-        }
-    }, node => {
-        console.log('!!default node', node);
-    });
+    
 
     
 

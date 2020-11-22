@@ -32,14 +32,26 @@ class JS_AST_Node_Feature_Declaration extends JS_AST_Node_Feature {
                 if (!assigned_values) {
                     assigned_values = [];
 
+                    console.log('node', node);
+                    console.log('node.source', node.source);
+
                     if (node.type === 'VariableDeclaration') {
+
+                        // Need to look at all the child nodes.
+                        console.log('node.child.shared.type', node.child.shared.type);
+
+                        // then go through each child declarator....
+
+                        node.query.each.child.declarator.exe(cdec => {
+                            console.log('cdec', cdec);
+                        });
                         
                         const dottypes = node.child_nodes[0].query.collect.child.node.type.exe().join('.');
                         // collect grandchild node types
                         //console.log('dottypes', dottypes);
                         const dotts = node.child_nodes[0].query.collect.child.node.t.exe().join('.');
                         // collect grandchild node types
-                        //console.log('dotts', dotts);
+                        //
 
                         if (dotts === 'ArP.ArE') {
                             // ArrayPattern.ArrayExpression
@@ -71,6 +83,7 @@ class JS_AST_Node_Feature_Declaration extends JS_AST_Node_Feature {
                             //console.log(sc);
                             //if (are.)
                         } else {
+                            console.log('dotts', dotts);
                             throw 'NYI';
                         }
                         //throw 'stop';

@@ -52,6 +52,10 @@ const create_query_execution_fn = (node, words) => {
     // each.child.declaration.with.name
     // each.child.declaration.filter.by.name
 
+    // each_child_declarator
+
+    const each_child_declarator = (callback) => filter_each_child_node(node => node.category === 'Declarator', callback);
+
     const each_child_declaration = (callback) => filter_each_child_node(node => node.is_declaration, callback);
     const each_child_identifier = (callback) => filter_each_child_node(node => node.is_identifier, callback);
 
@@ -110,22 +114,6 @@ const create_query_execution_fn = (node, words) => {
 
     const find_node_by_type = type => find_node(node => node.type === type);
 
-    /*
-
-
-    const find_node = (fn_match) => {
-            let res;
-            deep_iterate((js_ast_node, path, depth, stop) => {
-                if (fn_match(js_ast_node)) {
-                    if (!res) res = js_ast_node;
-                    stop();
-                    
-                }
-            });
-            return res;
-        };
-
-    */
 
     const select_by_type = type => select_all(node => node.type === type);
     const select_by_type_abbreviation = t => select_all(node => node.t === t);
@@ -187,11 +175,8 @@ const create_query_execution_fn = (node, words) => {
             const vals = declaration.assigned.values;
             each(vals, v => res.push(v));
         }
-
         return res;
     }
-
-    
 
     if (sentence === 'collect child node' || sentence === 'collect child') {
 
@@ -437,6 +422,14 @@ const create_query_execution_fn = (node, words) => {
 
     if (sentence === 'each child node' || sentence === 'each child') {
         return each_child_node;
+    }
+
+    // each.child.declarator
+
+    // Declarator
+
+    if (sentence === 'each child declarator node' || sentence === 'each child declarator') {
+        return each_child_declarator;
     } 
 
     if (sentence === 'each child declaration node' || sentence === 'each child declaration') {
@@ -589,11 +582,6 @@ const create_query = (node, words = []) => {
 
     return proxy2;
 }
-
-
-
-
-
 
 
 class JS_AST_Node_Query extends JS_AST_Node_Type_Variable_Declarator {

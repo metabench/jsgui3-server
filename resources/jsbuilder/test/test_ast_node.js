@@ -22,10 +22,10 @@ const JS_AST_Node = require('../JS_AST_Node_Extended/JS_AST_Node_Extended');
 const test_js_ast_node = () => {
     
     // That's a simple declaration.
-    //const test_script_1 = 'const firstname = "James", surname = "Vickers", name = firstname + " " + surname, [a, b, c] = [1, 2, 3];';
+    const test_script_1 = 'const firstname = "James", surname = "Vickers", name = firstname + " " + surname, [a, b, c] = [1, 2, 3];';
     const test_script_2 = 'module.exports = lang_mini;';
     //const test_script_1 = 'const [a, b, c] = [1, 2, 3], [d, e, f] = [4, 5, 6];';
-    const test_script_1 = 'const [a, b, c] = [1, 2, 3];';
+    //const test_script_1 = 'const [a, b, c] = [1, 2, 3];';
 
     //const test_script_3 = 'const {a, b, c} = propertied_object;'
 

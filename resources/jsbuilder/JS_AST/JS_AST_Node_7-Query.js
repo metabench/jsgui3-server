@@ -56,6 +56,9 @@ const create_query_execution_fn = (node, words) => {
 
     const each_child_declarator = (callback) => filter_each_child_node(node => node.category === 'Declarator', callback);
 
+
+    const each_child_variabledeclaration = callback => filter_each_child_node(node => node.type === 'VariableDeclaration', callback);
+
     const each_child_declaration = (callback) => filter_each_child_node(node => node.is_declaration, callback);
     const each_child_identifier = (callback) => filter_each_child_node(node => node.is_identifier, callback);
 
@@ -428,8 +431,14 @@ const create_query_execution_fn = (node, words) => {
 
     // Declarator
 
+    // each.child.variabledeclaration
+
     if (sentence === 'each child declarator node' || sentence === 'each child declarator') {
         return each_child_declarator;
+    } 
+
+    if (sentence === 'each child variabledeclaration node' || sentence === 'each child variabledeclaration') {
+        return each_child_variabledeclaration;
     } 
 
     if (sentence === 'each child declaration node' || sentence === 'each child declaration') {

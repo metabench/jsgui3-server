@@ -53,7 +53,7 @@ const test_js_file = () => {
     const jsfile_path = '../JS_File/JS_File.js';
     const jsbuilder_path = '../JS_Builder.js';
     //const file_path = '../JS_File.js';
-    const file_path = lt_path;
+    const file_path = lm_path;
     // path of lang mini...
 
     // Write and test a simple and convenient way for analysing JS files and recompiling them.
@@ -104,52 +104,16 @@ const test_js_file = () => {
 
         const find_exported_keys = () => {
 
-            // first check - are they all there in the exported node anyway?
-            //  as in module.exports = {plenty}
-            //  That will be the way that many modules export their objects with keys.
-            
-            // Likely will make a newer implementation of this, more connected to objects.
-
-            // Indexes will better help some lookups - though could be integrated with queries.
-
-
-
-
-
+            const root_exported_node = root.exports.exported.node;
 
             const exports_keys = [];
-
             const program = root.child_nodes[0];
-
             const exported_node_name = root.exports.exported.node.name;
-
             if (exported_node_name === undefined) {
-
-                //console.log('root.exports.exported.node', root.exports.exported.node);
-
-
-
-                // .query.collect.child.exe().query.collect.first.child.exe().query.collect.node.value.exe();
-
-                // Multiple queries and collections explicitly do help to show things.
-                //  
-
-                
-
-
-
-                // query.collect.all.child.first.child.node.value.exe();
-
-                // Maybe it could automatically do the .exec, repeated .collect, and .exe()?
-
-
-                if (root.exports.exported.node.type === 'ObjectExpression') {
-
+                if (root_exported_node.type === 'ObjectExpression') {
                     // root.exports.exported.node.query.key.exec() ???
 
-                    each(root.exports.exported.node.child_nodes, opr => {
-                        //console.log('opr', opr);
-
+                    each(root_exported_node.child_nodes, opr => {
                         if (opr.child_nodes[0].type === 'StringLiteral') {
                             const key = opr.child_nodes[0].source.split('"').join('').split('\'').join('');
                             //console.log('key', key);
@@ -175,8 +139,11 @@ const test_js_file = () => {
                 // query.each.child.variabledeclaration
                 // .filter.child.by.type
                 //program.query.each.child.exe(cn => {
-                    
-                program.query.filter.each.child.by.type.exe('VariableDeclaration', cn => {
+
+                // .query.each.child.variabledeclaration.exe
+                  
+                program.query.each.child.variabledeclaration.exe(cn => {
+                //program.query.filter.each.child.by.type.exe('VariableDeclaration', cn => {
                         //console.log('cn', cn);
                     //console.log('cn.key', cn.key);
                     //console.log('cn.keys', cn.keys);
@@ -237,7 +204,7 @@ const test_js_file = () => {
                             //console.log('oe.child.shared.type', oe.child.shared.type);
 
                             if (oe.child.shared.type === 'ObjectProperty') {
-                                oe.each.child(cn => {
+                                oe.query.each.child.exe(cn => {
                                     //console.log('cn', cn);
                                     //console.log('cn.source', cn.source);
 
@@ -379,9 +346,7 @@ const test_js_file = () => {
                     } else {
                         throw 'NYI';
                     }
-
                 }
-
                 // then again go through the child nodes, seeing if there is any declaration for the assignment source name
 
                 //program.select.child()
@@ -436,12 +401,7 @@ const test_js_file = () => {
                         }
                     });
                 }
-
-
             }
-
-            
-
             //console.log('exports_keys', exports_keys);
 
             return exports_keys;

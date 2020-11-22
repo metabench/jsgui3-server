@@ -22,7 +22,7 @@ const JS_AST_Node = require('../JS_AST_Node_Extended/JS_AST_Node_Extended');
 const test_js_ast_node = () => {
     
     // That's a simple declaration.
-    const test_script_1 = 'const firstname = "James", surname = "Vickers", name = firstname + " " + surname, [a, b, c] = [1, 2, 3];';
+    //const test_script_1 = 'const firstname = "James", surname = "Vickers", name = firstname + " " + surname, [a, b, c] = [1, 2, 3];';
     const test_script_2 = 'module.exports = lang_mini;';
     //const test_script_1 = 'const [a, b, c] = [1, 2, 3], [d, e, f] = [4, 5, 6];';
     //const test_script_1 = 'const [a, b, c] = [1, 2, 3];';
@@ -43,7 +43,7 @@ const test_js_ast_node = () => {
     //   If it has no parent_node.
 
     const spec = {
-        source: test_script_1
+        source: test_script_2
     };
 
     const js_ast_node = JS_AST_Node.from_spec(spec);
@@ -95,31 +95,25 @@ const test_js_ast_node = () => {
 
     console.log('sl_values', sl_values);
 
-    console.log('js_ast_node.declaration.declared.keys', js_ast_node.declaration.declared.keys);
+    if (js_ast_node.declaration) {
+        console.log('js_ast_node.declaration.declared.keys', js_ast_node.declaration.declared.keys);
 
-    // js_ast_node.query.collect.declared.keys.exe();
+        // js_ast_node.query.collect.declared.keys.exe();
 
-    const dc2 = js_ast_node.query.collect.own.declared.keys.exe();
+        const dc2 = js_ast_node.query.collect.own.declared.keys.exe();
+        console.log('dc2', dc2);
 
-    
+        // and the corresponding assigned values.
+        // declaration.assigned.values
+        // declaration.declared, declaration.assigned
 
-    console.log('dc2', dc2);
-
-    // and the corresponding assigned values.
-
-    // declaration.assigned.values
-
-    // declaration.declared, declaration.assigned
-
-
-    console.log('js_ast_node.declaration.assigned.values', js_ast_node.declaration.assigned.values);
+        console.log('js_ast_node.declaration.assigned.values', js_ast_node.declaration.assigned.values);
+    }
 
     // .query.collect.own.assigned.values
     // .query.collect.own.declaration.assigned.value
     // .query.collect.own.declaration.value
     // .query.collect.declaration.value
-
-
 
 
 

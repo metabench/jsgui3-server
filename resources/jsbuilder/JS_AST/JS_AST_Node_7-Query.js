@@ -3,6 +3,7 @@
 const { each } = require('../../../../../tools/arr-tools/arr-tools');
 const JS_AST_Node_Type_Variable_Declarator = require('./JS_AST_Node_6.3-Type_Variable_Declarator');
 
+const enable_array_as_queryable = require('./query/enable_array_as_queryable');
 
 
 const create_query_execution_fn = (node, words) => {
@@ -81,8 +82,13 @@ const create_query_execution_fn = (node, words) => {
     const find_node_by_type = type => find_node(node => node.type === type);
 
     const select_by_type = type => select_all(node => node.type === type);
+    const select_by_category = category => select_all(node => node.category === category);
 
     const collect_identifier_nodes = () => select_by_type('Identifier');
+    const collect_pattern_nodes = () => select_by_category('Pattern');
+    const collect_expression_nodes = () => select_by_category('Expression');
+    const collect_property_nodes = () => select_by_category('Property');
+    // collect_property_nodes
 
     const collect_child_identifier_nodes = () => select_child(node => node.is_identifier);
 
@@ -109,6 +115,51 @@ const create_query_execution_fn = (node, words) => {
         return res;
     }
 
+    
+
+    if (sentence === 'collect child node' || sentence === 'collect child') {
+
+
+
+        return () => {
+            const res = [];
+            each(node.child_nodes, cn => res.push(cn));
+
+
+            enable_array_as_queryable(res);
+            return res;
+        }
+    } else {
+        //throw 'NYI';
+    }
+
+    if (sentence === 'collect first child node' || sentence === 'collect first child') {
+        return () => {
+            const res = [];
+            //each(node.child_nodes, cn => res.push(cn));
+            if (node.child_nodes[0]) res.push(node.child_nodes[0]);
+            enable_array_as_queryable(res);
+            return res;
+        }
+    }
+    if (sentence === 'collect second child node' || sentence === 'collect second child') {
+        return () => {
+            const res = [];
+            //each(node.child_nodes, cn => res.push(cn));
+            if (node.child_nodes[1]) res.push(node.child_nodes[1]);
+            enable_array_as_queryable(res);
+            return res;
+        }
+    }
+    if (sentence === 'collect third child node' || sentence === 'collect third child') {
+        return () => {
+            const res = [];
+            //each(node.child_nodes, cn => res.push(cn));
+            if (node.child_nodes[2]) res.push(node.child_nodes[2]);
+            enable_array_as_queryable(res);
+            return res;
+        }
+    }
 
     if (sentence === 'collect child node name' || sentence === 'collect child name') {
         return collect_child_name;
@@ -120,9 +171,12 @@ const create_query_execution_fn = (node, words) => {
 
     if (sentence === 'collect identifier' || sentence === 'collect identifier node') {
         return collect_identifier_nodes;
-    } else {
-        //throw 'NYI';
     }
+    if (sentence === 'collect expression' || sentence === 'collect expression node') {
+        return collect_expression_nodes;
+    }
+
+    // collect_expression_nodes
 
     // collect child signature.
 
@@ -144,6 +198,18 @@ const create_query_execution_fn = (node, words) => {
 
     if (sentence === 'collect child identifier name' || sentence === 'collect child node identifier name') {
         return collect_child_identifier_name;
+    } else {
+        //throw 'NYI';
+    }
+
+
+    if (sentence === 'collect pattern' || sentence === 'collect pattern node' || sentence === 'collect node with category pattern') {
+        return collect_pattern_nodes;
+    } else {
+        //throw 'NYI';
+    }
+    if (sentence === 'collect property' || sentence === 'collect property node' || sentence === 'collect node with category property') {
+        return collect_property_nodes;
     } else {
         //throw 'NYI';
     }
@@ -250,6 +316,10 @@ const create_query_execution_fn = (node, words) => {
 
     if (sentence === 'select child node by signature' || sentence === 'select child by signature') {
         return select_child_node_by_signature;
+    }
+
+    if (sentence === 'select by category' || sentence === 'select node by category') {
+        return select_by_category;
     }
 
     // select_each_child_node_by_signature

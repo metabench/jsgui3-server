@@ -129,6 +129,20 @@ const test_js_file = () => {
 
 
 
+                // .query.collect.child.exe().query.collect.first.child.exe().query.collect.node.value.exe();
+
+                // Multiple queries and collections explicitly do help to show things.
+                //  
+
+                
+
+
+
+                // query.collect.all.child.first.child.node.value.exe();
+
+                // Maybe it could automatically do the .exec, repeated .collect, and .exe()?
+
+
                 if (root.exports.exported.node.type === 'ObjectExpression') {
 
                     // root.exports.exported.node.query.key.exec() ???

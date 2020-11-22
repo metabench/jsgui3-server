@@ -111,6 +111,40 @@ const test_js_ast_node = () => {
     console.log('js_ast_node.query.count.identifier.exe()', js_ast_node.query.count.identifier.exe());
 
 
+    // still for the moment will be clear about the verb used.
+
+    // Pattern category....
+
+    // query.collect.by.category('Pattern');
+
+    //const patterns = js_ast_node.query.select.by.category.exe('Pattern');
+
+    const patterns = js_ast_node.query.collect.pattern.exe();
+
+    console.log('patterns', patterns);
+
+    const oprops = patterns.query.collect.property.exe();
+    console.log('oprops', oprops);
+
+    const cfcs = js_ast_node.query.collect.child.exe().query.collect.first.child.exe();
+
+
+    console.log('cfcs', cfcs);
+    console.log('cfcs.length', cfcs.length);
+
+    console.log('cfcs.query', cfcs.query);
+
+
+
+    // query.collect.pattern.inner.identifier.exe()
+    // query.collect.pattern.child.property.exe()
+
+    // query.collect.pattern.exe().query.collect.child.property.exe();
+
+
+
+
+
     // Nice, being able to query the results is good.
     //  But will get it working with more verbs than just collect.
 
@@ -241,6 +275,7 @@ const test_js_ast_node = () => {
 
         })
 
+        
 
         
         // Find out how many declarators it has.

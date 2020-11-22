@@ -78,7 +78,7 @@ const test_js_file = () => {
         
         // The improved querying system is the next thing.
         // Query must be after index.
-        
+
 
 
 
@@ -107,6 +107,12 @@ const test_js_file = () => {
             // first check - are they all there in the exported node anyway?
             //  as in module.exports = {plenty}
             //  That will be the way that many modules export their objects with keys.
+            
+            // Likely will make a newer implementation of this, more connected to objects.
+
+            // Indexes will better help some lookups - though could be integrated with queries.
+
+
 
 
 
@@ -121,7 +127,12 @@ const test_js_file = () => {
 
                 //console.log('root.exports.exported.node', root.exports.exported.node);
 
+
+
                 if (root.exports.exported.node.type === 'ObjectExpression') {
+
+                    // root.exports.exported.node.query.key.exec() ???
+
                     each(root.exports.exported.node.child_nodes, opr => {
                         //console.log('opr', opr);
 
@@ -146,16 +157,30 @@ const test_js_file = () => {
 
                 let exported_object_declaration_node;
 
-                program.each.child(cn => {
-                    //console.log('cn', cn);
+
+                // query.each.child.variabledeclaration
+                // .filter.child.by.type
+                //program.query.each.child.exe(cn => {
+                    
+                program.query.filter.each.child.by.type.exe('VariableDeclaration', cn => {
+                        //console.log('cn', cn);
                     //console.log('cn.key', cn.key);
                     //console.log('cn.keys', cn.keys);
                     //console.log('cn.source', cn.source);
 
                     // the key of the object itself.
 
-                    if (cn.type === 'VariableDeclaration') {
+                    //if (cn.type === 'VariableDeclaration') {
                         if (cn.child_nodes.length === 1) {
+
+                            // .query.find.identifier.with.name.exe ??? would get the first. or .by.name or .named 
+
+
+                            // query.find.identifier
+
+                            //if (cn.query.find.identifier.with.name.exe(exported_node_name))
+
+
                             const vdr = cn.child_nodes[0];
                             const cnid = vdr.child_nodes[0];
                             const cnname = cnid.name;
@@ -171,7 +196,7 @@ const test_js_file = () => {
                         } else {
                             //throw 'NYI';
                         }
-                    }
+                    //}
 
                 })
 
@@ -222,6 +247,8 @@ const test_js_file = () => {
                     if (root.exports.exported.node.name) {
                         // go looking for some more keys.
 
+                        
+
                         /*
                         cn ES(CE(ME(ID,ID),ID,ID))
                         cn.source Object.assign(ec, lang_mini);
@@ -229,45 +256,59 @@ const test_js_file = () => {
 
                         // see where it was declared.
 
-                        program.each.child(cn => {
-                            //console.log('');
+                        // filter.each.child.by.signature(sig, cb)
+
+                        // 'filter each child node by signature'
+
+                        // .query.path.exe('0/0')
+
+                        // .query.collect.child.name.exe();
+
+                        //  and then later on will use then indexes when we have such indexes.
+                        // .select.child.by.signature
+
+                        //const cns = program.query.select.child.by.signature.exe('ES(CE(ME(ID,ID),ID,ID))');
+
+                        //console.log('cns', cns);
+
+                        //cns.
+                        //throw 'stop';
+
+                        program.query.filter.each.child.node.by.signature.exe('ES(CE(ME(ID,ID),ID,ID))', cn => {
                             //console.log('cn', cn);
-                            //console.log('cn.source', cn.source);
+                            //const me = cn.child_nodes[0].child_nodes[0];
+                            const me = cn.query.find.by.type.exe('MemberExpression');
+                            //console.log('me', me);
+                            //throw 'stop';
+                            // const me = cn.query.path.exe('0/0')
+                            //const call_names = [me.child_nodes[0].name, me.child_nodes[1].name];
+
+                            const call_names = me.query.collect.child.name.exe();
+
                             
-                            if (cn.is_declaration) {
-                                
-                            }
 
-                            // ES(CE(ME(ID,ID),ID,ID))
+                            //console.log('call_names', call_names);
 
-                            if (cn.signature === 'ES(CE(ME(ID,ID),ID,ID))') {
-                                const me = cn.child_nodes[0].child_nodes[0];
-                                const call_names = [me.child_nodes[0].name, me.child_nodes[1].name];
-                                //console.log('call_names', call_names);
+                            //throw 'stop';
 
-                                if (call_names[0] === 'Object' && call_names[1] === 'assign') {
-                                    const target_name = cn.child_nodes[0].child_nodes[1].name;
-                                    //console.log('target_name', target_name);
+                            // me.query.match.child.name.exe(['Object', 'Assign'])
 
-                                    if (target_name === root.exports.exported.node.name) {
-                                        //console.log('found assignment to exported object');
-                                        const assignment_source_name = cn.child_nodes[0].child_nodes[2].name;
-                                        //console.log('assignment_source_name', assignment_source_name);
-                                        assignment_source_names.push(assignment_source_name);
+                            if (call_names[0] === 'Object' && call_names[1] === 'assign') {
+                                const target_name = cn.child_nodes[0].child_nodes[1].name;
+                                //console.log('target_name', target_name);
 
-                                    }
+                                if (target_name === root.exports.exported.node.name) {
+                                    //console.log('found assignment to exported object');
+                                    const assignment_source_name = cn.child_nodes[0].child_nodes[2].name;
+                                    //console.log('assignment_source_name', assignment_source_name);
+                                    assignment_source_names.push(assignment_source_name);
+
                                 }
-
                             }
-
-                            // is_object_assign
-
-                            
-
                         });
 
+                        
                     }
-
                 }
                 let assignment_source_declaration_node, assignment_source_name;
 
@@ -277,11 +318,11 @@ const test_js_file = () => {
                         assignment_source_name = assignment_source_names[0];
 
 
-                        
+                        // .query.each.child.declaration.exe
 
-                        program.each.child(node => {
+                        program.query.each.child.declaration.exe(node => {
 
-                            if (node.is_declaration) {
+                            //if (node.is_declaration) {
                                 //console.log('');
                                 //console.log('node', node);
                                 //console.log('node.source', node.source);
@@ -317,7 +358,7 @@ const test_js_file = () => {
                                     // var Evented_Class = lang_mini.Evented_Class;
                                 }
                                 
-                            }
+                            //}
 
                         })
 
@@ -346,7 +387,18 @@ const test_js_file = () => {
                     //   of course improved queries would help it to be short.
                     //   however, more can be done in terms of reading files without making the .query system first.
 
-                    program.each.child(node => {
+
+                    // .query.each.child.with.signature.exe(sig, node => {})
+
+                    // each(node.query.collect.child.with.signature.exe('ES(AsE(ME(ID,ID),ID))'), es_node => ...?)
+
+                    // node.query.collect.child.with.signature.exe('ES(AsE(ME(ID,ID),ID))').collect.inner.identifier.name.exe();
+                    //  if a query result can then be queried again.
+                    //   could extends the arrays produced?
+                    //    Query_Result type?
+
+
+                    program.query.each.child.exe(node => {
 
                         //console.log('');
                         //console.log('node', node);

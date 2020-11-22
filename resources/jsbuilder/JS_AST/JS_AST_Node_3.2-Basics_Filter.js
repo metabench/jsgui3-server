@@ -23,7 +23,7 @@ class JS_AST_Node_Basics_Filter extends JS_AST_Node_Basics_Each {
         const filter = new JS_AST_Operation({name: 'filter'});
 
         const {child, inner, all} = this;
-        const {inner_deep_iterate, each_child_node} = this;
+        const {inner_deep_iterate, each_child_node, deep_iterate} = this;
 
 
 

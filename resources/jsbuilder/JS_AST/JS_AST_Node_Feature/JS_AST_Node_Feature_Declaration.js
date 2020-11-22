@@ -20,7 +20,7 @@ class JS_AST_Node_Feature_Declaration extends JS_AST_Node_Feature {
 
 
                     keys = [];
-                    const vdrs = node.select.child(node => node.type === 'VariableDeclarator');
+                    const vdrs = node.query.select.child.node.exe(node => node.type === 'VariableDeclarator'); // and the new query system works.
                     if (vdrs.length > 0) {
                         //console.log('vdrs', vdrs);
 

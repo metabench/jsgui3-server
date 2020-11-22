@@ -17,16 +17,17 @@ class JS_AST_Node_Basics_Find extends JS_AST_Node_Basics_Select {
 
         //const find = new JS_AST_Operation({name: 'find'});
         
-        const find_node = (fn_match => {
+        const find_node = (fn_match) => {
             let res;
             deep_iterate((js_ast_node, path, depth, stop) => {
                 if (fn_match(js_ast_node)) {
+                    if (!res) res = js_ast_node;
                     stop();
-                    res = js_ast_node;
+                    
                 }
             });
             return res;
-        });
+        };
 
         // find.child.node?
         // 

@@ -48,7 +48,10 @@ const test_js_ast_node = () => {
 
 
     console.log('js_ast_node.category', js_ast_node.category);
-    console.log('js_ast_node.source', js_ast_node.source);
+    console.log('');
+    console.log('js_ast_node.source\n' + js_ast_node.source);
+    console.log('');
+
     console.log('js_ast_node', js_ast_node);
     console.log('js_ast_node.child.count', js_ast_node.child.count);
     console.log('js_ast_node.child.shared.type', js_ast_node.child.shared.type);
@@ -76,6 +79,45 @@ const test_js_ast_node = () => {
     console.log('vdr', vdr);
     console.log('vdrcn2', vdrcn2);
     console.log('js_ast_node', js_ast_node);
+
+    // .query.select.exec
+    // .query.select.by.type.exe('ObjectProperty');
+
+    const oprs = js_ast_node.query.select.by.type.exe('ObjectProperty');
+    console.log('oprs', oprs);
+
+    const oprns = js_ast_node.query.select.by.type.exe('ObjectProperty').query.collect.child.identifier.name.exe();
+    
+    console.log('oprns', oprns);
+
+
+    // Just a simple test to get the structure there for query result .each queries.
+    js_ast_node.query.select.by.type.exe('ObjectProperty').query.each.child.exe(cn => {
+        console.log('cn', cn);
+    });
+
+    js_ast_node.query.select.by.type.exe('ObjectProperty').query.each.child.identifier.exe(cn => {
+        console.log('cn', cn);
+    });
+
+
+    const ids = js_ast_node.query.collect.identifier.exe();
+    console.log('ids', ids);
+
+    const csigs = js_ast_node.query.collect.child.signature.exe();
+    console.log('csigs', csigs);
+
+    console.log('js_ast_node.query.count.child.exe()', js_ast_node.query.count.child.exe());
+    console.log('js_ast_node.query.count.identifier.exe()', js_ast_node.query.count.identifier.exe());
+
+
+    // Nice, being able to query the results is good.
+    //  But will get it working with more verbs than just collect.
+
+
+
+    
+
     // .string?
     // .qstring
 

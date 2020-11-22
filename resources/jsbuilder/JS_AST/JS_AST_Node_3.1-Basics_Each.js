@@ -103,7 +103,7 @@ class JS_AST_Node_Basics_Each extends JS_AST_Node_Basics_Last {
 
         const each_child_assignment_expression = (callback) => filter_each_child_node(node => node.type === 'AssignmentExpression', callback);
         const each_child_expression_statement = (callback) => filter_each_child_node(node => node.type === 'ExpressionStatement', callback);
-        const each_child_declaration = (callback) => filter_each_child_node(node => node.is_declaration, callback);
+        //const each_child_declaration = (callback) => filter_each_child_node(node => node.is_declaration, callback);
         //const each_declaration_child_node = (callback) => filter_each_child_node(js_ast_node => js_ast_node.is_declaration, callback);
         const each_assignment_expression_child_node = callback => filter_each_child_node(node => node.type === "AssignmentExpression");
 
@@ -124,6 +124,8 @@ class JS_AST_Node_Basics_Each extends JS_AST_Node_Basics_Last {
         //mechild.assignment_expression = cb => each_child_assignment_expression(cb);
         //mechild.declaration = cb => each_child_declaration(cb);
         this.each = myeach;
+        //this.each_child_declaration = each_child_declaration;
+
 
     }
 }

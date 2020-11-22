@@ -22,6 +22,10 @@ class JS_AST_Node_Category_Declaration extends JS_AST_Node_Category_Pattern {
                 node: this
             });
 
+            // declaration.declared.keys
+
+            
+
 
             // Set up retrieval of info on what is declared.
 

@@ -75,6 +75,15 @@ const create_query_execution_fn = (node, words) => {
         return res;
     }
 
+    const select_child_node_by_category = (cateogry) => {
+        const res = [];
+        filter_each_child_node_by_category(cateogry, node => res.push(node));
+        enable_array_as_queryable(res);
+        return res;
+    }
+
+    // select_child_node_by_category
+
     const find_child_node = finder => {
         let res;
         each_child_node((cn, path, depth, stop) => {
@@ -119,6 +128,7 @@ const create_query_execution_fn = (node, words) => {
     */
 
     const select_by_type = type => select_all(node => node.type === type);
+    const select_by_type_abbreviation = t => select_all(node => node.t === t);
     const select_by_category = category => select_all(node => node.category === category);
 
 
@@ -130,6 +140,14 @@ const create_query_execution_fn = (node, words) => {
     // collect_property_nodes
 
     const collect_child_identifier_nodes = () => select_child(node => node.is_identifier);
+
+    const collect_id_name = () => {
+        const res = [];
+        if (node.id) {
+            res.push(node.id.name);
+        }
+        return res;
+    }
 
     const collect_child_identifier_name = () => {
         const res = [];
@@ -210,6 +228,15 @@ const create_query_execution_fn = (node, words) => {
             return res;
         }
     }
+    if (sentence === 'collect first child value' || sentence === 'collect first child node value') {
+        return () => {
+            const res = [];
+            //each(node.child_nodes, cn => res.push(cn));
+            if (node.child_nodes[0]) res.push(node.child_nodes[0].value);
+            //enable_array_as_queryable(res);
+            return res;
+        }
+    }
     if (sentence === 'collect second child node' || sentence === 'collect second child') {
         return () => {
             const res = [];
@@ -274,12 +301,24 @@ const create_query_execution_fn = (node, words) => {
         //throw 'NYI';
     }
 
+    if (sentence === 'collect id name' || sentence === 'collect id name') {
+        return collect_id_name;
+    } else {
+        //throw 'NYI';
+    }
+
     const collect_child_variable_declarators = () => {
         return select_child_node_by_type('VariableDeclarator');
+    }
+    const collect_child_literal = () => {
+        return select_child_node_by_category('Literal');
     }
 
     if (sentence === 'collect child variabledeclarator') {
         return collect_child_variable_declarators;
+    }
+    if (sentence === 'collect child literal') {
+        return collect_child_literal;
     }
 
     // collect.child.variabledeclarator
@@ -407,6 +446,12 @@ const create_query_execution_fn = (node, words) => {
         return select_by_type;
     }
 
+    if (sentence === 'select by t' || sentence === 'select by type abbreviation' || sentence === 'select by abbreviated type') {
+        return select_by_type_abbreviation;
+    }
+
+    // select_by_type_abbreviation
+
     if (sentence === 'select child node' || sentence === 'select child') {
         return select_child;
     }
@@ -453,7 +498,7 @@ const create_query = (node, words = []) => {
             //console.log('prop', prop);
             //console.log('receiver', receiver);
 
-            console.log('target === res', target === res);
+            //console.log('target === res', target === res);
 
             if (target === res) {
 

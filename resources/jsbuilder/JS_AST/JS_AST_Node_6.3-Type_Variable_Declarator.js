@@ -13,6 +13,14 @@ class JS_AST_Node_Type_Variable_Declarator extends JS_AST_Node_Type_Variable_Dec
 
 
             this.declarator = declarator;
+
+            Object.defineProperty(this, 'id', {
+                get() { 
+                    return this.child_nodes[0];
+                },
+                enumerable: true,
+                configurable: false
+            });
         }
 
     }

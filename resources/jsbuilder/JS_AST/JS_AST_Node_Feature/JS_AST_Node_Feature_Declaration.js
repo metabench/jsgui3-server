@@ -11,15 +11,37 @@ class JS_AST_Node_Feature_Declaration extends JS_AST_Node_Feature {
         const {node} = this;
 
         let keys;
+
+        // Maybe should be .declared.keys?
+
         Object.defineProperty(this, 'keys', {
             get() { 
                 if (!keys) {
 
                     // Can try the get_object_keys function???
 
-
-
                     keys = [];
+
+                    if (node.type === 'VariableDeclaration') {
+                        //console.log('node', node);
+                        //const ks = node.query.collect.child.variabledeclarator.exe().query.collect.id.name.exe();
+                        const vdars = node.query.collect.child.variabledeclarator.exe();
+                        //console.log('vdars', vdars);
+                        //console.log('vdars[0].id', vdars[0].id);
+                        const collected_keys = vdars.query.collect.id.name.exe();
+                        each(collected_keys, key => keys.push(key));
+                        //console.log('collected_keys', collected_keys);
+                    } else if (node.type === 'ClassDeclaration') {
+                        throw 'NYI';
+                    } else {
+                        throw 'stop';
+                    }
+
+                    //throw 'stop';
+
+
+
+                    
                     const vdrs = node.query.select.child.node.exe(node => node.type === 'VariableDeclarator'); // and the new query system works.
                     if (vdrs.length > 0) {
                         //console.log('vdrs', vdrs);

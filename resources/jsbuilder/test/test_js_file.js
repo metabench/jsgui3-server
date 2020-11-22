@@ -53,7 +53,7 @@ const test_js_file = () => {
     const jsfile_path = '../JS_File/JS_File.js';
     const jsbuilder_path = '../JS_Builder.js';
     //const file_path = '../JS_File.js';
-    const file_path = jsfile_path;
+    const file_path = lt_path;
     // path of lang mini...
 
     // Write and test a simple and convenient way for analysing JS files and recompiling them.
@@ -72,6 +72,16 @@ const test_js_file = () => {
         const {js_ast_node_file} = jsf;
         const body_child_node_identifier_names = [];
         const map_bcnidns = {};
+
+        // If it can resolve imports to find out more about what keys are there, that would help.
+        //  May be useful to have a way to indicate that a file / module adds keys to what it imports.
+        
+        // The improved querying system is the next thing.
+        // Query must be after index.
+        
+
+
+
 
         //console.log('jsf.root.constructor', jsf.root.constructor);
         console.log('jsf.node_root.constructor', jsf.node_root.constructor);

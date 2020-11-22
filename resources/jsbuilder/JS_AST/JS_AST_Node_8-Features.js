@@ -1,25 +1,17 @@
 //const babel_node_tools = require('../babel/babel_node_tools');
 
 const { each } = require('../../../../../tools/arr-tools/arr-tools');
-const JS_AST_Node_Basics_Find = require('./JS_AST_Node_3.5-Basics_Find');
+const JS_AST_Node_Query = require('./JS_AST_Node_7-Query');
 
-// Could make a more specific feature extraction part.
-//  Will come up with more:
 
-// 2.1 Identify
-// 2.2 ??? - Extract_Feature?
 
-// Will identify more information about what JS is contained.
-//  Eg if it's a recognised code library structure that can be extracted.
-//   Identify the main block of declarations in a (library or framework) file.
-//    Identify the variable definitions in there.
 
-// Need more capability here to find and match specified features.
-// Asking questions about a piece of code - questions to later determine what it is and how to use it.
-// .matches_type_signature(signature)
-// . but using a tree is better for checking multiple signatures at once.
 
-class JS_AST_Node_Basics_Features extends JS_AST_Node_Basics_Find {
+
+
+
+
+class JS_AST_Node_Features extends JS_AST_Node_Query {
     constructor(spec = {}) {
         super(spec);
         // Getting the assigned values also seems important.
@@ -66,12 +58,8 @@ class JS_AST_Node_Basics_Features extends JS_AST_Node_Basics_Find {
 
 
         // The imports and exports features are important for linking together the documents.
-
-
-
-
         
     }
 }
 
-module.exports = JS_AST_Node_Basics_Features;
+module.exports = JS_AST_Node_Features;

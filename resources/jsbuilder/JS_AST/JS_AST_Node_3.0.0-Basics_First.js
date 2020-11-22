@@ -1,6 +1,6 @@
 
 const { each } = require('../../../../../tools/arr-tools/arr-tools');
-const JS_AST_Node_Query = require('./JS_AST_Node_3-Query');
+const JS_AST_Node_Basics = require('./JS_AST_Node_3-Basics');
 
 const JS_AST_Abstract_Node = require('./JS_AST_Abstract_Node');
 const JS_AST_Ordinal = require('./JS_AST_Ordinal');
@@ -28,7 +28,11 @@ const JS_AST_Ordinal_Relationship = require('./JS_AST_Ordinal_Relationship');
 
 // basically 'deep iterate', though could apply to .child or .ancestor
 
-class JS_AST_Node_Query_First extends JS_AST_Node_Query {
+// First is basically just an ordinal, part of a relationship.
+//  New query system will likely be much better.
+
+
+class JS_AST_Node_Basics_First extends JS_AST_Node_Basics {
     constructor(spec = {}) {
         super(spec);
 
@@ -172,4 +176,4 @@ class JS_AST_Node_Query_First extends JS_AST_Node_Query {
     }
 }
 
-module.exports = JS_AST_Node_Query_First;
+module.exports = JS_AST_Node_Basics_First;

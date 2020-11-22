@@ -58,6 +58,55 @@ const test_js_ast_node = () => {
 
     console.log('js_ast_node.declaration.keys', js_ast_node.declaration.keys);
 
+    const q = js_ast_node.query;
+
+    const qeach = q.each;
+
+    console.log('q', q);
+    console.log('qeach', qeach);
+    console.log('qeach.text', qeach.text);
+
+    //const q2 = js_ast_node.query.each.child.node;
+    const q2 = js_ast_node.query.first.child.node;
+    console.log('q2', q2);
+    console.log('q2.qstring', q2.qstring); // .qtext? or .querytext? .toString()? qstring for the moment.
+    const vdr = q2.exe();
+    const vdrcn2 = vdr.query.second.child.exe();
+    //console.log('q2.exe()', q2.exe());
+    console.log('vdr', vdr);
+    console.log('vdrcn2', vdrcn2);
+    console.log('js_ast_node', js_ast_node);
+    // .string?
+    // .qstring
+
+
+    //const q2res = q2.exe(cn => {
+    //    console.log('cn', cn);
+    //});
+
+    // each child declaration
+    //            identifier
+
+
+    // .exe function executes the query.
+
+    // Could load in various query handling modules in a tree.
+
+    // .each.child.declaration
+
+    //  Then a fairly large OO query system could do it.
+    //  Consider if that's best.
+    //   Seems best, considering usage of various objects such as relationships.
+
+
+    
+
+
+
+
+
+
+
     // then can use specific (level 2) properties when we have a Declaration of VariableDeclaration
 
     // let's put it in the VariableDeclaration class.

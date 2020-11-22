@@ -2,7 +2,7 @@
 // Coming up with a new version based on the plan.
 //  Want to hold the compressed version. Hold a reference to the new version which has has the compression run.
 
-const JS_AST_Node_Planning = require('./JS_AST_Node_8-Planning');
+const JS_AST_Node_Planning = require('./JS_AST_Node_10-Planning');
 
 class JS_AST_Node_Changing extends JS_AST_Node_Planning {
     constructor(spec = {}) {

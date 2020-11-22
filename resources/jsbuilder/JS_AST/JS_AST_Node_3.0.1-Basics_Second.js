@@ -1,6 +1,6 @@
 
 const { each } = require('../../../../../tools/arr-tools/arr-tools');
-const JS_AST_Node_Query_First = require('./JS_AST_Node_3.0.0-Query_First');
+const JS_AST_Node_Basics_First = require('./JS_AST_Node_3.0.0-Basics_First');
 
 const JS_AST_Abstract_Node = require('./JS_AST_Abstract_Node');
 const JS_AST_Ordinal = require('./JS_AST_Ordinal');
@@ -28,7 +28,7 @@ const JS_AST_Ordinal_Relationship = require('./JS_AST_Ordinal_Relationship');
 
 // basically 'deep iterate', though could apply to .child or .ancestor
 
-class JS_AST_Node_Query_Second extends JS_AST_Node_Query_First {
+class JS_AST_Node_Basics_Second extends JS_AST_Node_Basics_First {
     constructor(spec = {}) {
         super(spec);
 
@@ -85,4 +85,4 @@ class JS_AST_Node_Query_Second extends JS_AST_Node_Query_First {
     }
 }
 
-module.exports = JS_AST_Node_Query_Second;
+module.exports = JS_AST_Node_Basics_Second;

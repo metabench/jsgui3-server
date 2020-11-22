@@ -1,5 +1,5 @@
 
-const JS_AST_Node_Query_Each = require('./JS_AST_Node_3.1-Query_Each');
+const JS_AST_Node_Basics_Each = require('./JS_AST_Node_3.1-Basics_Each');
 
 const JS_AST_Operation = require('./JS_AST_Operation');
 const JS_AST_Relationship = require('./JS_AST_Relationship');
@@ -27,7 +27,11 @@ const JS_AST_Operation_On_Relationship = require('./JS_AST_Operation_On_Relation
 
 // basically 'deep iterate', though could apply to .child or .ancestor
 
-class JS_AST_Node_Query_Count extends JS_AST_Node_Query_Each {
+// Currently not used anyway. Will make the more advanced .query system.
+
+
+
+class JS_AST_Node_Basics_Count extends JS_AST_Node_Basics_Each {
     constructor(spec = {}) {
         super(spec);
 
@@ -68,6 +72,8 @@ class JS_AST_Node_Query_Count extends JS_AST_Node_Query_Each {
         //const child = new JS_AST_Relationship({
         //    name: 'child'
         //});
+
+        
 
         const count_child = new JS_AST_Operation_On_Relationship({
             operation: count,
@@ -115,4 +121,4 @@ class JS_AST_Node_Query_Count extends JS_AST_Node_Query_Each {
     }
 }
 
-module.exports = JS_AST_Node_Query_Each
+module.exports = JS_AST_Node_Basics_Count

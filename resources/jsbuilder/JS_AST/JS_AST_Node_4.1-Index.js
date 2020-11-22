@@ -8,7 +8,7 @@
 //  so in order to get the info about how the names relate to nodes we consult indexes.
 
 const { each } = require('lang-mini');
-const JS_AST_Node_Query_Find = require('./JS_AST_Node_3.5-Query_Find');
+const JS_AST_Node_Basics_Find = require('./JS_AST_Node_3.5-Basics_Find');
 const JS_AST_Node_Indexes = require('./JS_AST_Node_4.0-Index_Indexes');
 
 const get_node_indexed_property_matches = (node) => {
@@ -23,7 +23,7 @@ const get_node_indexed_property_matches = (node) => {
 
      
 }
-class JS_AST_Node_Index extends JS_AST_Node_Query_Find {
+class JS_AST_Node_Index extends JS_AST_Node_Basics_Find {
     constructor(spec = {}) {
         super(spec);
         const {deep_iterate, inner, child} = this;

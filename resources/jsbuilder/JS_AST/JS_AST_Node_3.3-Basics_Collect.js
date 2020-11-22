@@ -1,6 +1,6 @@
 
 const { each } = require('../../../../../tools/arr-tools/arr-tools');
-const JS_AST_Node_Query_Filter = require('./JS_AST_Node_3.2-Query_Filter');
+const JS_AST_Node_Basics_Filter = require('./JS_AST_Node_3.2-Basics_Filter');
 
 const JS_AST_Operation = require('./JS_AST_Operation');
 const JS_AST_Relationship = require('./JS_AST_Relationship_Node_To_Group');
@@ -14,7 +14,7 @@ const JS_AST_Operation_On_Relationship = require('./JS_AST_Operation_On_Relation
 //  Some values with different syntax could be properties.
 
 
-class JS_AST_Node_Query_Collect extends JS_AST_Node_Query_Filter {
+class JS_AST_Node_Basics_Collect extends JS_AST_Node_Basics_Filter {
     constructor(spec = {}) {
         super(spec);
 
@@ -150,90 +150,8 @@ class JS_AST_Node_Query_Collect extends JS_AST_Node_Query_Filter {
             enumerable: true,
             configurable: false
         });
-
-
-
-
-        /*
-
-        Object.assign(this.collect, {
-            child: () => this.child.nodes,
-            inner: cb => collect_inner_nodes()
-        });
-
-        // then collect.child.type
-        //  collects the types of the children.
-
-        let _collected_child_types, _collected_child_categories, _collected_child_names, _collected_category_values, _collected_child_identifiers, _collected_child_identifier_names;
-
-        Object.assign(this.collect.child, {
-            type: () => {
-                if (!_collected_child_types) {
-                    _collected_child_types = [];
-                    each(child_nodes, cn => _collected_child_types.push(cn.type));
-                }
-                return _collected_child_types;
-            },
-            category: () => {
-                if (!_collected_child_categories) {
-                    _collected_child_categories = [];
-                    each(child_nodes, cn => _collected_child_categories.push(cn.category));
-                }
-                return _collected_child_categories;
-            },
-            value: () => {
-                if (!_collected_category_values) {
-                    _collected_category_values = [];
-                    each(child_nodes, cn => _collected_category_values.push(cn.value));
-                }
-                return _collected_category_values;
-            },
-            identifier: () => {
-                if (!_collected_child_identifiers) {
-                    _collected_child_identifiers = [];
-                    each(child_nodes, cn => _collected_child_identifiers.push(cn.identifier));
-                }
-                return _collected_child_identifiers;
-            },
-            first: () => [child_nodes[0]]
-        });
-
-        Object.assign(this.collect.child.first, {
-            str_name: () => {
-                if (!_collected_child_identifier_names) {
-                    _collected_child_identifier_names = [];
-                    each(child_nodes, cn => _collected_child_identifier_names.push(cn.identifier.name));
-                }
-                return _collected_child_identifier_names;
-            },
-            value: () => {
-                if (!_collected_child_identifier_names) {
-                    _collected_child_identifier_names = [];
-                    each(child_nodes, cn => _collected_child_identifier_names.push(cn.identifier.name));
-                }
-                return _collected_child_identifier_names;
-            }
-        });
-
-        Object.assign(this.collect.child.identifier, {
-            str_name: () => {
-                if (!_collected_child_identifier_names) {
-                    _collected_child_identifier_names = [];
-                    each(child_nodes, cn => _collected_child_identifier_names.push(cn.identifier.name));
-                }
-                return _collected_child_identifier_names;
-            },
-            value: () => {
-                if (!_collected_child_identifier_names) {
-                    _collected_child_identifier_names = [];
-                    each(child_nodes, cn => _collected_child_identifier_names.push(cn.identifier.name));
-                }
-                return _collected_child_identifier_names;
-            }
-        });
-        */
         this.collect = collect;
     }
 }
 
-module.exports = JS_AST_Node_Query_Collect
+module.exports = JS_AST_Node_Basics_Collect

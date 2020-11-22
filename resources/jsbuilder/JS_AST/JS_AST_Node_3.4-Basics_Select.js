@@ -1,10 +1,10 @@
 
 const { each } = require('../../../../../tools/arr-tools/arr-tools');
-const JS_AST_Node_Query_Collect = require('./JS_AST_Node_3.3-Query_Collect');
+const JS_AST_Node_Basics_Collect = require('./JS_AST_Node_3.3-Basics_Collect');
 const JS_AST_Operation = require('./JS_AST_Operation');
 const JS_AST_Relationship_Node_To_Group = require('./JS_AST_Relationship_Node_To_Group');
 const JS_AST_Operation_On_Relationship = require('./JS_AST_Operation_On_Relationship');
-class JS_AST_Node_Query_Select extends JS_AST_Node_Query_Collect {
+class JS_AST_Node_Basics_Select extends JS_AST_Node_Basics_Collect {
     constructor(spec = {}) {
         super(spec);
 
@@ -30,18 +30,6 @@ class JS_AST_Node_Query_Select extends JS_AST_Node_Query_Collect {
 
         const {child, inner, all} = this;
 
-        const select_child = new JS_AST_Operation_On_Relationship({
-            operation: select,
-            related: child
-        });
-        const select_inner = new JS_AST_Operation_On_Relationship({
-            operation: select,
-            related: inner
-        });
-        const select_all = new JS_AST_Operation_On_Relationship({
-            operation: select,
-            related: all
-        });
         //select.child = select_child;
         //select.inner = select_inner;
         //select.all = select_all;
@@ -159,4 +147,4 @@ class JS_AST_Node_Query_Select extends JS_AST_Node_Query_Collect {
     }
 }
 
-module.exports = JS_AST_Node_Query_Select
+module.exports = JS_AST_Node_Basics_Select

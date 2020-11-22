@@ -1,12 +1,12 @@
 
 const { each } = require('../../../../../tools/arr-tools/arr-tools');
-const JS_AST_Node_Query_Babel = require('./JS_AST_Node_1-Babel');
+const JS_AST_Node_Basics_Babel = require('./JS_AST_Node_1-Babel');
 
 const JS_AST_Relationship_Node_To_Group = require('./JS_AST_Relationship_Node_To_Group');
 
 const JS_AST_Group_Shared = require('./JS_AST_Group_Shared');
 
-class JS_AST_Node_Child extends JS_AST_Node_Query_Babel {
+class JS_AST_Node_Child extends JS_AST_Node_Basics_Babel {
     constructor(spec = {}) {
         super(spec);
         const {each_child_node} = this;

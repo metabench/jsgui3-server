@@ -1,4 +1,4 @@
-const JS_AST_Node_Index = require('./JS_AST_Node_7-Features');
+const JS_AST_Node_Index = require('./JS_AST_Node_8-Features');
 
 class JS_AST_Node_Planning extends JS_AST_Node_Index {
     constructor(spec = {}) {

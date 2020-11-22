@@ -1,5 +1,5 @@
 
-const JS_AST_Node_Query_Last = require('./JS_AST_Node_3.0.99-Query_Last');
+const JS_AST_Node_Basics_Last = require('./JS_AST_Node_3.0.99-Basics_Last');
 const JS_AST_Operation = require('./JS_AST_Operation');
 const JS_AST_Relationship = require('./JS_AST_Relationship_Node_To_Group');
 
@@ -29,7 +29,10 @@ const JS_AST_Operation_On_Relationship = require('./JS_AST_Operation_On_Relation
 
 // basically 'deep iterate', though could apply to .child or .ancestor
 
-class JS_AST_Node_Query_Each extends JS_AST_Node_Query_Last {
+
+// More about traversal than query?
+
+class JS_AST_Node_Basics_Each extends JS_AST_Node_Basics_Last {
     constructor(spec = {}) {
         super(spec);
         const {each_child_node, filter_each_child_node} = this;
@@ -65,6 +68,8 @@ class JS_AST_Node_Query_Each extends JS_AST_Node_Query_Last {
         // Operation_Relationship_Node?
         //  Since it's each child node, or some kind of node here, we can make use of that somehow.
 
+
+        /*
         const each_child = new JS_AST_Operation_On_Relationship({
             operation: myeach,
             related: child
@@ -86,6 +91,8 @@ class JS_AST_Node_Query_Each extends JS_AST_Node_Query_Last {
         myeach.statement = callback => {
             this.filter_deep_iterate(node => node.is_statement, callback);
         }
+
+        */
 
 
 
@@ -109,16 +116,16 @@ class JS_AST_Node_Query_Each extends JS_AST_Node_Query_Last {
         const each_inner_variable_declarator = callback => each_inner_node_of_type('VariableDeclarator', callback);
         const each_inner_identifier = callback => each_inner_node_of_type('Identifier', callback);
 
-        each_child.node = cb => each_child_node(callback);
+        //each_child.node = cb => each_child_node(callback);
 
-        const mechild = myeach.child = cb => each_child_node(cb);
+        //const mechild = myeach.child = cb => each_child_node(cb);
         
-        mechild.expression_statement = cb => each_child_expression_statement(cb);
-        mechild.assignment_expression = cb => each_child_assignment_expression(cb);
-        mechild.declaration = cb => each_child_declaration(cb);
+        //mechild.expression_statement = cb => each_child_expression_statement(cb);
+        //mechild.assignment_expression = cb => each_child_assignment_expression(cb);
+        //mechild.declaration = cb => each_child_declaration(cb);
         this.each = myeach;
 
     }
 }
 
-module.exports = JS_AST_Node_Query_Each
+module.exports = JS_AST_Node_Basics_Each

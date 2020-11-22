@@ -73,6 +73,8 @@ const JS_AST_Node_Signature = require('./JS_AST_Node_2.9-Signature');
 
 // The .query system will be the best way by far to both create and run some more complex queries in a syntax that closely resembles the English language.
 
+// These are more like core extended???
+//  these are functions / getters / iterators
 
 
 
@@ -82,7 +84,9 @@ const JS_AST_Node_Signature = require('./JS_AST_Node_2.9-Signature');
 
 
 
-class JS_AST_Node_Query extends JS_AST_Node_Signature {
+
+
+class JS_AST_Node_Basics extends JS_AST_Node_Signature {
     constructor(spec = {}) {
         super(spec);
         //const {deep_iterate, each_child_node, filter_each_child_node} = this;
@@ -143,82 +147,7 @@ class JS_AST_Node_Query extends JS_AST_Node_Signature {
         }
 
 
-        const unused = () => {
-
-
-            Object.assign(this, {
-
-            
-
-                //filter: (fn_filter, callback) => filter_deep_iterate(fn_filter, callback),
-    
-                //filter_by_type: (type, callback) => filter_by_type_deep_iterate(type, callback),
-    
-                //find: (fn_match) => find_node(fn_match),
-    
-                // Maybe this will be in the indexing part. Probably best there.
-                map: {
-                    child: {
-    
-                    },
-                    deep: {
-    
-                    },
-                    inner: {
-    
-                    }
-                }
-            });
-    
-            Object.defineProperty(this, 'value', {
-                get() { 
-                    if (this.type === 'StringLiteral') {
-                        console.log(this.node);
-                        throw 'stop';
-                    } else {
-                        throw 'NYI';
-                    }
-    
-                },
-                //set(newValue) { bValue = newValue; },
-                enumerable: true,
-                configurable: false
-            });
-
-            Object.defineProperty(this, 'identifier', {
-                get() { 
-    
-                    //return this.find.child(n => n.type === 'Identifier');
-    
-                    return this.find(n => n.type === 'Identifier');
-    
-                },
-                //set(newValue) { bValue = newValue; },
-                enumerable: true,
-                configurable: false
-            });
-
-
-        }
         
-        
-
-
-        // just .find.identifier?
-        //  then arrange a shortcut for that to be clearer?
-
-        /*
-
-        
-
-        // const each_root_assignment_expression = (callback) => each_root_node(node => node.type === 'AssignmentExpression', callback);
-        // //this.index_named_node = index_named_node; this.get_arr_named_node = get_arr_named_node;
-        
-
-        const deep_iterate_identifiers = (max_depth, callback) => typed_deep_iterate('Identifier', max_depth, callback);
-        */
-
-        //this.deep_iterate_identifiers = deep_iterate_identifiers;
         this.inner_deep_iterate = inner_deep_iterate;
         this.filter_deep_iterate = filter_deep_iterate;
 
@@ -228,4 +157,4 @@ class JS_AST_Node_Query extends JS_AST_Node_Signature {
 // Indexing may work better with / after these queries.
 //  Then there could be another layer of queries after index.
 
-module.exports = JS_AST_Node_Query;
+module.exports = JS_AST_Node_Basics;

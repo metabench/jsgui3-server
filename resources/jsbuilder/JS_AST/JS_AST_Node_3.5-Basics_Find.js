@@ -1,17 +1,21 @@
 
 const { each } = require('../../../../../tools/arr-tools/arr-tools');
-const JS_AST_Node_Query_Select = require('./JS_AST_Node_3.4-Query_Select');
+const JS_AST_Node_Basics_Select = require('./JS_AST_Node_3.4-Basics_Select');
 
 const JS_AST_Operation = require('./JS_AST_Operation');
 const JS_AST_Relationship = require('./JS_AST_Relationship_Node_To_Group');
 const JS_AST_Operation_On_Relationship = require('./JS_AST_Operation_On_Relationship');
 
-class JS_AST_Node_Query_Find extends JS_AST_Node_Query_Select {
+class JS_AST_Node_Basics_Find extends JS_AST_Node_Basics_Select {
     constructor(spec = {}) {
         super(spec);
         const {deep_iterate} = this;
 
-        const find = new JS_AST_Operation({name: 'find'});
+
+        // Not so sure we need this kind of operation object now.
+        //  .query is how queries will be done in the future. 
+
+        //const find = new JS_AST_Operation({name: 'find'});
         
         const find_node = (fn_match => {
             let res;
@@ -28,8 +32,8 @@ class JS_AST_Node_Query_Find extends JS_AST_Node_Query_Select {
         // 
         
         
-        find.node = fn_match => find_node(fn_match);
-        this.find = find;
+        //find.node = fn_match => find_node(fn_match);
+        this.find_node = find_node;
 
         
         
@@ -37,4 +41,4 @@ class JS_AST_Node_Query_Find extends JS_AST_Node_Query_Select {
     }
 }
 
-module.exports = JS_AST_Node_Query_Find
+module.exports = JS_AST_Node_Basics_Find

@@ -27,7 +27,9 @@ const test_js_ast_node = () => {
     //const test_script_1 = 'const [a, b, c] = [1, 2, 3], [d, e, f] = [4, 5, 6];';
     //const test_script_1 = 'const [a, b, c] = [1, 2, 3];';
 
-    const test_script_3 = 'const {a, b, c} = propertied_object;'
+    //const test_script_3 = 'const {a, b, c} = propertied_object;'
+
+    const test_script_4 = 'const obj = {"a": 1, "b": 2, "c": 3}';
 
     // Item declared as an array.
     //  Still a single declared item, even though it's composed of multiple things.
@@ -41,98 +43,134 @@ const test_js_ast_node = () => {
     //   If it has no parent_node.
 
     const spec = {
-        source: test_script_3
+        source: test_script_4
     };
 
     const js_ast_node = JS_AST_Node.from_spec(spec);
 
-
-    console.log('js_ast_node.category', js_ast_node.category);
-    console.log('');
-    console.log('js_ast_node.source\n' + js_ast_node.source);
-    console.log('');
-
     console.log('js_ast_node', js_ast_node);
-    console.log('js_ast_node.child.count', js_ast_node.child.count);
-    console.log('js_ast_node.child.shared.type', js_ast_node.child.shared.type);
-    console.log('js_ast_node.child.shared.t', js_ast_node.child.shared.t);
-    console.log('js_ast_node.type', js_ast_node.type);
-    console.log('js_ast_node.declaration', js_ast_node.declaration);
+    console.log('js_ast_node.source', js_ast_node.source);
 
-    console.log('js_ast_node.declaration.keys', js_ast_node.declaration.keys);
 
-    const q = js_ast_node.query;
+    // Let's do a bit more work on getting object declared keys.
+    //  .query.collect.objectproperty.exe().query.find.child.identifier.exe().query('name');
 
-    const qeach = q.each;
 
-    console.log('q', q);
-    console.log('qeach', qeach);
-    console.log('qeach.text', qeach.text);
+    const var_decltrs = js_ast_node.query.collect.child.variabledeclarator.exe();
+    console.log('var_decltrs', var_decltrs);
 
-    //const q2 = js_ast_node.query.each.child.node;
-    const q2 = js_ast_node.query.first.child.node;
-    console.log('q2', q2);
-    console.log('q2.qstring', q2.qstring); // .qtext? or .querytext? .toString()? qstring for the moment.
-    const vdr = q2.exe();
-    const vdrcn2 = vdr.query.second.child.exe();
-    //console.log('q2.exe()', q2.exe());
-    console.log('vdr', vdr);
-    console.log('vdrcn2', vdrcn2);
-    console.log('js_ast_node', js_ast_node);
+    // .id property of the var declarators?
+    //  
 
-    // .query.select.exec
-    // .query.select.by.type.exe('ObjectProperty');
+    const decr_id_names = js_ast_node.query.collect.child.variabledeclarator.exe().query.collect.first.child.name.exe();
+    console.log('decr_id_names', decr_id_names);
 
-    const oprs = js_ast_node.query.select.by.type.exe('ObjectProperty');
-    console.log('oprs', oprs);
+    //const key_id_names = js_ast_node.query.collect.objectproperty.exe().query.collect.child.identifier.exe().query.collect.name.exe();
+    //console.log('key_id_names', key_id_names);
 
-    const oprns = js_ast_node.query.select.by.type.exe('ObjectProperty').query.collect.child.identifier.name.exe();
+
+    const various_tests_including_new_query_api = () => {
+
+
+        console.log('js_ast_node.category', js_ast_node.category);
+        console.log('');
+        console.log('js_ast_node.source\n' + js_ast_node.source);
+        console.log('');
+
+        console.log('js_ast_node', js_ast_node);
+        console.log('js_ast_node.child.count', js_ast_node.child.count);
+        console.log('js_ast_node.child.shared.type', js_ast_node.child.shared.type);
+        console.log('js_ast_node.child.shared.t', js_ast_node.child.shared.t);
+        console.log('js_ast_node.type', js_ast_node.type);
+        console.log('js_ast_node.declaration', js_ast_node.declaration);
+
+        console.log('js_ast_node.declaration.keys', js_ast_node.declaration.keys);
+
+        const q = js_ast_node.query;
+
+        const qeach = q.each;
+
+        console.log('q', q);
+        console.log('qeach', qeach);
+        console.log('qeach.text', qeach.text);
+
+        //const q2 = js_ast_node.query.each.child.node;
+        const q2 = js_ast_node.query.first.child.node;
+        console.log('q2', q2);
+        console.log('q2.qstring', q2.qstring); // .qtext? or .querytext? .toString()? qstring for the moment.
+        const vdr = q2.exe();
+        const vdrcn2 = vdr.query.second.child.exe();
+        //console.log('q2.exe()', q2.exe());
+        console.log('vdr', vdr);
+        console.log('vdrcn2', vdrcn2);
+        console.log('js_ast_node', js_ast_node);
+
+        // .query.select.exec
+        // .query.select.by.type.exe('ObjectProperty');
+
+        const oprs = js_ast_node.query.select.by.type.exe('ObjectProperty');
+        console.log('oprs', oprs);
+
+        const oprns = js_ast_node.query.select.by.type.exe('ObjectProperty').query.collect.child.identifier.name.exe();
+        
+        console.log('oprns', oprns);
+
+
+        // Just a simple test to get the structure there for query result .each queries.
+        js_ast_node.query.select.by.type.exe('ObjectProperty').query.each.child.exe(cn => {
+            console.log('cn', cn);
+        });
+
+        js_ast_node.query.select.by.type.exe('ObjectProperty').query.each.child.identifier.exe(cn => {
+            console.log('cn', cn);
+        });
+
+
+        const ids = js_ast_node.query.collect.identifier.exe();
+        console.log('ids', ids);
+
+        const csigs = js_ast_node.query.collect.child.signature.exe();
+        console.log('csigs', csigs);
+
+        console.log('js_ast_node.query.count.child.exe()', js_ast_node.query.count.child.exe());
+        console.log('js_ast_node.query.count.identifier.exe()', js_ast_node.query.count.identifier.exe());
+
+
+        // still for the moment will be clear about the verb used.
+
+        // Pattern category....
+
+        // query.collect.by.category('Pattern');
+
+        //const patterns = js_ast_node.query.select.by.category.exe('Pattern');
+
+        const patterns = js_ast_node.query.collect.pattern.exe();
+
+        console.log('patterns', patterns);
+
+        const oprops = patterns.query.collect.property.exe();
+        console.log('oprops', oprops);
+
+        const cfcs = js_ast_node.query.collect.child.exe().query.collect.first.child.exe();
+
+
+        console.log('cfcs', cfcs);
+        console.log('cfcs.length', cfcs.length);
+
+        console.log('cfcs.query', cfcs.query);
+
+        const cfc = cfcs[0];
+        const cfc_child_types = cfc.query.collect.child.type.exe()
+        const cfc_child_child_counts = cfc.query.collect.child.exe().query.collect.child.count.exe()
+
+        console.log('cfc_child_types', cfc_child_types);
+        console.log('cfc_child_child_counts', cfc_child_child_counts);
+
+
+    }
+
+
     
-    console.log('oprns', oprns);
-
-
-    // Just a simple test to get the structure there for query result .each queries.
-    js_ast_node.query.select.by.type.exe('ObjectProperty').query.each.child.exe(cn => {
-        console.log('cn', cn);
-    });
-
-    js_ast_node.query.select.by.type.exe('ObjectProperty').query.each.child.identifier.exe(cn => {
-        console.log('cn', cn);
-    });
-
-
-    const ids = js_ast_node.query.collect.identifier.exe();
-    console.log('ids', ids);
-
-    const csigs = js_ast_node.query.collect.child.signature.exe();
-    console.log('csigs', csigs);
-
-    console.log('js_ast_node.query.count.child.exe()', js_ast_node.query.count.child.exe());
-    console.log('js_ast_node.query.count.identifier.exe()', js_ast_node.query.count.identifier.exe());
-
-
-    // still for the moment will be clear about the verb used.
-
-    // Pattern category....
-
-    // query.collect.by.category('Pattern');
-
-    //const patterns = js_ast_node.query.select.by.category.exe('Pattern');
-
-    const patterns = js_ast_node.query.collect.pattern.exe();
-
-    console.log('patterns', patterns);
-
-    const oprops = patterns.query.collect.property.exe();
-    console.log('oprops', oprops);
-
-    const cfcs = js_ast_node.query.collect.child.exe().query.collect.first.child.exe();
-
-
-    console.log('cfcs', cfcs);
-    console.log('cfcs.length', cfcs.length);
-
-    console.log('cfcs.query', cfcs.query);
 
 
 

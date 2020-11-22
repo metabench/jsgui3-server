@@ -31,6 +31,11 @@ const create_query_execution_fn = (node, words) => {
 
     */
 
+
+    // find_child_identifier
+
+    // Looks like more work is needed on the 'find' part of the .query system.
+
     // Does seem best to use some kind of OO parsing into a query object.
     //  That would then have the structure to support longer queries.
 
@@ -66,8 +71,23 @@ const create_query_execution_fn = (node, words) => {
     const select_child_node_by_type = (type) => {
         const res = [];
         filter_each_child_node_by_type(type, node => res.push(node));
+        enable_array_as_queryable(res);
         return res;
     }
+
+    const find_child_node = finder => {
+        let res;
+        each_child_node((cn, path, depth, stop) => {
+            if (!res) if (finder(cn)) {
+                res = cn;
+                //stop();
+            }
+        })
+        return res; 
+    }
+
+    const find_child_node_by_type = type => find_child_node(node => node.type === type);
+    const find_child_identifier = () => find_child_node_by_type('Identifier');
 
     // collect child name
 
@@ -81,9 +101,28 @@ const create_query_execution_fn = (node, words) => {
 
     const find_node_by_type = type => find_node(node => node.type === type);
 
+    /*
+
+
+    const find_node = (fn_match) => {
+            let res;
+            deep_iterate((js_ast_node, path, depth, stop) => {
+                if (fn_match(js_ast_node)) {
+                    if (!res) res = js_ast_node;
+                    stop();
+                    
+                }
+            });
+            return res;
+        };
+
+    */
+
     const select_by_type = type => select_all(node => node.type === type);
     const select_by_category = category => select_all(node => node.category === category);
 
+
+    const collect_objectproperty_nodes = () => select_by_type('ObjectProperty');
     const collect_identifier_nodes = () => select_by_type('Identifier');
     const collect_pattern_nodes = () => select_by_category('Pattern');
     const collect_expression_nodes = () => select_by_category('Expression');
@@ -133,12 +172,41 @@ const create_query_execution_fn = (node, words) => {
         //throw 'NYI';
     }
 
+    if (sentence === 'collect child type' || sentence === 'collect child node type') {
+        return () => {
+            const res = [];
+            each(node.child_nodes, cn => res.push(cn.type));
+            return res;
+        }
+    }
+
+    if (sentence === 'collect child category' || sentence === 'collect child node category') {
+        return () => {
+            const res = [];
+            each(node.child_nodes, cn => res.push(cn.category));
+            return res;
+        }
+    }
+    if (sentence === 'collect child count' || sentence === 'collect child node count') {
+        return () => [node.child_nodes.length];
+    }
+
     if (sentence === 'collect first child node' || sentence === 'collect first child') {
         return () => {
             const res = [];
             //each(node.child_nodes, cn => res.push(cn));
             if (node.child_nodes[0]) res.push(node.child_nodes[0]);
             enable_array_as_queryable(res);
+            return res;
+        }
+    }
+
+    if (sentence === 'collect first child name' || sentence === 'collect first child node name') {
+        return () => {
+            const res = [];
+            //each(node.child_nodes, cn => res.push(cn));
+            if (node.child_nodes[0]) res.push(node.child_nodes[0].name);
+            //enable_array_as_queryable(res);
             return res;
         }
     }
@@ -176,6 +244,10 @@ const create_query_execution_fn = (node, words) => {
         return collect_expression_nodes;
     }
 
+    if (sentence === 'collect objectproperty' || sentence === 'collect objectproperty node') {
+        return collect_objectproperty_nodes;
+    }
+
     // collect_expression_nodes
 
     // collect child signature.
@@ -198,6 +270,22 @@ const create_query_execution_fn = (node, words) => {
 
     if (sentence === 'collect child identifier name' || sentence === 'collect child node identifier name') {
         return collect_child_identifier_name;
+    } else {
+        //throw 'NYI';
+    }
+
+    const collect_child_variable_declarators = () => {
+        return select_child_node_by_type('VariableDeclarator');
+    }
+
+    if (sentence === 'collect child variabledeclarator') {
+        return collect_child_variable_declarators;
+    }
+
+    // collect.child.variabledeclarator
+
+    if (sentence === 'collect name') {
+        return () => [node.name];
     } else {
         //throw 'NYI';
     }
@@ -275,6 +363,11 @@ const create_query_execution_fn = (node, words) => {
         return find_node;
     }
 
+
+    if (sentence === 'find child identifier' || sentence === 'find a childnode which is an identifier too') {
+        return find_child_identifier;
+    }
+
     // find.by.type
 
     // find_node_by_type
@@ -302,6 +395,10 @@ const create_query_execution_fn = (node, words) => {
 
     if (sentence === 'second child node' || sentence === 'second child') {
         return () => node.child_nodes[1];
+    } 
+
+    if (sentence === 'name' || sentence === 'node name') {
+        return () => node.name;
     } 
 
     // select_child

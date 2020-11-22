@@ -82,6 +82,8 @@ class JS_AST_Node_Basics_Collect extends JS_AST_Node_Basics_Filter {
             });
             return res;
         }
+
+        /*
         Object.defineProperty(collect, 'all', {
             get() {
                 // iterate through the relationship objects.
@@ -150,6 +152,7 @@ class JS_AST_Node_Basics_Collect extends JS_AST_Node_Basics_Filter {
             enumerable: true,
             configurable: false
         });
+        */
         this.collect = collect;
     }
 }

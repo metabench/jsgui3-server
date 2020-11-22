@@ -11,60 +11,109 @@ const create_query_execution_fn = (arr, words = []) => {
     } = node;
     */
 
-    console.log('arr', arr);
-    console.log('* words', words);
+    let proceed = true;
 
-    const sentence = words.join(' ');
-    console.log('sentence', sentence);
+    
 
-    // if the first word is collect, apply that query to each of the nodes in the array and amalgamate the results.
+    if (proceed) {
 
-    if (words[0] === 'collect') {
-        return () => {
-            const res = [];
-            each(arr, node => {
-                const node_res = node.query_with_words(words).exe();
-                //console.log('node_res', node_res);
 
-                if (Array.isArray(node_res)) {
-                    each(node_res, i => {
-                        res.push(i);
-                    });
-                } else {
-                    throw 'stop';
-                }
 
-                
-                
-            })
-            enable_array_as_queryable(res);
-            return res;
-        }
-    } else {
+        console.log('arr', arr);
+        console.log('* words', words);
 
-        if (words[0] === 'each') {
-            return (callback) => {
-                //const res = [];
+        const sentence = words.join(' ');
+        console.log('sentence', sentence);
+
+        // if the first word is collect, apply that query to each of the nodes in the array and amalgamate the results.
+
+        if (words[0] === 'collect') {
+            return () => {
+                const res = [];
                 each(arr, node => {
-                    console.log('words', words);
-                    const node_res = node.query_with_words(words).exe(callback);
+                    const node_res = node.query_with_words(words).exe();
                     //console.log('node_res', node_res);
 
-                    /*
-                    each(node_res, i => {
-                        //res.push(i);
-                        callback(i);
-                    });
-                    */
+                    if (Array.isArray(node_res)) {
+                        each(node_res, i => {
+                            res.push(i);
+                        });
+                    } else {
+                        throw 'stop';
+                    }
+
+                    
                     
                 })
-                //return res;
+                enable_array_as_queryable(res);
+                return res;
             }
+        } else {
+
+            if (words[0] === 'each') {
+                return (callback) => {
+                    //const res = [];
+                    each(arr, node => {
+                        console.log('words', words);
+                        const node_res = node.query_with_words(words).exe(callback);
+                        //console.log('node_res', node_res);
+
+                        /*
+                        each(node_res, i => {
+                            //res.push(i);
+                            callback(i);
+                        });
+                        */
+                        
+                    })
+                    //return res;
+                }
+            } else if (words[0] === 'find') {
+                return (callback) => {
+                    //const res = [];
+
+                    let res;
+                    each(arr, node => {
+
+                        if (!res) {
+                            console.log('words', words);
+                            const node_res = node.query_with_words(words).exe(callback);
+                            console.log('node_res', node_res);
+
+                            //throw 'stop';
+
+                            if (node_res) {
+                                res = node_res;
+                            } else {
+                                throw 'stop';
+                            }
+                        }
+                        
+
+                        
+
+                        /*
+                        each(node_res, i => {
+                            //res.push(i);
+                            callback(i);
+                        });
+                        */
+                        
+                    })
+                    return res;
+                }
+            } else {
+                throw 'NYI';
+            }
+
+            
+            
         }
 
-        throw 'NYI';
-        
+
     }
+
+    
 
 
     throw 'NYI';
@@ -125,9 +174,19 @@ const create_query = (arr, words = []) => {
 
 const enable_array_as_queryable = (arr) => {
 
+    let proceed = true;
+
+    each(arr, item => {
+        //console.log('item', item);
+        //if (!Array.isArray(item)) proceed = false;
+        if (!item.babel) {
+            proceed = false;
+        }
+    })
+
     // will of course provide a query property.
 
-    if (!arr.query) arr.query = create_query(arr);
+    if (!arr.query && proceed) arr.query = create_query(arr);
     return arr;
 
 }

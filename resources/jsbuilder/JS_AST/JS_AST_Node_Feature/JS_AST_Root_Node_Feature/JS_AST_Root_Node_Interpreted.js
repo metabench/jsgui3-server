@@ -58,20 +58,20 @@ class JS_AST_Root_Node_Interpreted extends JS_AST_Node {
                 const mod_ids = this.get_indexed_nodes_by_key('identifiers_by_name', 'module');
                 each(mod_ids, node => {
                     // want to be able to get the next sibling from a node easily.
-                    console.log('node', node);
-                    console.log('node.parent_node', node.parent_node);
+                    //console.log('node', node);
+                    //console.log('node.parent_node', node.parent_node);
 
-                    console.log('node.sibling.count', node.sibling.count);
+                    //console.log('node.sibling.count', node.sibling.count);
 
                     if (node.sibling.count === 1) {
                         const sibling = node.sibling.collect()[0];
-                        console.log('sibling.name', sibling.name);
+                        //console.log('sibling.name', sibling.name);
                         if (sibling.name === 'exports') {
-                            console.log('node.parent_node.parent_node', node.parent_node.parent_node);
-                            console.log('node.parent_node.parent_node.parent_node', node.parent_node.parent_node.parent_node);
-                            console.log('node.parent.node.parent.node.parent.node', node.parent.node.parent.node.parent.node);
-                            console.log('node.ggparent.node', node.ggparent.node);
-                            console.log('node.ggparent.node.is_statement', node.ggparent.node.is_statement);
+                            //console.log('node.parent_node.parent_node', node.parent_node.parent_node);
+                            //console.log('node.parent_node.parent_node.parent_node', node.parent_node.parent_node.parent_node);
+                            //console.log('node.parent.node.parent.node.parent.node', node.parent.node.parent.node.parent.node);
+                            //console.log('node.ggparent.node', node.ggparent.node);
+                            //console.log('node.ggparent.node.is_statement', node.ggparent.node.is_statement);
 
                             if (node.ggparent.node && node.ggparent.node.is_statement) {
                                 ast_node_exports_statement = node.ggparent.node;
@@ -122,7 +122,7 @@ class JS_AST_Root_Node_Interpreted extends JS_AST_Node {
                     //this.select
 
                     const exports_statement_node = get_module_exports_statement_node();
-                    console.log('exports_statement_node', exports_statement_node);
+                    //console.log('exports_statement_node', exports_statement_node);
 
                     exports = new JS_AST_Root_Node_Feature_Exports({
                         node: exports_statement_node
@@ -153,7 +153,7 @@ class JS_AST_Root_Node_Interpreted extends JS_AST_Node {
 
 
 
-
+                    
 
                 }
                 return exports;

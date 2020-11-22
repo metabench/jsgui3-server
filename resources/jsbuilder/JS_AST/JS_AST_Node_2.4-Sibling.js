@@ -24,7 +24,7 @@ class JS_AST_Node_Sibling extends JS_AST_Node_All {
             get() { 
 
                 if (index === undefined) {
-                    console.log('this.path', this.path);
+                    //console.log('this.path', this.path);
 
                     const s_path = this.path.split('/').filter(s => s.length > 0).map(s => parseInt(s));
                     //console.log('s_path', s_path);

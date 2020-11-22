@@ -10,6 +10,47 @@
 
 const {each} = require('lang-mini');
 
+
+// deep_iterate_babel_super_node
+
+const deep_iterate_babel_super_node = (babel_node, depth, path, common, callback) => {
+    //let sibling_number = 0;
+    //const {test, concequent, alternate} = babel_node;
+    //deep_iterate_babel_node_$INTERNAL(test, depth + 1, path + sibling_number++ + '/', common, callback);
+    //deep_iterate_babel_node_$INTERNAL(concequent, depth + 1, path + sibling_number++ + '/', common, callback);
+    //deep_iterate_babel_node_$INTERNAL(alternate, depth + 1, path + sibling_number++ + '/', common, callback);
+
+    //console.log('babel_node', babel_node);
+    //throw 'nyi';
+
+    // like an if statement
+}
+
+const deep_iterate_babel_conditional_expression_node = (babel_node, depth, path, common, callback) => {
+    let sibling_number = 0;
+    const {test, concequent, alternate} = babel_node;
+    deep_iterate_babel_node_$INTERNAL(test, depth + 1, path + sibling_number++ + '/', common, callback);
+    deep_iterate_babel_node_$INTERNAL(concequent, depth + 1, path + sibling_number++ + '/', common, callback);
+    deep_iterate_babel_node_$INTERNAL(alternate, depth + 1, path + sibling_number++ + '/', common, callback);
+
+    // like an if statement
+}
+
+const deep_iterate_babel_object_method_node = (babel_node, depth, path, common, callback) => {
+    //console.log('babel_node', babel_node);
+
+    const {key, params, body} = babel_node;
+
+    let sibling_number = 0;
+    deep_iterate_babel_node_$INTERNAL(key, depth + 1, path + sibling_number++ + '/', common, callback);
+    each(params, x => deep_iterate_babel_node_$INTERNAL(x, depth + 1, path + sibling_number++ + '/', common, callback));
+    deep_iterate_babel_node_$INTERNAL(body, depth + 1, path + sibling_number++ + '/', common, callback);
+
+    //throw 'NYI';
+}
+
+
+// deep_iterate_object_method_node
 const deep_iterate_this_expression_node = (babel_node, depth, path, common, callback) => {
 
 }
@@ -21,6 +62,7 @@ const deep_iterate_array_pattern_node = (babel_node, depth, path, common, callba
 
     const {elements} = babel_node;
     let sibling_number = 0;
+    
     each(elements, x => deep_iterate_babel_node_$INTERNAL(x, depth + 1, path + sibling_number++ + '/', common, callback));
 }
 
@@ -83,8 +125,11 @@ const deep_iterate_babel_class_declaration_node = (babel_node, depth, path, comm
         console.log('babel_node', babel_node);
         throw 'NYI';
     }
-    deep_iterate_babel_node_$INTERNAL(body, depth, path, common, callback);
+    deep_iterate_babel_node_$INTERNAL(body, depth + 1, path + sibling_number++ + '/', common, callback);
 
+
+    //console.log('body', body);
+    //console.log('babel_node', babel_node);
     //throw 'stop';
 }
 
@@ -253,7 +298,7 @@ const deep_iterate_babel_call_expression_node = (babel_node, depth, path, common
 }
 
 const deep_iterate_babel_object_property_node = (babel_node, depth, path, common, callback) => {
-    console.log('deep_iterate_babel_object_property_node', babel_node);
+    //console.log('deep_iterate_babel_object_property_node', babel_node);
 
     const {method, key, computed, shorthand, value} = babel_node;
     //const {properties} = babel_node;
@@ -271,7 +316,7 @@ const deep_iterate_babel_object_property_node = (babel_node, depth, path, common
     deep_iterate_babel_node_$INTERNAL(key, depth + 1, path + sibling_number++ + '/', common, callback);
     
     if (value.start !== key.start) {
-        throw 'stop';
+        //throw 'stop';
         deep_iterate_babel_node_$INTERNAL(value, depth + 1, path + sibling_number++ + '/', common, callback);
     }
     //
@@ -394,7 +439,7 @@ const deep_iterate_babel_node_$INTERNAL = (babel_node, depth, path, common, call
 
     if (babel_node) {
 
-        let stopped = false;
+        //let stopped = false;
 
         const stop = () => common.stopped = true;
 
@@ -479,6 +524,14 @@ const deep_iterate_babel_node_$INTERNAL = (babel_node, depth, path, common, call
                 return deep_iterate_array_pattern_node(babel_node, depth, path, common, callback);
             } else if (type === 'ThisExpression') {
                 return deep_iterate_this_expression_node(babel_node, depth, path, common, callback);
+            //} else if (type === 'BlockStatement') {
+            //    return deep_iterate_block_statement_node(babel_node, depth, path, common, callback);
+            } else if (type === 'ObjectMethod') {
+                return deep_iterate_babel_object_method_node(babel_node, depth, path, common, callback);
+            } else if (type === 'ConditionalExpression') {
+                return deep_iterate_babel_conditional_expression_node(babel_node, depth, path, common, callback);
+            } else if (type === 'Super') {
+                return deep_iterate_babel_super_node(babel_node, depth, path, common, callback);
             } else {
                 console.log('');
                 console.log('type', type);
@@ -487,7 +540,7 @@ const deep_iterate_babel_node_$INTERNAL = (babel_node, depth, path, common, call
                 throw 'stop';
             }
 
-            // ArrayPattern
+            // ConditionalExpression
         }
     }
 }

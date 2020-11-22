@@ -57,7 +57,7 @@ class JS_AST_Node_Signature extends JS_AST_Node_Available_In_Scope {
 
         Object.defineProperty(this, 'deep_type_signature', {
             get() { 
-                if (!deep_type_signature) deep_type_signature = get_deep_type_signature();
+                if (!deep_type_signature) deep_type_signature = get_deep_type_signature(100);
                 //if (deep_type_signature) return deep_type_signature;
                 return deep_type_signature;
                 

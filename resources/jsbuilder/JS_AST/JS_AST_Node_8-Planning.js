@@ -17,8 +17,11 @@ class JS_AST_Node_Planning extends JS_AST_Node_Index {
         // Will be fastest to carry out multiple changes at once in one iteration.
         //  May use quite standard babel transform syntax once I have the changes arranged in a nice object that makes them clear.
 
+        // Set up more ctrl-alt-\ then a letter remappings.
+        //  Can use that to quickly type a varierty of snippets.
 
-
+        
+        
 
     }
     plan_variable_name_remapping() {

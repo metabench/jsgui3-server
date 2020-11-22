@@ -10,23 +10,27 @@ class JS_AST_Node_Feature_Declarator extends JS_AST_Node_Feature {
         super(spec);
         const {node} = this;
 
+        // inner keys?
+        // .key for itself?
+
         let keys;
         Object.defineProperty(this, 'keys', {
             get() { 
 
                 if (!keys) {
+                    console.log('node', node);
+                    console.log('node.source', node.source);
                     keys = [];
-
                     const found_key = key => {
                         keys.push(key);
                     }
-
                     //console.log('node', node);
                     //console.log('node.source', node.source);
-
                     // are there 2 child nodes?
-
                     // array pattern and array expression
+
+                    console.log('node.child.count', node.child.count);
+                    //throw 'stop';
 
                     if (node.child.count === 2) {
                         if (node.child_nodes[0].type === 'ArrayPattern' && node.child_nodes[1].type === 'ArrayExpression') {
@@ -52,14 +56,28 @@ class JS_AST_Node_Feature_Declarator extends JS_AST_Node_Feature {
                             } else {
                                 throw 'stop';
                             }
-
-
                             
                         } else {
+
+                            // check for 
+
                             //
 
                             if (node.child_nodes[0].is_identifier) {
-                                found_key(node.child_nodes[0].name);
+                                console.log('node.child_nodes[1].category', node.child_nodes[1].category);
+
+                                if (node.child_nodes[1].category === 'Expression') {
+                                    //found_key(node.child_nodes[0].name);
+
+                                    // No, the keys are not like this, they are inner.
+                                    //  Possibly a prompt to improve the query system and have keys use that or be part of it.
+
+
+                                } else {
+                                    //throw 'NYI';
+                                }
+
+                                
 
                             } else {
                                 //console.log('node.child_nodes', node.child_nodes);
@@ -96,20 +114,25 @@ class JS_AST_Node_Feature_Declarator extends JS_AST_Node_Feature {
                         }
 
                     } else {
-                        throw 'NYI';
-                    }
 
-                    
+                        // variable declarator with a single identifier inside...
+                        //  
+
+                        // probably seems worth ignoring for now.... except logging it.
+
+                        console.log('');
+                        console.log('**node', node);
+                        console.log('**node.source', node.source);
+                        console.log('');
+
+                        //throw 'NYI';
+                    }
                 }
-                
                 return keys;
             },
             enumerable: true,
             configurable: false
         });
-        
-
-
     }
 }
 

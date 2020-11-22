@@ -31,12 +31,12 @@ class JS_AST_Root_Node_Feature_Exports extends JS_AST_Root_Node_Feature {
 
                 if (!exported) {
                     // Exported may as well be a feature.
-                    console.log('node', node);
+                    //console.log('node', node);
 
                     const assigned_as_node = node.child_nodes[0].child_nodes[1];
-                    console.log('assigned_as_node', assigned_as_node);
-                    console.log('assigned_as_node.name', assigned_as_node.name);
-                    console.log('assigned_as_node.source', assigned_as_node.source);
+                    //console.log('assigned_as_node', assigned_as_node);
+                    //console.log('assigned_as_node.name', assigned_as_node.name);
+                    //console.log('assigned_as_node.source', assigned_as_node.source);
                     // we need to find the node that gets exported.
 
                     exported = new JS_AST_Root_Node_Feature_Exported({

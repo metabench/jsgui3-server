@@ -67,211 +67,219 @@ class JS_AST_Node_Index extends JS_AST_Node_Query_Find {
 
         // .nodes_by_name
 
-        const do_default_indexing = () => {
-            // Will find function names too :) The functions being called
-            // could we make a shallower version that is more efficient?
-            //  ie, it gets the map from below, and adds any relevant items at the current level.
+        const old = () => {
 
-            // Making use of child nodes' own indexes would be the optimization here.
-            //  Building it out of the indexes of the child nodes, if they have indexes.
 
-            deep_iterate(node => {
-                // Are the child nodes all of the same type?
-                // .child_node_shared_type property
-
-                if (node.is_identifier) {
-                    const name = node.name;
-                    //console.log('name', name);
-
-                    //_map_identifiers_by_name[name] = _map_identifiers_by_name[name] || [];
-                    //if (!_map_identifiers_by_name.has(name)) _map_identifiers_by_name.set(name, [])
-                    handle_found('identifiers_by_name', name, node);
-
-                    //_map_identifiers_by_name.get(name).push(node);
-                    //console.log('map_identifiers_by_name[name]', _map_identifiers_by_name[name]);
-                    //_map_identifiers_by_name[name].push(node);
-                }
-                if (node.is_declaration) {
-                    //console.log('have declaration node in index loop');
-                    //console.log('node.child_nodes.length', node.child_nodes.length);
-                    //console.log('node.signature', node.signature);
-                    //console.log('node', node);
-                    //console.log('node.child', node.child);
-                    //console.log('node.child.count', node.child.count);
-                    // node.child.collected.names???
-
-                    if (node.child.shared.type === 'VariableDeclarator') {
-                        if (node.source.length < 800) {
-                            //console.log('node.source', node.source);
-                        }
-                        node.each.child(dec => {
-                            //console.log('dec.babel.node', dec.babel.node);
-                            //const id = dec.child.find(node => node.is_identifier);
-                            // find.identifier();
-                            const id = dec.find(node => node.is_identifier);
-                            if (id) {
-                                //console.log('id', id);
-                                //console.log('id.name', id.name);
-                                //_map_names_to_declarations[id.name] = node;
-
-                                //_map_names_to_declarations.set(id.name, node)
-                                handle_found('names_to_declarations', id.name, node);
-                            } else {
-                                //console.log('node', node);
-                                //console.log('dec.child.count', dec.child.count);
-
-                                // dec.child.types?
-                                //  dec.child.collect.types
-                                //console.log('dec.child.collect.type', dec.child.collect.type);
-                                // object pattern and member expression.
-                                //  {a, b, c} = lib;
-                                if (dec.child.count === 2) {
-                                    const child_types = dec.child.all.type;
-                                    // dec.child.collect.category
-                                    const child_categories = dec.child.all.category;
-                                    //console.log('child_categories', child_categories);
-                                    // maybe any expression is allowed.
-                                    //  seems that way
-                                    if (child_types[0] === 'ObjectPattern' && child_categories[1] === 'Expression') {
-                                        const objpat = dec.child_nodes[0];
-                                        //console.log('objpat', objpat);
-                                        //console.log('objpat.child.shared.type', objpat.child.shared.type);
-                                        if (objpat.child.shared.type === 'ObjectProperty') {
-                                            objpat.each.child(objprop => {
-                                                //console.log('objprop', objprop);
-                                                //console.log('objprop.source', objprop.source);
-                                                //console.log('objprop.child.count', objprop.child.count);
-                                                if (objprop.child.count === 2) {
-                                                    //console.log('objprop.child.first', objprop.child.first);
-                                                    //console.log('objprop.child.last', objprop.child.last);
-                                                    //console.log('objprop.child.last.source', objprop.child.last.source);
-                                                    //console.log('objprop.child.first.source', objprop.child.first.source);
-                                                    if (objprop.child.first.source == objprop.child.last.source) {
-                                                        const name = objprop.child.first.name;
-                                                        //console.log('name', name);
-                                                        //_map_names_to_declarations[name] = node;
-                                                        //_map_names_to_declarations.set(name, node);
-                                                        handle_found('names_to_declarations', name, node);
+            const do_default_indexing = () => {
+                // Will find function names too :) The functions being called
+                // could we make a shallower version that is more efficient?
+                //  ie, it gets the map from below, and adds any relevant items at the current level.
+    
+                // Making use of child nodes' own indexes would be the optimization here.
+                //  Building it out of the indexes of the child nodes, if they have indexes.
+    
+                deep_iterate(node => {
+                    // Are the child nodes all of the same type?
+                    // .child_node_shared_type property
+    
+                    if (node.is_identifier) {
+                        const name = node.name;
+                        //console.log('name', name);
+    
+                        //_map_identifiers_by_name[name] = _map_identifiers_by_name[name] || [];
+                        //if (!_map_identifiers_by_name.has(name)) _map_identifiers_by_name.set(name, [])
+                        handle_found('identifiers_by_name', name, node);
+    
+                        //_map_identifiers_by_name.get(name).push(node);
+                        //console.log('map_identifiers_by_name[name]', _map_identifiers_by_name[name]);
+                        //_map_identifiers_by_name[name].push(node);
+                    }
+                    if (node.is_declaration) {
+                        //console.log('have declaration node in index loop');
+                        //console.log('node.child_nodes.length', node.child_nodes.length);
+                        //console.log('node.signature', node.signature);
+                        //console.log('node', node);
+                        //console.log('node.child', node.child);
+                        //console.log('node.child.count', node.child.count);
+                        // node.child.collected.names???
+    
+                        if (node.child.shared.type === 'VariableDeclarator') {
+                            if (node.source.length < 800) {
+                                //console.log('node.source', node.source);
+                            }
+                            node.each.child(dec => {
+                                //console.log('dec.babel.node', dec.babel.node);
+                                //const id = dec.child.find(node => node.is_identifier);
+                                // find.identifier();
+                                const id = dec.find(node => node.is_identifier);
+                                if (id) {
+                                    //console.log('id', id);
+                                    //console.log('id.name', id.name);
+                                    //_map_names_to_declarations[id.name] = node;
+    
+                                    //_map_names_to_declarations.set(id.name, node)
+                                    handle_found('names_to_declarations', id.name, node);
+                                } else {
+                                    //console.log('node', node);
+                                    //console.log('dec.child.count', dec.child.count);
+    
+                                    // dec.child.types?
+                                    //  dec.child.collect.types
+                                    //console.log('dec.child.collect.type', dec.child.collect.type);
+                                    // object pattern and member expression.
+                                    //  {a, b, c} = lib;
+                                    if (dec.child.count === 2) {
+                                        const child_types = dec.child.all.type;
+                                        // dec.child.collect.category
+                                        const child_categories = dec.child.all.category;
+                                        //console.log('child_categories', child_categories);
+                                        // maybe any expression is allowed.
+                                        //  seems that way
+                                        if (child_types[0] === 'ObjectPattern' && child_categories[1] === 'Expression') {
+                                            const objpat = dec.child_nodes[0];
+                                            //console.log('objpat', objpat);
+                                            //console.log('objpat.child.shared.type', objpat.child.shared.type);
+                                            if (objpat.child.shared.type === 'ObjectProperty') {
+                                                objpat.each.child(objprop => {
+                                                    //console.log('objprop', objprop);
+                                                    //console.log('objprop.source', objprop.source);
+                                                    //console.log('objprop.child.count', objprop.child.count);
+                                                    if (objprop.child.count === 2) {
+                                                        //console.log('objprop.child.first', objprop.child.first);
+                                                        //console.log('objprop.child.last', objprop.child.last);
+                                                        //console.log('objprop.child.last.source', objprop.child.last.source);
+                                                        //console.log('objprop.child.first.source', objprop.child.first.source);
+                                                        if (objprop.child.first.source == objprop.child.last.source) {
+                                                            const name = objprop.child.first.name;
+                                                            //console.log('name', name);
+                                                            //_map_names_to_declarations[name] = node;
+                                                            //_map_names_to_declarations.set(name, node);
+                                                            handle_found('names_to_declarations', name, node);
+                                                        } else {
+                                                            throw 'stop';
+                                                        }
                                                     } else {
                                                         throw 'stop';
                                                     }
-                                                } else {
-                                                    throw 'stop';
-                                                }
-                                            })
+                                                })
+                                            } else {
+                                                throw 'stop';
+                                            }
                                         } else {
+                                            // can be [ 'ObjectPattern', 'ThisExpression' ]
                                             throw 'stop';
                                         }
                                     } else {
-                                        // can be [ 'ObjectPattern', 'ThisExpression' ]
                                         throw 'stop';
                                     }
-                                } else {
-                                    throw 'stop';
                                 }
-                            }
-                            // dec.id?
-                            //  gets the identifier?
-                            // dec.child.identifier?  
-                        })
+                                // dec.id?
+                                //  gets the identifier?
+                                // dec.child.identifier?  
+                            })
+                        }
+                        // then are all the child nodes of type 'VariableDeclarator'
+                        // .deep (self then inner)
+                        // .inner (recursively child nodes)
+                        // .child
+                        //node.child.declarators
                     }
-                    // then are all the child nodes of type 'VariableDeclarator'
-                    // .deep (self then inner)
-                    // .inner (recursively child nodes)
-                    // .child
-                    //node.child.declarators
-                }
-                
-
-                if (node.is_expression) {
-                    if (node.type === 'CallExpression') {
-                        //console.log('node.source', node.source);
-                        //console.log('node', node);
-                        //console.log('node.babel.node', node.babel.node);
-
-                        const callee = node.first.child.node;
-                        if (callee.is_identifier) {
-                            const fncall_name = callee.name;
-                            //console.log('fncall_name', fncall_name);
-                            //_map_fn_call_names.set(fncall_name, node);
-                            handle_found('fn_call_names', fncall_name, node);
-                        } else {
-
-                            if (callee.type === 'MemberExpression') {
-                                //console.log('callee.child.count', callee.child.count);
-                                let fncall_path = '';
-                                let first = true;
-
-                                // .child.node.count ???
-                                // .child.declaration.count
-
-                                // .count.child?
-                                //  // don't properly have .child any longer.
-                                //    this would be under callee.count.child.node
-
-                                if (callee.child_nodes.length > 1) {
-                                    //.each.child.identifier
-
-                                    callee.each.child(id => {
-                                        if (id.is_identifier) {
-                                            if (!first) {
-                                                fncall_path += '.';
+                    
+    
+                    if (node.is_expression) {
+                        if (node.type === 'CallExpression') {
+                            //console.log('node.source', node.source);
+                            //console.log('node', node);
+                            //console.log('node.babel.node', node.babel.node);
+    
+                            const callee = node.first.child.node;
+                            if (callee.is_identifier) {
+                                const fncall_name = callee.name;
+                                //console.log('fncall_name', fncall_name);
+                                //_map_fn_call_names.set(fncall_name, node);
+                                handle_found('fn_call_names', fncall_name, node);
+                            } else {
+    
+                                if (callee.type === 'MemberExpression') {
+                                    //console.log('callee.child.count', callee.child.count);
+                                    let fncall_path = '';
+                                    let first = true;
+    
+                                    // .child.node.count ???
+                                    // .child.declaration.count
+    
+                                    // .count.child?
+                                    //  // don't properly have .child any longer.
+                                    //    this would be under callee.count.child.node
+    
+                                    if (callee.child_nodes.length > 1) {
+                                        //.each.child.identifier
+    
+                                        callee.each.child(id => {
+                                            if (id.is_identifier) {
+                                                if (!first) {
+                                                    fncall_path += '.';
+                                                } else {
+                                                    first = false;
+                                                }
+                                                fncall_path += id.name;
                                             } else {
-                                                first = false;
+                                                //console.log('node.source', node.source);
+    
+                                                // Calling a function that is a property of an object.
+                                                //  Not so interested right now.
+    
+                                                // Not looking for this now
+    
+                                                //throw 'stop';
                                             }
-                                            fncall_path += id.name;
-                                        } else {
-                                            //console.log('node.source', node.source);
-
-                                            // Calling a function that is a property of an object.
-                                            //  Not so interested right now.
-
-                                            // Not looking for this now
-
-                                            //throw 'stop';
-                                        }
-                                    })
-                                    handle_found('fn_call_names', fncall_name, node);
-                                    //_map_fn_call_names.set(fncall_path, node);
-                                } else {
-                                    throw 'stop';
+                                        })
+                                        handle_found('fn_call_names', fncall_name, node);
+                                        //_map_fn_call_names.set(fncall_path, node);
+                                    } else {
+                                        throw 'stop';
+                                    }
+    
                                 }
-
+                                //
+                                //throw 'stop';
                             }
-                            //
                             //throw 'stop';
                         }
-                        //throw 'stop';
                     }
-                }
-                //console.log('child.count', child.count);
-                //if (child.count > 0) {
-                //    child.each(cn => {
-                //    })Class constructor {}specClass constructor {}spec
-                //}
-            })
-            is_indexed = true;
-        }
-
-
-        const ensure_index = () => {
-            // maybe call it standard indexing here.
-
-            if (!is_indexed) {
-                do_default_indexing();
+                    //console.log('child.count', child.count);
+                    //if (child.count > 0) {
+                    //    child.each(cn => {
+                    //    })Class constructor {}specClass constructor {}spec
+                    //}
+                })
+                is_indexed = true;
             }
-        }
-        // this.map
-        // identifiers.name
+    
+    
+            const ensure_index = () => {
+                // maybe call it standard indexing here.
+    
+                if (!is_indexed) {
+                    do_default_indexing();
+                }
+            }
+            // this.map
+            // identifiers.name
+    
+            Object.defineProperty(this, 'is_indexed', {
+                get() { 
+                    return is_indexed;
+                },
+                //set(newValue) { bValue = newValue; },
+                enumerable: true,
+                configurable: false
+            });
 
-        Object.defineProperty(this, 'is_indexed', {
-            get() { 
-                return is_indexed;
-            },
-            //set(newValue) { bValue = newValue; },
-            enumerable: true,
-            configurable: false
-        });
+
+        }
+
+        
         /*
         Object.defineProperty(this, 'maps', {
             get() { 

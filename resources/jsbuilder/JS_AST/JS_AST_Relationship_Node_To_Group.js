@@ -98,10 +98,10 @@ class JS_AST_Relationship_Node_To_Group {
 
         const find = (finder) => {
             let res;
-            iterate_group(node, idx, stop => {
+            iterate_group((node, idx, stop) => {
                 if (finder(node)) {
-                    res = node;
-                    stop();
+                    if (!res) res = node; // TODO fix stop
+                    //stop();
                 }
             })
             return res;

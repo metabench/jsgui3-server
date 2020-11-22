@@ -53,7 +53,7 @@ const test_js_file = () => {
     const jsfile_path = '../JS_File/JS_File.js';
     const jsbuilder_path = '../JS_Builder.js';
     //const file_path = '../JS_File.js';
-    const file_path = lt_path;
+    const file_path = jsfile_path;
     // path of lang mini...
 
     // Write and test a simple and convenient way for analysing JS files and recompiling them.
@@ -77,11 +77,309 @@ const test_js_file = () => {
         console.log('jsf.node_root.constructor', jsf.node_root.constructor);
 
         const root = jsf.node_root;
+
+
+
         console.log('root.exports', root.exports);
         console.log('root.exports.exported', root.exports.exported);
         console.log('root.exports.exported.node', root.exports.exported.node);
         console.log('root.exports.exported.node.type', root.exports.exported.node.type);
-        console.log('root.exports.exported.keys', root.exports.exported.keys);
+        //console.log('root.exports.exported.node.source', root.exports.exported.node.source);
+
+        // then consult the index of root...
+        //root.setup_node_index
+
+        //const exported_decs = root.get_indexed_nodes_by_key('identifiers_by_name', root.exports.exported.node.source.name);
+        //console.log('exported_decs', exported_decs);
+
+        const find_exported_keys = () => {
+
+            // first check - are they all there in the exported node anyway?
+            //  as in module.exports = {plenty}
+            //  That will be the way that many modules export their objects with keys.
+
+
+
+
+            const exports_keys = [];
+
+            const program = root.child_nodes[0];
+
+            const exported_node_name = root.exports.exported.node.name;
+
+            if (exported_node_name === undefined) {
+
+                //console.log('root.exports.exported.node', root.exports.exported.node);
+
+                if (root.exports.exported.node.type === 'ObjectExpression') {
+                    each(root.exports.exported.node.child_nodes, opr => {
+                        //console.log('opr', opr);
+
+                        if (opr.child_nodes[0].type === 'StringLiteral') {
+                            const key = opr.child_nodes[0].source.split('"').join('').split('\'').join('');
+                            //console.log('key', key);
+                            exports_keys.push(key);
+                        } else {
+                            throw 'NYI';
+                        }
+
+                        //const key = opr.child_nodes[0].
+                    })
+                } else {
+                    throw 'NYI';
+                }
+
+                //throw 'NYI';
+            }  else {
+
+                //console.log('exported_node_name', exported_node_name);
+
+                let exported_object_declaration_node;
+
+                program.each.child(cn => {
+                    //console.log('cn', cn);
+                    //console.log('cn.key', cn.key);
+                    //console.log('cn.keys', cn.keys);
+                    //console.log('cn.source', cn.source);
+
+                    // the key of the object itself.
+
+                    if (cn.type === 'VariableDeclaration') {
+                        if (cn.child_nodes.length === 1) {
+                            const vdr = cn.child_nodes[0];
+                            const cnid = vdr.child_nodes[0];
+                            const cnname = cnid.name;
+                            //console.log('cnname', cnname);
+
+                            if (cnname === exported_node_name) {
+
+                                exported_object_declaration_node = cn;
+                                // found the declaration of exported object.
+
+                                //throw 'stop';
+                            }
+                        } else {
+                            //throw 'NYI';
+                        }
+                    }
+
+                })
+
+                //console.log('program.child.count', root.child.count);
+                //console.log('root.exports.exported.name', root.exports.exported.name);
+                //console.log('root.exports.exported.node.name', root.exports.exported.node.name);
+
+                //console.log('exported_object_declaration_node', exported_object_declaration_node);
+
+                if (exported_object_declaration_node) {
+                    //const oe = exported_object_declaration_node.all.find(node => node.type === 'ObjectExpression');
+                    //console.log('oe', oe);
+                    //console.log('exported_object_declaration_node.child.count', exported_object_declaration_node.child.count);
+
+                    if (exported_object_declaration_node.child.count === 1) {
+                        const vdr = exported_object_declaration_node.child_nodes[0];
+                        //console.log('vdr', vdr);
+                        //console.log('vdr.child.count', vdr.child.count);
+                        //console.log('vdr.child_nodes[1].type', vdr.child_nodes[1].type);
+
+                        if (vdr.child_nodes[1].type === 'ObjectExpression') {
+                            const oe = vdr.child_nodes[1];
+                            //console.log('oe.child.count', oe.child.count);
+                            //console.log('oe.child.shared.type', oe.child.shared.type);
+
+                            if (oe.child.shared.type === 'ObjectProperty') {
+                                oe.each.child(cn => {
+                                    //console.log('cn', cn);
+                                    //console.log('cn.source', cn.source);
+
+                                    if (cn.child_nodes[0].type === 'StringLiteral') {
+                                        const key = cn.child_nodes[0].source.split('\'').join('').split(',').join(''); // though will change this to .value I expect.
+                                        exports_keys.push(key);
+                                    } else {
+                                        throw 'NYI';
+                                    }
+
+                                })
+                            }
+
+                        }
+                    }
+                }
+
+                const assignment_source_names = [];
+
+                if (exports_keys.length === 0) {
+                    if (root.exports.exported.node.name) {
+                        // go looking for some more keys.
+
+                        /*
+                        cn ES(CE(ME(ID,ID),ID,ID))
+                        cn.source Object.assign(ec, lang_mini);
+                        */
+
+                        // see where it was declared.
+
+                        program.each.child(cn => {
+                            //console.log('');
+                            //console.log('cn', cn);
+                            //console.log('cn.source', cn.source);
+                            
+                            if (cn.is_declaration) {
+                                
+                            }
+
+                            // ES(CE(ME(ID,ID),ID,ID))
+
+                            if (cn.signature === 'ES(CE(ME(ID,ID),ID,ID))') {
+                                const me = cn.child_nodes[0].child_nodes[0];
+                                const call_names = [me.child_nodes[0].name, me.child_nodes[1].name];
+                                //console.log('call_names', call_names);
+
+                                if (call_names[0] === 'Object' && call_names[1] === 'assign') {
+                                    const target_name = cn.child_nodes[0].child_nodes[1].name;
+                                    //console.log('target_name', target_name);
+
+                                    if (target_name === root.exports.exported.node.name) {
+                                        //console.log('found assignment to exported object');
+                                        const assignment_source_name = cn.child_nodes[0].child_nodes[2].name;
+                                        //console.log('assignment_source_name', assignment_source_name);
+                                        assignment_source_names.push(assignment_source_name);
+
+                                    }
+                                }
+
+                            }
+
+                            // is_object_assign
+
+                            
+
+                        });
+
+                    }
+
+                }
+                let assignment_source_declaration_node, assignment_source_name;
+
+                if (assignment_source_names.length > 0) {
+                    if (assignment_source_names.length === 1) {
+                        //console.log('assignment_source_names', assignment_source_names);
+                        assignment_source_name = assignment_source_names[0];
+
+
+                        
+
+                        program.each.child(node => {
+
+                            if (node.is_declaration) {
+                                //console.log('');
+                                //console.log('node', node);
+                                //console.log('node.source', node.source);
+
+                                if (node.signature === 'VDn(VDr(ID,CE(ID,SL)))') {
+                                    // var lang_mini = require('lang-mini');
+
+                                    // could spot that it's a require call here.
+                                    //  basically this code is going to be re-worked in some ways to make use of improved queries.
+                                    //   would be nice to get this code down to a much smaller amount of statements where the overall logic is clear in a few lines
+                                    //   what the procedure is looking for and returning.
+
+                                    const obj_name = node.child_nodes[0].child_nodes[0].name;
+                                    
+                                    const fn_call_name = node.child_nodes[0].child_nodes[1].child_nodes[0].name;
+
+                                    //console.log('obj_name', obj_name);
+                                    //console.log('fn_call_name', fn_call_name);
+
+                                    if (fn_call_name === 'require') {
+                                        const required_path = node.child_nodes[0].child_nodes[1].child_nodes[1].source.split('\'').join('').split('"').join('').split('`').join('');
+                                        //console.log('required_path', required_path);
+
+                                        if (obj_name === assignment_source_name) {
+                                            assignment_source_declaration_node = node;
+                                        }
+
+                                        // so can find the initial declaration of assignment_source_names
+                                    }
+                                }
+
+                                if (node.signature === 'VDn(VDr(ID,ME(ID,ID)))') {
+                                    // var Evented_Class = lang_mini.Evented_Class;
+                                }
+                                
+                            }
+
+                        })
+
+                    } else {
+                        throw 'NYI';
+                    }
+
+                }
+
+                // then again go through the child nodes, seeing if there is any declaration for the assignment source name
+
+                //program.select.child()
+                // Exported keys do seem a bit tricky to look for.
+                //  Improved querying and specifics for looking at objects will help.
+
+
+                //console.log('assignment_source_declaration_node', assignment_source_declaration_node);
+
+                if (assignment_source_declaration_node) {
+                    //console.log('assignment_source_name', assignment_source_name);
+
+
+                    // then again go through the program child nodes and see what assignments are made to the assignment source object.
+                    //  maybe programming in special rules would be worth it after all.
+                    //  this current piece of code is rather long.
+                    //   of course improved queries would help it to be short.
+                    //   however, more can be done in terms of reading files without making the .query system first.
+
+                    program.each.child(node => {
+
+                        //console.log('');
+                        //console.log('node', node);
+                        //console.log('node.source', node.source);
+
+                        // node ES(AsE(ME(ID,ID),ID))
+                        //    node.source lang_mini.Collection = Collection;
+
+                        if (node.signature === 'ES(AsE(ME(ID,ID),ID))') {
+                            const ase = node.child_nodes[0];
+                            const me = ase.child_nodes[0];
+                            const obj_name = me.child_nodes[0].name;
+                            const obj_property_name = me.child_nodes[1].name;
+
+                            //console.log('[obj_name, obj_property_name]', [obj_name, obj_property_name]);
+
+                            if (obj_name === assignment_source_name) {
+                                // looks like another key.
+                                exports_keys.push(obj_property_name);
+                            }
+                        }
+                    });
+                }
+
+
+            }
+
+            
+
+            //console.log('exports_keys', exports_keys);
+
+            return exports_keys;
+        }
+
+        const exports_keys = find_exported_keys();
+        console.log('exports_keys', exports_keys);
+
+        //console.log('root.exports.exported.keys', root.exports.exported.keys);
+
+        // The exported keys will need to look into the declarations to see what gets exported.
+        //  
+
+
         //console.log('root.exports.type', root.exports.type);
 
         //console.log('root.exports.keys', root.exports.keys);

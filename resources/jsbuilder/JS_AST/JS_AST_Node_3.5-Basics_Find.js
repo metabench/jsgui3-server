@@ -35,10 +35,6 @@ class JS_AST_Node_Basics_Find extends JS_AST_Node_Basics_Select {
         
         //find.node = fn_match => find_node(fn_match);
         this.find_node = find_node;
-
-        
-        
-
     }
 }
 

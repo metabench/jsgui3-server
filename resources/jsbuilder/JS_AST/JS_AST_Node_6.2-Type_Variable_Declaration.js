@@ -10,6 +10,9 @@ class JS_AST_Node_Type_Variable_Declaration extends JS_AST_Node_Type_Class_Decla
         //  Makes sense really.
 
 
+        // Code that is specific for variable rather than class declarations would be best here.
+
+        
 
 
 

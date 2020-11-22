@@ -18,35 +18,23 @@ class JS_AST_Node_Category_Declaration extends JS_AST_Node_Category_Pattern {
             // include the declaration feature here?
             //  
 
-            const declaration = new JS_AST_Node_Feature_Declaration({
+            const declaration = new JS_AST_Node_Feature_Declaration({ // some of the code is out of the way - maybe it will get complex / longwinded?
                 node: this
             });
 
+            // But outside of / on a lower level to the feature, more commands and queries to enable better access to declarations would help.
+
+
+
             // declaration.declared.keys
-
-            
-
-
             // Set up retrieval of info on what is declared.
 
             //  .declared property?
-
             // .declared.keys
-
 
             // .declared makes for good syntax to access the data.
             //   make use of inner class declaration and variable declaration and declarator nodes.
             //    more detailed code on them will enable the declaration category to work well.
-
-             
-            
-
-
-
-
-
-
-
 
             this.declaration = declaration;
         }

@@ -23,8 +23,8 @@ const test_js_ast_node = () => {
     
     // That's a simple declaration.
     //const test_script_1 = 'const firstname = "James", surname = "Vickers", name = firstname + " " + surname, [a, b, c] = [1, 2, 3];';
-    const test_script_2 = 'module.exports = lang_mini;';
-    //const test_script_1 = 'const [a, b, c] = [1, 2, 3], [d, e, f] = [4, 5, 6];';
+    //const test_script_2 = 'module.exports = lang_mini;';
+    const test_script_1 = 'const [a, b, c] = [1, 2, 3], [d, e, f] = [4, 5, 6];';
     //const test_script_1 = 'const [a, b, c] = [1, 2, 3];';
 
     //const test_script_3 = 'const {a, b, c} = propertied_object;'
@@ -43,7 +43,7 @@ const test_js_ast_node = () => {
     //   If it has no parent_node.
 
     const spec = {
-        source: test_script_2
+        source: test_script_1
     };
 
     const js_ast_node = JS_AST_Node.from_spec(spec);
@@ -51,69 +51,133 @@ const test_js_ast_node = () => {
     console.log('js_ast_node', js_ast_node);
     console.log('js_ast_node.source', js_ast_node.source);
 
+    console.log('js_ast_node.child.count', js_ast_node.child.count);
+
+    // mapcall_deep_iterate
+    // mapcall_child_nodes
+    // deep_iterate_mapcall
+
+    // mapped call ?
+
+    const direct_calling = () => {
+        js_ast_node.callmap_deep_iterate(node => node.signature, {
+            'ArE(NumL,NumL,NumL)': (node) => {
+                console.log('are 3 numlit node', node);
+            },
+            'ArP(ID,ID,ID)': (node) => {
+                console.log('arp 3 id node', node);
+            }
+        }, node => {
+            console.log('default node', node);
+        });
+    
+        js_ast_node.signature_callmap_deep_iterate({
+            'ArE(NumL,NumL,NumL)': (node) => {
+                console.log('* are 3 numlit node', node);
+            },
+            'ArP(ID,ID,ID)': (node) => {
+                console.log('* arp 3 id node', node);
+            }
+        }, node => {
+            console.log('* default node', node);
+        });
+    }
+
+    js_ast_node.query.callmap.exe(node => node.signature, {
+        'ArE(NumL,NumL,NumL)': (node) => {
+            console.log('are 3 numlit node', node);
+        },
+        'ArP(ID,ID,ID)': (node) => {
+            console.log('arp 3 id node', node);
+        }
+    }, node => {
+        console.log('default node', node);
+    });
+
+    js_ast_node.query.callmap.by.signature.exe({
+        'ArE(NumL,NumL,NumL)': (node) => {
+            console.log('!!are 3 numlit node', node);
+        },
+        'ArP(ID,ID,ID)': (node) => {
+            console.log('!!arp 3 id node', node);
+        }
+    }, node => {
+        console.log('!!default node', node);
+    });
+
+    
+
+    // And it works... now to get it into query.
+
+    // callmap_deep_iterate
+
 
     // Let's do a bit more work on getting object declared keys.
     //  .query.collect.objectproperty.exe().query.find.child.identifier.exe().query('name');
 
+    const used_tests = () => {
+        const var_decltrs = js_ast_node.query.collect.child.variabledeclarator.exe();
+        console.log('var_decltrs', var_decltrs);
 
-    const var_decltrs = js_ast_node.query.collect.child.variabledeclarator.exe();
-    console.log('var_decltrs', var_decltrs);
+        // .id property of the var declarators?
+        //  
 
-    // .id property of the var declarators?
-    //  
+        const decr_id_names = js_ast_node.query.collect.child.variabledeclarator.exe().query.collect.first.child.name.exe();
+        console.log('decr_id_names', decr_id_names);
 
-    const decr_id_names = js_ast_node.query.collect.child.variabledeclarator.exe().query.collect.first.child.name.exe();
-    console.log('decr_id_names', decr_id_names);
+        //const key_id_names = js_ast_node.query.collect.objectproperty.exe().query.collect.child.identifier.exe().query.collect.name.exe();
+        //console.log('key_id_names', key_id_names);
 
-    //const key_id_names = js_ast_node.query.collect.objectproperty.exe().query.collect.child.identifier.exe().query.collect.name.exe();
-    //console.log('key_id_names', key_id_names);
+        // OPr
 
-    // OPr
+        // .query.select.by.t.exe('OPr');
 
-    // .query.select.by.t.exe('OPr');
+        const oprs = js_ast_node.query.select.by.t.exe('OPr');
+        console.log('oprs', oprs);
 
-    const oprs = js_ast_node.query.select.by.t.exe('OPr');
-    console.log('oprs', oprs);
+        const oprslits = js_ast_node.query.select.by.t.exe('OPr').query.collect.child.literal.exe();
+        console.log('oprslits', oprslits);
 
-    const oprslits = js_ast_node.query.select.by.t.exe('OPr').query.collect.child.literal.exe();
-    console.log('oprslits', oprslits);
+        const opr_first_child_nodes = js_ast_node.query.select.by.t.exe('OPr').query.collect.first.child.exe(); // working nicely.
 
-    const opr_first_child_nodes = js_ast_node.query.select.by.t.exe('OPr').query.collect.first.child.exe(); // working nicely.
+        
 
-    
-
-    // Best to keep this syntax for the moment, the need for query collect and exe make it explicit and simpler to follow.
-
-
-    // .t.collect('OPr').first.child.node.exe();
-    console.log('opr_first_child_nodes', opr_first_child_nodes);
+        // Best to keep this syntax for the moment, the need for query collect and exe make it explicit and simpler to follow.
 
 
-    //const sl_values = opr_first_child_nodes.map(node => node.babel.node.value)
-    const sl_values = js_ast_node.query.select.by.t.exe('OPr').query.collect.first.child.value.exe();
+        // .t.collect('OPr').first.child.node.exe();
+        console.log('opr_first_child_nodes', opr_first_child_nodes);
 
 
-    console.log('sl_values', sl_values);
+        //const sl_values = opr_first_child_nodes.map(node => node.babel.node.value)
+        const sl_values = js_ast_node.query.select.by.t.exe('OPr').query.collect.first.child.value.exe();
 
-    if (js_ast_node.declaration) {
-        console.log('js_ast_node.declaration.declared.keys', js_ast_node.declaration.declared.keys);
 
-        // js_ast_node.query.collect.declared.keys.exe();
+        console.log('sl_values', sl_values);
 
-        const dc2 = js_ast_node.query.collect.own.declared.keys.exe();
-        console.log('dc2', dc2);
+        if (js_ast_node.declaration) {
+            console.log('js_ast_node.declaration.declared.keys', js_ast_node.declaration.declared.keys);
 
-        // and the corresponding assigned values.
-        // declaration.assigned.values
-        // declaration.declared, declaration.assigned
+            // js_ast_node.query.collect.declared.keys.exe();
 
-        console.log('js_ast_node.declaration.assigned.values', js_ast_node.declaration.assigned.values);
+            const dc2 = js_ast_node.query.collect.own.declared.keys.exe();
+            console.log('dc2', dc2);
+
+            // and the corresponding assigned values.
+            // declaration.assigned.values
+            // declaration.declared, declaration.assigned
+
+            console.log('js_ast_node.declaration.assigned.values', js_ast_node.declaration.assigned.values);
+        }
+
+        // .query.collect.own.assigned.values
+        // .query.collect.own.declaration.assigned.value
+        // .query.collect.own.declaration.value
+        // .query.collect.declaration.value
     }
 
-    // .query.collect.own.assigned.values
-    // .query.collect.own.declaration.assigned.value
-    // .query.collect.own.declaration.value
-    // .query.collect.declaration.value
+
+    
 
 
 

@@ -13,12 +13,11 @@ const create_query_execution_fn = (node, words) => {
         deep_iterate,
         each_child_node, filter_each_child_node,
         find_node, filter_deep_iterate, filter_inner_deep_iterate, filter_child_nodes_by_type,
-        select_all, select_child, select_inner
+        select_all, select_child, select_inner,
+        callmap_deep_iterate, signature_callmap_deep_iterate, callmap_child_nodes, signature_callmap_child_nodes
     } = node;
 
     /*
-
-
     this.select_all = select_all;
         this.select_child = select_child;
         this.select_inner = select_inner;
@@ -28,12 +27,9 @@ const create_query_execution_fn = (node, words) => {
         this.filter_inner_deep_iterate = filter_inner_deep_iterate;
         this.filter_each_child_node = filter_each_child_node;
         this.filter_child_nodes_by_type = filter_child_nodes_by_type;
-
     */
 
-
     // find_child_identifier
-
     // Looks like more work is needed on the 'find' part of the .query system.
 
     // Does seem best to use some kind of OO parsing into a query object.
@@ -66,6 +62,13 @@ const create_query_execution_fn = (node, words) => {
 
     const filter_each_child_node_by_signature = (signature, callback) => filter_each_child_node(node => node.signature === signature, callback);
     const filter_each_child_node_by_type = (type, callback) => filter_each_child_node(node => node.type === type, callback);
+
+    // filter_each_child_variabledeclaration_node
+
+    const filter_each_child_variabledeclaration_node = (filterer, callback) => each_child_variabledeclaration(node => {
+        if (filterer(node)) callback(node);
+    });
+
     const filter_each_child_node_by_category = (category, callback) => filter_each_child_node(node => node.category === category, callback);
 
 
@@ -121,6 +124,26 @@ const create_query_execution_fn = (node, words) => {
     const select_by_type = type => select_all(node => node.type === type);
     const select_by_type_abbreviation = t => select_all(node => node.t === t);
     const select_by_category = category => select_all(node => node.category === category);
+
+    const select_by_first_child_first_child_name = name => {
+        return select_all(node => {
+            
+            const cn1 = node.child_nodes[0];
+            let res = false;
+
+            if (cn1) {
+                const gcn1 = cn1.child_nodes[0];
+                if (gcn1) {
+                    const nn = gcn1.name;
+                    if (nn !== undefined) {
+                        if (nn === name) res = true;
+                    }
+                }
+            }
+            return res;
+
+        });
+    }
 
 
     const collect_objectproperty_nodes = () => select_by_type('ObjectProperty');
@@ -179,6 +202,33 @@ const create_query_execution_fn = (node, words) => {
             each(vals, v => res.push(v));
         }
         return res;
+    }
+
+    // signature_callmap_deep_iterate
+
+    if (sentence === 'callmap by signature' || sentence === 'callmap deep iterate by signature') {
+        // not so sure about the query results for callmap....
+        return (map_handlers, fn_default_handler) => {
+            signature_callmap_deep_iterate(map_handlers, fn_default_handler);
+        }
+    }
+
+    if (sentence === 'callmap' || sentence === 'callmap deep iterate') {
+        // not so sure about the query results for callmap....
+
+        return (fntostring, map_handlers, fn_default_handler) => {
+            callmap_deep_iterate(fntostring, map_handlers, fn_default_handler);
+        }
+
+    }
+
+    if (sentence === 'callmap child' || sentence === 'callmap child nodes') {
+        // not so sure about the query results for callmap....
+
+        return (fntostring, map_handlers, fn_default_handler) => {
+            callmap_child_nodes(fntostring, map_handlers, fn_default_handler);
+        }
+
     }
 
     if (sentence === 'collect child node' || sentence === 'collect child') {
@@ -269,6 +319,34 @@ const create_query_execution_fn = (node, words) => {
         }
     }
 
+    if (sentence === 'collect first child first child' || sentence === 'collect first child node first child node') {
+        return () => {
+            const res = [];
+            //each(node.child_nodes, cn => res.push(cn));
+            if (node.child_nodes[0] && node.child_nodes[0].child_nodes[0]) {
+                res.push(node.child_nodes[0].child_nodes[0]);
+            }
+            //enable_array_as_queryable(res);
+            return res;
+        }
+    }
+
+    if (sentence === 'collect first child first child name' || sentence === 'collect first child node first child name' || sentence === 'collect first child node first child node name') {
+        return () => {
+            const res = [];
+            //each(node.child_nodes, cn => res.push(cn));
+            if (node.child_nodes[0] && node.child_nodes[0].child_nodes[0]) {
+                const n = node.child_nodes[0].child_nodes[0].name;
+                if (n !== undefined) {
+                    res.push(n);
+                }
+                //res.push(node.child_nodes[0].child_nodes[0]);
+            }
+            //enable_array_as_queryable(res);
+            return res;
+        }
+    }
+
 
 
     if (sentence === 'collect first child value' || sentence === 'collect first child node value') {
@@ -351,8 +429,18 @@ const create_query_execution_fn = (node, words) => {
     const collect_child_variable_declarators = () => {
         return select_child_node_by_type('VariableDeclarator');
     }
+
+    const collect_child_variable_declarations = () => select_child_node_by_type('VariableDeclaration');
+
+    // collect_child_variable_declarations
     const collect_child_literal = () => {
         return select_child_node_by_category('Literal');
+    }
+
+    // collect.child.variabledeclaration
+
+    if (sentence === 'collect child variabledeclaration') {
+        return collect_child_variable_declarations;
     }
 
     if (sentence === 'collect child variabledeclarator') {
@@ -407,6 +495,12 @@ const create_query_execution_fn = (node, words) => {
         //throw 'NYI';
     }
 
+    if (sentence === 'filter child variabledeclaration' || sentence === 'filter each child variabledeclaration' || sentence === 'filter each child variabledeclaration node') {
+        return filter_each_child_variabledeclaration_node;
+    } else {
+        //throw 'NYI';
+    }
+
     if (sentence === 'filter child node by signature' || sentence === 'filter each child by signature' || sentence === 'filter each child node by signature') {
         return filter_each_child_node_by_signature;
     } else {
@@ -415,9 +509,9 @@ const create_query_execution_fn = (node, words) => {
 
     if (sentence === 'filter child node by type' || sentence === 'filter each child by type' || sentence === 'filter each child node by type') {
         return filter_each_child_node_by_type;
-    } else {
-        //throw 'NYI';
     }
+
+    // filter child node by child count || filter child nodes by their child counts
 
 
 
@@ -475,6 +569,8 @@ const create_query_execution_fn = (node, words) => {
 
     // filter_deep_iterate
 
+
+
     if (sentence === 'filter node' || sentence === 'filter' || sentence === 'filter all node' || sentence === 'deep filter') {
         return filter_deep_iterate;
     }
@@ -519,6 +615,14 @@ const create_query_execution_fn = (node, words) => {
     if (sentence === 'select by category' || sentence === 'select node by category') {
         return select_by_category;
     }
+
+    // select node by first child first child name
+
+    if (sentence === 'select by first child first child name' || sentence === 'select node by first child first child name') {
+        return select_by_first_child_first_child_name;
+    }
+
+
 
     // select_each_child_node_by_signature
 

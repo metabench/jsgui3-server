@@ -50,9 +50,11 @@ class JS_AST_Node_Basics_Each extends JS_AST_Node_Basics_Last {
         // .node (seems like we need this now rather than just calling each)
         //  now each is an operation, we need to explicitly tell it what to operate on.
 
+        /*
         const child = new JS_AST_Relationship({
             name: 'child'
         });
+        */
 
         // each.identifier is another relationship?
         //  is_within??? or the within relationship?
@@ -101,6 +103,7 @@ class JS_AST_Node_Basics_Each extends JS_AST_Node_Basics_Last {
         //child.each = each_child;
 
 
+        /*
         const each_child_assignment_expression = (callback) => filter_each_child_node(node => node.type === 'AssignmentExpression', callback);
         const each_child_expression_statement = (callback) => filter_each_child_node(node => node.type === 'ExpressionStatement', callback);
         //const each_child_declaration = (callback) => filter_each_child_node(node => node.is_declaration, callback);
@@ -123,6 +126,7 @@ class JS_AST_Node_Basics_Each extends JS_AST_Node_Basics_Last {
         //mechild.expression_statement = cb => each_child_expression_statement(cb);
         //mechild.assignment_expression = cb => each_child_assignment_expression(cb);
         //mechild.declaration = cb => each_child_declaration(cb);
+        */
         this.each = myeach;
         //this.each_child_declaration = each_child_declaration;
 

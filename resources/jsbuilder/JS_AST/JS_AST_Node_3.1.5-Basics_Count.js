@@ -37,43 +37,14 @@ class JS_AST_Node_Basics_Count extends JS_AST_Node_Basics_Each {
 
         const {each_child_node, filter_each_child_node} = this;
 
-
-        // this.count
-
-        // it's an AST Operation.
-
-
-        // count.child.declaration
-        // count.inner.declaration
-
-        // verb adjective noun
-        //  not really an adjective, i think relationship is a better term.
-
-
-        // this.child is a group relationship.
-
-        // one-to-group relationship.
-
-
-
-
-
-
-
-
         // JS_AST_Property_Operation rather than JS_AST_Function_Operation perhaps
 
         const count = new JS_AST_Operation({name: count});
 
-
         const {child} = this;
-
-
         //const child = new JS_AST_Relationship({
         //    name: 'child'
         //});
-
-        
 
         const count_child = new JS_AST_Operation_On_Relationship({
             operation: count,
@@ -95,28 +66,7 @@ class JS_AST_Node_Basics_Count extends JS_AST_Node_Basics_Each {
             configurable: false
         });
 
-        // identifier
-        // declaration
-        // expression
-        // statement
-        // 
-
-
-
-        
-
-
-        // .count.child.node
-
-        // .count.child ??? // probably won't work for the moment at least. maybe could return some wrapped number property, even Data_Object?
-        //   seems like Data_Object has it's use after all??? Or not, as it does not need to be event driven.
-
-
-
         this.count = count;
-
-
-
 
     }
 }

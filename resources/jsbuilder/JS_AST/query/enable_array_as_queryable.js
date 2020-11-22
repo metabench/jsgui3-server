@@ -19,7 +19,7 @@ const create_query_execution_fn = (arr, words = []) => {
 
 
 
-        console.log('arr', arr);
+        //console.log('arr', arr);
         console.log('* words', words);
 
         const sentence = words.join(' ');
@@ -27,7 +27,34 @@ const create_query_execution_fn = (arr, words = []) => {
 
         // if the first word is collect, apply that query to each of the nodes in the array and amalgamate the results.
 
-        if (words[0] === 'collect') {
+        if (words[0] === 'select') {
+            return (selector) => {
+                const res = [];
+                each(arr, node => {
+                    const node_res = node.query_with_words(words).exe(selector);
+                    //console.log('node_res', node_res);
+
+                    if (Array.isArray(node_res)) {
+                        each(node_res, i => {
+                            if (i !== undefined) {
+                                res.push(i);
+                                
+                            } else {
+                                console.trace();
+                                throw 'stop';
+                            }
+                        });
+                    } else {
+                        throw 'stop';
+                    }
+
+                    
+                    
+                })
+                enable_array_as_queryable(res);
+                return res;
+            }
+        } else if (words[0] === 'collect') {
             return () => {
                 const res = [];
                 each(arr, node => {
@@ -60,7 +87,7 @@ const create_query_execution_fn = (arr, words = []) => {
                 return (callback) => {
                     //const res = [];
                     each(arr, node => {
-                        console.log('words', words);
+                        //console.log('words', words);
                         const node_res = node.query_with_words(words).exe(callback);
                         //console.log('node_res', node_res);
 
@@ -82,9 +109,9 @@ const create_query_execution_fn = (arr, words = []) => {
                     each(arr, node => {
 
                         if (!res) {
-                            console.log('words', words);
+                            //console.log('words', words);
                             const node_res = node.query_with_words(words).exe(callback);
-                            console.log('node_res', node_res);
+                            //console.log('node_res', node_res);
 
                             //throw 'stop';
 
@@ -181,10 +208,10 @@ const create_query = (arr, words = []) => {
 const enable_array_as_queryable = (arr) => {
 
     let proceed = true;
-    console.log('arr', arr);
+    //console.log('arr', arr);
 
     each(arr, item => {
-        console.log('item', item);
+        //console.log('item', item);
         //if (!Array.isArray(item)) proceed = false;
         if (!item || !item.babel) {
             proceed = false;

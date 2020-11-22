@@ -36,13 +36,13 @@ class JS_AST_Node_Feature_Declaration extends JS_AST_Node_Feature {
                 if (!assigned_values) {
                     assigned_values = [];
 
-                    console.log('node', node);
-                    console.log('node.source', node.source);
+                    //console.log('node', node);
+                    //console.log('node.source', node.source);
 
                     if (node.type === 'VariableDeclaration') {
 
                         // Need to look at all the child nodes.
-                        console.log('node.child.shared.type', node.child.shared.type);
+                        //console.log('node.child.shared.type', node.child.shared.type);
 
                         // then go through each child declarator....
 
@@ -53,13 +53,18 @@ class JS_AST_Node_Feature_Declaration extends JS_AST_Node_Feature {
                             const dec_cn_tstr = cdec.query.collect.child.node.t.exe().join('.');
                             console.log('dec_cn_tstr', dec_cn_tstr);
 
+                            // Can use a signature map.
+                            
+                            //  node.query.callmap.child.declarator.signature.exe({sig1: (node) => {}, sig2: node => {}}, unmapped_node => {})
+
+
 
                             if (dec_cn_tstr === 'ArP.ArE') {
 
 
                                 // ArrayPattern.ArrayExpression
                                 const are = cdec.child_nodes[1];
-                                console.log('are', are);
+                                //console.log('are', are);
     
                                 // then are they literals inside?
     
@@ -68,12 +73,12 @@ class JS_AST_Node_Feature_Declaration extends JS_AST_Node_Feature {
                                 //   maybe collect is the default one now.
                                 //const sc = are.query.child.shared.category.exe();
                                 const sc = are.child.shared.category;
-                                console.log('sc', sc);
+                                //console.log('sc', sc);
 
                                 //throw 'stop';
     
                                 const st = are.child.shared.type;
-                                console.log('st', st);
+                                //console.log('st', st);
     
                                 if (sc === 'Literal') {
                                     // can get the values....
@@ -92,15 +97,10 @@ class JS_AST_Node_Feature_Declaration extends JS_AST_Node_Feature {
                                 //if (are.)
                             } else {
 
-
-                                // ID.SL
-
-                                console.log('cdec.source', cdec.source);
-
-                                console.log('cdec.child.count', cdec.child.count);
+                                // .query.select.by.child.count.exe(2).query.select.where.first.child.is.identifier.exe().select.where.second.child.is.literal.exe()
+                                // .quert.select.where.child.count.is.exe(2)
 
                                 if (cdec.child.count === 2) {
-
                                     if (cdec.child_nodes[0].is_identifier) {
 
 
@@ -116,15 +116,6 @@ class JS_AST_Node_Feature_Declaration extends JS_AST_Node_Feature {
                                             // leaving it for the moment???
 
                                             if (cdec.child_nodes[1].is_expression) {
-
-                                                // But how to get this as an assigned value?
-                                                //  Maybe best just to leave it, keep the literals as literals.
-                                                //   Or .assigned.literal.values
-                                                //    Maybe be able to identify when an assigned value uses previous values.
-                                                //     Not so sure about getting the value through string concat inline.
-                                                //      Maybe it would be worth it though... Being able to get the values out of a string concat pattern could be of use
-
-                                                // Leave it for the moment as the nodes.
                                                 assigned_values.push(cdec.child_nodes[1]);
 
                                             }
@@ -153,65 +144,7 @@ class JS_AST_Node_Feature_Declaration extends JS_AST_Node_Feature {
 
                         });
 
-                        const the_old_attempt = () => {
-
-
-                            //throw 'stop';
                         
-                            const dottypes = node.child_nodes[0].query.collect.child.node.type.exe().join('.');
-                            // collect grandchild node types
-                            //console.log('dottypes', dottypes);
-                            const dotts = node.child_nodes[0].query.collect.child.node.t.exe().join('.');
-                            // collect grandchild node types
-                            //
-
-                            if (dotts === 'ArP.ArE') {
-                                // ArrayPattern.ArrayExpression
-                                const are = node.child_nodes[0].child_nodes[1];
-                                //console.log('are', are);
-
-                                // then are they literals inside?
-
-                                // .find child shared category?
-                                //  but query needs the verb.
-                                //   maybe collect is the default one now.
-                                //const sc = are.query.child.shared.category.exe();
-                                const sc = are.child.shared.category;
-                                //console.log('sc', sc);
-
-                                const st = are.child.shared.type;
-                                //console.log('st', st);
-
-                                if (sc === 'Literal') {
-                                    // can get the values....
-
-                                    const lvalues = are.query.collect.child.value.exe();
-                                    //console.log('lvalues', lvalues);
-                                    each(lvalues, v => assigned_values.push(v));
-
-                                } else {
-                                    throw 'NYI';
-                                }
-                                //console.log(sc);
-                                //if (are.)
-                            } else {
-                                console.log('dotts', dotts);
-                                throw 'NYI';
-                            }
-
-                        }
-
-                        
-                        //throw 'stop';
-                        
-                        //console.log('node', node);
-                        //const ks = node.query.collect.child.variabledeclarator.exe().query.collect.id.name.exe();
-                        //const vdars = node.query.collect.child.variabledeclarator.exe();
-                        //console.log('vdars', vdars);
-                        //console.log('vdars[0].id', vdars[0].id);
-                        //const collected_keys = vdars.query.collect.id.name.exe();
-                        //each(collected_keys, key => declared_keys.push(key));
-                        //console.log('collected_keys', collected_keys);
                     } else if (node.type === 'ClassDeclaration') {
                         throw 'NYI';
                     } else {

@@ -8,22 +8,10 @@
 //  so in order to get the info about how the names relate to nodes we consult indexes.
 
 const { each } = require('lang-mini');
-const JS_AST_Node_Basics_Find = require('./JS_AST_Node_3.5-Basics_Find');
+const JS_AST_Node_Basics_Callmap = require('./JS_AST_Node_3.6-Basics_Callmap');
 const JS_AST_Node_Indexes = require('./JS_AST_Node_4.0-Index_Indexes');
 
-const get_node_indexed_property_matches = (node) => {
-    // Which of the indexed properties are matched here?
-    // And the match values?
-
-    // eg index all Identifier nodes by name
-    //  
-
-
-
-
-     
-}
-class JS_AST_Node_Index extends JS_AST_Node_Basics_Find {
+class JS_AST_Node_Index extends JS_AST_Node_Basics_Callmap {
     constructor(spec = {}) {
         super(spec);
         const {deep_iterate, inner, child} = this;
@@ -61,15 +49,11 @@ class JS_AST_Node_Index extends JS_AST_Node_Basics_Find {
         // .find.all.identifiers(node => node.name = name)
         // .find.identifiers.by.name(name) could substitute for the index.
 
-
-
         // .idx_lookup_
 
         // .nodes_by_name
 
         const old = () => {
-
-
             const do_default_indexing = () => {
                 // Will find function names too :) The functions being called
                 // could we make a shallower version that is more efficient?
@@ -255,8 +239,6 @@ class JS_AST_Node_Index extends JS_AST_Node_Basics_Find {
                 })
                 is_indexed = true;
             }
-    
-    
             const ensure_index = () => {
                 // maybe call it standard indexing here.
     

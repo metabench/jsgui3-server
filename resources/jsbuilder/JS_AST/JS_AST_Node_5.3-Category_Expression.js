@@ -11,6 +11,16 @@ class JS_AST_Node_Category_Expression extends JS_AST_Node_Category_Literal {
             enumerable: true,
             configurable: false
         });
+
+        // See if we can evaluate expressions?
+        //  Probably not worth it right now....
+
+        // // .can_evaluate property
+        //  so with some expression patterns we will be able to do so. maybe just a few.
+        //   
+
+
+
     }
 }
 

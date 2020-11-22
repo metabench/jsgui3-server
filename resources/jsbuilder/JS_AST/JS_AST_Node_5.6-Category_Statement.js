@@ -11,6 +11,11 @@ class JS_AST_Node_Category_Statement extends JS_AST_Node_Category_Declaration {
             enumerable: true,
             configurable: false
         });
+
+
+        
+        
+
     }
 }
 

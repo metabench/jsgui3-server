@@ -31,6 +31,31 @@ class JS_AST_Group_Shared {
             configurable: false
         });
 
+        let shared_category;
+        Object.defineProperty(this, 'category', {
+            get() { 
+                if (shared_category === undefined) {
+                    group_iterator((cn, idx, stop) => {
+                        if (shared_category === undefined) {
+                            shared_category = cn.category;
+                        } else {
+                            if (cn.category === shared_category) {
+                                // all good
+                            } else {
+                                shared_category = false;
+                                stop();
+                            }
+                        }
+
+                    })
+                }
+                return shared_category;
+                //return child_nodes.length;
+            },
+            enumerable: true,
+            configurable: false
+        });
+
     }
 }
 

@@ -29,7 +29,7 @@ class JS_AST_Node_Feature_Declarator extends JS_AST_Node_Feature {
                     // are there 2 child nodes?
                     // array pattern and array expression
 
-                    console.log('node.child.count', node.child.count);
+                    //console.log('node.child.count', node.child.count);
                     //throw 'stop';
 
                     if (node.child.count === 2) {
@@ -45,7 +45,7 @@ class JS_AST_Node_Feature_Declarator extends JS_AST_Node_Feature {
                                 //console.log('arp.child.shared.type', arp.child.shared.type);
 
                                 if (arp.child.shared.type === 'Identifier') {
-                                    arp.each.child(id => {
+                                    arp.query.each.child.exe(id => {
                                         //console.log('id', id);
                                         //console.log('id.name', id.name);
                                         found_key(id.name);

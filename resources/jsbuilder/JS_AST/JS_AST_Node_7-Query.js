@@ -144,7 +144,7 @@ const create_query_execution_fn = (node, words) => {
     const collect_id_name = () => {
         const res = [];
         if (node.id) {
-            res.push(node.id.name);
+            if (node.id.name !== undefined) res.push(node.id.name);
         }
         return res;
     }
@@ -169,6 +169,25 @@ const create_query_execution_fn = (node, words) => {
         deep_iterate(node => {
             if (node.is_identifier) res++;
         })
+        return res;
+    }
+
+    const collect_declared_keys = () => {
+        const res = [];
+        if (node.is_declaration) {
+            each(node.declaration.declared.keys, k => res.push(k));
+        }
+        enable_array_as_queryable(res);
+        return res;
+    }
+
+    const collect_declaration_assigned_values = () => {
+        const res = [];
+        if (node.is_declaration) {
+            const vals = declaration.assigned.values;
+            each(vals, v => res.push(v));
+        }
+
         return res;
     }
 
@@ -198,6 +217,16 @@ const create_query_execution_fn = (node, words) => {
         }
     }
 
+    if (sentence === 'collect child t' || sentence === 'collect child node t' ||
+        sentence === 'collect child abbreviated type' || sentence === 'collect child type abbreviation' ||
+        sentence === 'collect child node abbreviated type' || sentence === 'collect child node type abbreviation') {
+        return () => {
+            const res = [];
+            each(node.child_nodes, cn => res.push(cn.t));
+            return res;
+        }
+    }
+
     if (sentence === 'collect child category' || sentence === 'collect child node category') {
         return () => {
             const res = [];
@@ -223,11 +252,37 @@ const create_query_execution_fn = (node, words) => {
         return () => {
             const res = [];
             //each(node.child_nodes, cn => res.push(cn));
-            if (node.child_nodes[0]) res.push(node.child_nodes[0].name);
+            if (node.child_nodes[0]) {
+                if (node.child_nodes[0].name) {
+                    res.push(node.child_nodes[0].name);
+                }
+            }
             //enable_array_as_queryable(res);
             return res;
         }
     }
+
+    // collect.child.value
+
+    if (sentence === 'collect child value' || sentence === 'collect child node value') {
+        return () => {
+            const res = [];
+            each(node.child_nodes, cn => {
+                const v = cn.value;
+                if (v !== undefined) {
+                    res.push(v);
+                }
+            });
+            //if (node.child_nodes[0]) res.push(node.child_nodes[0].value);
+
+
+            //enable_array_as_queryable(res);
+            return res;
+        }
+    }
+
+
+
     if (sentence === 'collect first child value' || sentence === 'collect first child node value') {
         return () => {
             const res = [];
@@ -301,10 +356,8 @@ const create_query_execution_fn = (node, words) => {
         //throw 'NYI';
     }
 
-    if (sentence === 'collect id name' || sentence === 'collect id name') {
+    if (sentence === 'collect id name') {
         return collect_id_name;
-    } else {
-        //throw 'NYI';
     }
 
     const collect_child_variable_declarators = () => {
@@ -321,39 +374,40 @@ const create_query_execution_fn = (node, words) => {
         return collect_child_literal;
     }
 
+    // or just key with all nouns being singular despite operating on plurals?
+    if (sentence === 'collect own declared key' || sentence === 'collect own declaration declared key' ||
+        sentence === 'collect own declared keys' || sentence === 'collect own declaration declared keys') {
+        return collect_declared_keys;
+    }
+
+    if (sentence === 'collect own declaration assigned values' || sentence === 'collect own declaration assigned values') {
+        return collect_declaration_assigned_values;
+    }
+
+    // .query.collect.own.declaration.assigned.value
+
     // collect.child.variabledeclarator
 
     if (sentence === 'collect name') {
         return () => [node.name];
-    } else {
-        //throw 'NYI';
     }
 
 
     if (sentence === 'collect pattern' || sentence === 'collect pattern node' || sentence === 'collect node with category pattern') {
         return collect_pattern_nodes;
-    } else {
-        //throw 'NYI';
     }
     if (sentence === 'collect property' || sentence === 'collect property node' || sentence === 'collect node with category property') {
         return collect_property_nodes;
-    } else {
-        //throw 'NYI';
     }
 
     if (sentence === 'count child node' || sentence === 'count child' || sentence === 'child count' || sentence === 'child node count') {
         return () => node.child_nodes.length;
-    } else {
-        //throw 'NYI';
     }
 
     
 
-
     if (sentence === 'count identifier node' || sentence === 'count identifier' || sentence === 'identifier count' || sentence === 'identifier node count') {
         return count_identifier_nodes;
-    } else {
-        //throw 'NYI';
     }
 
     // counts...

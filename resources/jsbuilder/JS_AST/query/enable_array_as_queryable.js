@@ -36,7 +36,13 @@ const create_query_execution_fn = (arr, words = []) => {
 
                     if (Array.isArray(node_res)) {
                         each(node_res, i => {
-                            res.push(i);
+                            if (i !== undefined) {
+                                res.push(i);
+                                
+                            } else {
+                                console.trace();
+                                throw 'stop';
+                            }
                         });
                     } else {
                         throw 'stop';
@@ -175,11 +181,12 @@ const create_query = (arr, words = []) => {
 const enable_array_as_queryable = (arr) => {
 
     let proceed = true;
+    console.log('arr', arr);
 
     each(arr, item => {
-        //console.log('item', item);
+        console.log('item', item);
         //if (!Array.isArray(item)) proceed = false;
-        if (!item.babel) {
+        if (!item || !item.babel) {
             proceed = false;
         }
     })

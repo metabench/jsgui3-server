@@ -6,6 +6,130 @@ const JS_AST_Node_Type_Variable_Declarator = require('./JS_AST_Node_6.3-Type_Var
 const enable_array_as_queryable = require('./query/enable_array_as_queryable');
 
 
+
+// The QFM seems like it should be global, or relate to the root node.
+//  Or a single one gets created once programmatically and the nodes use it.
+
+
+class Query_Function_Map {
+    constructor(spec) {
+
+        const map_fns = new Map();
+        const map_ngrams = new Map();
+
+        const arr_fns = [];
+        const arr_ngrams = [];
+
+        const ngram_assign_fn = (single_word_term_name, fn) => {
+            if (!map_fns.has(single_word_term_name)) {
+                map_fns.set(single_word_term_name, fn);
+            } else {
+                throw 'Phrase "' + str_ngram + '" is already loaded for the word "' + single_word_term_name + '".';
+            }
+            return true;
+        }
+
+        const ngram_assign_term = (single_word_term_name, str_ngram) => {
+            if (!map_ngrams.has(single_word_term_name)) {
+                map_ngrams.set(str_ngram, single_word_term_name);
+            } else {
+                throw 'Phrase "' + str_ngram + '" is already loaded for the word "' + single_word_term_name + '".';
+            }
+            return true;
+        }
+
+        const ngrams = {
+            assign: function() {
+                const a = arguments;
+                const al = a.length;
+                if (al === 2) {
+                    if (typeof a[0] === 'string' && typeof a[1] === 'string') {
+
+                        const c0 = a[0].split(' ');
+                        const c1 = a[1].split(' ');
+
+                        if (c0.length > 1) {
+                            throw 'stop';
+                        }
+
+                        return ngram_assign_term(a[0], a[1]);
+
+
+
+                        //
+                    } else {
+                        throw 'stop';
+                    }
+                    //if (typeof a[1] === 'string' && typeof a[0] === 'function') {
+                    //    return ngram_assign_term(a[1], a[0]);
+                    //}
+                } else {
+                    throw 'NYI';
+                }
+
+            }
+        };
+        const functions = {
+            assign: function() {
+                const a = arguments;
+                const al = a.length;
+                if (al === 2) {
+                    if (typeof a[0] === 'string' && typeof a[1] === 'function') {
+
+                        const c0 = a[0].split(' ');
+                        const c1 = a[1].split(' ');
+
+                        if (c0.length > 1) {
+                            throw 'stop';
+                        }
+
+                        return ngram_assign_fn(a[0], a[1]);
+
+
+
+                        //
+                    }
+                    //if (typeof a[1] === 'string' && typeof a[0] === 'function') {
+                    //    return ngram_assign_term(a[1], a[0]);
+                    //}
+                } else {
+                    throw 'NYI';
+                }
+
+            }
+        };
+
+        this.get = str_ngram => {
+            const term = map_ngrams.get(str_ngram);
+
+            if (term) {
+                const fn = map_fns.get(term);
+
+                if (term) {
+                    return term;
+                } else {
+                    throw 'stop';
+                    // should not happen.
+                }
+
+            } else {
+                console.log('term not found for ngram: "' + ngram + '".');
+            }
+
+        }
+
+        //const ngram_functions = {};
+        //const 
+
+
+        // .ngrams.
+
+    }
+}
+
+
+
+
 const create_query_execution_fn = (node, words) => {
     //console.log('words', words);
 
@@ -16,6 +140,36 @@ const create_query_execution_fn = (node, words) => {
         select_all, select_child, select_inner,
         callmap_deep_iterate, signature_callmap_deep_iterate, callmap_child_nodes, signature_callmap_child_nodes
     } = node;
+
+    // A Query_Processor object could be of use.
+    //  Not right now though. Don't want too big an arch change as it works smoothly right now.
+    //  Changes towards better abstraction could help.
+    //   Not so sure about going full OO though. I like the quite simple way it works at the moment.
+    //   Maybe a large index of phrase to function names.
+    //    Then different modules could load phrases. Better automation of synonyms.
+    //     This will effectively generate n-grams for the various different things that can be expressed, then look them up.
+    //     At the moment I have a quite large number of n-grams listed, but it would also be nice to have it arranged so there could be index.ngram_count
+
+    // Then there could be more / better systems to wrap some inner functions to present them in different ways to the query system.
+
+    // the query system would also have a map of the function names (which are one word long) and have those functions loaded.
+
+    // function.name property? would be sensible.
+
+    // query_system.functions.assign({ })
+    // query_system.ngrams.assign{ {select_all: ['select all nodes']} }
+
+    // ngrams.assign(`multiline string assignments`)
+
+    // Query_Function_Index
+    //  not the whole system.
+
+
+
+
+
+
+
 
     /*
     this.select_all = select_all;
@@ -34,7 +188,6 @@ const create_query_execution_fn = (node, words) => {
 
     // Does seem best to use some kind of OO parsing into a query object.
     //  That would then have the structure to support longer queries.
-
 
     // filter child node by type
     //  then the execution function has a single type parameter.
@@ -126,10 +279,7 @@ const create_query_execution_fn = (node, words) => {
 
     const select_by_type = type => select_all(node => node.type === type);
     const select_by_type_abbreviation = t => select_all(node => node.t === t);
-
     const select_by_child_count = target_count => select_all(node => node.child.count === target_count);
-
-
     // select.child.by.first.child.type
 
     const select_child_by_first_child_type = target_child_type => select_child(node => {
@@ -268,15 +418,13 @@ const create_query_execution_fn = (node, words) => {
         return res;
     }
 
-    
-
     const select_self = fn_check => {
         const res = [];
-        console.log('2) node', node);
+        //console.log('2) node', node);
         if (fn_check(node)) {
             res.push(node);
         }
-        console.log('res', res);
+        //console.log('res', res);
         enable_array_as_queryable(res);
         return res;
     }
@@ -807,10 +955,6 @@ const create_query_execution_fn = (node, words) => {
         return select_self_if_signature_is;
     }
 
-    
-
-
-
     // select_each_child_node_by_signature
 
     // .select.child.by.signature
@@ -820,17 +964,14 @@ const create_query_execution_fn = (node, words) => {
     // each child identifier
     // each child declaration
 
-
-
-    
-
-
 }
 
 //
 
 const create_query = (node, words = []) => {
 
+    // Can create all the query execution functions on startup?
+    //  Cache them?
 
 
     const res = {

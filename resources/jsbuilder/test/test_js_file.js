@@ -96,6 +96,64 @@ const test_js_file = () => {
         //const exported_decs = root.get_indexed_nodes_by_key('identifiers_by_name', root.exports.exported.node.source.name);
         //console.log('exported_decs', exported_decs);
 
+        // Will be worth making shorter and more precisely named functions.
+        //  Hopefully this or similar could be written in a few lines of query.
+
+        // select different variable names.
+        // selecting multiple variables in a named query.
+
+        // Producing an object query result seems like maybe a better way.
+        // .collect currently puts them into an array. it does not take parameters.
+
+        // .extract seems like the best term to use for named items.
+
+        // query.extract.child.name.exe('extracted_name')
+        //  extracting multiple objects with the same name - would create an array in place, and add the item there.
+
+
+        // Extract looks better for single items?
+        //  Indexing is a form of extraction. However, it would maybe add it to the node's index?
+
+        // .extract_index?
+
+        // .map
+        //  it makes the map, but does not do indexing
+
+        // .extract.index
+        // .extract.value
+
+        // .map makes the most sense.
+        //  though it will be annoying syntax at times, seems best if it's an object containing arrays.
+        //   returning an actual map makes sense too?
+
+        // .map producing a map object does make sense.
+        //  .mp being a wrapper function version that raises an error if there is ever more than one in the array, and changes to a map with direct values.
+
+        //  .dvmap? mapdirect.the rest of the query.
+
+        
+
+
+
+
+
+
+
+        // query.index.child.name.exe('indexed_name')
+
+
+
+
+
+
+
+
+
+        // .query.run(text query)
+
+
+
+
         const working_find_exported_keys = () => {
             const root_exported_node = root.exports.exported.node;
             const exports_keys = [];
@@ -125,7 +183,7 @@ const test_js_file = () => {
                 //console.log('root.exports.exported.name', root.exports.exported.name);
                 //console.log('root.exports.exported.node.name', root.exports.exported.node.name);
 
-                console.log('exported_object_declaration_node.signature', exported_object_declaration_node.signature);
+                //console.log('exported_object_declaration_node.signature', exported_object_declaration_node.signature);
 
                 // Want to algorithmically extract nodes from signatures.
                 //  Meaning pattern matching, and we specify we want specific nodes from there.

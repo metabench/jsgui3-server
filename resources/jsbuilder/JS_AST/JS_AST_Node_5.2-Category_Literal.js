@@ -15,6 +15,7 @@ class JS_AST_Node_Category_Literal extends JS_AST_Node_Category_Identifier {
         if (this.is_literal) {
             Object.defineProperty(this, 'value', {
                 get() { 
+                    //throw 'stop';
                     return this.babel.node.value;
                 },
                 enumerable: true,

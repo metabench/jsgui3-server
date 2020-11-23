@@ -67,6 +67,7 @@ const create_query_execution_fn = (arr, words = []) => {
                                 res.push(i);
                                 
                             } else {
+                                console.log('i', i);
                                 console.trace();
                                 throw 'stop';
                             }

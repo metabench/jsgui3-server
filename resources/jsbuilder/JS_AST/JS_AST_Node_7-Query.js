@@ -51,7 +51,7 @@ const create_query_execution_fn = (node, words) => {
     // each_child_declarator
 
     const each_child_declarator = (callback) => filter_each_child_node(node => node.category === 'Declarator', callback);
-
+    const each_child_objectproperty = callback => filter_each_child_node(node => node.type === 'ObjectProperty', callback);
 
     const each_child_variabledeclaration = callback => filter_each_child_node(node => node.type === 'VariableDeclaration', callback);
 
@@ -75,6 +75,7 @@ const create_query_execution_fn = (node, words) => {
     const select_child_node_by_signature = (signature) => {
         const res = [];
         filter_each_child_node_by_signature(signature, node => res.push(node));
+        enable_array_as_queryable(res);
         return res;
     }
 
@@ -120,9 +121,39 @@ const create_query_execution_fn = (node, words) => {
 
     const find_node_by_type = type => find_node(node => node.type === type);
 
+    const find_memberexpression = () => find_node_by_type('MemberExpression')
+
 
     const select_by_type = type => select_all(node => node.type === type);
     const select_by_type_abbreviation = t => select_all(node => node.t === t);
+
+    const select_by_child_count = target_count => select_all(node => node.child.count === target_count);
+
+
+    // select.child.by.first.child.type
+
+    const select_child_by_first_child_type = target_child_type => select_child(node => {
+        let res = false;
+
+        if (node.child_nodes[0]) {
+            if (node.child_nodes[0].type === target_child_type) res = true
+        }
+
+        return res;
+    });
+
+    // 
+    const select_by_first_child_type = target_child_type => select_all(node => {
+        let res = false;
+
+        if (node.child_nodes[0]) {
+            if (node.child_nodes[0].type === target_child_type) res = true
+        }
+
+        return res;
+    });
+
+    // select_by_child_count
     const select_by_category = category => select_all(node => node.category === category);
 
     const select_by_first_child_first_child_name = name => {
@@ -186,6 +217,33 @@ const create_query_execution_fn = (node, words) => {
         return res;
     }
 
+    const collect_self_if_objectexpression = () => {
+        const res = [];
+        if (node.type === 'ObjectExpression') {
+            res.push(node);
+        }
+        enable_array_as_queryable(res);
+        return res;
+    }
+
+    // it's select if there is an if statement.
+    /*
+
+    const collect_self_if_signature_is = signature => collect_self_if(node => node.signature === signature);
+
+    const collect_self_if = fn_check => {
+        const res = [];
+        console.log('2) node', node);
+        if (fn_check(node)) {
+            res.push(node);
+        }
+        console.log('res', res);
+        enable_array_as_queryable(res);
+        return res;
+    }
+
+    */
+
     const collect_declared_keys = () => {
         const res = [];
         if (node.is_declaration) {
@@ -209,6 +267,21 @@ const create_query_execution_fn = (node, words) => {
         deep_iterate(n => res++);
         return res;
     }
+
+    
+
+    const select_self = fn_check => {
+        const res = [];
+        console.log('2) node', node);
+        if (fn_check(node)) {
+            res.push(node);
+        }
+        console.log('res', res);
+        enable_array_as_queryable(res);
+        return res;
+    }
+
+    const select_self_if_signature_is = signature => select_self(node => node.signature === signature);
 
     // signature_callmap_deep_iterate
 
@@ -253,6 +326,15 @@ const create_query_execution_fn = (node, words) => {
         //throw 'NYI';
     }
 
+    if (sentence === 'collect first child node' || sentence === 'collect first child') {
+
+        return () => {
+            const res = [];
+            if (node.child_nodes[0]) res.push(node.child_nodes[0]);
+            return res;
+        }
+    }
+
     if (sentence === 'collect child type' || sentence === 'collect child node type') {
         return () => {
             const res = [];
@@ -291,6 +373,8 @@ const create_query_execution_fn = (node, words) => {
             return res;
         }
     }
+
+    
 
     if (sentence === 'collect first child name' || sentence === 'collect first child node name') {
         return () => {
@@ -332,7 +416,31 @@ const create_query_execution_fn = (node, words) => {
             if (node.child_nodes[0] && node.child_nodes[0].child_nodes[0]) {
                 res.push(node.child_nodes[0].child_nodes[0]);
             }
-            //enable_array_as_queryable(res);
+            enable_array_as_queryable(res);
+            return res;
+        }
+    }
+
+    if (sentence === 'collect first child second child' || sentence === 'collect first child node second child node') {
+        return () => {
+            const res = [];
+            //each(node.child_nodes, cn => res.push(cn));
+            if (node.child_nodes[0] && node.child_nodes[0].child_nodes[1]) {
+                res.push(node.child_nodes[0].child_nodes[1]);
+            }
+            enable_array_as_queryable(res);
+            return res;
+        }
+    }
+
+    if (sentence === 'collect second child second child' || sentence === 'collect second child node second child node') {
+        return () => {
+            const res = [];
+            //each(node.child_nodes, cn => res.push(cn));
+            if (node.child_nodes[1] && node.child_nodes[1].child_nodes[1]) {
+                res.push(node.child_nodes[1].child_nodes[1]);
+            }
+            enable_array_as_queryable(res);
             return res;
         }
     }
@@ -403,10 +511,7 @@ const create_query_execution_fn = (node, words) => {
     }
 
     // collect_expression_nodes
-
     // collect child signature.
-
-    
 
     if (sentence === 'collect child signature' || sentence === 'collect child node signature' || 
         sentence === 'collect each child signature' || sentence === 'collect each child node signature') {
@@ -437,6 +542,7 @@ const create_query_execution_fn = (node, words) => {
     }
 
     const collect_child_variable_declarations = () => select_child_node_by_type('VariableDeclaration');
+    const collect_child_declarations = () => select_child_node_by_category('Declaration');
 
     // collect_child_variable_declarations
     const collect_child_literal = () => {
@@ -447,6 +553,9 @@ const create_query_execution_fn = (node, words) => {
 
     if (sentence === 'collect child variabledeclaration') {
         return collect_child_variable_declarations;
+    }
+    if (sentence === 'collect child declaration') {
+        return collect_child_declarations;
     }
 
     if (sentence === 'collect child variabledeclarator') {
@@ -462,6 +571,20 @@ const create_query_execution_fn = (node, words) => {
         return collect_declared_keys;
     }
 
+    // 
+
+    if (sentence === 'collect self if objectexpression' || sentence === 'collect self if type objectexpression' || sentence === 'collect self if own type is objectexpression') {
+        return collect_self_if_objectexpression;
+    }
+
+    if (sentence === 'collect self if signature' || sentence === 'collect self if signature is' || sentence === 'collect self if own signature is') {
+        return collect_self_if_signature_is;
+    }
+
+    // 'collect', 'self', 'if', 'signature', 'is'
+
+
+
     if (sentence === 'collect own declaration assigned values' || sentence === 'collect own declaration assigned values') {
         return collect_declaration_assigned_values;
     }
@@ -470,8 +593,21 @@ const create_query_execution_fn = (node, words) => {
 
     // collect.child.variabledeclarator
 
-    if (sentence === 'collect name') {
+    if (sentence === 'collect name' || sentence === 'collect own name' || sentence === 'collect node name') {
         return () => [node.name];
+    }
+
+    if (sentence === 'collect value') {
+        return () => {
+            //node.babel.node
+            console.log('node.babel.node', node.babel.node);
+            //throw 'stop';
+
+            const res = [];
+            console.log('node.value', node.value);
+            if (node.value) res.push(node.value);
+            return res;
+        };
     }
 
 
@@ -526,6 +662,10 @@ const create_query_execution_fn = (node, words) => {
 
     // filter.child.by.type
 
+    if (sentence === 'each') {
+        return callback => callback(node);
+    }
+
     if (sentence === 'each child node' || sentence === 'each child') {
         return each_child_node;
     }
@@ -538,6 +678,9 @@ const create_query_execution_fn = (node, words) => {
 
     if (sentence === 'each child declarator node' || sentence === 'each child declarator') {
         return each_child_declarator;
+    }
+    if (sentence === 'each child objectproperty node' || sentence === 'each child objectproperty') {
+        return each_child_objectproperty;
     } 
 
     if (sentence === 'each child variabledeclaration node' || sentence === 'each child variabledeclaration') {
@@ -560,6 +703,14 @@ const create_query_execution_fn = (node, words) => {
     if (sentence === 'find node' || sentence === 'find') {
         return find_node;
     }
+
+    if (sentence === 'find memberexpression node' || sentence === 'find memberexpression' ||
+        sentence === 'find node of type memberexpression' || sentence === 'find node with type memberexpression' || 
+        sentence === 'find node that has type memberexpression') {
+        return find_memberexpression;
+    }
+
+    // find_memberexpression
 
 
     if (sentence === 'find child identifier' || sentence === 'find a childnode which is an identifier too') {
@@ -611,6 +762,23 @@ const create_query_execution_fn = (node, words) => {
         return select_by_type_abbreviation;
     }
 
+    // select.by.child.count
+
+    if (sentence === 'select by child count' || sentence === 'select by child node count' || sentence === 'select by number of child nodes') {
+        return select_by_child_count;
+    }
+
+
+    // select_child_by_first_child_type
+
+    if (sentence === 'select child by first child type' || sentence === 'select child node by first child node type') {
+        return select_child_by_first_child_type;
+    }
+
+    if (sentence === 'select by first child type' || sentence === 'select by first child node type') {
+        return select_by_first_child_type;
+    }
+
     // select_by_type_abbreviation
 
     if (sentence === 'select child node' || sentence === 'select child') {
@@ -630,6 +798,16 @@ const create_query_execution_fn = (node, words) => {
     if (sentence === 'select by first child first child name' || sentence === 'select node by first child first child name') {
         return select_by_first_child_first_child_name;
     }
+
+    if (sentence === 'select self' || sentence === 'select own node') {
+        return select_self;
+    }
+
+    if (sentence === 'select self by signature' || sentence === 'select self if signature is' || sentence === 'select self if signature') {
+        return select_self_if_signature_is;
+    }
+
+    
 
 
 

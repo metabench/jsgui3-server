@@ -58,6 +58,10 @@ class JS_File_JS_AST_Node extends JS_File_Babel {
                 value: node_body
             });
 
+            this.raise('parsed-js_ast', {
+                value: js_ast_node_file
+            });
+
             //console.log('js_ast_node_file', js_ast_node_file);
             //console.log('js_ast_node_file.type', js_ast_node_file.type);
             //console.log('js_ast_node_file.babel.type', js_ast_node_file.babel.type);

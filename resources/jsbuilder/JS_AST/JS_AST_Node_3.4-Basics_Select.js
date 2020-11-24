@@ -5,7 +5,7 @@ const JS_AST_Operation = require('./JS_AST_Operation');
 const JS_AST_Relationship_Node_To_Group = require('./JS_AST_Relationship_Node_To_Group');
 const JS_AST_Operation_On_Relationship = require('./JS_AST_Operation_On_Relationship');
 
-const enable_array_as_queryable = require('./query/enable_array_as_queryable');
+//const {enable_array_as_queryable} = require('./query/query_tools');
 
 class JS_AST_Node_Basics_Select extends JS_AST_Node_Basics_Collect {
     constructor(spec = {}) {
@@ -15,7 +15,7 @@ class JS_AST_Node_Basics_Select extends JS_AST_Node_Basics_Collect {
         const select_all = (fn_select) => {
             const res = [];
             filter_deep_iterate(fn_select, node => res.push(node));
-            enable_array_as_queryable(res);
+            //enable_array_as_queryable(res);
 
             return res;
         }

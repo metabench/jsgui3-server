@@ -53,6 +53,7 @@ const test_js_ast_node = () => {
 
     console.log('js_ast_node.child.count', js_ast_node.child.count);
 
+    console.log('js_ast_node.query.count.all.node.exe()', js_ast_node.query.count.all.node.exe());
     console.log('js_ast_node.query.count.all.exe()', js_ast_node.query.count.all.exe());
 
     // mapcall_deep_iterate
@@ -141,25 +142,31 @@ const test_js_ast_node = () => {
         const oprs = js_ast_node.query.select.by.t.exe('OPr');
         console.log('oprs', oprs);
 
-        const oprslits = js_ast_node.query.select.by.t.exe('OPr').query.collect.child.literal.exe();
-        console.log('oprslits', oprslits);
+        //throw 'stop';
 
-        const opr_first_child_nodes = js_ast_node.query.select.by.t.exe('OPr').query.collect.first.child.exe(); // working nicely.
+        if (oprs.length > 0) {
+            const oprslits = js_ast_node.query.select.by.t.exe('OPr').query.collect.child.literal.exe();
+            console.log('oprslits', oprslits);
+
+            const opr_first_child_nodes = js_ast_node.query.select.by.t.exe('OPr').query.collect.first.child.exe(); // working nicely.
+
+            
+
+            // Best to keep this syntax for the moment, the need for query collect and exe make it explicit and simpler to follow.
+
+
+            // .t.collect('OPr').first.child.node.exe();
+            console.log('opr_first_child_nodes', opr_first_child_nodes);
+
+
+            //const sl_values = opr_first_child_nodes.map(node => node.babel.node.value)
+            const sl_values = js_ast_node.query.select.by.t.exe('OPr').query.collect.first.child.value.exe();
+
+
+            console.log('sl_values', sl_values);
+        }
 
         
-
-        // Best to keep this syntax for the moment, the need for query collect and exe make it explicit and simpler to follow.
-
-
-        // .t.collect('OPr').first.child.node.exe();
-        console.log('opr_first_child_nodes', opr_first_child_nodes);
-
-
-        //const sl_values = opr_first_child_nodes.map(node => node.babel.node.value)
-        const sl_values = js_ast_node.query.select.by.t.exe('OPr').query.collect.first.child.value.exe();
-
-
-        console.log('sl_values', sl_values);
 
         if (js_ast_node.declaration) {
             console.log('js_ast_node.declaration.declared.keys', js_ast_node.declaration.declared.keys);
@@ -181,6 +188,7 @@ const test_js_ast_node = () => {
         // .query.collect.own.declaration.value
         // .query.collect.declaration.value
     }
+    used_tests();
 
 
     

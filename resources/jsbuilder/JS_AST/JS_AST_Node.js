@@ -52,6 +52,7 @@ class JS_AST_Node extends JS_AST_Node_Changing {
         let usage;
 
         const determine_usage = () => {
+            throw 'NYI';
             if (this.type === 'Identifier') {
                 
             } else {
@@ -71,6 +72,17 @@ class JS_AST_Node extends JS_AST_Node_Changing {
             enumerable: true,
             configurable: false
         });
+
+        Object.defineProperty(this, 'is_js_ast_node', {
+            get() { 
+                return true;
+                
+            },
+            //set(newValue) { bValue = newValue; },
+            enumerable: true,
+            configurable: false
+        });
+
 
 
 

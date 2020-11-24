@@ -18,19 +18,6 @@ class JS_AST_Node_Feature_Declaration extends JS_AST_Node_Feature {
 
         const assigned = {};
 
-
-        // and the assigned keys property.
-
-
-        // // maybe they are not assigned keys after all.
-
-        // .assigned.values
-
-
-        // a query to get the literal values???
-
-        
-
         Object.defineProperty(assigned, 'values', {
             get() { 
                 if (!assigned_values) {
@@ -50,8 +37,10 @@ class JS_AST_Node_Feature_Declaration extends JS_AST_Node_Feature {
                             console.log('');
                             console.log('cdec', cdec);
                             console.log('cdec.source', cdec.source);
-                            const dec_cn_tstr = cdec.query.collect.child.node.t.exe().join('.');
+                            const qr = cdec.query.collect.child.node.t.exe();
+                            const dec_cn_tstr = qr.join('.');
                             console.log('dec_cn_tstr', dec_cn_tstr);
+                            console.log('qr', qr);
 
                             // Can use a signature map.
                             
@@ -218,16 +207,6 @@ class JS_AST_Node_Feature_Declaration extends JS_AST_Node_Feature {
                         } else {
                             throw 'NYI';
                         }
-
-
-                        //console.log('this.node.type', this.node.type);
-                        //console.log('this.node.child_nodes.length', this.node.child_nodes.length);
-                        
-                        //console.log('this.node.signature', this.node.signature);
-                        //console.log('this.node.deep_type_signature', this.node.deep_type_signature);
-
-
-                        //throw 'NYI';
                     }
                     
                     //throw 'NYI';
@@ -240,9 +219,6 @@ class JS_AST_Node_Feature_Declaration extends JS_AST_Node_Feature {
 
         this.declared = declared;
         this.assigned = assigned;
-        
-
-
     }
 }
 

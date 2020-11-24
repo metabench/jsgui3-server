@@ -9,7 +9,7 @@ const type_abbreviations = {
     'BinaryExpression': 'BE',
     'BlockStatement': 'BS',
     'BooleanLiteral': 'BL',
-    'CallExpression': 'CE', // change to CaE? Need to change sigs being looked for.
+    'CallExpression': 'CaE', // change to CaE? Need to change sigs being looked for.
     'ClassBody': 'CB',
     'ClassDeclaration': 'CD',
     'ClassMethod': 'CM',

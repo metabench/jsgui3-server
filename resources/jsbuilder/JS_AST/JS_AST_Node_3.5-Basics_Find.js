@@ -11,7 +11,6 @@ class JS_AST_Node_Basics_Find extends JS_AST_Node_Basics_Select {
         super(spec);
         const {deep_iterate} = this;
 
-
         // Not so sure we need this kind of operation object now.
         //  .query is how queries will be done in the future. 
 

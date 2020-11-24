@@ -131,7 +131,7 @@ const test_js_file = () => {
 
         //  .dvmap? mapdirect.the rest of the query.
 
-        
+
 
 
 
@@ -221,7 +221,7 @@ const test_js_file = () => {
                 if (assignment_source_names.length > 0) {
                     if (assignment_source_names.length === 1) {
                         assignment_source_name = assignment_source_names[0];
-                        (program.query.collect.child.declaration.exe().query.select.self.if.signature.is.exe('VDn(VDr(ID,CE(ID,SL)))').query.collect.first.child.exe()).query.each.exe(cn => {
+                        (program.query.collect.child.declaration.exe().query.select.self.if.signature.is.exe('VDn(VDr(ID,CE(ID,SL)))').query.each.first.child.exe(cn => {
                             const obj_name = cn.child_nodes[0].name;
                             const fn_call_name = cn.child_nodes[1].child_nodes[0].name;
                             if (fn_call_name === 'require') {
@@ -230,7 +230,7 @@ const test_js_file = () => {
                                     assignment_source_declaration_node = cn.parent_node;
                                 }
                             }
-                        });
+                        }));
                     } else {
                         throw 'NYI';
                     }

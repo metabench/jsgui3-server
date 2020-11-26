@@ -158,12 +158,12 @@ const test_js_ast_node = () => {
 
 
         each(identifiers, id => {
-            console.log('');
+            //console.log('');
             console.log('id.name', id.name);
-            console.log('id.parent_node.source', id.parent_node.source);
+            //console.log('id.parent_node.source', id.parent_node.source);
 
             const ut = id.usage_type;
-            console.log('ut', ut);
+            //console.log('ut', ut);
 
 
             const traced_reference = id.trace_reference_to_declaration();

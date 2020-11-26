@@ -128,10 +128,10 @@ class JS_AST_Node_Type_Identifier extends JS_AST_Node_Type_Block_Statement {
                             throw 'stop';
                         }
                     } else {
-                        console.log('this', this);
-                        console.log('this.source', this.source);
-                        console.log('this.parent_node', this.parent_node);
-                        console.log('pn.t', pn.t);
+                        //console.log('this', this);
+                        //console.log('this.source', this.source);
+                        //console.log('this.parent_node', this.parent_node);
+                        //console.log('pn.t', pn.t);
 
                         if (pn.t === 'CD' || pn.t === 'CM' || pn.t === 'AsP') {
                             return pn;
@@ -155,12 +155,60 @@ class JS_AST_Node_Type_Identifier extends JS_AST_Node_Type_Block_Statement {
                         // this.query.each.previous.sibling
                         //  in forward order
 
+                        //console.log('this.parent_node.parent_node', this.parent_node.parent_node);
+                        //console.log('this.parent_node.parent_node.source', this.parent_node.parent_node.source);
+                        //console.log('this.parent_node.parent_node.parent_node.source', this.parent_node.parent_node.parent_node.source);
+
+
+                        const search_node_child_nodes = (node) => {
+                            if (!res) {
+                                each(node.child_nodes, (cn, idx) => {
+
+                                    if (!res && !map_ancestors.has(cn)) {
+                                        //if (!passed_ancestor) {
+                                            // child declarations of this. check for the name there.
+    
+                                        if (cn.is_declaration) {
+                                            //console.log('cn is dec', cn);
+                                            //console.log('cn.declaration.assigned.values', cn.declaration.assigned.values);
+                                            //console.log('cn.declaration.declared.keys', cn.declaration.declared.keys);
+                                            //console.log('this.name', this.name);
+
+                                            if (cn.declaration.declared.keys.includes(this.name)) {
+                                                //return cn.declaration.assigned.values[cn.declaration.declared.keys.indexOf(this.name)]
+
+                                                // .assigned.nodes
+
+                                                res = cn.declaration.assigned.nodes[cn.declaration.declared.keys.indexOf(this.name)];
+
+                                                //res = cn.declaration.assigned.values[cn.declaration.declared.keys.indexOf(this.name)];
+                                            }
+                                        }
+    
+                                        //}
+                                    } else {
+                                        //passed_ancestor = true;
+                                    }
+    
+                                })
+                            }
+                            
+                        }
+
+                        // ok, this seems to work.
+                        //  maybe too extensive???
                         this.parent_node.parent_node.sibling.previous.each(psib => {
-                            console.log('psib', psib);
+                            //console.log('ppsib', psib);
+                            search_node_child_nodes(psib.parent_node);
+                        })
+                        this.parent_node.parent_node.parent_node.sibling.previous.each(psib => {
+                            //console.log('pppsib', psib);
+                            search_node_child_nodes(psib.parent_node);
                         })
 
 
 
+                        
 
                         this.query.each.ancestor.exe(an => {
                             //console.log('an', an);
@@ -174,40 +222,8 @@ class JS_AST_Node_Type_Identifier extends JS_AST_Node_Type_Block_Statement {
                             let passed_ancestor = false;
 
                             if (!res) {
-                                each(an.child_nodes, (cn, idx) => {
-
-                                    if (!map_ancestors.has(cn)) {
-                                        if (!passed_ancestor) {
-                                            // child declarations of this. check for the name there.
-    
-                                            if (cn.is_declaration) {
-                                                //console.log('cn is dec', cn);
-                                                //console.log('cn.declaration.assigned.values', cn.declaration.assigned.values);
-                                                //console.log('cn.declaration.declared.keys', cn.declaration.declared.keys);
-                                                //console.log('this.name', this.name);
-    
-                                                if (cn.declaration.declared.keys.includes(this.name)) {
-                                                    //return cn.declaration.assigned.values[cn.declaration.declared.keys.indexOf(this.name)]
-
-                                                    // .assigned.nodes
-
-                                                    res = cn.declaration.assigned.nodes[cn.declaration.declared.keys.indexOf(this.name)];
-
-                                                    //res = cn.declaration.assigned.values[cn.declaration.declared.keys.indexOf(this.name)];
-                                                }
-                                            }
-    
-    
-                                        }
-                                    } else {
-                                        passed_ancestor = true;
-                                    }
-    
-                                })
+                                search_node_child_nodes(an);
                             }
-
-                            
-
 
                             // any declaration - look for the declared names inside?
                             //  or at a lower index?

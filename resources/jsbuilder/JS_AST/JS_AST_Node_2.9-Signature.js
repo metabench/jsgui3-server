@@ -78,6 +78,36 @@ class JS_AST_Node_Signature extends JS_AST_Node_Available_In_Scope {
 
         this.get_deep_type_signature = get_deep_type_signature;
 
+        // Not sure where advanced signatures will fit in.
+        //  Possibly with the .extract command and .query.extract.exe('advanced extraction signature')
+        //   eg ArP(ID*,ID*,ID*) extracts them into an array
+        //   eg ArP(ID*n,ID*n,ID*n) to get the names
+        //  Be able to parse an advanced signature, and produce a basic signature from it.
+        //   This will find the node where the extraction takes place.
+
+        // extracting from inner paths too...
+
+        // this.extract_inner_path_nodes(['0/0', '1/0']);
+        // // this.extract_by_inner_path
+        // this.collect.by.inner.path?
+        //  some of these extractions would come under 'collect'.
+        //   when they get collected into an array.
+
+        // find_by_inner_path
+
+        // and paths of nodes relative to each other.
+
+        // node.path_from
+        //  ../ being parent node.
+
+        
+
+
+
+        //  That seems like a way along the way to extracting using the advanced signatures.
+        //  Extraction with advanced signatures could make concise and clear code that extracts data from AST trees.
+
+
     }
 }
 

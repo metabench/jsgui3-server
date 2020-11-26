@@ -1,7 +1,7 @@
 // const babel_node_tools = require('../babel/babel_node_tools');
 
-const { each } = require('../../../../../tools/arr-tools/arr-tools');
-const JS_AST_Node_Type_Variable_Declarator = require('./JS_AST_Node_6.3-Type_Variable_Declarator');
+const { each } = require('lang-mini');
+const JS_AST_Node_Type_Identifier = require('./JS_AST_Node_6.5-Type_Identifier');
 
 const {create_query} = require('./query/query_tools');
 
@@ -31,7 +31,7 @@ const {create_query} = require('./query/query_tools');
 // JS_AST_Node_Query_Capable?
 //  As we want a JS_AST_Node_Query class???
 
-class JS_AST_Node_Query_Capable extends JS_AST_Node_Type_Variable_Declarator {
+class JS_AST_Node_Query_Capable extends JS_AST_Node_Type_Identifier {
     constructor(spec = {}) {
         super(spec);
         Object.defineProperty(this, 'query', {

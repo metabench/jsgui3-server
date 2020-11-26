@@ -63,6 +63,21 @@ class JS_File extends Evented_Class {
         });
 
 
+        Object.defineProperty(this, 'name', {
+            get() { 
+                //console.log('path', path);
+                const spath = path.split('\\').join('/').split('/');
+                //console.log('spath', spath);
+                const res = spath[spath.length - 1];
+                //throw 'stop';
+                return res; 
+            },
+            enumerable: true,
+            configurable: false
+        });
+
+
+
 
         //if (spec.source) source = spec.source;
 

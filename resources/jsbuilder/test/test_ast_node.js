@@ -31,6 +31,59 @@ const test_js_ast_node = () => {
 
     const test_script_4 = 'const obj = {"a": 1, "b": 2, "c": 3}';
 
+    // Want to do more complete / deeper analysis.
+    //  Tracking where variables that have been declared within a (block?) scope get used.
+
+
+    // This is about which variables get declared (and used) within a block scope.
+    //  Does look like we need a BlockStatement feature or further functionality for it.
+
+    // 6.4-Type_Block_Statement
+    //  Then properties specifically for a block statement
+    //   iterate_declarations_and_references
+    //    would have callbacks on both sorts of nodes, saying which names are defined, and which are used, and doing so in order.
+    //     so a used name must refer to something declared in scope, or available out of scope (somehow or other).
+
+    // Would be a decent place have the code for internal iteration for specific things.
+    //  Getting an understanding of the variables declared, available, required, and used within the scope will be very useful for putting files together containing
+    //  functions.
+
+    // Currently getting the result file working piece by piece. To start with I just want to copy some functions out of lang-mini and maybe other libs if those functions
+    //  don't require anythin else.
+    //   Will later see about inserting items into the scope in places that they are needed.
+    //    Seems like a fairly large amount of data processing could go on....
+    //     Will be good to come up with useful / necessary indexes in a single / few iterations.
+    //      
+
+
+
+
+
+
+
+
+
+
+
+
+    // Ability to detect immediately executed (parameterless) functions?
+
+    // Using this right now to investigate what goes on within a block scope / block statement.
+
+
+    const test_script_5 = `const obj = (()=> {
+        const i1 = 5;
+        const [i2, i3] = [10, 15];
+        const i4 = i2 + i3, i5 = i1 + i4;
+        const res = Math.pow(i2, 3);
+        class LetsGo { constructor(spec = {}) {} };
+        return res;
+    })()`
+
+
+
+
+
     // Item declared as an array.
     //  Still a single declared item, even though it's composed of multiple things.
     //  Would could as an Abstract_Single_Declaration???
@@ -43,7 +96,7 @@ const test_js_ast_node = () => {
     //   If it has no parent_node.
 
     const spec = {
-        source: test_script_1
+        source: test_script_5
     };
 
     const js_ast_node = JS_AST_Node.from_spec(spec);
@@ -56,11 +109,150 @@ const test_js_ast_node = () => {
     console.log('js_ast_node.query.count.all.node.exe()', js_ast_node.query.count.all.node.exe());
     console.log('js_ast_node.query.count.all.exe()', js_ast_node.query.count.all.exe());
 
+    console.log('js_ast_node.generate()', js_ast_node.generate());
+
+
+
+    const n2 = js_ast_node.navigate('0/0/2');
+    console.log('n2', n2);
+
+    const arr_nodes = js_ast_node.navigate(['0/0/1', '0/0/2']);
+    console.log('arr_nodes', arr_nodes);
+
+
+    const test_block_statement_child_inner_declared_names_and_nodes = () => {
+        const bs = js_ast_node.query.find.by.type.exe('BlockStatement')[0];
+        console.log('bs', bs);
+        const inner_declared_info = bs.child_inner_declared_names_and_nodes;
+        // a 'feature' on the BlockStatement?:
+        //  .inner_arr_declared_names_and_nodes
+        //   then can use that function as a basis for an iterator for both the declarations and the use of variables / named objects.
+        //    worth doing together to facilitate checking the order.
+
+
+
+
+        
+        console.log('inner_declared_info', inner_declared_info);
+        console.log('js_ast_node.type', js_ast_node.type);
+    }
+
+    const test_identifier_trace_reference = () => {
+
+        const identifiers = js_ast_node.query.collect.identifier.exe();
+        console.log('identifiers', identifiers);
+
+        // Only want to trace some identifier references...
+        //  Object name references.
+
+
+        // is_reference
+
+        // is_object_reference
+        //  looks at the identifier within its context
+
+        // is_declared_name
+        // is_object_property_reference
+
+
+
+
+        each(identifiers, id => {
+            console.log('');
+            console.log('id.name', id.name);
+            console.log('id.parent_node.source', id.parent_node.source);
+
+            const ut = id.usage_type;
+            console.log('ut', ut);
+
+
+            const traced_reference = id.trace_reference_to_declaration();
+            console.log('traced_reference', traced_reference);
+
+        })
+
+    }
+
+    
+    test_identifier_trace_reference();
+
+
+
+
+    
+
+
+
+    // const obj_nodes = js_ast_node.navigate({'0/0/1': 'idname1', '0/0/2': 'idname2']);
+    //  query.extract potential
+    //  extract being a good verb for extracting named objects.
+
+    // Property reading / extraction would be cool. Navigation queries look like a step along the way to a more comprehensive search and extraction system.
+    //  That more comprehensive system will then power the queries and features used by the platform to put the code together.
+    //   Do not want to have to write long and hard to read and maintain pieces of code to answer questions about what is in the various files and how they relate to each other.
+    //    Getting the program to have some sort of understanding of how the classes relate to each other.
+    //     Giving functionality such as building all of the code to run a particular class or group of classes.
+    //      That same functionality should extend to larger codebases such as a jsgui client app, with all its various nested requirements.
+
+    // Will try loading files into a platform to begin with.
+    // However, carrying on with just the analysis phase of building, then including planning, would get much of the process complete. Then the building itself would just be
+    //  about putting code together when we already have the references / source code properties.
+
+
+    // It is worth trying putting the code into an AST.
+    //  Not so sure right now though. Maybe a Babel AST rather than the JS_AST? 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    //const obj_node_namess = js_ast_node.navigate({'0/0/1.name': 'name1', '0/0/2.name': 'name2'});
+
+
+
+
+
+    // Want to get a map of nodes from navigation?
+    //  or to get multiple nodes into an array from a navigate command.
+
+
+    // Want to test some convenient path queries here.
+    //  Finding nodes by using a path.
+
+    // .navigate would be a good function to use on a node to navigate to another node.
+
+
     // mapcall_deep_iterate
     // mapcall_child_nodes
     // deep_iterate_mapcall
 
     // mapped call ?
+
+    // will now work on extracting values from a search by signature.
+    //  will need to get into some of the lower level tree and parsing tech to get it working properly.
+    //  a class to deal with signatures?
+
+    // new JS_AST_Node_Advanced_Signature();
+    //  will accept the extraction commands.
+    //  will have a callback where the extraction data is provided.
+    
+
+
+
+
+
 
     const direct_calling = () => {
         js_ast_node.callmap_deep_iterate(node => node.signature, {
@@ -188,7 +380,7 @@ const test_js_ast_node = () => {
         // .query.collect.own.declaration.value
         // .query.collect.declaration.value
     }
-    used_tests();
+    //used_tests();
 
 
     

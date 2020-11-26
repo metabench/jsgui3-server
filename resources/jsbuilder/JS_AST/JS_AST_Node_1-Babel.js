@@ -2,10 +2,21 @@ const babel_node_tools = require('../babel/babel_node_tools');
 const {each} = require('lang-mini');
 const {deep_iterate_babel_node} = babel_node_tools;
 const parser = require('@babel/parser');
+const generate = require('@babel/generator').default;
+
+//console.log('generate', generate);
+//console.log('generate', Object.keys(generate));
+//console.log('generate', generate);
+//throw 'stop';
+
+// import generate from "@babel/generator";
 const JS_AST_Node_Core = require('./JS_AST_Node_0-Core');
 const { resolvePlugin } = require('@babel/core');
 
 const {type_abbreviations, map_expression_categories, map_literal_categories, map_statement_categories, map_categories} = require('../babel/babel_consts');
+
+
+
 /*
 
 module.exports = {
@@ -252,10 +263,6 @@ class JS_AST_Node_Babel extends JS_AST_Node_Core {
             configurable: false
         });
         
-        
-        
-        
-        
         Object.defineProperty(babel, 'ast', {
             get() { 
 
@@ -325,8 +332,48 @@ class JS_AST_Node_Babel extends JS_AST_Node_Core {
     
                 
             }
+
+            this.generate = () => {
+                //const code = this.source;
+                const ast = this.babel.node;
+
+                // generate(ast).code;
+                
+
+                /*
+                const output = generate(
+                ast,
+                {
+                    // * options * /
+                },
+                code
+                );
+
+                */
+
+                const output = generate(ast).code;
+
+                //console.log('output', output);
+                return output;
+            }
             
         }
+
+        /*
+        import { parse } from "@babel/parser";
+        import generate from "@babel/generator";
+        
+        const code = "class Example {}";
+        const ast = parse(code);
+        
+        const output = generate(
+          ast,
+          {
+            // * options * /
+          },
+          code
+        );
+        */
         
     }
 }

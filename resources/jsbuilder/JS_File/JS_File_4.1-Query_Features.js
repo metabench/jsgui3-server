@@ -27,6 +27,90 @@ const JS_AST_Node_Declared_Object = require('../JS_AST/JS_AST_Node_Feature/JS_AS
 
 const log = console.log;
 //const log = () => [];
+//#endregion
+
+
+class JS_File_Feature {
+    constructor(spec = {}) {
+        const name = (() => spec.name ? spec.name : undefined)();
+        Object.defineProperty(this, 'name', {
+            get() { 
+                return name;
+            },
+            enumerable: true,
+            configurable: false
+        });
+
+        const value_getter = (() => spec.value_getter ? spec.value_getter : undefined)();
+
+        // And a value_getter function.
+
+        Object.defineProperty(this, 'value', {
+            get() { 
+                if (value_getter) {
+                    return value_getter();
+                }
+            },
+            enumerable: true,
+            configurable: false
+        });
+
+
+    }
+}
+
+class JS_File_Features {
+    constructor(spec = {}) {
+        const js_file_node = () => spec.js_file_node ? spec.js_file_node : undefined;
+
+
+        const arr_features = [];
+        const map_features_by_name = new Map();
+
+        // add feature - and have a getter function...
+
+        const add = (feature) => {
+
+            if (!map_features_by_name.has(feature.name)) {
+                map_features_by_name.set(feature.name, feature);
+            } else {
+                throw 'Already has a feature with the name: ' + feature.name;
+            }
+
+            arr_features.push(feature);
+
+
+
+            Object.defineProperty(this, feature.name, {
+                get() { 
+                    return feature;
+                },
+                enumerable: true,
+                configurable: false
+            });
+        }
+        
+
+        // .imported
+        // .exported
+
+        Object.defineProperty(this, 'names', {
+            get() { 
+                return arr_features.map(feature => feature.name);
+            },
+            enumerable: true,
+            configurable: false
+        });
+
+        // exported.type
+
+        // .exported.object.keys
+
+        // .exported.class.name
+        this.add = add;
+
+    }
+}
 
 class JS_File_Query_Features extends JS_File_Query {
     constructor(spec) {
@@ -407,8 +491,206 @@ class JS_File_Query_Features extends JS_File_Query {
         
         
 
+        const features = new JS_File_Features({
+            js_file_node: this
+        });
+
+        const find_exported_node_type = () => {
+            const root = this.js_ast_node_file;
+            const exported_node_type = root.exports.exported.node.type;
+
+            // 
+
+            return exported_node_type;
+        }
+
+        const find_exported_object_declaration_node = () => {
 
 
+            const root = this.js_ast_node_file;
+            const root_exported_node = root.exports.exported.node;
+            const exports_keys = [];
+            const program = root.child_nodes[0];
+            const exported_node_name = root.exports.exported.node.name;
+
+            // The possibility of creating a JS_Abstract_Object which would then be used to get more info about the lifecycle of the object that gets exported
+            //  as it progresses through the file. This will only be useful / relevant in some cases.
+
+            // The local variable not for export of reuse - they could have their names changed so that they don't never conflict.
+            //  Could have a counter, and declare names like mlv1 or further abbreviated in the future.
+            //   Just short and systematic names will be good, could improve on it in the future, but if they are systematic they would compress well anyway.
+            let exported_object_declaration_node;
+            if (exported_node_name === undefined) {
+
+            }  else {
+                const expn = program.query.collect.child.variabledeclaration.exe().query.select.node.by.first.child.first.child.name.exe(exported_node_name)[0];
+                if (expn.length === 1) {
+                    exported_object_declaration_node = expn[0]; // Need to investigate behaviour change for nested collect queries.
+                } else {
+                    //console.log('expn.length', expn.length);
+                    each(expn, item => {
+                        console.log('item', item);
+                        console.log('item.source', item.source);
+                    })
+                    throw 'stop';
+                }
+            }
+            return exported_object_declaration_node;
+
+
+
+        }
+
+        const find_exported_keys = () => {
+            //console.log('find_exported_keys');
+
+            const root = this.js_ast_node_file;
+            const root_exported_node = root.exports.exported.node;
+            const exports_keys = [];
+            const program = root.child_nodes[0];
+            const exported_node_name = root.exports.exported.node.name;
+
+            // The possibility of creating a JS_Abstract_Object which would then be used to get more info about the lifecycle of the object that gets exported
+            //  as it progresses through the file. This will only be useful / relevant in some cases.
+
+            // The local variable not for export of reuse - they could have their names changed so that they don't never conflict.
+            //  Could have a counter, and declare names like mlv1 or further abbreviated in the future.
+            //   Just short and systematic names will be good, could improve on it in the future, but if they are systematic they would compress well anyway.
+
+            if (exported_node_name === undefined) {
+                const collected_keys = root_exported_node.query.collect.self.if.type.objectexpression.exe().
+                    query.select.child.by.first.child.type.exe('StringLiteral').
+                    query.collect.first.child.exe().
+                    query.collect.value.exe().flat();
+                //console.log('collected_keys', collected_keys);
+                //throw 'stop';
+                each(collected_keys, key => exports_keys.push(key));
+            }  else {
+                let exported_object_declaration_node;
+                const expn = program.query.collect.child.variabledeclaration.exe().query.select.node.by.first.child.first.child.name.exe(exported_node_name)[0];
+                if (expn.length === 1) {
+                    exported_object_declaration_node = expn[0]; // Need to investigate behaviour change for nested collect queries.
+                } else {
+                    //console.log('expn.length', expn.length);
+                    each(expn, item => {
+                        console.log('item', item);
+                        console.log('item.source', item.source);
+                    })
+                    throw 'stop';
+                }
+                if (exported_object_declaration_node) {
+                    //console.log('exported_object_declaration_node', exported_object_declaration_node);
+                    //console.log('exported_object_declaration_node.source', exported_object_declaration_node.source);
+                    //const qr = exported_object_declaration_node.query.select.by.child.count.exe(1);
+                    const qr2 = exported_object_declaration_node.query.select.by.child.count.exe(1).query.collect.first.child.second.child.exe()[0].query.select.by.type.exe('ObjectExpression');
+                    //console.log('qr2', qr2);
+
+                    if (qr2.length > 0) {
+                        qr2[0].query.each.child.objectproperty.exe(cn => {
+                            //console.log('cn', cn);
+                            if (cn.child_nodes[0].type === 'StringLiteral') {
+                                exports_keys.push(cn.child_nodes[0].value);
+                            } else {
+                                throw 'NYI';
+                            }
+                        });
+                    }
+                }
+                const assignment_source_names = [];
+                // Better means to looks for patters and signatures will help here.
+
+                if (exports_keys.length === 0) {
+                    if (root.exports.exported.node.name) {
+                        const cn = program.query.select.child.by.signature.exe('ES(CaE(ME(ID,ID),ID,ID))')[0];
+                        const call_names = cn.query.find.memberexpression.exe()[0].query.collect.child.name.exe();
+                        if (call_names[0] === 'Object' && call_names[1] === 'assign') {
+                            const target_name = cn.child_nodes[0].child_nodes[1].name;
+                            if (target_name === root.exports.exported.node.name) {
+                                assignment_source_names.push(cn.child_nodes[0].child_nodes[2].name);
+                            }
+                        }
+                    }
+                }
+                let assignment_source_declaration_node, assignment_source_name;
+
+                if (assignment_source_names.length > 0) {
+                    if (assignment_source_names.length === 1) {
+                        assignment_source_name = assignment_source_names[0];
+                        (program.query.collect.child.declaration.exe().query.select.self.if.signature.is.exe('VDn(VDr(ID,CaE(ID,SL)))').query.each.first.child.exe(cn => {
+                            const [node_obj, node_fn_call_id] = cn.nav(['0', '1/0']);
+                            const obj_name = node_obj.name;
+                            const fn_call_name = node_fn_call_id.name;
+                            if (fn_call_name === 'require') {
+                                //const required_path = node.child_nodes[0].child_nodes[1].child_nodes[1].source.split('\'').join('').split('"').join('').split('`').join('');
+                                if (obj_name === assignment_source_name) {
+                                    assignment_source_declaration_node = cn.parent_node;
+                                }
+                            }
+                        }));
+                    } else {
+                        throw 'NYI';
+                    }
+                }
+
+                if (assignment_source_declaration_node) {
+                    program.query.each.child.with.signature.exe('ES(AsE(ME(ID,ID),ID))', node => {
+                        const [mec0, mec1] = node.nav(['0/0/0', '0/0/1']);
+                        //const ase = node.child_nodes[0];
+                        //const me = ase.child_nodes[0];
+                        const obj_name = mec0.name;
+                        const obj_property_name = mec1.name;
+                        if (obj_name === assignment_source_name) {
+                            exports_keys.push(obj_property_name);
+                        }
+                    })
+                }
+            }
+            //console.log('exports_keys', exports_keys);
+            return exports_keys;
+        }
+        
+        const exports_feature = new JS_File_Feature({
+            name: 'exported',
+            value_getter: () => {
+
+                // Use the code which has been in the file test js.
+                //  It gets the information on what has been exported.
+
+                const exported_res = {
+                    keys: find_exported_keys(),
+                    node_type: find_exported_node_type(),
+                    object_declaration_node: find_exported_object_declaration_node()
+                };
+
+
+                return exported_res;
+
+
+                // .type
+
+                // .keys
+
+
+
+                //throw 'stop';
+            }
+        });
+
+        const imports_feature = new JS_File_Feature({
+            name: 'imported',
+            value_getter: () => {
+                throw 'stop';
+            }
+        });
+
+        features.add(exports_feature);
+        features.add(imports_feature);
+
+        this.features = features;
+
+        console.log('features', features);
+
+        //throw 'stop';
 
     }
 }

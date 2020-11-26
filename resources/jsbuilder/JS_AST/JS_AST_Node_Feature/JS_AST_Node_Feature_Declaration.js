@@ -10,7 +10,7 @@ class JS_AST_Node_Feature_Declaration extends JS_AST_Node_Feature {
         super(spec);
         const {node} = this;
 
-        let declared_keys, assigned_values;
+        let declared_keys, assigned_values, assigned_nodes;
 
         // Maybe should be .declared.keys?
 
@@ -34,13 +34,13 @@ class JS_AST_Node_Feature_Declaration extends JS_AST_Node_Feature {
                         // then go through each child declarator....
 
                         node.query.each.child.declarator.exe(cdec => {
-                            console.log('');
-                            console.log('cdec', cdec);
-                            console.log('cdec.source', cdec.source);
+                            //console.log('');
+                            //console.log('cdec', cdec);
+                            //console.log('cdec.source', cdec.source);
                             const qr = cdec.query.collect.child.node.t.exe();
                             const dec_cn_tstr = qr.join('.');
-                            console.log('dec_cn_tstr', dec_cn_tstr);
-                            console.log('qr', qr);
+                            //console.log('dec_cn_tstr', dec_cn_tstr);
+                            //console.log('qr', qr);
 
                             // Can use a signature map.
                             
@@ -142,11 +142,76 @@ class JS_AST_Node_Feature_Declaration extends JS_AST_Node_Feature {
                 }
                 return assigned_values;
             }});
+
+            Object.defineProperty(assigned, 'nodes', {
+                get() { 
+                    if (!assigned_nodes) {
+                        assigned_nodes = [];
+                        if (node.type === 'VariableDeclaration') {
+                            node.query.each.child.declarator.exe(cdec => {
+                                const qr = cdec.query.collect.child.node.t.exe();
+                                const dec_cn_tstr = qr.join('.');
+                                if (dec_cn_tstr === 'ArP.ArE') {
+                                    const are = cdec.child_nodes[1];
+                                    const sc = are.child.shared.category;
+                                    const st = are.child.shared.type;
+                                    if (sc === 'Literal') {
+                                        const lvalues = are.query.collect.child.exe();
+                                        console.log('lvalues', lvalues);
+                                        each(lvalues, v => assigned_nodes.push(v));
+                                    } else {
+                                        throw 'NYI';
+                                    }
+                                    //console.log(sc);
+                                    //if (are.)
+                                } else {
+    
+                                    // .query.select.by.child.count.exe(2).query.select.where.first.child.is.identifier.exe().select.where.second.child.is.literal.exe()
+                                    // .quert.select.where.child.count.is.exe(2)
+    
+                                    if (cdec.child.count === 2) {
+                                        if (cdec.child_nodes[0].is_identifier) {
+    
+    
+                                            if (cdec.child_nodes[1].is_literal) {
+                                                const [name, value] = [cdec.child_nodes[0].name, cdec.child_nodes[1]];
+                                                //console.log('[name, value]', [name, value]);
+                                                assigned_nodes.push(value);
+    
+                                            } else {
+                                                // is it an expression?
+                                                //  we could give it the node?
+    
+                                                // leaving it for the moment???
+    
+                                                if (cdec.child_nodes[1].is_expression) {
+                                                    assigned_nodes.push(cdec.child_nodes[1]);
+                                                }
+                                            }
+                                        } else {
+                                            throw 'NYI';
+                                        }
+                                    } else {
+                                        throw 'stop';
+                                    }
+                                }
+                            });
+                        } else if (node.type === 'ClassDeclaration') {
+                            throw 'NYI';
+                        } else {
+                            throw 'stop';
+                        }
+                    }
+                    return assigned_nodes;
+        }});
+
         Object.defineProperty(declared, 'keys', {
             get() { 
                 if (!declared_keys) {
 
                     // Can try the get_object_keys function???
+                    //console.log('node', node);
+                    //console.log('node.source', node.source);
 
                     declared_keys = [];
 
@@ -160,7 +225,8 @@ class JS_AST_Node_Feature_Declaration extends JS_AST_Node_Feature {
                         each(collected_keys, key => declared_keys.push(key));
                         //console.log('collected_keys', collected_keys);
                     } else if (node.type === 'ClassDeclaration') {
-                        throw 'NYI';
+                        declared_keys.push(node.nav('0').name);
+                        //throw 'NYI';
                     } else {
                         throw 'stop';
                     }
@@ -184,12 +250,12 @@ class JS_AST_Node_Feature_Declaration extends JS_AST_Node_Feature {
 
                         // Seems like class definitions are not iterating right...?
 
-                        console.log('vdrs.length', vdrs.length);
+                        //console.log('vdrs.length', vdrs.length);
 
                         if (vdrs.length === 0) {
-                            if (this.node.type === 'ClassDeclaration') {
-                                const key = this.node.child_nodes[0].name;
-                                console.log('key', key);
+                            if (node.type === 'ClassDeclaration') {
+                                const key = node.child_nodes[0].name;
+                                //console.log('key', key);
 
                                 if (key !== undefined) {
                                     declared_keys.push(key);
@@ -211,7 +277,7 @@ class JS_AST_Node_Feature_Declaration extends JS_AST_Node_Feature {
                     
                     //throw 'NYI';
                 }
-                return declared_keys;
+                return declared_keys.flat();
             },
             enumerable: true,
             configurable: false

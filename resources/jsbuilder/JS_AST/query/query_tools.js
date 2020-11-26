@@ -199,7 +199,7 @@ const assign_node_ngrams = (qfm) => {
     qfm.ngrams.assign({
 
 
-        count_all_nodes: ['count all', 'count all nodes'],
+        
 
         signature_callmap_deep_iterate: ['callmap by signature', 'callmap deep iterate by signature'],
         
@@ -207,11 +207,17 @@ const assign_node_ngrams = (qfm) => {
         callmap_child_nodes: ['callmap child', 'callmap child node'],
         collect_child_nodes: ['collect child node', 'collect child'],
         collect_first_child_node: ['collect first child node', 'collect first child'],
-        collect_all_signature: ['collect all signature', 'collect all node signature'],
+        collect_all_signature: ['collect all signature', 'collect all node signature'], // collect.child.declared.objects
+
+        collect_child_declared_objects: ['collect child declared object', 'collect child node declared object', 'collect child declaration declared object'],
+        
         collect_child_type: ['collect child type', 'collect child node type'],
         collect_child_abbreviated_type: ['collect child t', 'collect child node t', 'collect child abbreviated type', 'collect child type abbreviation', 'collect child node abbreviated type', 'collect child node type abbreviation'],
         collect_child_category: ['collect child category', 'collect child node category'],
         collect_child_count: ['collect child count', 'collect child node count'],
+        collect_child_node_signature: ['collect child signature', 'collect child node signature', 'collect each child signature', 'collect each child node signature'],
+        collect_child_identifier_nodes: ['collect child identifier', 'collect child node identifier node'],
+        collect_child_identifier_name: ['collect child identifier name', 'collect child node identifier name'],
         collect_first_child_name: ['collect first child name', 'collect first child node name'],
         collect_child_value: ['collect child value', 'collect child node value'],
         collect_first_child_first_child: ['collect first child first child', 'collect first child node first child node'],
@@ -226,9 +232,7 @@ const assign_node_ngrams = (qfm) => {
         collect_identifier_nodes: ['collect identifier', 'collect identifier node'],
         collect_expression_nodes: ['collect expression', 'collect expression node'],
         collect_objectproperty_nodes: ['collect objectproperty', 'collect objectproperty node'],
-        collect_child_node_signature: ['collect child signature', 'collect child node signature', 'collect each child signature', 'collect each child node signature'],
-        collect_child_identifier_nodes: ['collect child identifier', 'collect child node identifier node'],
-        collect_child_identifier_name: ['collect child identifier name', 'collect child node identifier name'],
+        
         collect_id_name: ['collect id name'],
         collect_child_variable_declarations: ['collect child variabledeclaration'],
         collect_child_declarations: ['collect child declaration'],
@@ -244,11 +248,12 @@ const assign_node_ngrams = (qfm) => {
         collect_property_nodes: ['collect property', 'collect property node', 'collect node with category property'],
         count_child_nodes: ['count child node', 'count child', 'child count', 'child node count'],
         count_all_nodes: ['count all', 'count all node'],
+        count_child_declarator: ['count child declarator', 'count child declarator node'],
         count_identifier_nodes: ['count identifier node', 'count identifier'],
 
         each_first_child: ['each first child', 'each first child node'],
         //filter_each_child_node_by_signature: [],
-        //each_child_node: ['each child', 'each child node'],
+        //each_child_node: ['each child', 'each child node'], // collect.child.declared.objects
 
         filter_each_child_node: ['filter child node', 'filter each child', 'filter each child node'],
 
@@ -266,6 +271,12 @@ const assign_node_ngrams = (qfm) => {
         each_child_variabledeclaration: ['each child variabledeclaration node', 'each child variabledeclaration'],
         each_child_declaration: ['each child declaration node', 'each child declaration'],
         each_child_identifier: ['each child identifier node', 'each child identifier'],
+
+        each_inner_node: ['each inner node', 'each inner'],
+        each_ancestor_node: ['each ancestor node', 'each ancestor'],
+
+        each_own_name: ['each name', 'each own name'],
+
         find_node: ['find node', 'find'],
         find_memberexpression: ['find memberexpression node', 'find memberexpression'],
         find_child_identifier: ['find child identifier', 'find a childnode which is an identifier too'],
@@ -278,6 +289,8 @@ const assign_node_ngrams = (qfm) => {
         select_child_by_first_child_type: ['select child by first child type', 'select child node by first child node type'],
         select_by_first_child_type: ['select by first child type', 'select by first child node type'],
         select_child: ['select child node', 'select child'],
+        select_child_by_type: ['select child node by type', 'select child by type',
+            'select child node of type', 'select child of type'],
         select_child_node_by_signature: ['select child node by signature', 'select child by signature'],
         select_by_category: ['select by category',  'select node by category'],
         select_by_first_child_first_child_name: ['select by first child first child name', 'select node by first child first child name'],
@@ -358,7 +371,7 @@ const create_query_execution_fn = (node, words) => {
 
     const qfm = new Query_Function_Map();
 
-    
+    const {each_ancestor_node} = node;
 
 
     
@@ -383,6 +396,8 @@ const create_query_execution_fn = (node, words) => {
         }
 
         const deep_iterate = node.deep_iterate;
+
+        //const each_ancestor_node = 
 
 
         const each_child_declarator = (callback) => filter_each_child_node(node => node.category === 'Declarator', callback);
@@ -411,6 +426,13 @@ const create_query_execution_fn = (node, words) => {
         const find_child_identifier = () => find_child_node_by_type('Identifier');
         const find_node_by_type = type => find_node(node => node.type === type);
         const find_memberexpression = () => find_node_by_type('MemberExpression')
+
+        const select_child_by_type = (type) => {
+            const res= new Query_Result();
+            filter_each_child_node_by_type(type, node => res.push(node));
+            enable_array_as_queryable(res);
+            return res;
+        }
 
         const select_child_node_by_signature = (signature) => {
             const res= new Query_Result();
@@ -596,7 +618,18 @@ const create_query_execution_fn = (node, words) => {
             let res = 0;
             deep_iterate(n => res++);
             return res;
+            
         }
+
+        const count_matching_child = (fn_match) => {
+            let res = 0;
+            each_child_node(cn => {
+                if (fn_match(cn)) res++
+            })
+            return res;
+        }
+
+        const count_child_declarator = () => count_matching_child(cn => cn.type === 'VariableDeclarator');
         const select_self = fn_check => {
             const res= new Query_Result();
             //console.log('2) node', node);
@@ -629,18 +662,19 @@ const create_query_execution_fn = (node, words) => {
         qfm.fns.assign(each_child_objectproperty);
         qfm.fns.assign(each_child_variabledeclaration);
         qfm.fns.assign(each_child_declaration);
-        qfm.fns.assign([each_child_identifier]);
+        qfm.fns.assign([each_ancestor_node, each_child_identifier]);
         qfm.fns.assign([
             each_first_child, each_child_node,
             filter_each_child_node_by_signature, filter_each_child_node_by_type,
             filter_each_child_variabledeclaration_node, filter_each_child_node_by_category
         ]);
         qfm.fns.assign([
-            select_child_node_by_signature, select_child_node_by_type,
+            select_child_node_by_signature, select_child_by_type,
             select_child_node_by_category, select_child, select_child_by_first_child_type
         
         ]);
         qfm.fns.assign([
+            find_node,
             find_child_node, find_child_node_by_type,
             find_child_identifier, find_node_by_type, find_memberexpression
         
@@ -681,12 +715,12 @@ const create_query_execution_fn = (node, words) => {
         }
         const collect_child_abbreviated_type = () => {
             const res = new Query_Result();
-            console.log('***** res', res);
+            //console.log('***** res', res);
             each(node.child_nodes, cn => res.push(cn.t));
-            console.log('node.child_nodes', node.child_nodes);
-            console.log('node.child_nodes.length', node.child_nodes.length);
-            console.log('***** res', res);
-            console.log('res.length', res.length);
+            //console.log('node.child_nodes', node.child_nodes);
+            //console.log('node.child_nodes.length', node.child_nodes.length);
+            //console.log('***** res', res);
+            //console.log('res.length', res.length);
             return res;
         }
         const collect_child_category = () => {
@@ -813,6 +847,53 @@ const create_query_execution_fn = (node, words) => {
             return res;
         };
 
+        const each_own_name = (callback) => { // useful in combination with other queries.
+            if (node.name !== undefined) callback(node.name);
+        }
+        const each_inner_node = (callback) => {
+            deep_iterate(inode => {
+                if (node !== inode) callback(inode);
+            })
+        }
+
+        const collect_child_declared_objects = () => {
+            const res = new Query_Result();
+            //console.log('node', node);
+            each_child_declarator(cdr => {
+                //console.log('cdr', cdr);
+
+                const [c1, c2] = cdr.nav(['0', '1']);
+                if (c1.t === 'ArP' && c2.t === 'ArE') {
+                    
+                    const l = c1.child_nodes.length;
+                    for (let c = 0; c < l; c++) {
+                        res.push([c1.child_nodes[c].name, c1.child_nodes[c]]);
+                    }
+                    
+                    //c1.query.each.child.exe(id => res.push(id.name));
+
+
+
+                } else {
+                    //console.log('cdr', cdr);
+
+                    const obj_name = cdr.nav('0').name;
+                    //console.log('obj_name', obj_name);
+                    const eo = cdr.nav('1');
+
+                    res.push([obj_name, eo]);
+
+                    // object    oe[multi opr]
+                    //throw 'stop';
+                }
+
+            });
+            //throw 'stop';
+            return res;
+        }
+
+        
+
         // collect_signature
 
         // collect.all.signature may be best....
@@ -831,6 +912,9 @@ const create_query_execution_fn = (node, words) => {
         const count_child_nodes = () => node.child_nodes.length;
 
         qfm.fns.assign([
+
+            collect_child_declared_objects,
+
             collect_child_count,
             collect_child_nodes, collect_first_child_node, collect_child_type, collect_child_abbreviated_type, collect_child_category,
             collect_first_child_name, collect_child_value,
@@ -838,10 +922,13 @@ const create_query_execution_fn = (node, words) => {
             collect_second_child_first_child, collect_second_child_second_child,
             collect_first_child_value,
             collect_second_child_node, collect_third_child_node,
-            collect_name, collect_value
+            collect_name, collect_value,
+
+            each_own_name,
+            each_inner_node
         ]);
 
-        qfm.fns.assign([count_child_nodes, count_identifier_nodes, count_all_nodes]);
+        qfm.fns.assign([count_child_nodes, count_identifier_nodes, count_all_nodes, count_child_declarator]);
         qfm.fns.assign([select_self, select_self_if_signature_is]);
 
 
@@ -1218,7 +1305,7 @@ const create_query_execution_fn = (arr, words = []) => {
 const create_query = (incoming, words = []) => {
 
     //console.log('create_query incoming', incoming);
-    console.log('words', words);
+    //console.log('words', words);
 
 
     const res = {

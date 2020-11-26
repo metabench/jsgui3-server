@@ -32,6 +32,8 @@
 // JSGUI_JS_File?
 
 
+// Some kinds of nested extractions could help here.
+
 
 const JS_File = require('..//JS_File/JS_File');
 //const JS_File_Comprehension = require('../JS_File_Comprehension');
@@ -55,7 +57,7 @@ const test_js_file = () => {
     const jsfile_path = '../JS_File/JS_File.js';
     const jsbuilder_path = '../JS_Builder.js';
     //const file_path = '../JS_File.js';
-    const file_path = fnl_path;
+    const file_path = lt_path;
     // path of lang mini...
 
     // Write and test a simple and convenient way for analysing JS files and recompiling them.
@@ -146,20 +148,112 @@ const test_js_file = () => {
         //    Make better example than above.
 
 
+        // Or a few?
 
+        // Collect keys declared directly on the object that gets exported
+        // Collect keys that get added to the object that gets exported.
+
+        // Working on query so that it recognises object phrases, such as 'the object that gets exported'.
+
+        // However, that object is not just the code it gets declared with.
+        //  Maybe some kind of programmatic object abstraction would help.
+        //   It's not the statement, but a representation of the object that exists when the program is running.
+
+        // JS_Abstract_Object
+        //  this would be the main one.
+        //   there can be object methods anyway. If it's a class, better to tag it as such but use the same representation (mostly).
+
+        // An abstract object would be useful in the context of a file to track both ways
+        //  back from what is exported
+        //  forward from what is imported
+        
+        //  being able to identify that what gets exported is a modified / subclassed imported object.
+
+        // Doing more to build a transformation plan.
+        //  This seems like a useful step in the build.
+        //  All parts could be described / logged as they happen.
+
+        // Copy body main to the platform being built.
+        //  Loading into a platform...
+        //   Not so sure that's the right thing to focus on right now.
+        //   May be better to work on extracting the main body of what gets declared
+        //    keeping track of the names as they are now local variables in the new scope
+
+        // Then if / when a class imports from something already in scope, we should know that it's already in scope.
+
+        // Tracing imports
+        //  Seems like something that is more in line with what a Workspace or something that deals with multiple files should handle.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        // JS_Abstract_Class ???
+
+
+
+
+        // Maybe the whole thing could work as a large collect statement?
+
+
+
+        // Still would be nice to split this up and be clearer about what it's doing.
+
+        // eg abstract_object.added.keys
+
+        // some easy to use syntax would then make it easy to retrieve exactly what is needed where it was needed.
+        //  May be worth moving this into a feature of some sort.
+        //   Probably a feature of the JS file.
+
+
+        // branch queries would be of use.
+
+        // .query.branch.on.length({'1': ..., '2': ... , 'default'...})
+
+        
 
 
         const working_find_exported_keys = () => {
+
+            
+
             const root_exported_node = root.exports.exported.node;
             const exports_keys = [];
             const program = root.child_nodes[0];
             const exported_node_name = root.exports.exported.node.name;
+
+            // The possibility of creating a JS_Abstract_Object which would then be used to get more info about the lifecycle of the object that gets exported
+            //  as it progresses through the file. This will only be useful / relevant in some cases.
+
+            // The local variable not for export of reuse - they could have their names changed so that they don't never conflict.
+            //  Could have a counter, and declare names like mlv1 or further abbreviated in the future.
+            //   Just short and systematic names will be good, could improve on it in the future, but if they are systematic they would compress well anyway.
+
+            // 
+
+
+
             if (exported_node_name === undefined) {
                 const collected_keys = root_exported_node.query.collect.self.if.type.objectexpression.exe().
                     query.select.child.by.first.child.type.exe('StringLiteral').
                     query.collect.first.child.exe().
                     query.collect.value.exe().flat();
-                console.log('collected_keys', collected_keys);
+                //console.log('collected_keys', collected_keys);
                 //throw 'stop';
                 each(collected_keys, key => exports_keys.push(key));
             }  else {
@@ -207,21 +301,19 @@ const test_js_file = () => {
                     //console.log('exported_object_declaration_node.source', exported_object_declaration_node.source);
 
                     const qr = exported_object_declaration_node.query.select.by.child.count.exe(1);
-                    //console.log('qr', qr);
-                    //console.log('qr.is_query_result', qr.is_query_result);
+                    const qr2 = qr.query.collect.first.child.second.child.exe()[0].query.select.by.type.exe('ObjectExpression');
+                    //console.log('qr2', qr2);
 
-                    //throw 'stop';
-
-                    //throw 'stop';
-                    //console.log('exported_object_declaration_node.query', exported_object_declaration_node.query);
-                    qr.query.collect.first.child.second.child.exe()[0].query.select.by.type.exe('ObjectExpression')[0].query.each.child.objectproperty.exe(cn => {
-                        //console.log('cn', cn);
-                        if (cn.child_nodes[0].type === 'StringLiteral') {
-                            exports_keys.push(cn.child_nodes[0].value);
-                        } else {
-                            throw 'NYI';
-                        }
-                    });
+                    if (qr2.length > 0) {
+                        qr2[0].query.each.child.objectproperty.exe(cn => {
+                            //console.log('cn', cn);
+                            if (cn.child_nodes[0].type === 'StringLiteral') {
+                                exports_keys.push(cn.child_nodes[0].value);
+                            } else {
+                                throw 'NYI';
+                            }
+                        });
+                    }
                 }
                 const assignment_source_names = [];
                 // Better means to looks for patters and signatures will help here.
@@ -229,24 +321,7 @@ const test_js_file = () => {
                 if (exports_keys.length === 0) {
                     if (root.exports.exported.node.name) {
                         const cn = program.query.select.child.by.signature.exe('ES(CaE(ME(ID,ID),ID,ID))')[0];
-                        console.log('cn', cn);
-
-
-                        // A single object as a query result?
-                        //  May be best to get used to dealing with arrays more.
-                        //  Maybe be more certain on which syntax won't use arrays - maybe find.
-
-
-                        const me = cn.query.find.memberexpression.exe()[0];
-                        console.log('me', me);
-                        console.log('me.length', me.length);
-
-                        //throw 'stop';
-                        const call_names = me.query.collect.child.name.exe();
-                        console.log('call_names', call_names);
-                        //console.log('call_names.flat()', call_names.flat());
-
-
+                        const call_names = cn.query.find.memberexpression.exe()[0].query.collect.child.name.exe();
                         if (call_names[0] === 'Object' && call_names[1] === 'assign') {
                             const target_name = cn.child_nodes[0].child_nodes[1].name;
                             if (target_name === root.exports.exported.node.name) {
@@ -261,8 +336,15 @@ const test_js_file = () => {
                     if (assignment_source_names.length === 1) {
                         assignment_source_name = assignment_source_names[0];
                         (program.query.collect.child.declaration.exe().query.select.self.if.signature.is.exe('VDn(VDr(ID,CaE(ID,SL)))').query.each.first.child.exe(cn => {
-                            const obj_name = cn.child_nodes[0].name;
-                            const fn_call_name = cn.child_nodes[1].child_nodes[0].name;
+
+                            //console.log('cn', cn);
+
+                            const [node_obj, node_fn_call_id] = cn.nav(['0', '1/0']);
+
+                            //const obj_name = cn.child_nodes[0].name;
+                            //const fn_call_name = cn.child_nodes[1].child_nodes[0].name;
+                            const obj_name = node_obj.name;
+                            const fn_call_name = node_fn_call_id.name;
                             if (fn_call_name === 'require') {
                                 //const required_path = node.child_nodes[0].child_nodes[1].child_nodes[1].source.split('\'').join('').split('"').join('').split('`').join('');
                                 if (obj_name === assignment_source_name) {
@@ -274,94 +356,20 @@ const test_js_file = () => {
                         throw 'NYI';
                     }
                 }
-                //console.log('assignment_source_declaration_node', assignment_source_declaration_node);
-
-                // query.each.child.with.signature
-
-                // //Using a signature to find and extract would be best.
-
-                // 'ES(AsE(ME(ID as id1a,ID as id1b),ID as id2))' // as seems like good syntax here.
-                // 'ES(AsE(ME(id1a: ID, id1b: ID), id2: ID))'
-                // 'ES(AsE(ME(ID[id1a], ID[id1b]), ID[id2]))'
-
-                // I like the ' as ' syntax the most, as it's most similar to the SQL standard.
-
-                // Nodes having their own recursively construted or accessed indexes would help here.
-
-                // index_of_inner_nodes
-
-                // then when doing index lookup, a node will consult its's own index, and go into the index of subnodes?
-                //  or does that just mean it's doing a full search each time?
-                
-                // find and extract at once seems like one of the main things here.
-                // may also benefit from improving query by making it use an abstact representation of a node group.
-
-                // do more for defining the query results as an abstract group of nodes.
-                //  will see where such abstract groups are used in queries????
-                //  I do like the way that query works with ngrams, at least for the moment.
-                //   Means it has flexible syntax but no runaway complexity for the moment.
-                // Can put plenty more ngrams in, and have automated / better ways to add them.
-
-
-
-                // and would (have to) produce an array with the extraction points.
-                // extract.one would not return an array like that.
-
-                // node.extract(signature with extraction points)
-
-
-                // arrow functions look like good syntax here.... maybe better than 'as'.
-
-                // Arrows may look good / best to indicate the variable being extracted.
-
-                // (ID -> id) (shorthand?)
-                // (ID => ID as id) (longhand?) XX prob not
-                // (ID.name -> name2)
-                // (ID => ID.name as name1) 
-                // (ID => name1 = ID.name) Seems good here.
-                // (ID.name -> name1)
-                //   but arrow functions may be a little confusing?
-
-                // Would be nice to make a really limited subset of JS / JS similar that deals with assignments.
-
-                // Mini_AST_Tree?
-
-                // JS_AST_Representation_Tree
-                // JS_AST_Tree_Representation
-                //  May be nice name - it's used to store representations of an AST tree
-
-
-
-
-
-
 
                 if (assignment_source_declaration_node) {
                     program.query.each.child.with.signature.exe('ES(AsE(ME(ID,ID),ID))', node => {
-                        const ase = node.child_nodes[0];
-                        const me = ase.child_nodes[0];
-                        const obj_name = me.child_nodes[0].name;
-                        const obj_property_name = me.child_nodes[1].name;
+
+                        const [mec0, mec1] = node.nav(['0/0/0', '0/0/1']);
+
+                        //const ase = node.child_nodes[0];
+                        //const me = ase.child_nodes[0];
+                        const obj_name = mec0.name;
+                        const obj_property_name = mec1.name;
                         if (obj_name === assignment_source_name) {
                             exports_keys.push(obj_property_name);
                         }
                     })
-
-                    /*
-                    program.query.each.child.exe(node => {
-                        if (node.signature === 'ES(AsE(ME(ID,ID),ID))') {
-                            const ase = node.child_nodes[0];
-                            const me = ase.child_nodes[0];
-                            const obj_name = me.child_nodes[0].name;
-                            const obj_property_name = me.child_nodes[1].name;
-                            if (obj_name === assignment_source_name) {
-                                exports_keys.push(obj_property_name);
-                            }
-                        }
-                    });
-                    */
-
-
                 }
             }
             //console.log('exports_keys', exports_keys);
@@ -372,62 +380,19 @@ const test_js_file = () => {
         console.log('exports_keys', exports_keys);
         //throw 'stop';
 
-        const sigs = root.query.collect.child.signature.exe();
-        console.log('sigs', sigs);
 
-        sigs.sort().sort(function(a, b){
-            // ASC  -> a.length - b.length
-            // DESC -> b.length - a.length
-            return b.length - a.length;
-          });
+        const test_sigs_queries = () => {
+            const sigs = root.query.collect.child.signature.exe();
+            console.log('sigs', sigs);
 
-        console.log('sigs', sigs);
+            sigs.sort().sort(function(a, b){
+                // ASC  -> a.length - b.length
+                // DESC -> b.length - a.length
+                return b.length - a.length;
+            });
 
-        //console.log('sigs instanceof Query_Result', sigs instanceof Query_Result);
-
-        // Query_Result
-
-
-        // running extraction on a sig:
-
-        // VDn(VDr(ID,CaE(ID,SL)))
-
-        // * for node extraction into an array.
-        // maybe ID=>arr.push(ID)
-        // .query.signature('VDn(VDr(ID*,CaE(ID*,SL)))').each((node, arr_extracted_nodes) => )
-        // .query.signature('VDn(VDr(ID@,CaE(ID@,SL)))').each((node, obj_extracted_nodes) => )
-        // .query.signature('VDn(VDr(ID@id1,CaE(ID@id2,SL)))').each((node, obj_extracted_nodes) => )
-
-
-        // What about functions with proxy access?
-        //  Could solve the .constructor and .name problems.
-
-        // /.query.signature(**with extraction**).filter(node, extraction data).
-
-        // avoiding having to use .exe would be a good step when various words get called as functions.
-        //  after all, want good and clear query syntax.
-
-        // .query.signature(s) // query by signature, returns a result set which can then be queried.
-        //                    .filter being a function of the result set.
-        //                    .filter.anything (incl constructor?) returns a newly generated query object with 'filter' in the word.
-        //                      maybe generating a Filter_Query_Object at this time will work better? May show better in console.
-
-        // and then also make it so that node.filter also produces a query result object with the result.
-        //  so once the filtering has been done (cb1), there is an optional 2nd callback. The function also produces a Query_Result_Set.
-        //   Maybe a Filter_Query_Result_Set.
-
-
-        // then querying by signature....
-        //   want querying by signature with extraction of local variables.
-
-        // VDn(VDr(ID,CE(ID,SL)))
-
-
-        
-        // Hard work now already done for this.
-
-        //try_identifier_mapping();
-        
+            console.log('sigs', sigs);
+        }
     });
 }
 

@@ -51,8 +51,17 @@ class JS_AST_Node_Ancestor extends JS_AST_Node_Basics_Parent {
             gparent: gparent,
             ggparent: ggparent
         });
-        
 
+        const each_ancestor_node = (callback) => {
+            const pn = this.parent_node;
+            if (pn) {
+                callback(pn);
+                pn.each_ancestor_node(callback);
+            }
+
+        }
+        
+        this.each_ancestor_node = each_ancestor_node;
         this.ancestor = ancestor;
         this.gparent = gparent;
         this.ggparent = ggparent;

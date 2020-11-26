@@ -18,8 +18,8 @@ class JS_AST_Node_Feature_Declarator extends JS_AST_Node_Feature {
             get() { 
 
                 if (!keys) {
-                    console.log('node', node);
-                    console.log('node.source', node.source);
+                    //console.log('node', node);
+                    //console.log('node.source', node.source);
                     keys = [];
                     const found_key = key => {
                         keys.push(key);
@@ -64,7 +64,7 @@ class JS_AST_Node_Feature_Declarator extends JS_AST_Node_Feature {
                             //
 
                             if (node.child_nodes[0].is_identifier) {
-                                console.log('node.child_nodes[1].category', node.child_nodes[1].category);
+                                //console.log('node.child_nodes[1].category', node.child_nodes[1].category);
 
                                 if (node.child_nodes[1].category === 'Expression') {
                                     //found_key(node.child_nodes[0].name);

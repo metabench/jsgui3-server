@@ -147,6 +147,119 @@ class JS_AST_Node_Basics extends JS_AST_Node_Signature {
         }
 
 
+
+        // Lets put path calculation here too.
+
+        //  Will be useful in extraction signature searches. They will be useful to have concise and reliable code that extracts the wanted features from the AST into
+        //  program variables. That will then be used to further improve the exports finder. Then the code will likely be good enough to be integrated into part of the main
+        //  engine. Possibly as a query or property of features of the root node. Possibly as part of Platform or Workspace or Project, or all three.
+        //  Will continue with getting thorough and reliable analysis on the level of the single JS file.
+
+        // 1) Exports
+
+
+        // 2) Imports After exports, we want to analyse imports.
+        //  Look at the modules that exported the variables that are being imported.
+        //   Link to the exported data property / feature. Then the work on exports analysis will be used to feed into the system's understanding of what a particular JS file does.
+
+        // 3) What happens to whatever gets imported? Does it become an export? Does it get augmented / assigned / extended before being exported, possibly as a different variable?
+        //  Tracing of the classes (prototypes) as well as objects that contain functionality that get built up and extended over various modules.
+
+
+
+        // ?? The build process itself...
+        // How to get it building sooner rather than later?
+        //  Though all the above analysis is nice, it's probably not all needed in order to do a build.
+        //  Building with some set rules.
+        //   Copying all local variables declared in the main scope of any file into the main scope of the target. Keeping the same variable names for the moment.
+        //   Basically sticking files together, and doing the minimum in order to get it working.
+        //    Compression of variables can come later.
+
+        // A Builder class?
+        //  Builds a project?
+
+        // Or a Builder class that loads a file and gets all of the references it needs above it in the JS?
+        // Do want something we can point to the JS file and it gets on with building it.
+
+        // Would like it to be able to operate statement by statement.
+        //  It copies each statement as appropriate from the root, into the context where all of the required constants (/other variables?) have already been initialised.
+
+        // Maybe when it's all running in one file, compression could better take place on the whole thing?
+        //  The main thing is to get a lot more into local scope and avoid having to have all these import and export references.
+        //  Then later, the variable names can be changed as they are written according to rules which would be generated in a previous stage.
+        //   May be at least worth architecturing in where variables can change. How to modify the AST and get the code - not done that yet.
+        //    Definitely want variable renaming and then regeneration of the code from the AST.
+
+        // Producing any king of modified result at all would be a good next stage.
+
+        /*
+        import { parse } from "@babel/parser";
+        import generate from "@babel/generator";
+        
+        const code = "class Example {}";
+        const ast = parse(code);
+        
+        const output = generate(
+          ast,
+          {
+            // * options * /
+          },
+          code
+        );
+        */
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        const path_from_ancestor = ancestor_origin => {
+
+            // from the origin, what steps need to be taken?
+
+            // is the origin node an ancestor of this node?
+            //  can check that, noting which index we come from each time.
+
+            // Lets make this fn only work for getting the path from an ancestor.
+
+            const find_ancestor_origin = () => {
+
+                let found = false;
+                let node = this;
+                let arr_indexes = [];
+
+                while (!found) {
+                    if (node === ancestor_origin) {
+                        found = true;
+                    }
+
+                }
+
+                console.log('arr_indexes', arr_indexes);
+                throw 'stop';
+
+            }
+
+
+
+
+        }
+
+
+
+
+
         
         this.inner_deep_iterate = inner_deep_iterate;
         this.filter_deep_iterate = filter_deep_iterate;

@@ -22,6 +22,13 @@ class JS_AST_Node_Category_Declaration extends JS_AST_Node_Category_Pattern {
                 node: this
             });
 
+
+            // Likely a property directly here rather than in feature?
+            //  or a function that is specific to declarations and gets the names of whatever is declared.
+
+            
+
+
             // But outside of / on a lower level to the feature, more commands and queries to enable better access to declarations would help.
 
 

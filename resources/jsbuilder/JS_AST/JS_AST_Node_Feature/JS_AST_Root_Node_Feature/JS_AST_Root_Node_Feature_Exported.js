@@ -61,8 +61,10 @@ class JS_AST_Root_Node_Feature_Exported {
                         //keys = find_object_keys(node);
                         //console.log('keys', keys);
                         //return found_keys;
-                        console.trace();
-                        throw 'NYI';
+                        
+                        
+                        //console.trace();
+                        //throw 'NYI';
 
                         
 

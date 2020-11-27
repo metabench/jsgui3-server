@@ -4,9 +4,6 @@
 
 // Maybe need more tests and fixes for deconstructing expressions.
  
-
-
-
 // Load a JS file into an OO structure
 
 const JS_File = require('..//JS_File/JS_File');
@@ -18,6 +15,57 @@ const {each} = require('lang-mini');
 
 //const JS_AST_Node = require('../JS_AST/JS_AST_Node');
 const JS_AST_Node = require('../JS_AST_Node_Extended/JS_AST_Node_Extended');
+
+
+
+
+const arr_vanilla_object_names = [
+    'Infinity', 'NaN', 'undefined', 'globalThis',
+    'eval', 'encodeURIComponent', 'decodeURI', 'decodeURIComponent', 'isFinite', 'isNaN', 'parseFloat', 'parseInt', 'encodeURI',
+    'Object', 'Function', 'Boolean', 'Symbol',
+    'Error', 'AggregateError', 'EvalError', 'InternalError', 'RangeError', 'ReferenceError', 'SyntaxError', 'TypeError', 'URIError',
+    'Number', 'BigInt', 'Math', 'Date',
+    'String', 'RegExp',
+    'Array', 'Int8Array', 'Uint8Array', 'Uint8ClampedArray', 'Int16Array', 'Uint16Array', 'Int32Array', 'Uint32Array', 'Float32Array', 'Float64Array', 'BigInt64Array', 'BigUint64Array',
+    'Map', 'Set', 'WeakMap', 'WeakSet',
+    'ArrayBuffer', 'SharedArrayBuffer', 'Atomics', 'DataView', 'JSON',
+    'Promise', 'Generator', 'GeneratorFunction', 'AsyncFunction', 'AsyncGenerator', 'AsyncGeneratorFunction',
+    'Reflect', 'Proxy',
+    'Intl',
+    'WebAssembly',
+    'arguments'
+
+];
+
+const map_vanilla_names = new Map();
+each(arr_vanilla_object_names, vanilla_name => map_vanilla_names.set(vanilla_name, true));
+
+
+
+// An iterative analysis of variables in scope function looks like it's on the agenda.
+//  Will go through it and keep track of what has been made available in that scope.
+//  Then can create a copy of that objkect, and give it to the child scope, adding anything else that should be available to that child scope.
+
+// It seems worth getting the specifics of the query names chosen, and then these more advanced queries will be added to the query system.
+
+// query.callmap.declared.object.and.object.reference.exe()
+
+// could be the next query level, where we don't need the reference to it's declared js function?
+
+
+// where it uses the function name as the short name?
+//  so it could replace spaces with underscores in the shortest version, include that in the function name index.
+
+
+// query_system.add_query([sentences...], fn)
+
+
+// query.each.declared.object.and.object.reference??
+
+
+
+
+
 
 const test_js_ast_node = () => {
     
@@ -53,18 +101,7 @@ const test_js_ast_node = () => {
     //   Will later see about inserting items into the scope in places that they are needed.
     //    Seems like a fairly large amount of data processing could go on....
     //     Will be good to come up with useful / necessary indexes in a single / few iterations.
-    //      
-
-
-
-
-
-
-
-
-
-
-
+    //     
 
     // Ability to detect immediately executed (parameterless) functions?
 
@@ -77,9 +114,43 @@ const test_js_ast_node = () => {
         const i4 = i2 + i3, i5 = i1 + i4;
         const res = Math.pow(i2, 3);
         class LetsGo { constructor(spec = {}) {} };
-        return res;
+        const res2 = [];
+        each([1, 2, 3, 4], (num, idx) => res2.push(num));
+        return res2;
     })()`
 
+    // .iterate_inner_blocks = ...
+
+    const iterate_node_inner_blocks = (node, callback) => {
+
+        node.query.each.inner.exe(inner => {
+            if (inner.type === 'BlockStatement') {
+                callback(inner);
+            }
+        })
+
+    }
+
+    // then within each block, we can iterate it so we get the declarations of variables and the object names used.
+
+
+    // iterate_node_child_variable_declarations_and_object_references
+    // iterate_node_child_declarations_and_object_references
+    // iterate_node_child_declared_objects_and_object_references
+
+    // node.declared.objects
+    //  could return a map.
+    //   declarations by name
+
+    // node.declared.arr_objects_info
+    
+    // or maybe an array
+
+
+
+
+
+    // .. is_variable_declaration
 
 
 
@@ -111,14 +182,186 @@ const test_js_ast_node = () => {
 
     console.log('js_ast_node.generate()', js_ast_node.generate());
 
-
-
     const n2 = js_ast_node.navigate('0/0/2');
     console.log('n2', n2);
 
     const arr_nodes = js_ast_node.navigate(['0/0/1', '0/0/2']);
     console.log('arr_nodes', arr_nodes);
 
+    const iterate_inner_declarations_and_object_references = (callback_declaration, callback_object_reference) => {
+        js_ast_node.query.each.inner.exe(inner_node => {
+            //console.log('inner_node', inner_node);
+            //console.log('inner_node.index_from_root', inner_node.index_from_root);
+    
+            // A declaration, either class or variable... 
+
+            if (inner_node.is_declaration) {
+                callback_declaration(inner_node);
+            }
+
+            if (inner_node.is_identifier) {
+                // usage_type
+                //console.log('inner_node.usage_type', inner_node.usage_type);
+
+                if (inner_node.usage_type === 'ObjectReference') {
+                    callback_object_reference(inner_node);
+                }
+            }
+        })
+    }
+
+    // Want to track every single variable that is available within the scope.
+    //  That could be done by building up a map / collection of everything available in scope from a given position.
+
+
+    // collect.declarations.in.scope
+
+    // each_in_scope
+    //  will iterate through each node that is within the scope of the current node.
+    //  needs to work backwards, taking a non-recursive approach to start with.
+
+    //   could possibly work backwards using the index from the root, or each node could have a previous_document_node property.
+    //    maybe think more about how to better iterate through the scope of a node.
+
+    // seems like a more basic / lower level iteration statement.
+
+    // node.each_declaration_within_current_scope
+    // .each_within_current_scope
+
+    // .iterate_scope(node)
+    //  iterate_previous_within_scope
+    //  iterate_back_within_scope
+    //   would be best to approach it in reverse order.
+
+
+    // or scope declaration indexing
+    //  meaning get everything declared in a scope, along with its index number?
+
+
+    //   it's the declarations that will be the most important I believe.
+
+    // Think something like collect all blocks in scope
+    //  meaning all ancestor blocks
+
+    // a map of node declarations by name
+
+    // But want to better go through a scope to see what is declared there.
+    //  Also what is declared in a scope up until another thing.
+
+    
+    
+
+    // .query.callmap.inner.exe(fntostring, obj_callmap, fn_default)
+
+
+    // collect_inner_referenced_external_names
+
+    // node.inner_referenced_external_names getter
+    //  and that could be used / tested upon a variety of nodes.
+    //  When it comes to items / functions that have been declared, it will be useful to see from the code what external objects they reference, and therefore require.
+    //   So will have it so that a 'build' can be told to include one function, and it finds out the chain of prerequesites and adds them.
+
+
+    // iterate_prerequesites(node) 
+    //  it finds out the names of everything required, then it goes to those declarations, and recursively finds their prerequesites etc.
+    //   once the functions / declared objects are loaded into the system.
+
+
+
+    const collect_inner_referenced_external_names = node => {
+        const res = [];
+        const map_keys_declared_in_scope = new Map();
+        const map_res_names = new Map();
+
+        node.query.callmap.inner.exe(node => node.type, {'VariableDeclaration': node => {
+            console.log('VD node', node);
+            console.log('node.declared.keys', node.declared.keys);
+            each(node.declared.keys, key => map_keys_declared_in_scope.set(key, true));
+        }, 'ClassDeclaration': node => {
+            console.log('CD node', node);
+            console.log('node.declared.keys', node.declared.keys);
+            each(node.declared.keys, key => map_keys_declared_in_scope.set(key, true));
+        }, 'Identifier': node => {
+
+            // the identifier could be 
+
+            if (node.is_object_reference) {
+                //console.log('objref node.name', node.name);
+    
+                if (map_keys_declared_in_scope.has(node.name)) {
+                    // the object reference refers to a key already declared in the current scope.
+    
+                    console.log('Found object reference using object already declared in the current scope:', node.name);
+    
+                } else {
+                    if (map_vanilla_names.has(node.name)) {
+                        console.log('Found reference to object provided by the VanillaJS library:', node.name);
+                    } else {
+                        console.log('Found reference to object not declared in current scope:', node.name);
+
+                        if (!map_res_names.has(node.name)) {
+                            map_res_names.set(node.name, true);
+                            res.push(node.name);
+                        }
+
+                    }
+                }
+            } else {
+                // is it 0 index?
+                // is its parent an arrow function expression?
+
+                if (node.parent_node.t === 'AFE') {
+                    //if (node.index === 0) {
+                        
+                    //} else {
+                        //throw 'stop';
+                    //}
+                    map_keys_declared_in_scope.set(node.name, true)
+                }
+            }
+        }})
+        return res;
+    }
+
+    const external_r_names = collect_inner_referenced_external_names(js_ast_node);
+    console.log('external_r_names', external_r_names);
+
+
+
+    
+
+
+    /*
+    iterate_inner_declarations_and_object_references(node_dec => {
+        console.log('');
+        console.log('node_dec', node_dec);
+        console.log('node_dec.depth', node_dec.depth);
+        const declared_keys = node_dec.declaration.declared.keys;
+        //console.log('node_dec.path', node_dec.path);
+        console.log('declared_keys', declared_keys);
+        each(declared_keys, key => map_keys_declared_in_scope.set(key, true));
+    }, node_obj_ref => {
+        console.log('');
+        console.log('node_obj_ref', node_obj_ref);
+        console.log('node_obj_ref.depth', node_obj_ref.depth);
+        console.log('node_obj_ref.name', node_obj_ref.name);
+
+        if (map_keys_declared_in_scope.has(node_obj_ref.name)) {
+            console.log('referring back to ' + node_obj_ref.name + ' which has already been declared in the scope');
+        } else {
+            console.log('key ' + node_obj_ref.name + ' has not been declared in scope.');
+
+            if (map_vanilla_names.has(node_obj_ref.name)) {
+                console.log('key ' + node_obj_ref.name + ' is already available because it is part of the VanillaJS library.');
+            } else {
+                console.log('key ' + node_obj_ref.name + ' has not been declared in scope, nor is it part of the VanillaJS library.');
+            }
+
+
+
+        }
+    })
+    */
 
     const test_block_statement_child_inner_declared_names_and_nodes = () => {
         const bs = js_ast_node.query.find.by.type.exe('BlockStatement')[0];
@@ -136,6 +379,39 @@ const test_js_ast_node = () => {
         console.log('inner_declared_info', inner_declared_info);
         console.log('js_ast_node.type', js_ast_node.type);
     }
+
+
+    // iterate declared and used objects.
+    //  should probably be a fairly in-depth iteration system.
+    //  each_declared_or_used_object(cb_declared, cb_used)
+
+    // and each_child_declared_or_used_object
+    //  each_inner_declared_or_used_object
+
+    // iterating and then indexing / mapping of declared and used objects would be useful.
+    //  and since we tract the declared objects within scopes (how do we do that?)
+
+    // also, querying which objects are available within a scope.
+    //  iterating backwards.
+    //   could be done with a program or root index.
+
+    // node.root_index?
+    //  node.global_index?
+    //  node.document_index?
+    //  .root_index makes sense.
+    //  .index_from_root maybe.
+    
+
+
+
+
+
+    // then it will put them in an index for that scope?
+
+
+
+
+
 
     const test_identifier_trace_reference = () => {
 
@@ -170,16 +446,9 @@ const test_js_ast_node = () => {
             console.log('traced_reference', traced_reference);
 
         })
-
     }
-
     
-    test_identifier_trace_reference();
-
-
-
-
-    
+    //test_identifier_trace_reference();
 
 
 
@@ -204,25 +473,7 @@ const test_js_ast_node = () => {
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     //const obj_node_namess = js_ast_node.navigate({'0/0/1.name': 'name1', '0/0/2.name': 'name2'});
-
-
-
-
 
     // Want to get a map of nodes from navigation?
     //  or to get multiple nodes into an array from a navigate command.
@@ -247,11 +498,6 @@ const test_js_ast_node = () => {
     // new JS_AST_Node_Advanced_Signature();
     //  will accept the extraction commands.
     //  will have a callback where the extraction data is provided.
-    
-
-
-
-
 
 
     const direct_calling = () => {
@@ -381,10 +627,6 @@ const test_js_ast_node = () => {
         // .query.collect.declaration.value
     }
     //used_tests();
-
-
-    
-
 
 
     const various_tests_including_new_query_api = () => {

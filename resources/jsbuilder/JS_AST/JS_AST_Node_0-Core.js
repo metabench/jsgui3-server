@@ -10,10 +10,10 @@ class JS_AST_Node_Core {
         // Path
 
         // Source
-        let root_node, parent_node, sibling_index;
+        let root_node, parent_node, index;
         const child_nodes = [];
 
-        let depth, path;
+        let depth, path, index_from_root;
         let full_source; // only for the root.
 
         //console.log('JS_AST_Node_Core Object.keys(spec)', Object.keys(spec));
@@ -28,8 +28,8 @@ class JS_AST_Node_Core {
         if (spec.parent_node) {
             parent_node = spec.parent_node;
         }
-        if (typeof spec.sibling_index === 'number') {
-            sibling_index = spec.sibling_index;
+        if (typeof spec.index === 'number') {
+            index = spec.index;
         }
 
         if (!parent_node) {
@@ -89,6 +89,14 @@ class JS_AST_Node_Core {
         } else {
             depth = 0;
         }
+
+        if (typeof spec.index_from_root === 'number') {
+            index_from_root = spec.index_from_root;
+            
+        }
+
+        // index_from_root
+
         if (typeof spec.path === 'string') {
             path = spec.path;
         } else {
@@ -103,7 +111,10 @@ class JS_AST_Node_Core {
                 babel_node: spec.babel_node,
                 parent_node: this,
                 root_node: this.root_node,
-                path: spec.path
+                path: spec.path,
+                index_from_root: spec.index_from_root,
+                depth: spec.depth,
+                index: this.child_nodes.length
             }
 
             //const res = new this.constructor(spec2);
@@ -154,9 +165,23 @@ class JS_AST_Node_Core {
             enumerable: true,
             configurable: false
         });
+        Object.defineProperty(this, 'index_from_root', {
+            get() { 
+                return index_from_root;
+            },
+            enumerable: true,
+            configurable: false
+        });
         Object.defineProperty(this, 'path', {
             get() { 
                 return path;
+            },
+            enumerable: true,
+            configurable: false
+        });
+        Object.defineProperty(this, 'index', {
+            get() {
+                return index;
             },
             enumerable: true,
             configurable: false
@@ -213,6 +238,15 @@ class JS_AST_Node_Core {
 
         this.each_child_node = each_child_node;
         this.filter_each_child_node = filter_each_child_node;
+
+
+        this.clone_into_program = () => {
+            const res = this.constructor.from_spec({
+                root_node: true,
+                source: this.source
+            })
+            return res;
+        }
 
         
 

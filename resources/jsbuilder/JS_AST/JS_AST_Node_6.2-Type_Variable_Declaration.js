@@ -12,14 +12,29 @@ class JS_AST_Node_Type_Variable_Declaration extends JS_AST_Node_Type_Class_Decla
 
         // Code that is specific for variable rather than class declarations would be best here.
 
-        
-
-
 
         if (this.type === 'VariableDeclaration') {
             // .declaration.names
             // .declaration.keys
             // .declaration.map
+
+            Object.defineProperty(this, 'is_variable_declaration', {
+                get() { 
+                    return true;
+                   
+                },
+                enumerable: true,
+                configurable: false
+            });
+            Object.defineProperty(this, 'is_variabledeclaration', {
+                get() { 
+                    return true;
+                   
+                },
+                enumerable: true,
+                configurable: false
+            });
+            
 
             // More properties / functions.
 

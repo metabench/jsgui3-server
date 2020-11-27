@@ -19,6 +19,7 @@ class JS_AST_Node_Type extends JS_AST_Node_Category_Statement {
                     return abb;
                 } else {
                     console.log('this.babel.node.type', this.babel.node.type);
+                    console.log('this.babel.node.source', this.source);
                     throw 'stop';
                 }
                

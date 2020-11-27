@@ -16,7 +16,6 @@ class JS_AST_Node_Type_Identifier extends JS_AST_Node_Type_Block_Statement {
 
             // Member expression child
             //  first child is the name of the object.
-
             
 
             // identifier_node.trace_reference
@@ -76,13 +75,109 @@ class JS_AST_Node_Type_Identifier extends JS_AST_Node_Type_Block_Statement {
                             return 'DeclaredName';
                         } else if (pn.t === 'RS') {
                             return 'ObjectReference';
+                        } else if (pn.t === 'AFE') {
+
+                            // arrow function index 0
+                            //  means the name is declared there.
+
+                            return 'DeclaredName';
+
+                            /*
+                            if (this.index === 0) {
+                                return 'DeclaredName';
+                            } else {
+                                console.trace();
+                                console.log('this', this);
+                                console.log('this.name', this.name);
+                                console.log('this.index', this.index);
+                                throw 'stop';
+                            }
+                            */
+
+                            
+
+                            //return 'DeclaredName'; // single parameter
+                        } else if (pn.t === 'FE') {
+
+                            // arrow function index 0
+                            //  means the name is declared there.
+
+                            return 'DeclaredName';
+
+                            /*
+                            if (this.index === 0) {
+                                return 'DeclaredName';
+                            } else {
+                                console.trace();
+                                console.log('this', this);
+                                console.log('this.name', this.name);
+                                console.log('this.index', this.index);
+                                throw 'stop';
+                            }
+                            */
+
+                            
+
+                            //return 'DeclaredName'; // single parameter
+                        } else if (pn.t === 'LE') {
+                            return 'ObjectReference';
+                        } else if (pn.t === 'UnE') {
+                            return 'ObjectReference';
+                        } else if (pn.t === 'IS') {
+                            return 'ObjectReference';
+                        } else if (pn.t === 'AsE') {
+                            return 'ObjectReference';
+                        } else if (pn.t === 'NE') { // NewExpression
+                            return 'ObjectReference';
                         } else {
-                            console.log('pn', pn);
-                            console.log('gpn', gpn);
-                            console.log('this', this);
+
+                            // Arrow function expression
+
+                            const ggpn = gpn.parent_node;
+
+                            if (pn.type === 'ObjectProperty') {
+                                if (gpn.type === 'ObjectPattern') {
+                                    if (ggpn.type === 'VariableDeclarator') {
+                                        if (idx === 0) {
+                                            return 'DeclaredName';
+                                        } else {
+                                            throw 'stop';
+                                        }
+                                        
+                                    } else {
+                                        throw 'stop';
+                                    }
+                                } else {
+                                    throw 'stop';
+                                }
+
+                            } else {
+
+                                console.log('');
+                                console.log('pn', pn);
+                                console.log('pn.child_nodes', pn.child_nodes);
+                                console.log('pn.child_nodes.indexOf(this)', pn.child_nodes.indexOf(this));
+                                console.log('pn.source', pn.source);
+                                console.log('gpn', gpn);
+                                console.log('gpn.source', gpn.source);
+                                console.log('gpn.parent_node.parent_node.source', gpn.parent_node.parent_node.source);
+                                console.log('this', this);
+                                console.log('this.name', this.name);
+                                console.log('this.index', this.index);
+                                console.log('this.source', this.source);
+                                
+                                console.log('pn.type', pn.type);
+                                console.log('gpn.type', gpn.type);
+                                console.log('ggpn.type', ggpn.type);
+
+                                console.trace();
+                                throw 'stop';
+
+                            }
 
 
-                            throw 'stop';
+
+                            
                         }
                         
                     }
@@ -97,12 +192,22 @@ class JS_AST_Node_Type_Identifier extends JS_AST_Node_Type_Block_Statement {
                 enumerable: true,
                 configurable: false
             });
-            
 
+            Object.defineProperty(this, 'is_object_reference', {
+                get() { 
+                    return get_identifier_usage_type() === 'ObjectReference';
+                },
+                enumerable: true,
+                configurable: false
+            });
+
+            // is_object_reference
 
             // A first go at it.
             //  Could definitely improved, indexing may be an optimization for finding references too.
             this.trace_reference_to_declaration = () => {
+
+                throw 'stop';
                 const pn = this.parent_node;
                 const ut = this.usage_type;
                 if (ut === 'DeclaredName') {

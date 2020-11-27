@@ -197,20 +197,13 @@ class Query_Function_Map {
 const assign_node_ngrams = (qfm) => {
 
     qfm.ngrams.assign({
-
-
-        
-
         signature_callmap_deep_iterate: ['callmap by signature', 'callmap deep iterate by signature'],
-        
         callmap_deep_iterate: ['callmap', 'callmap deep iterate'],
         callmap_child_nodes: ['callmap child', 'callmap child node'],
         collect_child_nodes: ['collect child node', 'collect child'],
         collect_first_child_node: ['collect first child node', 'collect first child'],
         collect_all_signature: ['collect all signature', 'collect all node signature'], // collect.child.declared.objects
-
         collect_child_declared_objects: ['collect child declared object', 'collect child node declared object', 'collect child declaration declared object'],
-        
         collect_child_type: ['collect child type', 'collect child node type'],
         collect_child_abbreviated_type: ['collect child t', 'collect child node t', 'collect child abbreviated type', 'collect child type abbreviation', 'collect child node abbreviated type', 'collect child node type abbreviation'],
         collect_child_category: ['collect child category', 'collect child node category'],
@@ -239,13 +232,16 @@ const assign_node_ngrams = (qfm) => {
         collect_child_variable_declarators: ['collect child variabledeclarator'],
         collect_child_literal: ['collect child literal'],
         collect_declared_keys: ['collect own declared key','collect own declaration declared key', 'collect own declared keys', 'collect own declaration declared keys'],
-        collect_self_if_objectexpression: ['collect self if objectexpression', 'collect self if type objectexpression', 'collect self if own type is objectexpression'],
+        collect_self_if_objectexpression: ['collect self if objectexpression', 'collect self if type objectexpression', 'collect self if type is objectexpression', 'collect self if own type is objectexpression'],
         //collect_declaration_assigned_values: ['collect own declaration assigned values', 'collect own declaration assigned values'],
         collect_name: ['collect name', 'collect own name', 'collect node name'],
         //collect_signature: ['collect signature', 'collect own signature', 'collect node signature'],
         collect_value: ['collect value', 'collect own value', 'collect node value'],
         collect_pattern_nodes: ['collect pattern', 'collect pattern node', 'collect node with category pattern'],
         collect_property_nodes: ['collect property', 'collect property node', 'collect node with category property'],
+        collect_require_call_nodes: ['collect require call', 'collect require call node', 'collect all require call node'],
+
+        
         count_child_nodes: ['count child node', 'count child', 'child count', 'child node count'],
         count_all_nodes: ['count all', 'count all node'],
         count_child_declarator: ['count child declarator', 'count child declarator node'],
@@ -283,7 +279,7 @@ const assign_node_ngrams = (qfm) => {
         find_node_by_type: ['find node by type', 'find by type'],
         filter_deep_iterate: ['filter node', 'filter', 'filter all node'],
         filter_inner_deep_iterate: ['filter inner node', 'filter inner', 'inner filter', 'filter inner node'],
-        select_by_type: ['select by type'],
+        select_by_type: ['select by type', 'select node by type'],
         select_by_type_abbreviation: ['select by t', 'select by type abbreviation', 'select by abbreviated type'],
         select_by_child_count: ['select by child count', 'select by child node count', 'select by number of child nodes'],
         select_child_by_first_child_type: ['select child by first child type', 'select child node by first child node type'],
@@ -292,12 +288,15 @@ const assign_node_ngrams = (qfm) => {
         select_child_by_type: ['select child node by type', 'select child by type',
             'select child node of type', 'select child of type'],
         select_child_node_by_signature: ['select child node by signature', 'select child by signature'],
+        select_child_declaration_by_declared_name: ['select child declaration by declared name', 'select child node declaration by declared name'],
         select_by_category: ['select by category',  'select node by category'],
         select_by_first_child_first_child_name: ['select by first child first child name', 'select node by first child first child name'],
         select_self: ['select self', 'select own node'],
         select_self_if_signature_is: ['select self by signature', 'select self if signature is', 'select self if signature']
     })
 }
+
+// select child declaration by declared name
 
 
 class Query_Result extends Array {
@@ -481,6 +480,26 @@ const create_query_execution_fn = (node, words) => {
         const select_by_child_count = target_count => select_all(node => node.child.count === target_count);
         // select.child.by.first.child.type
 
+        // select_child_declaration_by_declared_name
+
+        const select_child_declaration_by_declared_name = target_declared_name => select_child(node => {
+            let res = false;
+
+            // declaration.declared.keys
+
+            if (node.is_declaration) {
+                const declared_keys = node.declaration.declared.keys;
+
+                //console.log('declared_keys', declared_keys);
+                return declared_keys.includes(target_declared_name);
+
+            }
+
+            //throw 'stop';
+
+            return res;
+        })
+
         const select_child_by_first_child_type = target_child_type => select_child(node => {
             let res = false;
 
@@ -561,6 +580,9 @@ const create_query_execution_fn = (node, words) => {
         const collect_pattern_nodes = () => select_by_category('Pattern');
         const collect_expression_nodes = () => select_by_category('Expression');
         const collect_property_nodes = () => select_by_category('Property');
+
+        const collect_require_call_nodes = () => select_all(node => node.is_require_call);
+
         const collect_child_identifier_nodes = () => select_child(node => node.is_identifier);
         
         const collect_child_node_signature = () => {
@@ -670,7 +692,7 @@ const create_query_execution_fn = (node, words) => {
         ]);
         qfm.fns.assign([
             select_child_node_by_signature, select_child_by_type,
-            select_child_node_by_category, select_child, select_child_by_first_child_type
+            select_child_node_by_category, select_child, select_child_by_first_child_type, select_child_declaration_by_declared_name
         
         ]);
         qfm.fns.assign([
@@ -693,7 +715,9 @@ const create_query_execution_fn = (node, words) => {
             collect_all_signature,
             collect_child_node_signature, collect_self_if_objectexpression, collect_declared_keys,
             collect_declaration_assigned_values, collect_child_variable_declarators, collect_child_variable_declarations,
-            collect_child_declarations, collect_child_literal
+            collect_child_declarations, collect_child_literal,
+
+            collect_require_call_nodes
         ]);
 
         const collect_child_nodes = () => {
@@ -936,6 +960,31 @@ const create_query_execution_fn = (node, words) => {
     apply_functions();
     assign_node_ngrams(qfm);
 
+    const add_query_fn = (arr_sentences, query_fn) => {
+        const sorted_names = arr_sentences.slice().sort(function(a,b) {
+            return a.length - b.length; //ASC, For Descending order use: b - a
+        });
+        const shortest_name = sorted_names[0];
+        const fn_name = shortest_name.split(' ').join('_');
+
+        // qfm.fns.assign('each_child_declarator', each_child_declarator);
+
+        qfm.fns.assign(fn_name, query_fn);
+        each(arr_sentences, sentence => {
+            qfm.ngrams.assign(fn_name, sentence);
+        })
+
+    }
+
+    add_query_fn(['callmap inner', 'callmap inner node'], (fntostring, objcallmap, fndefault) => node.callmap_inner_nodes(fntostring, objcallmap, fndefault))
+
+
+
+    // Hopefully we can have a decent bunch of inline queries that do useful things.
+
+    //add_query_fn(['...'], fn);
+
+
     // select_each_child_node_by_signature
 
     const ng_exe_fn = qfm.get(sentence);
@@ -970,337 +1019,6 @@ const create_query_execution_fn = (node, words) => {
 
 }
 
-
-
-
-const exe_query = query => {
-
-
-}
-
-
-
-
-const create_query_execution_fn_qr_results = (arr, words = []) => {
-
-    // Is the execution taking in an array always?
-    //  Array of existing results?
-    console.log('create_query_execution_fn_qr_results words', words);
-    if (words.length === 0) {
-        console.trace();
-    }
-    console.log('words.length', words.length);
-
-    /*
-    const {
-        each_child_node, filter_each_child_node,
-        find_node, filter_deep_iterate, filter_inner_deep_iterate, filter_child_nodes_by_type,
-        select_all, select_child, select_inner
-    } = node;
-    */
-
-    let proceed = true;
-
-    if (proceed) {
-        console.log('arr', arr);
-
-        if (Array.isArray(arr)) {
-
-
-            console.log('* words', words);
-
-            const sentence = words.join(' ');
-            console.log('sentence', sentence);
-
-            // if the first word is collect, apply that query to each of the nodes in the array and amalgamate the results.
-
-            if (words[0] === 'select') {
-                return (selector) => {
-                    const res = new Query_Result();
-                    
-                    each(arr, node => {
-                        const exefn = create_query_execution_fn(node, words);
-                        
-
-                        const node_res = exefn(selector);
-                        //console.log('node_res', node_res);
-
-                        if (Array.isArray(node_res)) {
-                            each(node_res, i => {
-                                if (i !== undefined) {
-                                    res.push(i);
-                                    
-                                } else {
-                                    console.trace();
-                                    throw 'stop';
-                                }
-                            });
-                        } else {
-                            throw 'stop';
-                        }
-
-                        
-                        
-                    })
-                    enable_array_as_queryable(res);
-                    return res;
-                }
-            } else if (words[0] === 'collect') {
-                return () => {
-                    //const res = [];
-                    const res = new Query_Result();
-                    each(arr, node => {
-                        //const node_res = node.query_with_words(words).exe();
-                        //console.log('node_res', node_res);
-
-                        const exefn = create_query_execution_fn(node, words);
-                        
-
-                        const node_res = exefn(selector);
-
-                        if (Array.isArray(node_res)) {
-                            each(node_res, i => {
-                                if (i !== undefined) {
-                                    res.push(i);
-                                    
-                                } else {
-                                    console.log('i', i);
-                                    console.trace();
-                                    throw 'stop';
-                                }
-                            });
-                        } else {
-                            throw 'stop';
-                        }
-                    })
-                    enable_array_as_queryable(res);
-                    return res;
-                }
-            } else {
-
-                if (words[0] === 'each') {
-                    return (callback) => {
-                        //const res = [];
-                        //const res = new Query_Result();
-                        each(arr, node => {
-                            //console.log('words', words);
-                            //const node_res = node.query_with_words(words).exe(callback);
-                            const exefn = create_query_execution_fn(node, words);
-                        
-
-                            const node_res = exefn(callback);
-                            //console.log('node_res', node_res);
-                            //res.push(node_res);
-
-                            /*
-                            each(node_res, i => {
-                                //res.push(i);
-                                callback(i);
-                            });
-                            */
-                            
-                        })
-                        //return res;
-                    }
-                } else if (words[0] === 'find') {
-                    return (find_param, callback) => {
-                        //const res = [];
-
-                        let res;
-                        each(arr, node => {
-
-                            if (!res) {
-                                //console.log('words', words);
-                                //const node_res = node.query_with_words(words).exe(callback);
-
-                                const exefn = create_query_execution_fn(node, words);
-                                const node_res = exefn(find_param, callback);
-
-                                //console.log('node_res', node_res);
-
-                                //throw 'stop';
-
-                                if (node_res) {
-                                    res = node_res;
-                                } else {
-                                    throw 'stop';
-                                }
-                            }
-
-                            /*
-                            each(node_res, i => {
-                                //res.push(i);
-                                callback(i);
-                            });
-                            */
-                            
-                        })
-                        return res;
-                    }
-
-    // And the 'count' word as a verb for a query.
-                } else {
-                    throw 'NYI';
-                }
-            }
-        } else {
-            console.log('arr', arr);
-
-            if (arr.is_js_ast_node) {
-                const node = arr;
-
-
-
-                if (words[0] === 'select') {
-                    return (selector) => {
-                        //const res = new Query_Result();
-
-                        const res = new Query_Result();
-                        //const node_res = node.query_with_words(words).exe(selector);
-
-                        const exefn = create_query_execution_fn(node, words);
-                        const node_res = exefn(selector);
-
-                        //console.log('node_res', node_res);
-
-                        if (Array.isArray(node_res)) {
-                            each(node_res, item => res.push(item));
-                        } else {
-                            throw 'stop';
-                        }
-
-                        
-    
-                            
-                            
-
-                        //enable_array_as_queryable(res);
-                        return res;
-                    }
-                } else if (words[0] === 'collect') {
-                    return () => {
-                        //const res = new Query_Result();
-                        const res = new Query_Result();
-                        //const node_res = node.query_with_words(words).exe();
-                        const exefn = create_query_execution_fn(node, words);
-                        const node_res = exefn();
-
-                        if (Array.isArray(node_res)) {
-                            each(node_res, item => res.push(item));
-                        } else {
-                            throw 'stop';
-                        }
-
-                        
-                        return res;
-                    }
-                } else {
-    
-                    if (words[0] === 'each') {
-                        return (callback) => {
-                            //const res = [];
-                                //console.log('words', words);
-                            const res = new Query_Result();
-                            //const node_res = node.query_with_words(words).exe(callback);
-                            const exefn = create_query_execution_fn(node, words);
-                            const node_res = exefn(callback);
-
-
-                            if (Array.isArray(node_res)) {
-                                each(node_res, item => res.push(item));
-                            } else {
-                                throw 'stop';
-                            }
-                                //console.log('node_res', node_res);
-    
-                                /*
-                                each(node_res, i => {
-                                    //res.push(i);
-                                    callback(i);
-                                });
-                                */
-                                
-                            return res;
-                        }
-                    } else if (words[0] === 'find') {
-                        return (find_param) => {
-                            const res = new Query_Result();
-                            //const node_res = node.query_with_words(words).exe(callback);
-
-                            const exefn = create_query_execution_fn(node, words);
-                            const node_res = exefn(find_param, callback);
-
-                            if (Array.isArray(node_res)) {
-                                each(node_res, item => res.push(item));
-                            } else {
-                                throw 'stop';
-                            }
-                                //console.log('node_res', node_res);
-    
-                                /*
-                                each(node_res, i => {
-                                    //res.push(i);
-                                    callback(i);
-                                });
-                                */
-                                
-                            return res
-                        }
-    
-        // And the 'count' word as a verb for a query.
-                    } else if (words[0] === 'count') {
-                        return () => {
-                            //const res = [];
-
-                            // Always return a Query_Result object?
-                            //  Could have a .value property.
-
-
-    
-                            //const node_res = node.query_with_words(words).exe();
-                            const exefn = create_query_execution_fn(node, words);
-                            const node_res = exefn(find_param, callback);
-
-                            return node_res;
-                        }
-    
-        // And the 'count' word as a verb for a query.
-                    } else {
-                        throw 'NYI';
-                    }
-                }
-
-            } else {
-                throw 'stop';
-            }
-
-            // it could be a js_ast_node.
-
-            
-        }
-
-    }
-    throw 'NYI';
-}
-
-const copy_arr_to_new_query_result = (arr, words) => {
-    const res = new Query_Result({words: words});
-    each(arr, i => res.push(i));
-    return res;
-}
-
-/*
-const create_query_execution_fn = (arr, words = []) => {
-
-    console.log('arr, words', arr, words);
-    throw 'stop';
-
-    return create_query_execution_fn_qr_results(arr, words);
-
-    //const unwrapped_res = create_query_execution_fn_unwrapped_results(arr, words);
-    //return copy_arr_to_new_query_result(unwrapped_res, words);
-}
-*/
 
 const create_query = (incoming, words = []) => {
 
@@ -1462,91 +1180,6 @@ const create_query = (incoming, words = []) => {
     const proxy2 = new Proxy(res, handler2);
     return proxy2;
 }
-
-
-/*
-const array_to_query_result = (arr) => {
-    let proceed = true;
-    //console.log('arr', arr);
-    if (Array.isArray(arr)) {
-        const res = new Query_Result();
-
-        each(arr, item => {
-            //console.log('item', item);
-            //if (!Array.isArray(item)) proceed = false;
-            res.push(item);
-        });
-        // will of course provide a query property.
-
-        Object.defineProperty(res, 'query', {
-            get() { 
-                return create_query(res)
-            },
-            enumerable: true,
-            configurable: false
-        });
-
-        
-
-        //if (!arr.query && proceed) arr.query = create_query(arr);
-        return res;
-    } else {
-
-        console.trace();
-        throw 'stop';
-
-    }
-
-}
-*/
-
-
-
-/*
-const old_enable_array_as_queryable = (arr) => {
-
-    let proceed = true;
-    //console.log('arr', arr);
-
-    each(arr, item => {
-        //console.log('item', item);
-        //if (!Array.isArray(item)) proceed = false;
-        if (!item || !item.babel) {
-            proceed = false;
-        }
-    })
-    // will of course provide a query property.
-
-    if (!arr.query && proceed) arr.query = create_query(arr);
-    return arr;
-
-}
-*/
-
-
-/*
-const enable_array_as_queryable = (arr) => {
-    throw 'stop';
-    return array_to_query_result(arr);
-
-    /*
-    let proceed = true;
-    //console.log('arr', arr);
-
-    each(arr, item => {
-        //console.log('item', item);
-        //if (!Array.isArray(item)) proceed = false;
-        if (!item || !item.babel) {
-            proceed = false;
-        }
-    })
-    // will of course provide a query property.
-
-    if (!arr.query && proceed) arr.query = create_query(arr);
-    return arr;
-    */
-
-//}
 
 
 module.exports = {

@@ -107,6 +107,9 @@ class JS_AST_Node_Babel extends JS_AST_Node_Core {
 
         const load_mirror_structure = () => {
             if (this.root_node === this) {
+
+                let index_from_root = 0;
+
                 const map_nodes_by_path = {};
                 const map_babel_nodes_by_path = {};
                 const map_js_ast_nodes_by_path = {
@@ -128,7 +131,9 @@ class JS_AST_Node_Babel extends JS_AST_Node_Core {
                         const parent_js_ast_node = map_js_ast_nodes_by_path[parent_path];
                         const new_node = parent_js_ast_node.create_append_child({
                             babel_node: inner_babel_node,
-                            path: path
+                            path: path,
+                            index_from_root: index_from_root++,
+                            depth: depth
                         });
                         map_js_ast_nodes_by_path[path] = new_node;
                     }

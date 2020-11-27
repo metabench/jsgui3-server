@@ -18,7 +18,7 @@ class JS_AST_Node_Sibling extends JS_AST_Node_All {
         const {each_child_node} = this;
 
 
-
+        /*
         let index;
         Object.defineProperty(this, 'index', {
             get() { 
@@ -39,7 +39,7 @@ class JS_AST_Node_Sibling extends JS_AST_Node_All {
             enumerable: true,
             configurable: false
         });
-        
+        */
 
         // sibling.all?
 
@@ -55,7 +55,7 @@ class JS_AST_Node_Sibling extends JS_AST_Node_All {
         const sibling = new JS_AST_Ordered_Relationship_Node_To_Group({
             origin: this,
             name: 'sibling',
-            index: index//,
+            //index: this.index//,
             //obtainer: () => this.child_nodes,
             //iterator: callback => each(this.child_nodes, callback),
             //each: callback => each(this.child_nodes, callback)//,

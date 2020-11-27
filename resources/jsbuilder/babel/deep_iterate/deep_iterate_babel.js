@@ -13,6 +13,59 @@ const {each} = require('lang-mini');
 
 // deep_iterate_babel_super_node
 
+const deep_iterate_babel_restelement_node = (babel_node, depth, path, common, callback) => {
+    //console.log('babel_node', babel_node);
+
+    const {argument} = babel_node;
+    let sibling_number = 0;
+    deep_iterate_babel_node_$INTERNAL(argument, depth + 1, path + sibling_number++ + '/', common, callback);
+
+}
+
+const deep_iterate_babel_classexpression_node = (babel_node, depth, path, common, callback) => {
+    //console.log('babel_node', babel_node);
+
+    const {id, superclass, body} = babel_node;
+
+    if (id !== null) {
+
+        let sibling_number = 0;
+        deep_iterate_babel_node_$INTERNAL(id, depth + 1, path + sibling_number++ + '/', common, callback);
+        deep_iterate_babel_node_$INTERNAL(superclass, depth + 1, path + sibling_number++ + '/', common, callback);
+        deep_iterate_babel_node_$INTERNAL(body, depth + 1, path + sibling_number++ + '/', common, callback);
+
+        //throw 'stop';
+    } else {
+        let sibling_number = 0;
+        deep_iterate_babel_node_$INTERNAL(superclass, depth + 1, path + sibling_number++ + '/', common, callback);
+        deep_iterate_babel_node_$INTERNAL(body, depth + 1, path + sibling_number++ + '/', common, callback);
+    }
+
+
+    //throw 'nyi';
+}
+
+const deep_iterate_babel_forinstatement_node = (babel_node, depth, path, common, callback) => {
+    //console.log('babel_node', babel_node);
+
+    const {left, right, body} = babel_node;
+    let sibling_number = 0;
+    deep_iterate_babel_node_$INTERNAL(left, depth + 1, path + sibling_number++ + '/', common, callback);
+    deep_iterate_babel_node_$INTERNAL(right, depth + 1, path + sibling_number++ + '/', common, callback);
+    deep_iterate_babel_node_$INTERNAL(body, depth + 1, path + sibling_number++ + '/', common, callback);
+
+    //throw 'nyi';
+
+    // like an if statement
+}
+
+const deep_iterate_babel_regexpliteral_node = (babel_node, depth, path, common, callback) => {
+    //console.log('babel_node', babel_node);
+    //throw 'nyi';
+
+    // like an if statement
+}
+
 const deep_iterate_babel_super_node = (babel_node, depth, path, common, callback) => {
     //let sibling_number = 0;
     //const {test, concequent, alternate} = babel_node;
@@ -27,8 +80,9 @@ const deep_iterate_babel_super_node = (babel_node, depth, path, common, callback
 }
 
 const deep_iterate_babel_conditional_expression_node = (babel_node, depth, path, common, callback) => {
-    let sibling_number = 0;
+    
     const {test, concequent, alternate} = babel_node;
+    let sibling_number = 0;
     deep_iterate_babel_node_$INTERNAL(test, depth + 1, path + sibling_number++ + '/', common, callback);
     deep_iterate_babel_node_$INTERNAL(concequent, depth + 1, path + sibling_number++ + '/', common, callback);
     deep_iterate_babel_node_$INTERNAL(alternate, depth + 1, path + sibling_number++ + '/', common, callback);
@@ -287,6 +341,9 @@ const deep_iterate_babel_call_expression_node = (babel_node, depth, path, common
     if (extra) {
         //throw 'NYI';
         const {parenthasized, parenStart} = extra;
+        //console.log('deep_iterate_babel_call_expression_node', babel_node);
+        //console.log('babel_node.source')
+        //throw 'stop';
     }
     deep_iterate_babel_node_$INTERNAL(callee, depth + 1, path + sibling_number++ + '/', common, callback);
 
@@ -532,6 +589,14 @@ const deep_iterate_babel_node_$INTERNAL = (babel_node, depth, path, common, call
                 return deep_iterate_babel_conditional_expression_node(babel_node, depth, path, common, callback);
             } else if (type === 'Super') {
                 return deep_iterate_babel_super_node(babel_node, depth, path, common, callback);
+            } else if (type === 'RegExpLiteral') {
+                return deep_iterate_babel_regexpliteral_node(babel_node, depth, path, common, callback);
+            } else if (type === 'ForInStatement') {
+                return deep_iterate_babel_forinstatement_node(babel_node, depth, path, common, callback);
+            } else if (type === 'ClassExpression') {
+                return deep_iterate_babel_classexpression_node(babel_node, depth, path, common, callback);
+            } else if (type === 'RestElement') {
+                return deep_iterate_babel_restelement_node(babel_node, depth, path, common, callback);
             } else {
                 console.log('');
                 console.log('type', type);
@@ -540,7 +605,7 @@ const deep_iterate_babel_node_$INTERNAL = (babel_node, depth, path, common, call
                 throw 'stop';
             }
 
-            // ConditionalExpression
+            // ConditionalExpression // RegExpLiteral // ClassExpression // RestElement
         }
     }
 }

@@ -12,12 +12,14 @@ const type_abbreviations = {
     'CallExpression': 'CaE', // change to CaE? Need to change sigs being looked for.
     'ClassBody': 'CB',
     'ClassDeclaration': 'CD',
+    'ClassExpression': 'ClE',
     'ClassMethod': 'CM',
     'ConditionalExpression': 'CoE',
     'EmptyStatement': '__',
     'ExpressionStatement': 'ES',
     'File': 'F',
     'ForStatement': 'FS',
+    'ForInStatement': 'FIS',
     'FunctionExpression': 'FE',
     'Identifier': 'ID',
     'IfStatement': 'IS',
@@ -32,6 +34,8 @@ const type_abbreviations = {
     'ObjectProperty': 'OPr',
     'Program': 'P',
     'ReturnStatement': 'RS',
+    'RestElement': 'RE',
+    'RegExpLiteral': 'RL',
     'StringLiteral': 'SL',
     'Super': 'S',
     'ThisExpression': 'TE',
@@ -51,6 +55,7 @@ const map_expression_categories = {
     'ArrayExpression': true,
     'BinaryExpression': true,
     'CallExpression': true,
+    'ClassExpression': true,
     'ConditionalExpression': true,
     // ExpressionStatement false because it's a statement
     'FunctionExpression': true,
@@ -69,6 +74,7 @@ const map_literal_categories = {
 
     'NullLiteral': true,
     'NumericLiteral': true,
+    'RegExpLiteral': true,
     'StringLiteral': true
 
     // Must be more
@@ -92,6 +98,7 @@ const map_statement_categories = {
     EmptyStatement: true,
     ExpressionStatement: true,
     ForStatement: true,
+    ForInStatement: true,
     ReturnStatement: true,
     ThrowStatement: true,
     WhileStatement: true
@@ -110,11 +117,13 @@ const map_categories = {
     'CallExpression': 'Expression',
     'ClassBody': 'Body',
     'ClassDeclaration': 'Declaration',
+    'ClassExpression': 'Expression',
     'ClassMethod': 'Method',
     'ConditionalExpression': 'Expression',
     'EmptyStatement': 'Statement',
     'ExpressionStatement': 'Statement',
     'ForStatement': 'Statement',
+    'ForInStatement': 'Statement',
     'File': 'File',
     'FunctionExpression': 'Expression',
     'Identifier': 'Identifier',
@@ -129,7 +138,9 @@ const map_categories = {
     'ObjectPattern': 'Pattern',
     'ObjectProperty': 'Property',
     'Program': 'Program',
+    'RestElement': 'Element',
     'ReturnStatement': 'Statement',
+    'RegExpLiteral': 'Literal',
     'StringLiteral': 'Literal',
     'Super': 'Super',
     'ThisExpression': 'Expression',

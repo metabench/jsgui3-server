@@ -688,7 +688,7 @@ class JS_File_Query_Features extends JS_File_Query {
 
         this.features = features;
 
-        console.log('features', features);
+        //console.log('features', features);
 
         //throw 'stop';
 

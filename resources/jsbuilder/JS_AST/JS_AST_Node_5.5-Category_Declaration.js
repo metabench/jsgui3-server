@@ -22,6 +22,24 @@ class JS_AST_Node_Category_Declaration extends JS_AST_Node_Category_Pattern {
                 node: this
             });
 
+            // then direct property access...
+
+            Object.defineProperty(this, 'declared', {
+                get() { 
+                    return declaration.declared;
+                },
+                enumerable: true,
+                configurable: false
+            });
+
+            Object.defineProperty(this, 'assigned', {
+                get() { 
+                    return declaration.assigned;
+                },
+                enumerable: true,
+                configurable: false
+            });
+
 
             // Likely a property directly here rather than in feature?
             //  or a function that is specific to declarations and gets the names of whatever is declared.

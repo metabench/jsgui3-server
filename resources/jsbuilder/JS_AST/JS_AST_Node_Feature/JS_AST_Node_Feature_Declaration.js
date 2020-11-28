@@ -54,8 +54,8 @@ class JS_AST_Node_Feature_Declaration extends JS_AST_Node_Feature {
                                 // .find child shared category?
                                 //  but query needs the verb.
                                 //   maybe collect is the default one now.
-                                //const sc = are.query.child.shared.category.exe();
-                                const sc = are.child.shared.category;
+                                //const sc = are.query.child.shared.type_category.exe();
+                                const sc = are.child.shared.type_category;
                                 //console.log('sc', sc);
 
                                 //throw 'stop';
@@ -156,7 +156,7 @@ class JS_AST_Node_Feature_Declaration extends JS_AST_Node_Feature {
                                 const dec_cn_tstr = qr.join('.');
                                 if (dec_cn_tstr === 'ArP.ArE') {
                                     const are = cdec.child_nodes[1];
-                                    const sc = are.child.shared.category;
+                                    const sc = are.child.shared.type_category;
                                     const st = are.child.shared.type;
                                     if (sc === 'Literal') {
                                         const lvalues = are.query.collect.child.exe();

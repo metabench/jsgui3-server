@@ -226,7 +226,7 @@ const create_query_execution_fn = (node, words) => {
         //const each_ancestor_node = 
 
 
-        const each_child_declarator = (callback) => filter_each_child_node(node => node.category === 'Declarator', callback);
+        const each_child_declarator = (callback) => filter_each_child_node(node => node.type_category === 'Declarator', callback);
         const each_child_objectproperty = callback => filter_each_child_node(node => node.type === 'ObjectProperty', callback);
         const each_child_variabledeclaration = callback => filter_each_child_node(node => node.type === 'VariableDeclaration', callback);
         const each_child_declaration = (callback) => filter_each_child_node(node => node.is_declaration, callback);
@@ -236,7 +236,7 @@ const create_query_execution_fn = (node, words) => {
         const filter_each_child_variabledeclaration_node = (filterer, callback) => each_child_variabledeclaration(node => {
             if (filterer(node)) callback(node);
         });
-        const filter_each_child_node_by_category = (category, callback) => filter_each_child_node(node => node.category === category, callback);
+        const filter_each_child_node_by_category = (category, callback) => filter_each_child_node(node => node.type_category === category, callback);
 
         const find_child_node = finder => {
             let res;
@@ -349,7 +349,7 @@ const create_query_execution_fn = (node, words) => {
         });
 
         // select_by_child_count
-        const select_by_category = category => select_all(node => node.category === category);
+        const select_by_category = category => select_all(node => node.type_category === category);
         const select_by_first_child_first_child_name = name => {
 
             //console.log('node', node);
@@ -576,7 +576,7 @@ const create_query_execution_fn = (node, words) => {
         }
         const collect_child_category = () => {
             const res= new Query_Result();
-            each(node.child_nodes, cn => res.push(cn.category));
+            each(node.child_nodes, cn => res.push(cn.type_category));
             return res;
         }
 

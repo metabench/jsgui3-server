@@ -68,6 +68,10 @@ const test_js_file = () => {
     //  Will be about closures and sequences.
     //  A lot about unique naming, closures, and getting the sequence of definitions correct.
     // ObjectPattern
+
+
+    // mid_signature
+
     const resolved_path = path.resolve(file_path);
     console.log('');
     console.log('resolved_path', resolved_path);
@@ -102,6 +106,30 @@ const test_js_file = () => {
 
         console.log('jsf.module_io_info', jsf.module_io_info);
         // module_io_info will be the relatively advanced property of JS files.
+        
+
+
+        jsf.each_program_child(pc => {
+
+            // .max_inner_depth
+            // //.inner_depth makes sense.
+            // .inner.depth
+
+
+            console.log('');
+            console.log('pc', pc);
+            console.log('pc.mid_type_signature', pc.mid_type_signature);
+            console.log('pc.signature', pc.signature);
+            console.log('pc.compressed_signature', pc.compressed_signature);
+            console.log('pc.source', pc.source);
+            console.log('pc.inner.depth', pc.inner.depth);
+        })
+
+        
+
+        each(jsf.node_root.child_nodes, cn => {
+
+        })
 
 
 

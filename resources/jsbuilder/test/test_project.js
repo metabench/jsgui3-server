@@ -137,10 +137,10 @@ const test_lang_mini_project = () => {
                     console.log('detached_js_ast_node', detached_js_ast_node);
                     console.log('detached_js_ast_node.source.length', detached_js_ast_node.source.length);
                     console.log('detached_js_ast_node.type', detached_js_ast_node.type);
-                    console.log('detached_js_ast_node.category', detached_js_ast_node.category);
-                    if (detached_js_ast_node.category === 'Declaration') {
+                    console.log('detached_js_ast_node.type_category', detached_js_ast_node.type_category);
+                    if (detached_js_ast_node.type_category === 'Declaration') {
                         // get_declared_names
-                        //console.log(detached_js_ast_node.category)
+                        //console.log(detached_js_ast_node.type_category)
                         console.log('detached_js_ast_node.get_declared_names()', detached_js_ast_node.get_declared_names());
                     }
                 }

@@ -36,20 +36,20 @@ const JS_File_Import_References = require('./JS_File_Import_References');
 
 // Maybe a Babel level below?
 
-class JS_File_Comprehension extends JS_File_JS_AST_Node {
+class JS_File_Query extends JS_File_JS_AST_Node {
     constructor(spec) {
         super(spec);
 
         // Maybe use a 'node' or 'js_ast_node' property, not body.
-
-
+        
+        
 
 
 
     }
 }
-JS_File_Comprehension.load_from_stream = (rs, path) => {
-    const res = new JS_File_Comprehension({rs: rs, path: path});
+JS_File_Query.load_from_stream = (rs, path) => {
+    const res = new JS_File_Query({rs: rs, path: path});
     return res;
 }
-module.exports = JS_File_Comprehension;
+module.exports = JS_File_Query;

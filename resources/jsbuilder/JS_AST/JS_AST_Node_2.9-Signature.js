@@ -16,36 +16,82 @@ class JS_AST_Node_Signature extends JS_AST_Node_Available_In_Scope {
         //  The stop function integrated within the iteration would be useful there to get that done.
         //  Maybe an 'options' object now params have got more complex.
 
-        const get_deep_type_signature = () => {
+        const get_deep_type_signature = (max_depth) => {
             //let res = '[' + this.type + '(';
             //if (!deep_type_signature) {
             //console.log('');
             //console.log('this.path', this.path);
             //console.log('this.type', this.type);
-            let res = '' + this.abbreviated_type, inner_res = '', first = true;
 
-            // Only look at child nodes, not full tree here.
-            // each_child_node   inner_deep_iterate
-            //  seems fixed now.
-            // no longer supports max_depth but at least it works now.
+            //let starting_depth = this.depth;
 
-            each_child_node(inner_node => {
-                if (!first) inner_res = inner_res + ','
-                inner_res = inner_res + inner_node.deep_type_signature
-                first = false;
-            });
-            //res = res + ')';
-            if (inner_res.length > 0) {
-                res = res + '(' + inner_res + ')';
-            } else {
-
+            if (get_deep_type_signature === undefined) {
+                console.trace();
+                throw 'stop';
             }
-            return res;
+
+            if (max_depth > 0) {
+                let res = '' + this.abbreviated_type, inner_res = '', first = true;
+
+                // Only look at child nodes, not full tree here.
+                // each_child_node   inner_deep_iterate
+                //  seems fixed now.
+                // no longer supports max_depth but at least it works now.
+
+                each_child_node(inner_node => {
+                    if (!first) inner_res = inner_res + ','
+                    inner_res = inner_res + inner_node.get_deep_type_signature(max_depth - 1)
+                    if (inner_res.length > 0) first = false;
+                    
+                });
+                //res = res + ')';
+                if (inner_res.length > 0) {
+                    res = res + '(' + inner_res + ')';
+                } else {
+
+                }
+                return res;
+            } else {
+                return '';
+            }
+
+            
+        }
+
+        const compress_signature = (str_signature) => {
+            // Could even parse it?
+            //  Seems easier to compress it as text.
+
+            // Kind of parse...
+            //  go through it byte by byte
+            //   track the bracket level
+
+            // collect the terms within the brackets.
+            //  when we have repeating terms, denote [digit]term
+            //   such as 3[ME(ID,ID)]
+            //   such as 1+[ME(ID,ID)] when generalised
+            //   or      2+[ME(ID,ID)]   maybe, could be an option.
+            //    square brackets look helpful when it's more than one short item
+            //     could have a sequence to be repeated inside the square brackets.
+            //      maybe will do lookback sequence spotting.
+            //       the compression could then be more easily generalised
+
+            // This looks like it will be the right kind of syntax to use to pick nodes with specific properties.
+
+            // Once we spot that a node follows a pattern, we can extract the data from inner parts of it.
+
+            // compressed generalised signature call mapping will be useful.
+            //  will enable finding objects that match wanted patterns.
+
+            
+            
+
+
         }
 
         Object.defineProperty(this, 'type_signature', {
             get() { 
-                if (!type_signature) type_signature = get_deep_type_signature(1);
+                if (!type_signature) type_signature = get_deep_type_signature(100);
                 //if (deep_type_signature) return deep_type_signature;
                 return type_signature;
                 
@@ -61,6 +107,17 @@ class JS_AST_Node_Signature extends JS_AST_Node_Available_In_Scope {
                 //if (deep_type_signature) return deep_type_signature;
                 return deep_type_signature;
                 
+            },
+            //set(newValue) { bValue = newValue; },
+            enumerable: true,
+            configurable: false
+        });
+
+        // pc.mid_signature
+
+        Object.defineProperty(this, 'mid_type_signature', {
+            get() { 
+                return get_deep_type_signature(4);
             },
             //set(newValue) { bValue = newValue; },
             enumerable: true,

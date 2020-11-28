@@ -905,6 +905,65 @@ class Workspace extends Evented_Class {
 
         const get_js_file_module_io_info = (js_file) => {
 
+
+            // Look out for all kind of structural things in the program childs.
+            //  Will be easy enough to categorise them.
+
+            // Probably worth going into statement summary phrases.
+            //  So with the generalised compressed mid signatures, we can create a lexicon of signature categorisations
+            //   Note these are categorisations rather than categories.
+            //    Operate like flags, as it's possible a node would have more than 1 categorisation.
+            //     Maybe could have an error?
+            //      Could have different categorisation categories.
+            //       Such as sub-optimal versions that can be optimized to those categorised as 'optimal'.
+
+            // Node flags?
+            // Node categorisation flags?
+
+            // Just node categorisations?
+            //  But these categorised nodes could form a set.
+
+
+            // So a node can belong to a category?
+            //  Or there are different category sets?
+
+            // We have node category anyway.
+            //  secondary categories?
+            //  just have more types of categories?
+            // or change the current .type_category to .type_category.
+            // .typecategory
+
+
+
+
+
+
+
+
+
+
+
+
+
+            // This will probably make good use of compressed and generalised signatures.
+            //   These are expected to be of more use for detecting various programmatic features that could operate on a varying number of items
+            //    Assigning multiple keys to an object
+            //    Declaring multiple keys, assigned from an object.
+            //    Exporting an inline object, we can see the keys inline
+            //    Exporting an object that was imported, and has not been modified? operated on? be known to be changed ie had keys added?
+            //    Exporting an object that was imported, but has had keys added to it
+            //    Exporting an object that is a subclass of an object that was imported
+            //    Exporting an object that is more than 1 subclass down from an object that was imported
+            //    Exporting an object that was imported and has been modified
+
+
+
+
+
+
+            throw 'Will be changed to use improved lower level code';
+
+
             const iterate_program_node_declarations = (program_node, callback) => {
                 program_node.query.each.child.exe(program_child => {
                     // if its a variable declaration
@@ -917,11 +976,11 @@ class Workspace extends Evented_Class {
                         program_child.query.each.child.exe((vdr, index) => {
                             const declared_name = vdr.child_nodes[0].name;
 
-                            console.log('vdr.child.count', vdr.child.count);
+                            //console.log('vdr.child.count', vdr.child.count);
 
-                            console.log('declared_name', declared_name);
-                            console.log('vdr', vdr);
-                            console.log('vdr.source', vdr.source);
+                            //console.log('declared_name', declared_name);
+                            //console.log('vdr', vdr);
+                            //console.log('vdr.source', vdr.source);
 
                             if (declared_name === undefined) {
 
@@ -1189,7 +1248,9 @@ class Workspace extends Evented_Class {
 
 
         const iterate_output_declarations = namespaced_output_declaration_name => {
+            console.trace();
 
+            throw 'stop';
 
             // And should raise callbacks at some points.
             //  Maybe a version / supporter function that finds what is needed to know to do the actual iteration.
@@ -1199,7 +1260,7 @@ class Workspace extends Evented_Class {
             const files_with_name_declared = index_declaration_names_to_files.get(name_within_namespace);
 
             //console.log('files_with_name_declared', files_with_name_declared);
-            //console.log('namespace', namespace);
+            console.log('namespace', namespace);
 
             const namespace_file_path = index_file_names_to_paths.get(namespace)[0];
             //console.log('namespace_file_path', namespace_file_path);

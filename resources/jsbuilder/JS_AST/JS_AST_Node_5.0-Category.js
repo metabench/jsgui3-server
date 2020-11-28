@@ -9,12 +9,12 @@ class JS_AST_Node_Category extends JS_AST_Node_Index {
     constructor(spec = {}) {
         super(spec);
 
-        Object.defineProperty(this, 'category', {
+        Object.defineProperty(this, 'type_category', {
             get() { 
                 //console.log('babel', babel);
                 //console.log('babel_node', babel_node);
                 //console.log('babel.node', babel.node);
-                return this.babel.category;
+                return this.babel.type_category;
             },
             //set(newValue) { bValue = newValue; },
             enumerable: true,

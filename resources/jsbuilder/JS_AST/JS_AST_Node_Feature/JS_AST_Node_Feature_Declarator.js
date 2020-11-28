@@ -64,9 +64,9 @@ class JS_AST_Node_Feature_Declarator extends JS_AST_Node_Feature {
                             //
 
                             if (node.child_nodes[0].is_identifier) {
-                                //console.log('node.child_nodes[1].category', node.child_nodes[1].category);
+                                //console.log('node.child_nodes[1].type_category', node.child_nodes[1].type_category);
 
-                                if (node.child_nodes[1].category === 'Expression') {
+                                if (node.child_nodes[1].type_category === 'Expression') {
                                     //found_key(node.child_nodes[0].name);
 
                                     // No, the keys are not like this, they are inner.

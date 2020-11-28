@@ -84,6 +84,8 @@ class JS_File_JS_AST_Node extends JS_File_Babel {
             configurable: false
         });
 
+        this.each_program_child = (callback) => this.node_root.child_nodes[0].each_child_node(callback);
+
     }
 }
 

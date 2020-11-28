@@ -172,21 +172,115 @@ const test_js_ast_node = () => {
 
     const js_ast_node = JS_AST_Node.from_spec(spec);
 
-    console.log('js_ast_node', js_ast_node);
-    console.log('js_ast_node.source', js_ast_node.source);
+    const external_r_names = js_ast_node.collect_inner_referenced_external_names();
 
-    console.log('js_ast_node.child.count', js_ast_node.child.count);
+    // collect_inner_identifiers_that_reference_external_names
 
-    console.log('js_ast_node.query.count.all.node.exe()', js_ast_node.query.count.all.node.exe());
-    console.log('js_ast_node.query.count.all.exe()', js_ast_node.query.count.all.exe());
+    const iidthrefexts = js_ast_node.collect_inner_identifiers_that_reference_external_names();
 
-    console.log('js_ast_node.generate()', js_ast_node.generate());
+    // iterate statements, iterpreting declarations, requires/imports, assignments to imported, declarations (new keys) declared within program child
 
-    const n2 = js_ast_node.navigate('0/0/2');
-    console.log('n2', n2);
+    // node.interpreted_iteration seems like the right next big step to take in terms of doing the building.
+    //  probably worth coding a major advance in finding / indexing / selecting nodes by patterns / pattern signatures.
 
-    const arr_nodes = js_ast_node.navigate(['0/0/1', '0/0/2']);
-    console.log('arr_nodes', arr_nodes);
+    // A new pattern signature property that only goes down to depth 3 could be of use.
+    //  Will use the signatures found and then generalised from some specific pieces of code.
+
+    // A function that reads the file from start to finish, getting detailed information about each statement, such as if it one of many specified patterns,
+    //  then some further properties that would be specific to those patterns (maybe)
+
+    // Indexing of child generalised signatures?
+    // or pattern signatures?
+
+    // need the new type of signatures
+    //  and maybe get into parsing them and more complex and optimized comparisons.
+    //   //gsig or generalised_signature may be of use
+
+    //  so if it finds repeated structures it compresses them
+
+    // just plain compressed signatures would be of use.
+    //  the normal signature, but will say something like 4[then something that gets expanded to being repeated 4 times]
+    //   so would look out for repeated child node signatures.
+
+
+    // compressed_mid_signature
+
+    // start using mid_signature in a few places.
+
+    // compressed signature
+    // then compressed generalised signature???
+    //  so it's not just 4[...], it becomes 1+[...]
+    //   1+ does make a lot of sense to read, so it's good syntax despite not being a terse 1 character.
+
+    // indexing of child node compressed generalised signatures
+
+
+
+
+
+
+
+
+
+
+
+
+
+    // program child? root statement?
+    //  consider a root statement to be a child node of the root?
+    //  Maybe they are expressions, not statements?
+    //  Or declarations?
+
+    // .root_nodes.query
+    //  program .root_nodes being a property that returns a queryable node collection.
+
+
+    // node.interpreted_each_child(callback)
+    // node.each_child_interpreted
+    //  and creates and brings along info within the local context.
+    //   Probably want OO abstractions to represent what is in the locally defined scope.
+    //    to make short statements to interact with that part of it? Maybe. Maybe later.
+
+    // Have the program get some understanding of the pattern of the statement.
+    //  And the statement within its context, such as if it's referring or doing something to an object
+    //   noted to be defined within the scope
+    //   a part of VanillaJS
+    //   noted that it must be required out of the scope
+
+
+
+
+    
+
+
+
+    
+
+
+
+    console.log('external_r_names', external_r_names);
+    console.log('iidthrefexts', iidthrefexts);
+
+
+    const just_some_code = () => {
+        console.log('js_ast_node', js_ast_node);
+        console.log('js_ast_node.source', js_ast_node.source);
+
+        console.log('js_ast_node.child.count', js_ast_node.child.count);
+
+        console.log('js_ast_node.query.count.all.node.exe()', js_ast_node.query.count.all.node.exe());
+        console.log('js_ast_node.query.count.all.exe()', js_ast_node.query.count.all.exe());
+
+        console.log('js_ast_node.generate()', js_ast_node.generate());
+
+        const n2 = js_ast_node.navigate('0/0/2');
+        console.log('n2', n2);
+
+        const arr_nodes = js_ast_node.navigate(['0/0/1', '0/0/2']);
+        console.log('arr_nodes', arr_nodes);
+    }
+
+    
 
     const iterate_inner_declarations_and_object_references = (callback_declaration, callback_object_reference) => {
         js_ast_node.query.each.inner.exe(inner_node => {
@@ -267,6 +361,7 @@ const test_js_ast_node = () => {
     //   once the functions / declared objects are loaded into the system.
 
 
+    /*
 
     const collect_inner_referenced_external_names = node => {
         const res = [];
@@ -325,6 +420,12 @@ const test_js_ast_node = () => {
 
     const external_r_names = collect_inner_referenced_external_names(js_ast_node);
     console.log('external_r_names', external_r_names);
+
+    */
+
+    
+
+
 
 
 
@@ -632,7 +733,7 @@ const test_js_ast_node = () => {
     const various_tests_including_new_query_api = () => {
 
 
-        console.log('js_ast_node.category', js_ast_node.category);
+        console.log('js_ast_node.type_category', js_ast_node.type_category);
         console.log('');
         console.log('js_ast_node.source\n' + js_ast_node.source);
         console.log('');
@@ -700,9 +801,9 @@ const test_js_ast_node = () => {
 
         // Pattern category....
 
-        // query.collect.by.category('Pattern');
+        // query.collect.by.type_category('Pattern');
 
-        //const patterns = js_ast_node.query.select.by.category.exe('Pattern');
+        //const patterns = js_ast_node.query.select.by.type_category.exe('Pattern');
 
         const patterns = js_ast_node.query.collect.pattern.exe();
 
@@ -794,7 +895,7 @@ const test_js_ast_node = () => {
 
     const earlier_tests = () => {
 
-        console.log('js_ast_node.category', js_ast_node.category);
+        console.log('js_ast_node.type_category', js_ast_node.type_category);
         console.log('js_ast_node.source', js_ast_node.source);
         console.log('js_ast_node', js_ast_node);
         console.log('');

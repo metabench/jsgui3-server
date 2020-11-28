@@ -67,9 +67,9 @@ const test_workspace = () => {
             // iterate_output_declarations
 
             // iterate_output_declarations = namespaced_output_declaration_name =>
-            workspace.iterate_output_declarations('control-enh.js/Control', cbdec => {
-                console.log('cbdec', cbdec);
-            })
+            //workspace.iterate_output_declarations('control-enh.js/Control', cbdec => {
+            //    console.log('cbdec', cbdec);
+            //})
 
             /*
 

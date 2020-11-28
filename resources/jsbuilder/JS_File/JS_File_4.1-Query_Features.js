@@ -337,11 +337,11 @@ class JS_File_Query_Features extends JS_File_Query {
                                     //log('export_dec.child.first.child.count', export_dec.child.first.child.count);
 
                                     //log('export_dec.child.first.collect.child.type()', export_dec.child.first.collect.child.type());
-                                    //log('export_dec.child.first.collect.child.category()', export_dec.child.first.collect.child.category());
+                                    //log('export_dec.child.first.collect.child.type_category()', export_dec.child.first.collect.child.type_category());
 
                                     // .collect.type
 
-                                    const cats = export_dec.child.first.collect.child.category();
+                                    const cats = export_dec.child.first.collect.child.type_category();
                                     const types = export_dec.child.first.collect.child.type();
 
                                     log('cats', cats);

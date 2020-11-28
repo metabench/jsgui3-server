@@ -28,7 +28,7 @@ module.exports = {
 
 */
 
-const get_category = (type) => {
+const get_type_category = (type) => {
 
     const res = map_categories[type];
     if (!res) {
@@ -217,13 +217,13 @@ class JS_AST_Node_Babel extends JS_AST_Node_Core {
         });
 
         //let category;
-        Object.defineProperty(babel, 'category', {
+        Object.defineProperty(babel, 'type_category', {
             get() { 
                 //console.log('babel', babel);
                 //console.log('babel_node', babel_node);
                 //console.log('babel.node', babel.node);
                 //category = ;
-                return get_category(babel_node.type); 
+                return get_type_category(babel_node.type); 
             },
             //set(newValue) { bValue = newValue; },
             enumerable: true,

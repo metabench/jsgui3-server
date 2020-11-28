@@ -112,8 +112,8 @@ class JS_AST_Node_Index extends JS_AST_Node_Basics_Navigate {
                                     //  {a, b, c} = lib;
                                     if (dec.child.count === 2) {
                                         const child_types = dec.child.all.type;
-                                        // dec.child.collect.category
-                                        const child_categories = dec.child.all.category;
+                                        // dec.child.collect.type_category
+                                        const child_categories = dec.child.all.type_category;
                                         //console.log('child_categories', child_categories);
                                         // maybe any expression is allowed.
                                         //  seems that way

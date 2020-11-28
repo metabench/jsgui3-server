@@ -5,6 +5,55 @@ class JS_File_Planning extends JS_File_Query_Features {
     constructor(spec) {
         super(spec);
 
+        // Overview?
+
+
+        // a .module_outline_info or module_io_info makes sense.
+
+        // .module_io_info
+
+        // .io_info property makes a lot of sense when it comes to knowing the keys that get imported and exported
+        //  and possibly a little more about those keys.
+        //   Could use placeholders for the moment.
+        //    Seems like the best ways to refer to things outside of the file.
+
+
+        // Finding patterns, such as:
+
+        // VDn(VDr()?) // eg optional
+        // VDn(VDr()+) // meaning 1 or more
+        // VDn(VDr()*) // 0 or more???
+        // VDn(ID, ?)
+
+        // Lower level detail of indexing, indexing in a way so that wildards can find it
+        //  or at least any number of repeated child nodes.
+        
+        // automated indexing?
+
+        // query.index.lookup
+        // query.index.ensure.exe(index_name, fn_node_to_index_key_string)
+
+
+        // Default indexes?
+        //  Lazily loaded default indexes.
+
+        // .ensure_default_index(default_index_name);
+
+        // for the moment just ensuring a bunch of named indexes would work.
+        //  Would create the indexes mainly on the Program node.
+
+        // Creation of node flags and sets would be useful too.
+
+        
+
+
+
+
+
+
+
+
+
         // string path of the variable within the ast.
         //  can use that path to find the position at a later stage.
         //  Need to keep the planning stage separate for the moment.
@@ -14,6 +63,8 @@ class JS_File_Planning extends JS_File_Query_Features {
         // (node, path)
 
         // propose_local_variable_name_remapping
+
+        /*
 
         const get_proposed_root_definitions_inner_name_remappings = this.get_proposed_root_definitions_inner_name_remappings = () => {
             const res = {};
@@ -53,6 +104,7 @@ class JS_File_Planning extends JS_File_Query_Features {
             });
             return res;
         }
+        */
 
 
 
@@ -79,7 +131,7 @@ class JS_File_Planning extends JS_File_Query_Features {
 
         // Iterating all nodes, but being on the lookout for a bunch of specific code patterns.
 
-        
+
 
 
 

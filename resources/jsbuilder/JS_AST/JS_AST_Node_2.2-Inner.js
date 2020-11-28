@@ -36,6 +36,36 @@ class JS_AST_Node_Inner extends JS_AST_Node_Ancestor {
             
         //}
 
+        // inner depth property.
+
+        let inner_depth;
+
+        const find_inner_depth = () => {
+            //let res = 0;
+            
+            let start_depth = this.depth;
+            let max_found = start_depth;
+            //console.log('start_depth', start_depth);
+            this.deep_iterate(node => {
+                if (node.depth > max_found) {
+                    max_found = node.depth;
+                }
+            })
+
+            return max_found - start_depth;
+        }
+
+        Object.defineProperty(inner, 'depth', {
+            get() { 
+                if (inner_depth === undefined) {
+                    inner_depth = find_inner_depth();
+                }
+                return inner_depth;
+            },
+            enumerable: true,
+            configurable: false
+        });
+
         
         this.inner = inner;
     }

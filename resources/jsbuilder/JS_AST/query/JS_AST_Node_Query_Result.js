@@ -6,7 +6,10 @@ module.exports = {
 }
 */
 
-const query_tools = require('./query_tools');
+
+/*
+
+const query_tools = require('./js_ast_node_query_tools');
 //console.log('create_query', create_query);
 //throw 'stop';
 
@@ -29,5 +32,9 @@ class Query_Result extends Array {
     }
 
 }
+*/
 
-module.exports = Query_Result;
+const {create_query} = require('./js_ast_node_query_tools');
+
+
+module.exports = JS_AST_Node_Query_Result;

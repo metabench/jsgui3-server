@@ -53,6 +53,69 @@ class JS_File_Planning extends JS_File_Query_Features {
             });
             return res;
         }
+
+
+
+        // file.module_import_declare_assign_export_info
+        // file.module_lifecycle_info = file.module_import_declare_assign_export_info
+
+
+        // .lifecycle_info?
+        // .module_outline_info
+        //  seems like a useful property that itself could have a lot of information.
+
+        // Iterate over child nodes with a pattern matcher.
+        //  And it would want to match specific nodes in specific positions.
+
+        // Improved indexing of all statements would help.
+        //  Meaning we are able to find all assignments to a specific node.
+
+        // More advanced and specific indexing of nodes would definitely help.
+        //  Possibly best to code it so that queries can be replaced once there is an index.
+        //   Or call an appropriate query with result caching / indexing?
+
+        // Call maps on generalised signatures?
+        //  Meaning there could be x children of type in some situations.
+
+        // Iterating all nodes, but being on the lookout for a bunch of specific code patterns.
+
+        
+
+
+
+
+
+        
+
+
+
+        // .module_io_info property
+
+        // information on what is required
+        //  which keys are provided
+        //  provided directly from imported module
+        //  provided as properties of imported module
+
+        // then what happens to those keys as the module proceeds
+        //  .property
+        //  Object.assign(obj, {...})
+        // so track which keys get added to the object throughout the program, going through the program child nodes to see if any of them assign anything to any of the imported objects.
+
+        // an object created that is an instance of a class defined or imported
+        //  
+
+
+
+        // then see what gets exported, including object
+
+
+
+
+
+
+
+
+
     }
 }
 

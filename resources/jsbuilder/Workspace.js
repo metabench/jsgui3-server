@@ -5,6 +5,59 @@ const JS_File = require('./JS_File/JS_File');
 const libpath = require('path');
 const { IoT1ClickDevicesService } = require('../../../../../../../../../../AppData/Local/Microsoft/TypeScript/4.0/node_modules/aws-sdk/index');
 
+
+// 27/11/2020 - Workspace has got a lot more advanced, and also 1600 lines, big by the highly modular norm of this codebase.
+
+
+// Will now incorporate some of the functionality here into test_js_file, getting it working with a variety of files, doing what will be needed in a process
+//  that iterates through multiple files.
+
+// May use recursive capabilities by having a function in JF_File that does iteration through referred to files.
+
+
+// Following back the variable that gets exported would be useful.
+//  Want to be able to trace any unused imports and not import them - or rather, when the workplace outputs objects, it traces their requirements backwards.
+
+// A new Advanced_Queries or Advanced_Queries_Reference_Extraction
+//  or Object_Following
+
+// Should get into putting the file and object following and iteration at a level in the framework where it's fine with its specific names
+//  Could be room for improvement, whereby it will check for certain conditions it expects and throw stop if it gets something different.
+//  Maybe some lower level queries / shortcuts to facilitate it.
+
+// .c0 for .child_nodes[0];
+// .c1 etc
+// .p or .a0 for parent or ancestor 0 (0 indexed of course)
+// .a2
+// .r ??? for the root node, would navigate upwards???
+// .q for query
+// .x for execute
+// .xr executes and gets the result as a property?
+//   does not take params, so there is not the function call () within multi layered query text.
+// .xr0 or .x0 executes immediately and returns (continues the query???) as the first result from the Query_Result_Set or Query_Result_Array
+
+// Query_Result_Single_Item possibly
+// Query_Result superclass.
+
+// Getting Map objects back as Query_Result_Map where appropriate.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 // Workpace should encompass all operations.
 // Projects and platforms will work within them.
 // Files and functions and declarations will also exist within the abstract within a workspace.
@@ -80,6 +133,33 @@ each(js_runtime_object_names, runtime_object_name => map_jssystem_names.set(runt
 
 // Make another function to collect child object assign require paths ???
 // And another function to collect child inner required paths.
+
+// Some of the functions here could be redone as more general purpose and lower level
+//  and or supporting functions made at a lower level to do what workspace needs here.
+
+// More on understanding what happens to imported objects
+//  What keys they start with on import
+//  What they get during the module's course (program node child statements)
+//  What gets exported
+//   The keys of what gets exported
+//    Maybe info about types of the keys of what gets exported too.
+//     possibly the name of the file where the object is first declared.
+
+// Following an object or objects back through the course of multiple files.
+//  And do want to have it work on the syntax that already exists
+//   Can see about automated syntax replacement too, for cases when there is a better / improved syntax available for something.
+//    And compiling JS so that some functions are fully inlined... :)
+//     Would be interesting to see the speed.
+//      Maybe could also do typed array reference replacement in some places.
+
+
+
+
+
+
+
+
+
 
 
 
@@ -746,15 +826,11 @@ class Workspace extends Evented_Class {
         }
 
         const get_node_referred_to_names = node => {
-
             const isolated = [];
             const first_part_objects = [];
-
             //const map_names_already_declared = new Map();
             //  
-
             //  So this can also find declarations within those nodes.
-
 
             node.query.each.inner.exe(node_inner => {
                 let inside_me = false;
@@ -762,10 +838,8 @@ class Workspace extends Evented_Class {
                 const t = node_inner.t;
                 //console.log('t', t);
 
-
                 // 
                 // collect.inner.referred.to.name
-
 
                 if (t === 'ID') {
                     if (parent) {
@@ -804,25 +878,36 @@ class Workspace extends Evented_Class {
         //  will just contain the function names in direct order?
         //  the nodes in direct order?
 
-        const iterate_output_declarations = namespaced_output_declaration_name => {
+
+        // Function could have a clearer name....
+
+        // Could make the lower level system more aware of what an output declaration is.
+        //  Variable lifecycle tracking seems like one of the next lower level features that would make all of this much easier.
+        //   Need to be able to describe operations in very clear and unambiguous terms.
+
+
+        const get_file_by_namespaced_output_declaration_name = (namespaced_output_declaration_name) => {
             let [namespace, name_within_namespace] = namespaced_output_declaration_name.split('/');
             const files_with_name_declared = index_declaration_names_to_files.get(name_within_namespace);
 
-            console.log('files_with_name_declared', files_with_name_declared);
-            console.log('namespace', namespace);
+            //console.log('files_with_name_declared', files_with_name_declared);
+            //console.log('namespace', namespace);
 
             const namespace_file_path = index_file_names_to_paths.get(namespace)[0];
-            console.log('namespace_file_path', namespace_file_path);
-
+            //console.log('namespace_file_path', namespace_file_path);
             const js_file = map_workspace_files_on_disk_by_path.get(namespace_file_path);
-            console.log('js_file', js_file);
-            console.log('map_workspace_files_on_disk_by_path.keys()', map_workspace_files_on_disk_by_path.keys());
+            return js_file;
+        }
 
+
+        // Some in-depth and detailed code here.
+        //  Worth getting it to work, returning info on what a js file imports and exports.
+
+        const get_js_file_module_io_info = (js_file) => {
 
             const iterate_program_node_declarations = (program_node, callback) => {
                 program_node.query.each.child.exe(program_child => {
                     // if its a variable declaration
-
                     // class declaration
 
                     // 'C:\\Users\\james\\Documents\\Copied_Over_Docs\\Documents\\code\\code\\js\\jsgui3-all\\jsgui3-server\\node_modules\\jsgui3-html\\html-core\\control-enh.js'
@@ -831,13 +916,111 @@ class Workspace extends Evented_Class {
                     if (program_child.type === 'VariableDeclaration') {
                         program_child.query.each.child.exe((vdr, index) => {
                             const declared_name = vdr.child_nodes[0].name;
+
+                            console.log('vdr.child.count', vdr.child.count);
+
                             console.log('declared_name', declared_name);
-                            callback({
-                                type: 'object_declared_name',
-                                value: declared_name,
-                                declarator: vdr,
-                                index: index
-                            })
+                            console.log('vdr', vdr);
+                            console.log('vdr.source', vdr.source);
+
+                            if (declared_name === undefined) {
+
+                                // Looks like a case of multiple declared names.
+
+                                // vdr.cc
+                                // vdr.cc2 boolean property
+                                //  a shorthand which is kind of the opposite of the query system in how it gets expressed.
+                                // Some lower level tools to do this stuff would help....
+
+                                // is there any need to register that 
+
+                                if (vdr.child.count === 2) {
+
+                                    // opa, id
+
+                                    const [opa, id] = vdr.child_nodes;
+
+                                    if (opa.t === 'OPa' && id.t === 'ID') {
+
+                                        const name_referred_to_and_assigned_from = id.name;
+                                        console.log('opa.child.shared.type', opa.child.shared.type);
+
+                                        if (opa.child.shared.type === 'ObjectProperty') {
+
+                                            opa.query.each.child.exe(op => {
+                                                const opidname = op.child_nodes[0].name;
+                                                callback({
+                                                    type: 'object_declared_name',
+                                                    value: opidname,
+                                                    declarator: vdr,
+                                                    index: index
+                                                })
+                                            })
+ 
+                                        } else {
+                                            throw 'stop';
+                                        }
+
+
+                                    } else {
+                                        if (id.t === 'CaE') {
+                                            const cae = id;
+
+                                            if (cae.is_require_call) {
+                                                console.log('have require call');
+
+                                                if (opa.t === 'OPa') {
+
+                                                    opa.query.each.child.exe(cn => {
+                                                        const name = cn.child_nodes[0].name;
+                                                        callback({
+                                                            type: 'object_declared_name',
+                                                            value: name,
+                                                            declarator: vdr,
+                                                            index: index
+                                                        })
+                                                    })
+
+
+                                                    //throw 'NYI';
+                                                } else {
+                                                    throw 'stop';
+                                                }
+
+                                                
+
+
+                                            } else {
+                                                throw 'NYI';
+                                            }
+
+                                            //throw 'NYI';
+                                        } else {
+                                            throw 'stop';
+                                        }
+
+
+                                        
+                                    }
+
+
+                                    //console.trace();
+                                    //throw 'NYI';
+                                } else {
+                                    throw 'stop';
+                                }
+
+                                
+                            } else {
+                                callback({
+                                    type: 'object_declared_name',
+                                    value: declared_name,
+                                    declarator: vdr,
+                                    index: index
+                                })
+                            }
+
+                            
                         })
                     }
                     if (program_child.type === 'ClassDeclaration') {
@@ -848,7 +1031,6 @@ class Workspace extends Evented_Class {
                             class_declaration: program_child
                         })
                     }
-
                 })
 
             }
@@ -867,7 +1049,6 @@ class Workspace extends Evented_Class {
 
                 // does it contain an inner require call?
                 //  as in, is the class or variable declared as being the result of a require call?
-
 
                 const {type, value} = cb_iteration;
                 if (type === 'object_declared_name') {
@@ -919,14 +1100,385 @@ class Workspace extends Evented_Class {
                 const required_module_paths = [];
 
                 
+                const map_names_required_from = new Map();
+                const map_names_required_as = new Map();
+
 
                 each(arr_require_calls, rc => {
                     const mpath = rc.required_module_path;
                     console.log('mpath', mpath);
                     required_module_paths.push(mpath);
+
+
+                    console.log('rc.parent_node', rc.parent_node);
+                    console.log('rc.parent_node.source', rc.parent_node.source);
+
+                    if (rc.parent_node.t === 'VDr') {
+
+                        if (rc.index === 1) {
+                            if (rc.parent_node.child.count === 2) {
+                                if (rc.parent_node.nav('0').t === 'ID') {
+                                    map_names_required_as.set(rc.parent_node.nav('0').name, rc);
+                                    //throw 'stop';
+                                } else {
+    
+                                    const psib = rc.parent_node.nav('0');
+                                    if (psib.t === 'OPa') {
+
+                                        console.log('psib.source', psib.source);
+                                        console.log('psib', psib);
+
+                                        psib.query.each.child.exe(opr => {
+
+                                            if (opr.t === 'OPr') {
+                                                if (opr.child.count === 1) {
+                                                    const name = opr.nav('0').name;
+                                                    //map_names_required_from.set(name, mpath);
+                                                    map_names_required_from.set(name, rc);
+                                                } else {
+                                                    throw 'stop';
+                                                }
+                                            } else {
+                                                throw 'stop';
+                                            }
+
+                                            
+                                        })
+                                        //throw 'NYI';
+                                    } else {
+                                        throw 'stop';
+                                    }
+    
+                                    
+                                }
+                            } else {
+                                throw 'stop';
+                            }
+                        } else {
+                            throw 'stop';
+                        }
+
+                        
+                    } else {
+                        throw 'stop';
+                    }
+
+                    // mkeys = rc.keys_declared_from_module_keys???
                 });
 
                 console.log('required_module_paths', required_module_paths);
+                console.log('map_names_required_as', map_names_required_as);
+                console.log('map_names_required_from', map_names_required_from);
+
+                const info_on_required_keys_and_paths = () => {
+
+                }
+
+            }
+        }
+
+
+        const get_js_file_module_io_info_by_namespaced_output_declaration_name = (namespaced_output_declaration_name) => {
+
+            const js_file = get_file_by_namespaced_output_declaration_name.get(namespaced_output_declaration_name);
+            return get_js_file_module_io_info(js_file);
+        }
+
+
+
+
+
+        const iterate_output_declarations = namespaced_output_declaration_name => {
+
+
+            // And should raise callbacks at some points.
+            //  Maybe a version / supporter function that finds what is needed to know to do the actual iteration.
+
+
+            let [namespace, name_within_namespace] = namespaced_output_declaration_name.split('/');
+            const files_with_name_declared = index_declaration_names_to_files.get(name_within_namespace);
+
+            //console.log('files_with_name_declared', files_with_name_declared);
+            //console.log('namespace', namespace);
+
+            const namespace_file_path = index_file_names_to_paths.get(namespace)[0];
+            //console.log('namespace_file_path', namespace_file_path);
+            const js_file = map_workspace_files_on_disk_by_path.get(namespace_file_path);
+            //console.log('js_file', js_file);
+            //console.log('map_workspace_files_on_disk_by_path.keys()', map_workspace_files_on_disk_by_path.keys());
+            const iterate_program_node_declarations = (program_node, callback) => {
+                program_node.query.each.child.exe(program_child => {
+                    // if its a variable declaration
+                    // class declaration
+
+                    // 'C:\\Users\\james\\Documents\\Copied_Over_Docs\\Documents\\code\\code\\js\\jsgui3-all\\jsgui3-server\\node_modules\\jsgui3-html\\html-core\\control-enh.js'
+                    // 'C:\\Users\\james\\Documents\\Copied_Over_Docs\\Documents\\code\\code\\js\\jsgui3-all\\jsgui3-server\\node_modules\\jsgui3-html\\html-core\\control-enh.js',
+
+                    if (program_child.type === 'VariableDeclaration') {
+                        program_child.query.each.child.exe((vdr, index) => {
+                            const declared_name = vdr.child_nodes[0].name;
+
+                            console.log('vdr.child.count', vdr.child.count);
+
+                            console.log('declared_name', declared_name);
+                            console.log('vdr', vdr);
+                            console.log('vdr.source', vdr.source);
+
+                            if (declared_name === undefined) {
+
+                                // Looks like a case of multiple declared names.
+
+                                // vdr.cc
+                                // vdr.cc2 boolean property
+                                //  a shorthand which is kind of the opposite of the query system in how it gets expressed.
+                                // Some lower level tools to do this stuff would help....
+
+                                // is there any need to register that 
+
+                                if (vdr.child.count === 2) {
+
+                                    // opa, id
+
+                                    const [opa, id] = vdr.child_nodes;
+
+                                    if (opa.t === 'OPa' && id.t === 'ID') {
+
+                                        const name_referred_to_and_assigned_from = id.name;
+                                        console.log('opa.child.shared.type', opa.child.shared.type);
+
+                                        if (opa.child.shared.type === 'ObjectProperty') {
+
+                                            opa.query.each.child.exe(op => {
+                                                const opidname = op.child_nodes[0].name;
+                                                callback({
+                                                    type: 'object_declared_name',
+                                                    value: opidname,
+                                                    declarator: vdr,
+                                                    index: index
+                                                })
+                                            })
+ 
+                                        } else {
+                                            throw 'stop';
+                                        }
+
+
+                                    } else {
+                                        if (id.t === 'CaE') {
+                                            const cae = id;
+
+                                            if (cae.is_require_call) {
+                                                console.log('have require call');
+
+                                                if (opa.t === 'OPa') {
+
+                                                    opa.query.each.child.exe(cn => {
+                                                        const name = cn.child_nodes[0].name;
+                                                        callback({
+                                                            type: 'object_declared_name',
+                                                            value: name,
+                                                            declarator: vdr,
+                                                            index: index
+                                                        })
+                                                    })
+
+
+                                                    //throw 'NYI';
+                                                } else {
+                                                    throw 'stop';
+                                                }
+
+                                                
+
+
+                                            } else {
+                                                throw 'NYI';
+                                            }
+
+                                            //throw 'NYI';
+                                        } else {
+                                            throw 'stop';
+                                        }
+
+
+                                        
+                                    }
+
+
+                                    //console.trace();
+                                    //throw 'NYI';
+                                } else {
+                                    throw 'stop';
+                                }
+
+                                
+                            } else {
+                                callback({
+                                    type: 'object_declared_name',
+                                    value: declared_name,
+                                    declarator: vdr,
+                                    index: index
+                                })
+                            }
+
+                            
+                        })
+                    }
+                    if (program_child.type === 'ClassDeclaration') {
+                        const declared_name = program_child.child_nodes[0].name;
+                        callback({
+                            type: 'class_declared_name',
+                            value: declared_name,
+                            class_declaration: program_child
+                        })
+                    }
+                })
+
+            }
+            
+
+            // So for Block_Scope nodes, I think Program and BlockStatement, there should be means to analyse and particularly index the declarations
+            //  made as child nodes.
+
+            // is the node declared as then being assigned to a require call?
+            const map_available_declared_names = new Map();
+            // and a map of the statement where they were declared.
+            const map_declared_name_declaration_statements = new Map();
+
+            iterate_program_node_declarations(js_file.node_root.child_nodes[0], cb_iteration => {
+                //console.log('cb_iteration', cb_iteration);
+
+                // does it contain an inner require call?
+                //  as in, is the class or variable declared as being the result of a require call?
+
+                const {type, value} = cb_iteration;
+                if (type === 'object_declared_name') {
+                    const {declarator, index} = cb_iteration;
+                    //const declaration = declarator.parent_node;
+                    //const index_in_declaration = declarator.index;
+
+                    map_available_declared_names.set(value, true);
+                    map_declared_name_declaration_statements.set(value, declarator.parent_node);
+                };
+                if (type === 'class_declared_name') {
+                    const {class_declaration} = cb_iteration;
+                    //const declaration = declarator.parent_node;
+                    //const index_in_declaration = declarator.index;
+
+                    map_available_declared_names.set(value, true);
+                    map_declared_name_declaration_statements.set(value, class_declaration);
+                };
+            });
+
+
+            const found_declaration = js_file.node_root.child_nodes[0].query.select.child.declaration.by.declared.name.exe(name_within_namespace)[0];
+            //console.log('found_declaration', found_declaration);
+
+            if (found_declaration) {
+                //console.log('found_declaration.parentNode', found_declaration.parent_node);
+                //add_declaration_to_output(found_declaration)    
+
+
+                // Can we collect external namespaced names?
+                //  Or do we take these found names, then look for the external references in that js file?
+                const nonlocal_object_names_used = collect_inner_referenced_external_names(found_declaration);
+
+                // Looks like it falsely thinks that 'spec' is nonlocal.
+
+                //console.log('nonlocal_object_names_used', nonlocal_object_names_used);
+                //console.log('found_declaration.source.length', found_declaration.source.length);
+
+                // js_file.
+
+                // js_file.node_root.child_nodes[0].query.collect.require.call.exe();
+
+                const arr_require_calls = js_file.node_root.child_nodes[0].query.collect.require.call.exe();
+                console.log('arr_require_calls', arr_require_calls);
+
+                // source of all of them...?
+
+                let all_source = '';
+                const required_module_paths = [];
+
+                
+                const map_names_required_from = new Map();
+                const map_names_required_as = new Map();
+
+
+                each(arr_require_calls, rc => {
+                    const mpath = rc.required_module_path;
+                    console.log('mpath', mpath);
+                    required_module_paths.push(mpath);
+
+
+                    console.log('rc.parent_node', rc.parent_node);
+                    console.log('rc.parent_node.source', rc.parent_node.source);
+
+                    if (rc.parent_node.t === 'VDr') {
+
+                        if (rc.index === 1) {
+                            if (rc.parent_node.child.count === 2) {
+                                if (rc.parent_node.nav('0').t === 'ID') {
+                                    map_names_required_as.set(rc.parent_node.nav('0').name, rc);
+                                    //throw 'stop';
+                                } else {
+    
+                                    const psib = rc.parent_node.nav('0');
+                                    if (psib.t === 'OPa') {
+
+                                        console.log('psib.source', psib.source);
+                                        console.log('psib', psib);
+
+                                        psib.query.each.child.exe(opr => {
+
+                                            if (opr.t === 'OPr') {
+                                                if (opr.child.count === 1) {
+                                                    const name = opr.nav('0').name;
+                                                    //map_names_required_from.set(name, mpath);
+                                                    map_names_required_from.set(name, rc);
+                                                } else {
+                                                    throw 'stop';
+                                                }
+                                            } else {
+                                                throw 'stop';
+                                            }
+
+                                            
+                                        })
+                                        //throw 'NYI';
+                                    } else {
+                                        throw 'stop';
+                                    }
+    
+                                    
+                                }
+                            } else {
+                                throw 'stop';
+                            }
+                        } else {
+                            throw 'stop';
+                        }
+
+                        
+                    } else {
+                        throw 'stop';
+                    }
+
+                    // mkeys = rc.keys_declared_from_module_keys???
+                });
+
+                console.log('required_module_paths', required_module_paths);
+                console.log('map_names_required_as', map_names_required_as);
+                console.log('map_names_required_from', map_names_required_from);
+
+
+                const info_on_required_keys_and_paths = () => {
+
+                }
+
+                // But do we know what it's requiring from those various modules?
+
+
 
                 /*
                 each(arr_require_calls, item => {
@@ -1012,7 +1564,7 @@ class Workspace extends Evented_Class {
 
 
 
-            throw 'stop';
+            throw 'NYI - Iterate output declarations';
         }
 
 
@@ -1215,10 +1767,7 @@ class Workspace extends Evented_Class {
 
                     throw 'NYI';
                 }
-
             });
-
-
 
             /*
             let res = '';
@@ -1261,6 +1810,50 @@ class Workspace extends Evented_Class {
         this.load_files_by_path = load_files_by_path;
         this.build_output = build_output;
         this.iterate_output_declarations = iterate_output_declarations;
+
+        // get_js_file_module_io_info_by_namespaced_output_declaration_name
+
+        // May be worth tidying up the module overall somewhat, getting some useful things and shorthands into lower level.
+        //  For the moment though, don't want to put incomplete and yet complex functions into the lower level.
+
+        // Some long functions could be useful on a lower level - so long as their naming is clear, and that could involve it having a name that
+        //  is like get_something_info or get_io_info.
+
+        //  This may be better done with pattern matching, and it may be worth properly expanding and working on that lower level part.
+        //   However, it seems worth writing this as a long and elaborate query, improving the syntax over time, and only removing it if it becomes obselete because there
+        //    is a better way to do it.
+
+        // js_file.io_info could be a new and advanced property.
+        //  Definitelty looks like further lower level work outside of Workspace will lead to the right capabilities for Workspace to efficiently load / use various JavaScript files.
+        //   Iteration through the files that get required will definitely be useful.
+        //    It has turned out to be a huge and complex function, could well be broken up into smaller ones in their right places.
+        //    
+
+        // Also, iterating through files without actually loading them
+        //  Would be used in planning what to load???
+        //   Not sure how useful.
+        //    Could definitely be useful in some ways, maybe the more precision in planning and then doing could aid using multiple threads.
+
+
+        // Slim down the Workspace class eventually, while expanding functionality.
+        //  Maybe some / much of it is better in platform?
+        //   Platform gets used to create the output?
+        //   Project gets made, then a Platform within it?
+
+        // Project gets made, then necessary declarations get copied into the project?
+        //  More layers of abstraction, clearly defined, will help Workspace to do what is needed.
+
+
+        
+
+
+
+
+
+
+
+
+
     }
 
 

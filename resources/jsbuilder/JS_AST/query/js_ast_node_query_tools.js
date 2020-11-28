@@ -1,198 +1,71 @@
 const {each} = require('lang-mini');
 //const { isArray } = require('./Query_Result');
 //c//onst Query_Result = require('./Query_Result');
+const Query_Function_Map = require('./Query_Function_Map');
+//const Query_Result = require('./JS_AST_Node_Query_Result');
+//const enable_array_as_queryable = () => {};
 
-const enable_array_as_queryable = () => {};
 
 
-class Query_Function_Map {
-    constructor(spec) {
 
-        const map_fns = new Map();
-        const map_ngrams = new Map();
+class JS_AST_Node_Query_Result extends Array {
 
-        const arr_fns = [];
-        const arr_ngrams = [];
+    constructor(spec = {}) {
 
-        const ngram_assign_fn = (single_word_term_name, fn) => {
-            if (!map_fns.has(single_word_term_name)) {
-                map_fns.set(single_word_term_name, fn);
-                arr_fns.push(fn);
-            } else {
-                throw 'Already loaded the word "' + single_word_term_name + '".';
-            }
-            return true;
-        }
+        //if (isArray(spec)) {
 
-        const ngram_assign_term = (single_word_term_name, str_ngram) => {
-            if (!map_ngrams.has(single_word_term_name)) {
-                map_ngrams.set(str_ngram, single_word_term_name);
-            } else {
-                throw 'Phrase "' + str_ngram + '" is already loaded for the word "' + single_word_term_name + '".';
-            }
-            return true;
-        }
-
-        const ngrams = {
-            assign: function() {
-                const a = arguments;
-                const al = a.length;
-                if (al === 2) {
-                    if (typeof a[0] === 'string' && typeof a[1] === 'string') {
-
-                        const c0 = a[0].split(' ');
-                        const c1 = a[1].split(' ');
-
-                        if (c0.length > 1) {
-                            throw 'stop';
-                        }
-                        return ngram_assign_term(a[0], a[1]);
-                    } else {
-                        if (typeof a[0] === 'string' && Array.isArray(a[1])) {
-                            each(a[1], item => ngrams.assign(a[0], item));
-                        } else {
-                            throw 'stop';
-                        }
-                        //
-                    }
-                    //if (typeof a[1] === 'string' && typeof a[0] === 'function') {
-                    //    return ngram_assign_term(a[1], a[0]);
-                    //}
-                } else {
-
-                    if (al === 1) {
-                        if (typeof a[0] === 'object') {
-
-                            if (!Array.isArray(a[0])) {
-                                const o = a[0];
-                                each(o, (value, key) => {
-                                    ngrams.assign(key, value);
-                                })
-                            } else {
-                                throw 'stop';
-                            }
-
-                        }
-                    } else {
-                        throw 'stop';
-                    }
-                    //throw 'NYI';
-                }
-            }
-        };
+        //}
+        super();
 
         
-        Object.defineProperty(ngrams, 'list', {
-            get() { 
-                return Array.from(map_ngrams.keys()).sort();
-            },
-            enumerable: true,
-            configurable: false
-        });
-        const functions = {
-            //count: () => arr_fns.length,
-            assign: function() {
-                const a = arguments;
-                const al = a.length;
-                if (al === 2) {
-                    if (typeof a[0] === 'string' && typeof a[1] === 'function') {
 
-                        const c0 = a[0].split(' ');
-                        //const c1 = a[1].split(' ');
-                        if (c0.length > 1) {
-                            throw 'stop';
-                        }
-                        return ngram_assign_fn(a[0], a[1]);
-                        //
-                    }
-                    //if (typeof a[1] === 'string' && typeof a[0] === 'function') {
-                    //    return ngram_assign_term(a[1], a[0]);
-                    //}
-                } else {
-                    if (al === 1) {
-                        //throw 'NYI';
-
-                        if (Array.isArray(a[0])) {
-                            each(a[0], fn => functions.assign(fn));
-                        }
-
-                        if (typeof a[0] === 'function') {
-                            const n = a[0].name;
-                            if (n !== undefined) {
-                                return functions.assign(n, a[0]);
-                            } else {
-                                throw 'Must provide a function name if the function does not already have it as its property.'
-                            }
-                        }
-                    } else {
-                        throw 'stop';
-                    }
-                }
-            }
-        };
-
-        Object.defineProperty(functions, 'count', {
-            get() { 
-                return arr_fns.length;
-            },
-            enumerable: true,
-            configurable: false
-        });
-
-        Object.defineProperty(functions, 'names', {
-            get() { 
-                return Array.from(map_fns.keys()).sort();
-            },
-            enumerable: true,
-            configurable: false
-        });
-
-        // map_fns
-
-        this.get = str_ngram => {
-            const term = map_ngrams.get(str_ngram);
-            if (term) {
-                const fn = map_fns.get(term);
-
-                if (fn) {
-                    return fn;
-                } else {
-                    console.log('term', term);
-                    console.trace();
-                    throw 'stop';
-                    // should not happen.
-                }
-
-            } else {
-                console.log('term not found for ngram: "' + str_ngram + '".');
-            }
+        let words;
+        if (spec.words) {
+            words = spec.words;
         }
 
-        Object.defineProperty(this, 'ngrams', {
+        // .query property, will produce another query object.
+
+        Object.defineProperty(this, 'query', {
             get() { 
-                return ngrams;
+                return create_query(this, words);
             },
-            enumerable: true,
+            enumerable: false,
             configurable: false
         });
 
-        Object.defineProperty(this, 'functions', {
+        Object.defineProperty(this, 'is_query_result', {
             get() { 
-                return functions;
+                return true;
             },
-            enumerable: true,
-            configurable: false
-        });
-
-        Object.defineProperty(this, 'fns', {
-            get() { 
-                return functions;
-            },
-            enumerable: true,
+            enumerable: false,
             configurable: false
         });
     }
+
 }
+
+const Query_Result = JS_AST_Node_Query_Result;
+
+JS_AST_Node_Query_Result.from_array = (arr) => {
+    if (arr instanceof JS_AST_Node_Query_Result) {
+        console.trace();
+        throw 'Already a Query_Result';
+    } else {
+        const res = new JS_AST_Node_Query_Result();
+        each(arr, item => res.push(item));
+    }
+}
+
+// Seems like it would be tricky to hack this / load queries in after they have been set up.
+//  // Or, if it does not find the query (text) here, it checks whether there is that query in the Extended Query Set.
+
+
+// Basically want to define the extended query features to cover some more longwinded searches and operations.
+//  They don't fit in with being such general AST queries, but specifically for tracing through what happens in JS programs, and more specific types of
+//   JS programs too.
+
+
 
 const assign_node_ngrams = (qfm) => {
 
@@ -299,52 +172,6 @@ const assign_node_ngrams = (qfm) => {
 // select child declaration by declared name
 
 
-class Query_Result extends Array {
-
-    constructor(spec = {}) {
-
-        //if (isArray(spec)) {
-
-        //}
-        super();
-
-        
-
-        let words;
-        if (spec.words) {
-            words = spec.words;
-        }
-
-        // .query property, will produce another query object.
-
-        Object.defineProperty(this, 'query', {
-            get() { 
-                return create_query(this, words);
-            },
-            enumerable: false,
-            configurable: false
-        });
-
-        Object.defineProperty(this, 'is_query_result', {
-            get() { 
-                return true;
-            },
-            enumerable: false,
-            configurable: false
-        });
-    }
-
-}
-
-Query_Result.from_array = (arr) => {
-    if (arr instanceof Query_Result) {
-        console.trace();
-        throw 'Already a Query_Result';
-    } else {
-        const res = new Query_Result();
-        each(arr, item => res.push(item));
-    }
-}
 
 //const create_query_execution_fn_qr_results = 
 
@@ -429,14 +256,14 @@ const create_query_execution_fn = (node, words) => {
         const select_child_by_type = (type) => {
             const res= new Query_Result();
             filter_each_child_node_by_type(type, node => res.push(node));
-            enable_array_as_queryable(res);
+            //enable_array_as_queryable(res);
             return res;
         }
 
         const select_child_node_by_signature = (signature) => {
             const res= new Query_Result();
             filter_each_child_node_by_signature(signature, node => res.push(node));
-            enable_array_as_queryable(res);
+            //enable_array_as_queryable(res);
             return res;
         }
 
@@ -465,14 +292,14 @@ const create_query_execution_fn = (node, words) => {
         const select_child_node_by_type = (type) => {
             const res= new Query_Result();
             filter_each_child_node_by_type(type, node => res.push(node));
-            enable_array_as_queryable(res);
+            //enable_array_as_queryable(res);
             return res;
         }
 
         const select_child_node_by_category = (cateogry) => {
             const res= new Query_Result();
             filter_each_child_node_by_category(cateogry, node => res.push(node));
-            enable_array_as_queryable(res);
+            //enable_array_as_queryable(res);
             return res;
         }
         const select_by_type = type => select_all(node => node.type === type);
@@ -597,7 +424,7 @@ const create_query_execution_fn = (node, words) => {
             if (node.type === 'ObjectExpression') {
                 res.push(node);
             }
-            enable_array_as_queryable(res);
+            //enable_array_as_queryable(res);
             return res;
         }
 
@@ -606,7 +433,7 @@ const create_query_execution_fn = (node, words) => {
             if (node.is_declaration) {
                 each(node.declaration.declared.keys, k => res.push(k));
             }
-            enable_array_as_queryable(res);
+            //enable_array_as_queryable(res);
             return res;
         }
         const collect_declaration_assigned_values = () => {
@@ -659,7 +486,7 @@ const create_query_execution_fn = (node, words) => {
                 res.push(node);
             }
             //console.log('res', res);
-            enable_array_as_queryable(res);
+            //enable_array_as_queryable(res);
             return res;
         }
 
@@ -1016,7 +843,6 @@ const create_query_execution_fn = (node, words) => {
         console.trace();
         throw 'No matching function call name was found for: "' + sentence + '".'
     }
-
 }
 
 
@@ -1181,10 +1007,11 @@ const create_query = (incoming, words = []) => {
     return proxy2;
 }
 
+// .query.extend_with_further_query ???
 
 module.exports = {
     //enable_array_as_queryable: enable_array_as_queryable,
     //create_query_execution_fn_unwrapped_results: create_query_execution_fn_unwrapped_results,
     create_query: create_query,
-    Query_Result: Query_Result
+    Query_Result: JS_AST_Node_Query_Result
 }

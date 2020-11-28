@@ -1,7 +1,7 @@
 // const babel_node_tools = require('../babel/babel_node_tools');
 const { each } = require('lang-mini');
 const JS_AST_Node_Superclass = require('./JS_AST_Node_6.6-Type_Call_Expression');
-const {create_query} = require('./query/query_tools');
+const {create_query} = require('./query/js_ast_node_query_tools');
 //const Query_Result = require('./query/Query_Result');
 
 // The QFM seems like it should be global, or relate to the root node.

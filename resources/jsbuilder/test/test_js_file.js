@@ -56,8 +56,10 @@ const test_js_file = () => {
     const filecomp_path = '../JS_File_Comprehension.js';
     const jsfile_path = '../JS_File/JS_File.js';
     const jsbuilder_path = '../JS_Builder.js';
+
+    const sample1_js_path = './sample1.js';
     //const file_path = '../JS_File.js';
-    const file_path = lt_path;
+    const file_path = sample1_js_path;
     // path of lang mini...
 
     // Write and test a simple and convenient way for analysing JS files and recompiling them.
@@ -67,7 +69,9 @@ const test_js_file = () => {
     //  A lot about unique naming, closures, and getting the sequence of definitions correct.
     // ObjectPattern
     const resolved_path = path.resolve(file_path);
-    //console.log('resolved_path', resolved_path);
+    console.log('');
+    console.log('resolved_path', resolved_path);
+    console.log('');
 
     const fstream = fs.createReadStream(resolved_path);
 
@@ -92,6 +96,81 @@ const test_js_file = () => {
         console.log('root.exports.exported', root.exports.exported);
         console.log('root.exports.exported.node', root.exports.exported.node);
         console.log('root.exports.exported.node.type', root.exports.exported.node.type);
+
+
+        // console.log('jsf.module_io_info', jsf.module_io_info);
+
+        console.log('jsf.module_io_info', jsf.module_io_info);
+        // module_io_info will be the relatively advanced property of JS files.
+
+
+
+        if (false && root.exports.exported.node.type === 'Identifier') {
+            const idname = root.exports.exported.node.name;
+            console.log('idname', idname);
+
+
+            
+            // then trace back what happens to it...
+            //  or trace forward what happens to it from assignment.
+
+            // find child object declaration assignment value node
+            //  seems like it could go into an 'advanced query' section.
+
+            // this.add_query(function, synonyms)
+
+
+
+
+            // go through the root nodes.
+            //  are any of them an ancestor of the identifier?
+
+            // .find_ancestor_of?
+            //  worth working on this on the level of a smaller query?
+            //   or making some test js files to analyse?
+            //   
+
+
+            // .is_ancestor_of(root.exports.exported.node)
+
+
+            // get ancestor of node that is child of target node
+
+
+
+
+            // 
+
+            // then go back through the sibling statements.
+            //  .iterate_back_through_previous_sibling_nodes
+            //  .query.each.previous.sibling.exe
+            //   makes sense for that to go backwards.
+
+
+
+            // track lifecycle of the identifier with that name.
+            //  track_exported_object_lifecycle
+
+            // iterate_trace_back_exported_object_lifecycle
+            //  an advanced query section?
+
+            // Or it's in 9 - planning
+            //  Maybe call it Builder Support.
+
+            // And also Builder_Support queries on the files.
+            //  Introdicing .query to the files themselves would be of use.
+
+            // Maybe making a more abstract function to set up the query system, if efficient (enough).
+
+
+
+
+
+
+
+        }
+
+
         //console.log('root.exports.exported.node.source', root.exports.exported.node.source);
 
         // then consult the index of root...
@@ -184,25 +263,6 @@ const test_js_file = () => {
         // Tracing imports
         //  Seems like something that is more in line with what a Workspace or something that deals with multiple files should handle.
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
         // JS_Abstract_Class ???
 
 
@@ -227,157 +287,161 @@ const test_js_file = () => {
 
         
 
-
-        const working_find_exported_keys = () => {
+        const old_but_good_code = () => {
+            const working_find_exported_keys = () => {
 
             
 
-            const root_exported_node = root.exports.exported.node;
-            const exports_keys = [];
-            const program = root.child_nodes[0];
-            const exported_node_name = root.exports.exported.node.name;
-
-            // The possibility of creating a JS_Abstract_Object which would then be used to get more info about the lifecycle of the object that gets exported
-            //  as it progresses through the file. This will only be useful / relevant in some cases.
-
-            // The local variable not for export of reuse - they could have their names changed so that they don't never conflict.
-            //  Could have a counter, and declare names like mlv1 or further abbreviated in the future.
-            //   Just short and systematic names will be good, could improve on it in the future, but if they are systematic they would compress well anyway.
-
-            // 
-
-
-
-            if (exported_node_name === undefined) {
-                const collected_keys = root_exported_node.query.collect.self.if.type.objectexpression.exe().
-                    query.select.child.by.first.child.type.exe('StringLiteral').
-                    query.collect.first.child.exe().
-                    query.collect.value.exe().flat();
-                //console.log('collected_keys', collected_keys);
-                //throw 'stop';
-                each(collected_keys, key => exports_keys.push(key));
-            }  else {
-                let exported_object_declaration_node;
-
-                //const r1 = program.query.collect.child.variabledeclaration.exe();
-                //console.log('r1', r1);
-
-                //console.log('r1', r1);
-                //console.log('r1.query', r1.query);
-
-                //console.log('r1 instanceof Query_Result', r1 instanceof Query_Result);
-
-                //throw 'stop';
-
-                const expn = program.query.collect.child.variabledeclaration.exe().query.select.node.by.first.child.first.child.name.exe(exported_node_name)[0];
-                // .collect.node.where.first.child.first.child.name ???
-                // select the node with the matching name too...?
-                //console.log('expn', expn);
-                //console.log('expn.length', expn.length);
-
-                if (expn.length === 1) {
-                    exported_object_declaration_node = expn[0]; // Need to investigate behaviour change for nested collect queries.
-                } else {
-                    console.log('expn.length', expn.length);
-                    each(expn, item => {
-                        console.log('item', item);
-                        console.log('item.source', item.source);
-                    })
-                    throw 'stop';
-                }
-                //console.log('program.child.count', root.child.count);
-                //console.log('root.exports.exported.name', root.exports.exported.name);
-                //console.log('root.exports.exported.node.name', root.exports.exported.node.name);
-
-                //console.log('exported_object_declaration_node.signature', exported_object_declaration_node.signature);
-
-                // Want to algorithmically extract nodes from signatures.
-                //  Meaning pattern matching, and we specify we want specific nodes from there.
-                //   Better pattern matching will be one way the foundation side of the code can better support required operations.
-
-                if (exported_object_declaration_node) {
-
-                    //console.log('exported_object_declaration_node', exported_object_declaration_node);
-                    //console.log('exported_object_declaration_node.source', exported_object_declaration_node.source);
-
-                    const qr = exported_object_declaration_node.query.select.by.child.count.exe(1);
-                    const qr2 = qr.query.collect.first.child.second.child.exe()[0].query.select.by.type.exe('ObjectExpression');
-                    //console.log('qr2', qr2);
-
-                    if (qr2.length > 0) {
-                        qr2[0].query.each.child.objectproperty.exe(cn => {
-                            //console.log('cn', cn);
-                            if (cn.child_nodes[0].type === 'StringLiteral') {
-                                exports_keys.push(cn.child_nodes[0].value);
-                            } else {
-                                throw 'NYI';
-                            }
-                        });
+                const root_exported_node = root.exports.exported.node;
+                const exports_keys = [];
+                const program = root.child_nodes[0];
+                const exported_node_name = root.exports.exported.node.name;
+    
+                // The possibility of creating a JS_Abstract_Object which would then be used to get more info about the lifecycle of the object that gets exported
+                //  as it progresses through the file. This will only be useful / relevant in some cases.
+    
+                // The local variable not for export of reuse - they could have their names changed so that they don't never conflict.
+                //  Could have a counter, and declare names like mlv1 or further abbreviated in the future.
+                //   Just short and systematic names will be good, could improve on it in the future, but if they are systematic they would compress well anyway.
+    
+                // 
+    
+    
+    
+                if (exported_node_name === undefined) {
+                    const collected_keys = root_exported_node.query.collect.self.if.type.objectexpression.exe().
+                        query.select.child.by.first.child.type.exe('StringLiteral').
+                        query.collect.first.child.exe().
+                        query.collect.value.exe().flat();
+                    //console.log('collected_keys', collected_keys);
+                    //throw 'stop';
+                    each(collected_keys, key => exports_keys.push(key));
+                }  else {
+                    let exported_object_declaration_node;
+    
+                    //const r1 = program.query.collect.child.variabledeclaration.exe();
+                    //console.log('r1', r1);
+    
+                    //console.log('r1', r1);
+                    //console.log('r1.query', r1.query);
+    
+                    //console.log('r1 instanceof Query_Result', r1 instanceof Query_Result);
+    
+                    //throw 'stop';
+    
+                    const expn = program.query.collect.child.variabledeclaration.exe().query.select.node.by.first.child.first.child.name.exe(exported_node_name)[0];
+                    // .collect.node.where.first.child.first.child.name ???
+                    // select the node with the matching name too...?
+                    //console.log('expn', expn);
+                    //console.log('expn.length', expn.length);
+    
+                    if (expn.length === 1) {
+                        exported_object_declaration_node = expn[0]; // Need to investigate behaviour change for nested collect queries.
+                    } else {
+                        console.log('expn.length', expn.length);
+                        each(expn, item => {
+                            console.log('item', item);
+                            console.log('item.source', item.source);
+                        })
+                        throw 'stop';
                     }
-                }
-                const assignment_source_names = [];
-                // Better means to looks for patters and signatures will help here.
-
-                if (exports_keys.length === 0) {
-                    if (root.exports.exported.node.name) {
-                        const cn = program.query.select.child.by.signature.exe('ES(CaE(ME(ID,ID),ID,ID))')[0];
-                        const call_names = cn.query.find.memberexpression.exe()[0].query.collect.child.name.exe();
-                        if (call_names[0] === 'Object' && call_names[1] === 'assign') {
-                            const target_name = cn.child_nodes[0].child_nodes[1].name;
-                            if (target_name === root.exports.exported.node.name) {
-                                assignment_source_names.push(cn.child_nodes[0].child_nodes[2].name);
-                            }
+                    //console.log('program.child.count', root.child.count);
+                    //console.log('root.exports.exported.name', root.exports.exported.name);
+                    //console.log('root.exports.exported.node.name', root.exports.exported.node.name);
+    
+                    //console.log('exported_object_declaration_node.signature', exported_object_declaration_node.signature);
+    
+                    // Want to algorithmically extract nodes from signatures.
+                    //  Meaning pattern matching, and we specify we want specific nodes from there.
+                    //   Better pattern matching will be one way the foundation side of the code can better support required operations.
+    
+                    if (exported_object_declaration_node) {
+    
+                        //console.log('exported_object_declaration_node', exported_object_declaration_node);
+                        //console.log('exported_object_declaration_node.source', exported_object_declaration_node.source);
+    
+                        const qr = exported_object_declaration_node.query.select.by.child.count.exe(1);
+                        const qr2 = qr.query.collect.first.child.second.child.exe()[0].query.select.by.type.exe('ObjectExpression');
+                        //console.log('qr2', qr2);
+    
+                        if (qr2.length > 0) {
+                            qr2[0].query.each.child.objectproperty.exe(cn => {
+                                //console.log('cn', cn);
+                                if (cn.child_nodes[0].type === 'StringLiteral') {
+                                    exports_keys.push(cn.child_nodes[0].value);
+                                } else {
+                                    throw 'NYI';
+                                }
+                            });
                         }
                     }
-                }
-                let assignment_source_declaration_node, assignment_source_name;
-
-                if (assignment_source_names.length > 0) {
-                    if (assignment_source_names.length === 1) {
-                        assignment_source_name = assignment_source_names[0];
-                        (program.query.collect.child.declaration.exe().query.select.self.if.signature.is.exe('VDn(VDr(ID,CaE(ID,SL)))').query.each.first.child.exe(cn => {
-
-                            //console.log('cn', cn);
-
-                            const [node_obj, node_fn_call_id] = cn.nav(['0', '1/0']);
-
-                            //const obj_name = cn.child_nodes[0].name;
-                            //const fn_call_name = cn.child_nodes[1].child_nodes[0].name;
-                            const obj_name = node_obj.name;
-                            const fn_call_name = node_fn_call_id.name;
-                            if (fn_call_name === 'require') {
-                                //const required_path = node.child_nodes[0].child_nodes[1].child_nodes[1].source.split('\'').join('').split('"').join('').split('`').join('');
-                                if (obj_name === assignment_source_name) {
-                                    assignment_source_declaration_node = cn.parent_node;
+                    const assignment_source_names = [];
+                    // Better means to looks for patters and signatures will help here.
+    
+                    if (exports_keys.length === 0) {
+                        if (root.exports.exported.node.name) {
+                            const cn = program.query.select.child.by.signature.exe('ES(CaE(ME(ID,ID),ID,ID))')[0];
+                            const call_names = cn.query.find.memberexpression.exe()[0].query.collect.child.name.exe();
+                            if (call_names[0] === 'Object' && call_names[1] === 'assign') {
+                                const target_name = cn.child_nodes[0].child_nodes[1].name;
+                                if (target_name === root.exports.exported.node.name) {
+                                    assignment_source_names.push(cn.child_nodes[0].child_nodes[2].name);
                                 }
                             }
-                        }));
-                    } else {
-                        throw 'NYI';
+                        }
+                    }
+                    let assignment_source_declaration_node, assignment_source_name;
+    
+                    if (assignment_source_names.length > 0) {
+                        if (assignment_source_names.length === 1) {
+                            assignment_source_name = assignment_source_names[0];
+                            (program.query.collect.child.declaration.exe().query.select.self.if.signature.is.exe('VDn(VDr(ID,CaE(ID,SL)))').query.each.first.child.exe(cn => {
+    
+                                //console.log('cn', cn);
+    
+                                const [node_obj, node_fn_call_id] = cn.nav(['0', '1/0']);
+    
+                                //const obj_name = cn.child_nodes[0].name;
+                                //const fn_call_name = cn.child_nodes[1].child_nodes[0].name;
+                                const obj_name = node_obj.name;
+                                const fn_call_name = node_fn_call_id.name;
+                                if (fn_call_name === 'require') {
+                                    //const required_path = node.child_nodes[0].child_nodes[1].child_nodes[1].source.split('\'').join('').split('"').join('').split('`').join('');
+                                    if (obj_name === assignment_source_name) {
+                                        assignment_source_declaration_node = cn.parent_node;
+                                    }
+                                }
+                            }));
+                        } else {
+                            throw 'NYI';
+                        }
+                    }
+    
+                    if (assignment_source_declaration_node) {
+                        program.query.each.child.with.signature.exe('ES(AsE(ME(ID,ID),ID))', node => {
+    
+                            const [mec0, mec1] = node.nav(['0/0/0', '0/0/1']);
+    
+                            //const ase = node.child_nodes[0];
+                            //const me = ase.child_nodes[0];
+                            const obj_name = mec0.name;
+                            const obj_property_name = mec1.name;
+                            if (obj_name === assignment_source_name) {
+                                exports_keys.push(obj_property_name);
+                            }
+                        })
                     }
                 }
-
-                if (assignment_source_declaration_node) {
-                    program.query.each.child.with.signature.exe('ES(AsE(ME(ID,ID),ID))', node => {
-
-                        const [mec0, mec1] = node.nav(['0/0/0', '0/0/1']);
-
-                        //const ase = node.child_nodes[0];
-                        //const me = ase.child_nodes[0];
-                        const obj_name = mec0.name;
-                        const obj_property_name = mec1.name;
-                        if (obj_name === assignment_source_name) {
-                            exports_keys.push(obj_property_name);
-                        }
-                    })
-                }
+                //console.log('exports_keys', exports_keys);
+                return exports_keys;
             }
-            //console.log('exports_keys', exports_keys);
-            return exports_keys;
         }
 
-        const exports_keys = working_find_exported_keys();
-        console.log('exports_keys', exports_keys);
+
+        
+
+        //const exports_keys = working_find_exported_keys();
+        //console.log('exports_keys', exports_keys);
         //throw 'stop';
 
 

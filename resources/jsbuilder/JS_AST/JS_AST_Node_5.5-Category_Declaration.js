@@ -22,6 +22,15 @@ class JS_AST_Node_Category_Declaration extends JS_AST_Node_Category_Pattern {
                 node: this
             });
 
+
+            // .object_entries...
+            //  declared and assigned
+
+            // .assigned.entries?
+
+            
+
+
             // then direct property access...
 
             Object.defineProperty(this, 'declared', {

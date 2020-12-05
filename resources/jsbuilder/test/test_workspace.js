@@ -43,6 +43,26 @@ const test_workspace = () => {
     //    Though it currently is aware of that I think.
 
 
+    // Want to get the information together in a build plan.
+
+    // 1) Build Scan
+    // 2) Build Plan
+    // 3) Do the actual build, produce an output file.
+
+    // Would be good to get build scan results in a distributed way.
+    //  So that a multi-core system could scan many files at once, and the scan summaries produced are sufficient info to plan the build.
+    //  Planning would most likely be quick and talk place in one single process.
+    //   Possibility of splitting task?
+
+    //  Maybe a workplace could only hold the build scan info, not references to various nodes...
+    ///  The references would be source code locations in specific files.
+
+
+
+
+
+
+
 
 
     const test_autoload_referenced_files = () => {
@@ -54,12 +74,12 @@ const test_workspace = () => {
         });
 
         workspace.on('ready', () => {
-            console.log('workspace.index_js_files_by_name.keys()', workspace.index_js_files_by_name.keys());
+            
 
 
             //console.log('workspace.index_declaration_names_to_files', workspace.index_declaration_names_to_files);
-            console.log('workspace.index_declaration_names_to_files.keys()', workspace.index_declaration_names_to_files.keys());
-            console.log('workspace.index_declaration_names_to_files.size', workspace.index_declaration_names_to_files.size);
+            
+            
             // index_declaration_names_to_files
 
             //'control-enh.js/Control'
@@ -89,6 +109,9 @@ const test_workspace = () => {
 
             // Methods that don't build the output, but iterate the declarations that should be put in the output.
 
+            console.log('workspace.index_declaration_names_to_files.keys()', workspace.index_declaration_names_to_files.keys());
+            console.log('workspace.index_js_files_by_name.keys()', workspace.index_js_files_by_name.keys());
+            console.log('workspace.index_declaration_names_to_files.size', workspace.index_declaration_names_to_files.size);
 
 
 
@@ -116,6 +139,12 @@ const test_workspace = () => {
             //console.log('e_add_file_complete', e_add_file_complete);
             console.log('Object.keys(e_add_file_complete)', Object.keys(e_add_file_complete));
     
+
+            // Maybe will only use the ASTs to produce pre-parse scan summaries.
+            //  Do want the right architecture for multithreading simply in JS.
+
+
+
             const {js_ast_node} = e_add_file_complete;
             console.log('js_ast_node.inner.count', js_ast_node.inner.count);
     
@@ -237,16 +266,6 @@ const test_workspace = () => {
 
     // Tracking what variables are in place in the new global scope.
     //  Asking a planner what variables it plans to add when it's going to add another class to the scope.
-
-
-
-
-
-
-
-
-
-
 
     //  Consider different options for variable names and scoping.
     //  And different candidate / possible transformations being generated. Possibility of unit tests and benchmarks to choose.

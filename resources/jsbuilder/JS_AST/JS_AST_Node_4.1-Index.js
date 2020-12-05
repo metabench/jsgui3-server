@@ -16,17 +16,53 @@ class JS_AST_Node_Index extends JS_AST_Node_Basics_Navigate {
         super(spec);
         const {deep_iterate, inner, child} = this;
 
+        // index of child signatures
+
+        // // index of generalised child signatures
+        // index of specifics
+
+        // // index of child Object assign statements.
+
+        // Want fast lookup on plenty of queries as this is going to look through a lot of JavaScript.
+        // Indexes and fast lookup times look to be an important thing.
+        //  Or at least not massively slow lookup times.
+
+        // Index of child compressed signatures
+        // Index of child generalised compressed signatures.
+
+
         // normal object can not work with its's 'constructor' property.
         const _map_identifiers_by_name = new Map();
         let is_indexed = false;
-        const indexes = new JS_AST_Node_Indexes();
+        const the_indexes = new JS_AST_Node_Indexes();
         const handle_found = (index_name, key, value) => {
-            return indexes.set(index_name, key, value);
+            return the_indexes.set(index_name, key, value);
         }
+
+        // index of child things
+        // index of inner things.
+
+        // own flags may be important?
+        //  or indexed / indexable variables?
+
+        //  indexable properties?
+
+        // index_as object
+
+        // index of child nodes
+        //  and some queries could recursively ask the child nodes to look in indexes?
+
+        // an index of child nodes if cool as recursively a greater index could be build virtually (and then cached).
+        //   can use high ram anyway for this.
+
+
+
+        
+        // will change this most likely!!!
 
         const setup_node_index = (index_name, fn_selector, fn_key) => {
 
-            if (indexes.has_index(index_name)) {
+            if (the_indexes.has_index(index_name)) {
                 throw 'NYI - index already exists'
             } else {
                 deep_iterate(node => {
@@ -40,7 +76,7 @@ class JS_AST_Node_Index extends JS_AST_Node_Basics_Navigate {
         }
 
         const get_indexed_nodes_by_key = (index_name, key) => {
-            return indexes.get(index_name, key);
+            return the_indexes.get(index_name, key);
         }
 
         // calling multiple indexing functions on a single iteration?
@@ -336,6 +372,89 @@ class JS_AST_Node_Index extends JS_AST_Node_Basics_Navigate {
         this.setup_node_index = setup_node_index;
         this.get_indexed_nodes_by_key = get_indexed_nodes_by_key;
         // setup_node_index = (index_name, fn_selector, fn_key) => {
+
+
+        let indexes, child_indexes, inner_indexes;
+
+        // compressed_generalised_type_signature_child_index;
+        // cgt_sig
+
+        // .indexes.child.cgt_sig[target_cgt_sig]
+
+
+
+        //console.log(node.indexes.child.cgt_sig);
+        const that = this;
+
+        Object.defineProperty(this, 'indexes', {
+            get() { 
+                if (!indexes) {
+                    indexes = {};
+
+                    Object.defineProperty(indexes, 'child', {
+                        get() { 
+                            if (!child_indexes) {
+                                child_indexes = {};
+                                let gct_sig;
+                                //console.log('child_indexes', child_indexes);
+                                Object.defineProperty(child_indexes, 'gct_sig', {
+                                    get() { 
+                                        if (!gct_sig) {
+                                            gct_sig = {};
+                                            
+                                            // each child node...
+
+                                            that.query.each.child.exe(cn => {
+                                                const item_gct_sig = cn.generalised_compressed_signature;
+                                                gct_sig[item_gct_sig] = gct_sig[item_gct_sig] || [];
+                                                gct_sig[item_gct_sig].push(cn);
+                                            })
+
+                                            //console.log('index made');
+                                            
+                                            
+                        
+                                        } 
+                                        return gct_sig;
+                                    },
+                                    //set(newValue) { bValue = newValue; },
+                                    enumerable: true,
+                                    configurable: false
+                                });
+                                
+            
+                            } 
+                            return child_indexes;
+                        },
+                        //set(newValue) { bValue = newValue; },
+                        enumerable: true,
+                        configurable: false
+                    });
+
+                    Object.defineProperty(indexes, 'inner', {
+                        get() { 
+                            if (!inner_indexes) {
+                                inner_indexes = {};
+            
+            
+                                
+            
+                            } 
+                            return inner_indexes;
+                        },
+                        //set(newValue) { bValue = newValue; },
+                        enumerable: true,
+                        configurable: false
+                    });
+
+
+                } 
+                return indexes;
+            },
+            //set(newValue) { bValue = newValue; },
+            enumerable: true,
+            configurable: false
+        });
             
     }
 }

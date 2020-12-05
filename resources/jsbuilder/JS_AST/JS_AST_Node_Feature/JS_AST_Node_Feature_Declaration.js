@@ -33,33 +33,9 @@ class JS_AST_Node_Feature_Declaration extends JS_AST_Node_Feature {
                             //console.log('cdec.source', cdec.source);
                             const qr = cdec.query.collect.child.node.t.exe();
                             const dec_cn_tstr = qr.join('.');
-                            //console.log('dec_cn_tstr', dec_cn_tstr);
-                            //console.log('qr', qr);
-
-                            // Can use a signature map.
-                            
-                            //  node.query.callmap.child.declarator.signature.exe({sig1: (node) => {}, sig2: node => {}}, unmapped_node => {})
-
-
-
                             if (dec_cn_tstr === 'ArP.ArE') {
-
-
-                                // ArrayPattern.ArrayExpression
                                 const are = cdec.child_nodes[1];
-                                //console.log('are', are);
-    
-                                // then are they literals inside?
-    
-                                // .find child shared category?
-                                //  but query needs the verb.
-                                //   maybe collect is the default one now.
-                                //const sc = are.query.child.shared.type_category.exe();
                                 const sc = are.child.shared.type_category;
-                                //console.log('sc', sc);
-
-                                //throw 'stop';
-    
                                 const st = are.child.shared.type;
                                 //console.log('st', st);
     
@@ -100,11 +76,7 @@ class JS_AST_Node_Feature_Declaration extends JS_AST_Node_Feature {
 
                                             if (cdec.child_nodes[1].is_expression) {
                                                 assigned_values.push(cdec.child_nodes[1]);
-
                                             }
-
-
-
                                         }
 
                                         //throw 'yay';
@@ -146,7 +118,7 @@ class JS_AST_Node_Feature_Declaration extends JS_AST_Node_Feature {
                 }
             }
 
-            Object.defineProperty(assigned, 'nodes', {
+        Object.defineProperty(assigned, 'nodes', {
                 get() { 
                     if (!assigned_nodes) {
                         assigned_nodes = [];
@@ -352,6 +324,238 @@ class JS_AST_Node_Feature_Declaration extends JS_AST_Node_Feature {
                     }
                     return assigned_nodes;
         }});
+        let assigned_entries;
+        Object.defineProperty(assigned, 'entries', {
+            get() { 
+                if (!assigned_entries) {
+                    assigned_entries = [];
+                    //console.log('node', node);
+                    //console.log('node.source', node.source);
+                    if (node.type === 'VariableDeclaration') {
+                        node.query.each.child.declarator.exe(cdec => {
+                            const qr = cdec.query.collect.child.node.t.exe();
+                            const dec_cn_tstr = qr.join('.');
+                            if (dec_cn_tstr === 'ArP.ArE') {
+                                const are = cdec.child_nodes[1];
+                                const sc = are.child.shared.type_category;
+                                const st = are.child.shared.type;
+                                if (sc === 'Literal') {
+                                    const lvalues = are.query.collect.child.exe();
+                                    //console.log('lvalues', lvalues);
+
+                                    throw 'stop';
+                                    each(lvalues, v => assigned_entries.push(v));
+
+
+                                } else {
+                                    throw 'NYI';
+                                }
+                                //console.log(sc);
+                                //if (are.)
+                            } else {
+
+                                // .query.select.by.child.count.exe(2).query.select.where.first.child.is.identifier.exe().select.where.second.child.is.literal.exe()
+                                // .quert.select.where.child.count.is.exe(2)
+
+                                if (cdec.child.count === 2) {
+                                    if (cdec.child_nodes[0].is_identifier) {
+
+
+                                        if (cdec.child_nodes[1].is_literal) {
+                                            const [name, value] = [cdec.child_nodes[0].name, cdec.child_nodes[1]];
+                                            //console.log('[name, value]', [name, value]);
+                                            assigned_entries.push([name, value]);
+
+                                        } else {
+                                            // is it an expression?
+                                            //  we could give it the node?
+
+                                            // leaving it for the moment???
+
+
+
+                                            //throw 'stop';
+
+                                            if (cdec.child_nodes[1].is_expression) {
+                                                assigned_entries.push([cdec.child_nodes[0].name, cdec.child_nodes[1]]);
+                                            }
+                                        }
+                                    } else {
+
+                                        if (node.is_require_call) {
+
+                                            throw 'stop';
+                                        }
+
+                                        //console.log('node', node);
+                                        //console.log('node.source', node.source);
+
+                                        if (node.child.count === 2) {
+                                            const [c0, c1] = node.nav([0, 1]);
+                                            if (c1.is_require_call) {
+                                                //console.log('c1.type', c1.type);
+                                                throw 'stop';
+                                            }
+
+                                            if (c0.t === 'VDr' && c1.t === 'CaE') {
+                                                const opa = c0.nav('0');
+                                                if (opa.t === 'OPa') {
+                                                    opa.query.each.child.exe(opr => {
+                                                        if (opr.t === 'OPr') {
+                                                            const name = opr.nav('0').name;
+                                                            // but not looking for the names here.
+                                                        } else {
+                                                            throw 'stop';
+                                                        }
+                                                    })
+                                                } else {
+                                                    throw 'stop';
+                                                }
+
+                                                
+
+                                            }
+                                        } else {
+
+                                            if (node.child.count === 1) {
+                                                const cn = node.nav('0');
+                                                //console.log('cn', cn);
+
+                                                if (cn.t === 'VDr') {
+
+                                                    //console.log('cn.child.count', cn.child.count);
+
+                                                    if (cn.child.count === 1) {
+                                                        const ccn = cn.nav('0');
+                                                        if (ccn.t === 'OPa') {
+                                                            //console.log('ccn.child.count', ccn.child.count);
+                                                            //console.log('ccn', ccn);
+                                                            if (ccn.child.count === 2) {
+
+                                                                throw 'NYI';
+                                                            } else {
+                                                                throw 'stop';
+                                                            }
+                                                        } else {
+                                                            throw 'stop';
+                                                        }
+                                                    } else {
+                                                        if (cn.nav('0').t === 'OPa') {
+
+
+                                                            if (cn.nav('1').is_require_call) {
+
+                                                                //console.log('found the require call');
+
+                                                                const required_path = cn.nav('1/0').value;
+
+                                                                //console.log('required_path', required_path);
+
+                                                                //console.log('info1', cn.nav('0').child.count);
+
+                                                                each(cn.nav('0').child_nodes, cn => {
+                                                                    // ignore the node for now here.
+
+                                                                    const name = cn.nav('0').name;
+
+                                                                    assigned_entries.push([name, new PlaceholderNode({
+                                                                        module: required_path,
+                                                                        name: name
+                                                                    })])
+                                                                })
+
+                                                            }
+
+
+                                                            //throw 'NYI';
+                                                        } else {
+                                                            throw 'NYI';
+                                                        }
+
+                                                        //throw 'stop';
+                                                    }
+
+                                                } else {
+                                                    throw 'stop';
+                                                }
+                                            }
+
+                                            //console.log('node.child.count', (node.child.count));
+
+
+                                            //throw 'stop';
+                                        }
+
+                                        // assigned to parts of a require statement.
+                                        //  maybe use some kind of external signifier.
+                                        //   Maybe an External_Placeholder_Node?
+
+                                        // Placeholder_Node
+                                        //   module name
+                                        //    exported key from module
+
+                                        // 1) Recognise a require call
+                                        // 2) Return results saying that the nodes are indeed assigned, and they are assigned to an exported key from a module.
+                                        
+                                        // Mainly need to know that the values are assigned to keys from a module
+                                        //  Another part of the system could then load that module.
+
+
+
+
+
+
+                                        //throw 'NYI';
+                                    }
+                                } else {
+
+                                    //console.log('node.child.shared.type', node.child.shared.type);
+                                    if (node.child.shared.type === 'VariableDeclarator') {
+                                        let all_1_child = true;
+                                        each(node.child_nodes, cn => {
+                                            all_1_child = all_1_child && cn.child.count === 1;
+                                        });
+                                        if (all_1_child) {
+                                            // safe to say its the identifier child
+                                            // no assigned nodes here.
+                                        } else {
+                                            throw 'stop';
+                                        }
+
+                                    } else {
+                                        console.log('node.source', node.source);
+                                        console.log('node', node);
+
+                                        throw 'stop';
+                                    }
+
+                                    
+                                }
+                            }
+                        });
+                    } else if (node.type === 'ClassDeclaration') {
+
+                        if (node.child_nodes.length === 2) {
+                            const [id, body] = node.child_nodes;
+                            const class_name = id.name;
+
+                            assigned_entries.push([class_name, body])
+                        } else {
+                            throw 'stop';
+                        }
+                        
+
+
+                        //console.log('node', node);
+                        //console.log('node.mid_type_signature', node.mid_type_signature);
+                        //throw 'NYI';
+                    } else {
+                        throw 'stop';
+                    }
+                }
+                return assigned_entries;
+            }
+        });
 
         Object.defineProperty(declared, 'keys', {
             get() { 

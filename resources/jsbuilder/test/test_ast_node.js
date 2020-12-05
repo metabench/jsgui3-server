@@ -131,6 +131,8 @@ const test_js_ast_node = () => {
 
     }
 
+
+
     // then within each block, we can iterate it so we get the declarations of variables and the object names used.
 
 
@@ -178,6 +180,9 @@ const test_js_ast_node = () => {
 
     const iidthrefexts = js_ast_node.collect_inner_identifiers_that_reference_external_names();
 
+    
+
+
     // iterate statements, iterpreting declarations, requires/imports, assignments to imported, declarations (new keys) declared within program child
 
     // node.interpreted_iteration seems like the right next big step to take in terms of doing the building.
@@ -214,6 +219,12 @@ const test_js_ast_node = () => {
 
     // indexing of child node compressed generalised signatures
 
+    // Compressed and generalised signatures look like the way to recognise and extract info from programmatic features.
+
+
+
+    // Exploring a node for what happens within it seems useful.
+    //  However, a program node child iteration looks like the best place for that functionality.
 
 
 
@@ -260,6 +271,20 @@ const test_js_ast_node = () => {
 
     console.log('external_r_names', external_r_names);
     console.log('iidthrefexts', iidthrefexts);
+
+    //console.log('js_ast_node.child_nodes[0].indexes.child.gct_sig', js_ast_node.child_nodes[0].indexes.child.gct_sig);
+
+    console.log('js_ast_node.child_nodes[0].child.count', js_ast_node.child_nodes[0].child.count);
+
+    console.log('js_ast_node.child_nodes[0]', js_ast_node.child_nodes[0]);
+
+    // Here would be a good place to develop a function to read through a node's child nodes, considering the program flow
+    //  What happens to various variables.
+    //   Declaration of variables
+    //   Import of variables (along with declaration in scope)
+    //   Declaration and assignment together
+
+
 
 
     const just_some_code = () => {

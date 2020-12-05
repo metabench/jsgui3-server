@@ -47,6 +47,23 @@ const type_abbreviations = {
     'WhileStatement': 'WS'
 }
 
+const type_category_abbreviations = {
+    'Body': 'B',
+    'Declaration': 'Dn',
+    'Declarator': 'Dr',
+    'Expression': 'Ex',
+    'Element': 'El',
+    'File': 'F',
+    'Identifier': 'I',
+    'Literal': 'L',
+    'Method': 'M',
+    'Pattern': 'Pa',
+    'Property': 'Pr',
+    'Program': 'Pm',
+    'Statement': 'St',
+    'Super': 'Su'
+}
+
 // ArrowFunctionExpression
 
 const map_expression_categories = {
@@ -110,7 +127,7 @@ const map_categories = {
     'AssignmentExpression': 'Expression',
     'AssignmentPattern': 'Pattern',
     'ArrayExpression': 'Expression',
-    'ArrayPattern': 'APPattern',
+    'ArrayPattern': 'Pattern',
     'BinaryExpression': 'Expression',
     'BlockStatement': 'Statement',
     'BooleanLiteral': 'Literal',
@@ -154,6 +171,7 @@ const map_categories = {
 
 module.exports = {
     type_abbreviations: type_abbreviations,
+    type_category_abbreviations: type_category_abbreviations,
     map_expression_categories: map_expression_categories,
     map_literal_categories: map_literal_categories,
     map_categories: map_categories,

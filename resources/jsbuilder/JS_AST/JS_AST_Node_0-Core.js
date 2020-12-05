@@ -1,8 +1,15 @@
-const {each} = require('lang-mini');
+const {each, Evented_Class} = require('lang-mini');
 
-class JS_AST_Node_Core {
+
+// Make the node able to handle events?
+//  May speed up / enable some functionality upon loading.
+
+
+
+
+class JS_AST_Node_Core extends Evented_Class{
     constructor(spec = {}) {
-
+        super(spec);
         // When constructered, and given source, is root, and does not already have a babel node in the spec, will parse the source with the babel parser.
         //  
 

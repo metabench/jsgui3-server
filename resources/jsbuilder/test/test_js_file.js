@@ -31,7 +31,6 @@
 
 // JSGUI_JS_File?
 
-
 // Some kinds of nested extractions could help here.
 
 
@@ -46,6 +45,537 @@ const {each} = require('lang-mini');
 
 const JS_AST_Node = require('../JS_AST_Node_Extended/JS_AST_Node_Extended');
 
+
+// Coming up with an extensive interpretation of a file, expressed as a simple JS object, would be a good way to have multiple threads parse and analyse the separate JS files separately.
+
+// An interpretation of a file would be an array that describes what happens during that file
+//  variables being defined
+//  keys being added to defined variables
+//   (even keys being removed)
+//  what gets exported.
+
+// By having a relatively simple File_Interpretation json (maybe class), the interpretations can be produced separately by multiple threads.
+//  A list of everything of significance that happens (at the program root) during the course of the file.
+//   Or maybe looking inside a function call if it's a function call result...?
+
+// Can write a load more in test_js_file for the moment.
+
+// Not lazy loaded, unlike JS_AST_Node
+
+// A new Object_Through_Lifecycle class will be useful for tracking the objects as 
+
+
+// JS_File_Interpreter
+//  This would be the place for relatively flexible loading / extensibility systems.
+//  Can be used / accessed in an event driven way, line by line.
+//  .interpretation or .result for the full result when it's complete.
+//  The interpreter would track the object lifecycles for each object in the file.
+
+// interpretation.root_objects  (as an array or similar? a map?)
+// interpretation.root_object_lifecycles
+// A lifecycle would be a more OO and programmer friendly way of doing this.
+
+// Do want it so that it can handle a whole load of syntax, initially based on my own files, and not have to treat things as special cases too much.
+//  As in, there would not be much point in removing these interpretations, as they would be valid for what they cover, but would not cover the full set of JS operations.
+
+// Possibility of throwing an error for syntax it does not recognise?
+//  May help avoiding missing anything, and writing it in a way where it would be able to cover all code in such a way that interpretation of its meaning would be done once those cases
+//   were written too.
+
+// How to do this in a more declarative way?
+//  Node special types or special categories, or specilisations, or specialised node recognition.
+
+// Programming node specialisation recognition in at a lower level could be of use, especially with the specialisations defined at a higher level.
+
+// node.specialised_type
+// node.specialised_info
+
+// // specialised type seems like good terminology
+
+// A decision tree of some sorts of spotting a specialisation type:
+//  Check the node's mid type sig
+//                   mid cat sig
+//   // any special node checking functions? could run a bunch of them
+
+// defining ast node specialisations / specifics
+
+// Ways in which a node specialisation can be identified:
+
+// mid compressed generalised cat sig test (optional)    -  broadest sweep
+// mid cat sig test (optional)                           -  still broad but does not generalise more than 1 repeated item as being the same no matter how many
+// mid type sig test (optional)                          -  
+
+
+// Lets not put much more into the JS_AST_Node class structure - could do net removal from there.
+
+// Make a further interpretation layer.
+//  Importantly, the output interpretation will be available in a simple format that can be shared between processes easily.
+
+// Main process will find the interpretations of the JS files from subprocesses.
+//  Maybe also a compression plan?
+//  Being able to get the compressed version, with new interpretation, from the subprocesses.
+
+// Subprocesses contributing to build plan?
+//  Probably not at the moment.
+
+// Build_Planner object too? Produces a Build Plan object.
+//  Continuing to go a very OO way would make sense.
+//   Will be easier to debug, and maintain progress with API-level functionality.
+//   A build plan would also be serialisable as JSON or binary, so easily able to be sent between processes.
+
+// Working on the JS File Interpretation (or JS AST Node Interpretation really) will produce the JSON info that will then be used in order to work out which files, and which parts of which files
+//  are needed in order to output particular things in the build.
+
+
+
+// Build_Plan_Executer
+//  The thing that actually creates the build.
+
+
+
+
+
+
+// However, creating more object properties is_... with unambiguous names and functionality would be a way to get these current JS files understood, and it will 
+//  be good to have a function from here to find out what happens through the child nodes of a program (or BlockStatement most likely too)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// JS_File_Interpretation
+//   nodes: array of AST_Node_Interpretation
+//   
+//   object_lifecycles:
+
+
+// May turn into the object interpretation, or be inspiration for it.
+//  Want to get simple responses from the multiple processes that will be used in the build.
+//  The file interpretation would not just be about what gets exported from it.
+
+// If the workspace were to build up an index of all functions by name, it could use 
+
+
+
+
+// This has become a huge function, and it's not complete (misses various things)
+//  Is this narrow in scope, or would it be better to make more of a complete interpretation of everything, giving callbacks?
+
+
+
+// Objects defined as functions???
+
+
+//const fn = () => {
+//    ...
+//}
+// fn()
+
+// That is another case where the interpreter could then interpret the function, and then when the function modifies anything in the program scope, that could then be interpreted.
+//  (in the correct order)
+
+// An OO interpreter could go line by line more easily.
+//  And a program interpretation would be an interpretation like the sub ones, I expect.
+
+// JS_AST_Node_Interpreter
+//  Would act in different ways depending on the node type
+//  Extending Evented_Class would be cool I expect.
+//   Having an array of changes / actions.
+
+// JS_AST_Node_Interpretation
+//  Will be a class
+//   .value property which will all be plain JS objects. Easily serialisable that way so that they can be sent between processes.
+//    space for other properties could help, things such as where the node is in the source
+//   .node
+//     file_path, start, end
+
+
+
+
+
+// A File node: interpret the Program node
+// A Program node: Go through the child nodes, one by one, interpreting them.
+//   Looking at the interpretation, make any changes to objects declared in current block scope.
+//    create new ones (declaration), including setting initial value
+//     info about what type of object it is
+//     a reference to an external file (what is exported from an external file)
+//       reference to a key / keys from what is exported from an external file
+//    set / change their value
+//    set / change their property value
+
+
+
+
+
+// The Interpreter system is going to supercede and replace this code.
+//  It's the way to get this kind of thing on the wanted lower level.
+
+// Higher level than the JS_AST_Node itself.
+//  Having it interpret itself seems like it's getting away from an important core use, and seems like concerns can be better separated.
+//   I also didn't much like the very long property names and boolean tests that were being written, it wasn't a good pattern to continue.
+//   The interpreter will be designed for efficiency - signature checking, simple confirmation checks, simple unambiguous format for defining these checks.
+
+// Extraction of the useful info by paths.
+//  names of keys added
+//   the identifier name something is assigned as
+//   an object definition there - we could identify sub-keys (not sure there is much point)
+
+// Everything will be outputtable as a simple JS object, and as JSON.
+//  Can work focusing for a while on getting the JSON interpretation of various JS files used.
+//   See to it that these interpretations provide the necessary information to then plan the build.
+//  That JSON will contain plenty of numeric position references to places in source code.
+
+// Will be able to directly copy AST nodes from the source files by copying their source code into the result.
+//  Will be able to produce the results without needing the parsed Babel AST and the associated JS_AST_Node objects.
+//   Maybe Virtual_JS_AST_Node or Abstract_JS_AST_Node?
+//    Will refer to source code positions, have the .source property.
+
+// The result:
+//  An array of abstract / virtual JS_AST_Nodes. Can easily get the source code from each of them.
+//   It's the Babel & JS_AST_Node part that takes the longest.
+
+// With the interpretations, and info that can be obtained quickly from them:
+//  The object lifecycle of variables spanning multiple JS files.
+//  May be worth making it, and filling in the blanks later with the things that are needed to make the build.
+
+
+// Or, worth making the build system that uses the interpretations and object lifecycle info that we don't yet have?
+
+// It's possible that the actual build would not refer to some of the pieces of info generated.
+//  Or use some of the lower level info, with some generated info being more for presentation.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+const get_objects_declared_and_assigned_info = (node) => {
+
+    const tmap_objects_in_scope_by_name = {};
+    each(node.child_nodes, cn => {
+        // Keeping track of objects in scope
+        //  And what we know about the added keys of objects in scope.
+
+        console.log('');
+        //console.log('cn.generalised_compressed_type_category_signature', cn.generalised_compressed_type_category_signature);
+        console.log('cn.type_signature', cn.type_signature);
+        console.log('cn.mid_type_signature', cn.mid_type_signature);
+        console.log('cn.generalised_compressed_mid_type_category_signature', cn.generalised_compressed_mid_type_category_signature);
+        console.log('cn.source', cn.source);
+
+        // is_variable_declaration
+        //  .declared_object_entries
+        //   [['name', value]]
+
+
+
+        //  we already have the variable declaration reading covered I think...?
+
+        // jsgui.controls = jsgui.controls || {};
+
+        //  is_object_property_ensure_not_falsy_assignment
+        //   a decent literal name for it.
+        //  Need to pick up on a moderate variety of different statements of different arrangements.
+
+
+        // object property ensure not falsy as {}
+        //  probably don't want those types of tests in the core?
+        //   the very modular system will allow them to be removed easily enough.
+
+
+
+
+
+
+        // is_object_property_assignment_statement
+        //  then if so, can get the interpretation from it.
+
+
+
+
+
+        console.log('cn.is_declaration', cn.is_declaration);
+        if (cn.is_declaration) {
+            const assigned_entries = cn.assigned.entries;
+            console.log('assigned_entries', assigned_entries);
+
+
+            // Just having a look I think?
+            each (assigned_entries, entry => {
+                const [name, value] = entry;
+                if (tmap_objects_in_scope_by_name[name]) {
+                    throw 'object with same name should not be declared more than once within a node'
+                } else {
+
+                    // look through the entry I think...
+                    //  console.
+
+                    const item_obj = {};
+
+                    console.log('entry', entry);
+
+                    console.log('value.source', value.source);
+
+                    if (value.t === 'OE') {
+                        if (value.child.shared.type === 'ObjectProperty') {
+                            value.query.each.child.exe(opr => {
+
+                                if (opr.child.count === 2) {
+                                    const [name_node, value_node] = opr.child_nodes;
+                                    let property_name, property_value_identifier_name, literal_value;
+
+                                    if (name_node.t === 'SL') {
+                                        property_name = name_node.value;
+                                    } else {
+                                        throw 'stop';
+                                    }
+
+                                    if (value_node.t === 'ID') {
+                                        property_value_identifier_name = value_node.name;
+
+
+
+                                    } else if (value_node.t === 'SL') {
+                                        literal_value = property_value_identifier_name = value_node.value;
+                                        console.log('literal_value', literal_value);
+                                    } else if (value_node.t === 'BL') {
+                                        literal_value = property_value_identifier_name = value_node.value;
+                                        console.log('literal_value', literal_value);
+                                    } else {
+                                        console.log('value_node', value_node);
+                                        throw 'stop';
+                                    }
+
+                                    if (property_name !== undefined) {
+
+                                        if (property_value_identifier_name !== undefined) {
+                                            if (tmap_objects_in_scope_by_name[property_value_identifier_name]) {
+                                                item_obj[property_name] = tmap_objects_in_scope_by_name[property_value_identifier_name];
+                                            } else {
+
+                                                item_obj[property_name] = property_value_identifier_name;
+                                                //throw 'stop';
+                                            }
+
+                                            
+
+
+
+                                        } else if (literal_value !== undefined) {
+                                            item_obj[property_name] = '"' + literal_value + '"';
+                                        } else {
+                                            throw 'stop';
+                                        }
+
+
+                                    } else {
+                                        throw 'stop';
+                                    }
+
+
+
+
+                                } else {
+                                    throw 'stop';
+                                }
+
+                                
+                            })
+                        } else {
+
+                            if (value.child.count === 0) {
+
+                            } else {
+                                throw 'stop';
+                            }
+
+                            
+                        }
+                    } else {
+
+                        // typeof window !== 'undefined'
+                        //  since we reach this point with this statement, it's worth paying attention to it.
+
+                        // statement that determines if it's running in the browser.
+                        //   A statement library with interpretations would be of some use.
+
+                        //  Could be worth being able to evaluate some thing like that to true or false depending on how the code is being used.
+
+                        const _think_before_deleting = () => {
+                            if (value.t === 'BE') {
+                                // Check for typeof window !== 'undefined'?
+
+                                // Or maybe have a library / list of statements to automatically evaluate in some way depending on the context.
+
+
+                            }
+
+                        }
+
+
+
+
+
+
+
+                        //throw 'stop';
+                        //throw 'NYI';
+                    }
+                    //
+
+                    
+
+                    // value is a node.
+
+                    
+
+
+                    // Worth saying more about the object.
+
+                    // maybe say it's type.
+                    //  or maybe not here.
+                    // could be worth experimenting with and making the proper summary objects.
+
+                    // AbstractCode...
+                    //  and an instance of AbstractCode can say things like it's a function.
+                    //   maybe what parameters it takes, could get further into OO, and having these do some interpretation?
+                    //   for the moment, use the interpretation, these would only be the representation.
+
+
+
+                    tmap_objects_in_scope_by_name[name] = item_obj;
+                }
+                // Not so interested in what the values are assigned as for the moment here.
+            })
+        }
+        
+        // is it an import / require statement
+        //  currently just check for require statements.
+
+        // then check for any objects being created by any of the program child nodes.
+        
+        // then object assign will assign additional keys.
+        //  this will be useful for knowing what the exported object's keys are.
+
+        // then check to see if they are specific statement types.
+
+        // is it an import / require statement
+        //  currently just check for require statements.
+
+        // then check for any objects being created by any of the program child nodes.
+
+        // then object assign will assign additional keys.
+        //  this will be useful for knowing what the exported object's keys are.
+        // then check to see if they are specific statement types.
+        console.log('cn.is_module_exports_statement', cn.is_module_exports_statement);
+
+        if (cn.is_statement) {
+
+            console.log('cn.is_object_assign_statement', cn.is_object_assign_statement);
+
+            if (cn.is_object_assign_statement) {
+                const object_assign_statement_interpretation = cn.object_assign_statement_interpretation;
+                console.log('object_assign_statement_interpretation', object_assign_statement_interpretation);
+                //const [str_identifier_name, arr_keys_assigned] = object_assign_statement_interpretation;
+
+                if (object_assign_statement_interpretation) {
+                    const {identifier_name, keys} = object_assign_statement_interpretation.value;
+
+                    if (tmap_objects_in_scope_by_name[identifier_name]) {
+                        //tmap_objects_in_scope_by_name[identifier_name]
+
+                        each(keys, key => tmap_objects_in_scope_by_name[identifier_name][key] = {});
+                    } else {
+                        throw 'stop';
+                    }
+                }
+            }
+
+            if (cn.is_module_exports_statement) {
+                const exported_node = cn.module_exported_node;
+                console.log('exported_node', exported_node);
+                console.log('exported_node.source', exported_node.source);
+            } else {
+    
+                if (cn.is_assign_object_property_by_identifier_statement) {
+                    const interpretation = cn.assign_object_property_by_identifier_statement_interpretation;
+                    console.log('object property assignment with an identifier interpretation', interpretation);
+    
+                    if (interpretation && interpretation.name === 'target_object.property = assigned_object') { // extra safe and clear programming, not super-efficient.
+                        const {target_object_name, property_name, assigned_object_name} = interpretation.value;
+    
+                        console.log('target_object_name, property_name, assigned_object_name', target_object_name, property_name, assigned_object_name);
+    
+                        if (tmap_objects_in_scope_by_name[target_object_name]) {
+    
+                            if (tmap_objects_in_scope_by_name[assigned_object_name]) {
+                                tmap_objects_in_scope_by_name[target_object_name][property_name] = tmap_objects_in_scope_by_name[assigned_object_name];
+                            } else {
+                                throw 'stop';
+                            }
+                            //
+                        } else {
+                            console.log('tmap_objects_in_scope_by_name', tmap_objects_in_scope_by_name);
+    
+                            // module exports does not count...! code now moved inside is_module_exports else section.
+    
+                            throw 'stop';
+                        }
+    
+                    } else {
+                        throw 'stop';
+                    }
+                    //throw 'stop';
+                }
+    
+            }
+
+        }
+        
+    })
+    //console.log('tmap_objects_in_scope_by_name', tmap_objects_in_scope_by_name);
+
+    return tmap_objects_in_scope_by_name;
+}
+
+
+
+
+
+
+
 const test_js_file = () => {
     // Worth working with a lower level part of jsgui, such as lang-mini.
     //  lang-mini itself has an external reference.
@@ -57,9 +587,15 @@ const test_js_file = () => {
     const jsfile_path = '../JS_File/JS_File.js';
     const jsbuilder_path = '../JS_Builder.js';
 
+    // C:\Users\james\Documents\Copied_Over_Docs\Documents\code\code\js\jsgui3-all\jsgui3-html\html.js
+
+    const jg3_html_path = `C:\\Users\\james\\Documents\\Copied_Over_Docs\\Documents\\code\\code\\js\\jsgui3-all\\jsgui3-html\\html.js`;
+
+    // const jg3_client = '../../../../../jsgui3-all/jsgui3-client/client.js'
+
     const sample1_js_path = './sample1.js';
     //const file_path = '../JS_File.js';
-    const file_path = sample1_js_path;
+    const file_path = jg3_html_path;
     // path of lang mini...
 
     // Write and test a simple and convenient way for analysing JS files and recompiling them.
@@ -69,8 +605,26 @@ const test_js_file = () => {
     //  A lot about unique naming, closures, and getting the sequence of definitions correct.
     // ObjectPattern
 
+    // Or each process could individually compress each of those individual JS files?
+    //  Then come up with the info needed just to slice the JavaScript together.
+
+    // The last stage of building should just be joining together of strings???
+
+    // Ability to query the process to get the central parts?
+    //  All apart from imports and exports.
+    //  Could do more concerning selecting the necessary code from the files.
+
+
+
+
+
+
 
     // mid_signature
+
+    // JS_File_Interpretation may be the most useful intermediate object to work on.
+    //  
+
 
     const resolved_path = path.resolve(file_path);
     console.log('');
@@ -106,31 +660,85 @@ const test_js_file = () => {
 
         console.log('jsf.module_io_info', jsf.module_io_info);
         // module_io_info will be the relatively advanced property of JS files.
+
+        const program = jsf.node_root.child_nodes[0];
+        console.log('program.indexes.child.gct_sig', program.indexes.child.gct_sig);
+        console.log('program.type_category_signature', program.type_category_signature);
+
+        console.log('program.generalised_compressed_type_category_signature', program.generalised_compressed_type_category_signature);
+
+        const is_module_exports_an_identifier = (node) => {
+
+
+            if (node.generalised_compressed_mid_type_category_signature === 'St(Ex(Ex,I))') {
+                // a.b = c;
+
+                // is_module_exports
+            } else {
+
+            }
+            return false;
+        }
+
+        // each_child_node_interpretation
+        // each_child_node_with_interpretation
+
+        // node_interpreter
+        //  could produce an object, maybe array?
+        // Node_Interpretation object could be of use
+        //  Could understand how deeply it understands the node.
+        //   If it has enough understanding to do some things.
+        //   It could list / have available the interpreters (or their names) that have given any interpretation.
+
+        // Better to return in object than array.
+        // 
+
+        // Don't think this function is ready for the lower level yet.
+        //  May be better to do something more formalised / abstract / predictable.
+
+        // Defining the system to interpret any statement would make sense.
+        //  And interpret it more in the abstract.
+        // Get some sort of basic coverage of every statement. ?????
+        //  Need to pay by far the most attention to the various statements needed to understand files / modules in order to build them.
+
+
+
+        // a class such as Object_Through_Lifecycle?
+        //  
         
 
-
-        jsf.each_program_child(pc => {
-
-            // .max_inner_depth
-            // //.inner_depth makes sense.
-            // .inner.depth
+        // This basically only looks sufficient for reading the keys that get assigned.
+        //  Probably worth keeping this and then later doing a more complex / in-depth code analysis system.
 
 
-            console.log('');
-            console.log('pc', pc);
-            console.log('pc.mid_type_signature', pc.mid_type_signature);
-            console.log('pc.signature', pc.signature);
-            console.log('pc.compressed_signature', pc.compressed_signature);
-            console.log('pc.source', pc.source);
-            console.log('pc.inner.depth', pc.inner.depth);
-        })
+        // Getting the method names from classes would be useful, but not right here I guess.
+
+        // Object_Through_Lifecycle could certainly help to clear up ambiguity.
+
+
+
+
+
+
+        // Think about what would fit in well on a lower level...
+        //  Using a lower level system of tracking objects through their lifecycle would be nice.
+
+        // Object_Through_Lifecycle would have various Object_Lifecycle_Event instances, probably in an array.
+        //  Could track an object / objects over multiple files.
+
+        // For the moment, get back to implementing what needs to be done to build the jsgui js.
+
+
+
+
 
         
 
-        each(jsf.node_root.child_nodes, cn => {
+        const tmap_objects_in_scope_by_name = get_objects_declared_and_assigned_info(jsf.node_root.child_nodes[0]);
+        console.log('tmap_objects_in_scope_by_name', tmap_objects_in_scope_by_name);
+        
 
-        })
-
+        // Objects_declared_in_node_child_nodes
 
 
         if (false && root.exports.exported.node.type === 'Identifier') {
@@ -164,11 +772,6 @@ const test_js_file = () => {
 
             // get ancestor of node that is child of target node
 
-
-
-
-            // 
-
             // then go back through the sibling statements.
             //  .iterate_back_through_previous_sibling_nodes
             //  .query.each.previous.sibling.exe
@@ -189,13 +792,6 @@ const test_js_file = () => {
             //  Introdicing .query to the files themselves would be of use.
 
             // Maybe making a more abstract function to set up the query system, if efficient (enough).
-
-
-
-
-
-
-
         }
 
 
@@ -292,10 +888,6 @@ const test_js_file = () => {
         //  Seems like something that is more in line with what a Workspace or something that deals with multiple files should handle.
 
         // JS_Abstract_Class ???
-
-
-
-
         // Maybe the whole thing could work as a large collect statement?
 
 
@@ -313,8 +905,6 @@ const test_js_file = () => {
 
         // .query.branch.on.length({'1': ..., '2': ... , 'default'...})
 
-        
-
         const old_but_good_code = () => {
             const working_find_exported_keys = () => {
 
@@ -331,10 +921,6 @@ const test_js_file = () => {
                 // The local variable not for export of reuse - they could have their names changed so that they don't never conflict.
                 //  Could have a counter, and declare names like mlv1 or further abbreviated in the future.
                 //   Just short and systematic names will be good, could improve on it in the future, but if they are systematic they would compress well anyway.
-    
-                // 
-    
-    
     
                 if (exported_node_name === undefined) {
                     const collected_keys = root_exported_node.query.collect.self.if.type.objectexpression.exe().

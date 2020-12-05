@@ -1,8 +1,44 @@
 // Indexes because it keeps multiple indexes, ie an index of indexes.
 
+
+// May abandon this object. It will just be direct object references.
 class JS_AST_Node_Indexes {
     // Not a type of JS_AST_Node! Change the name?
     constructor(spec = {}) {
+
+        // Two maps: for child nodes?
+        // For inner nodes?
+        // For all nodes? So the node itself could appear in its own index.
+        //  Don't see why not, go for that rather than inner?
+
+        //  Or the inner index can recursively check all its child nodes' own inner indexes, not the 'all' indexes.
+
+        // Go for child indexes to start with.
+
+        // Indexes made lazily on load too.
+
+        // and .index becomes .sibling_index again
+
+        // .lookup_index
+        // .lookup_tool
+
+        // .child.index
+
+        // .indexes by relationship
+
+        // .indexes.child.generalised_compressed_type_signature[sig];
+
+        //  a simple object would suffice.
+        //   they get put there if there is any value I suppose.
+        //    results get put in place during indexing, so it's not a matter of calling a find function, just retrieve it from the index object.
+
+
+
+
+
+        // index_related_nodes(child_relationship, )
+
+
         const map_indexes = new Map();
 
         const get_index = index_name => {
@@ -40,6 +76,12 @@ class JS_AST_Node_Indexes {
             get: get,
             has_index: has_index
         });
+
+
+        
+
+
+
     }
 }
 

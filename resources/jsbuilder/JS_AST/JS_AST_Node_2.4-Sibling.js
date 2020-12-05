@@ -55,8 +55,8 @@ class JS_AST_Node_Sibling extends JS_AST_Node_All {
         const sibling = new JS_AST_Ordered_Relationship_Node_To_Group({
             origin: this,
             name: 'sibling',
-            //index: this.index//,
             //obtainer: () => this.child_nodes,
+            //index: this.index//,
             //iterator: callback => each(this.child_nodes, callback),
             //each: callback => each(this.child_nodes, callback)//,
             //select: fn_select => select_child_nodes(fn_select)

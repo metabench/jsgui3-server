@@ -2,6 +2,14 @@
 const {each} = require('lang-mini');
 const JS_AST_Node_Extended_Core = require('./JS_AST_Node_Extended_0-Core');
 
+
+// Don't think we will proceed this way
+//  Already have specialised node types as part of the main structure, but the functionality only gets added / is available in matching cases.
+
+// Don't think we want / need this, it makes the design overall more complex (even though it could be optimal too)
+
+
+
 class JS_AST_Node_Declaration extends JS_AST_Node_Extended_Core {
     constructor(spec) {
         super(spec);

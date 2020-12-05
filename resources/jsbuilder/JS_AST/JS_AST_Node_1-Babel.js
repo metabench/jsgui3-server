@@ -13,7 +13,7 @@ const generate = require('@babel/generator').default;
 const JS_AST_Node_Core = require('./JS_AST_Node_0-Core');
 const { resolvePlugin } = require('@babel/core');
 
-const {type_abbreviations, map_expression_categories, map_literal_categories, map_statement_categories, map_categories} = require('../babel/babel_consts');
+const {type_abbreviations, type_category_abbreviations, map_expression_categories, map_literal_categories, map_statement_categories, map_categories} = require('../babel/babel_consts');
 
 
 
@@ -27,6 +27,12 @@ module.exports = {
 }
 
 */
+
+const get_abbreviated_type_category = type => {
+    const cat = get_type_category(type);
+    const acat = type_category_abbreviations[cat];
+    return acat;
+}
 
 const get_type_category = (type) => {
 
@@ -229,6 +235,19 @@ class JS_AST_Node_Babel extends JS_AST_Node_Core {
             enumerable: true,
             configurable: false
         });
+
+        Object.defineProperty(babel, 'abbreviated_type_category', {
+            get() { 
+                //console.log('babel', babel);
+                //console.log('babel_node', babel_node);
+                //console.log('babel.node', babel.node);
+                //category = ;
+                return get_abbreviated_type_category(babel_node.type); 
+            },
+            //set(newValue) { bValue = newValue; },
+            enumerable: true,
+            configurable: false
+        });
         
 
         Object.defineProperty(babel, 'is_identifier', {
@@ -332,6 +351,18 @@ class JS_AST_Node_Babel extends JS_AST_Node_Core {
                 load_mirror_structure({
                     root_node: this.root_node
                 });
+
+                //setTimeout(() => {
+                //    this.raise('inner-loaded', {});
+                //}, 0);
+
+                // inner-nodes-loaded
+                // inner-js_ast-loaded
+                // inner-loaded
+
+                
+
+
                 //}
             } else {
     

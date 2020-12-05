@@ -91,7 +91,26 @@ class JS_AST_Node extends JS_AST_Node_Changing {
         // Need the inner part...
         //console.log('this.dimensions', this.dimensions);
         //return 'JS_AST_Node(' + this.type_signature + ')';
-        return this.type_signature;
+
+        // // CD(ID,CB(CM(ID,ID,BS),CM(ID,ID,BS),CM(ID,ID,BS),CM(ID,ID,AsP,AsP,BS),CM(ID,ID,BS))) instead of a huge amount for a class.
+        //   mid seems good for identifying possibly thousands???
+        //   different types of signatures will be good for picking out different types (in the broad sense) of pieces of code.
+        //   
+
+        // May need long words / descriptions.
+        //  Broad_Category?
+        //  Specific_Type_Categorisation
+        /// Categorisation_Flags?
+        // Likely will go into more detail with OO and API when it comes to identifying and categorising a bunch of different code features.
+        //  It would be able to use these to read code to get an interpretation using human made rules that are not about running the program but about considering what the program does.
+        //   May be possibly to use this to estimate runtime / runtime complexity.
+
+
+
+        return this.mid_type_signature;
+
+
+        //return this.type_signature;
     }
     
 }

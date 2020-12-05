@@ -13,6 +13,73 @@ const Interpretation = require('./Interpretation');
 //  Will interpret enough to list what happens in terms of variables being declared and changed.
 //  Seems like a good higher level of finding out and denoting what any code is for.
 
+// Using this Interpreter system certainly makes for longer code, but conceptually it looks to be in the right place.
+//  Creating a very detailed interpretation of a JS file is going to be enough to be able to build it into a larger system.
+
+// Code is dense with definitions and specific handling of some JS syntax for confirming and extracting data.
+//  Don't want loads of OO abstraction here, this is a place where these interpretations can go, outside of the JS_AST_Node.
+//   Once this is done and working, will likely remove interpretation features from js_ast_node, apart from some basic things.
+//    Or possibly integrate this interpretation system in better?
+//     Could maybe have node.interpretation property, could be programmer-friendly that way. Would be an interface to the higher level interpretation system.
+
+// Later on, want to compile the compiler so that it runs faster, especially putting so many subclasses into a single class, or at least few.
+//  Running on multiple threads, and getting JSON interpretations back will be the next step towards having this optimal.
+
+// Looking forward to having the interpretation system useful for creating the object lifecycle descriptions.
+//  Object lifecycle descriptions would be the main / only thing needed by the central build system to plan the build.
+
+// Each of the child processes could take responsibility for a number of files each.
+//  Makes sense this way. They have the files loaded up, and can be queried.
+
+// 1) Gather information (parallel)
+//     easily parallel, so long as the gathered data is serialisable (design decision to make it so)
+
+// Information including position references to selectively extract parts of it.
+//  Will strip out import/require and export statements.
+
+// Need to consider siblings in a platform that refer to each other.
+//  Not sure how that would be done exactly. Will be sure to spot when it happens during analysis phases.
+//  Pick up the information on what requires what.
+//  Not sure quite how linear all the declarations need to be. Maybe could declare with let and set later?
+//   Or some kind of function system to retrieve the objects?
+//   Or a map, where they get loaded into a map and reference each other from that same map.
+//    (or {} object). The map is there from the beginning fo before any are loaded so they can refer to each other via that.
+
+
+
+
+
+
+
+// 2) Consolidate information (parallel -> central)
+//     Lifecycles of objects through multiple files
+//      knowing what keys get shared
+//     Produces consolidated lifecycle information
+// 3) Determine variable and property name changes for the consolidated information (central)    (will try simpler means to start with)
+// 4) Work out which variable and property name changes are for variables and properties defined and accessed in which files
+// 5) Send the variable and property name changes to the child processes
+// 6) For each file, create new JS_AST, variable and property names get changed as specified.
+// 
+
+
+
+// ????
+
+// 3) Send consolidated lifecycle information to all the threads
+// 4) 
+
+
+
+
+
+
+
+
+
+
+
+
+
 const JS_AST_Node = require('../JS_AST_Node');
 
 
@@ -172,14 +239,14 @@ class Extractor {
 
         const get_fn_spec_extract = (spec_extract) => {
 
-            console.log('spec_extract', spec_extract);
+            //console.log('spec_extract', spec_extract);
 
             if (typeof spec_extract === 'string') {
                 const js_ast = new JS_AST_Node({
                     source: spec_extract
                 });
-                console.log('js_ast.deep_type_signature', js_ast.deep_type_signature);
-                console.log('js_ast.source', js_ast.source);
+                //console.log('js_ast.deep_type_signature', js_ast.deep_type_signature);
+                //console.log('js_ast.source', js_ast.source);
 
                 const dts = js_ast.deep_type_signature;
 
@@ -188,8 +255,8 @@ class Extractor {
                     const [name1, name2, value] = [id1.name, id2.name, sl.value];
 
 
-                    console.log('[id1, id2, sl]', [id1, id2, sl]);
-                    console.log('[name1, name2, value]', [name1, name2, value]);
+                    //console.log('[id1, id2, sl]', [id1, id2, sl]);
+                    //console.log('[name1, name2, value]', [name1, name2, value]);
 
                     const [operation_name, property_name, path] = [name1, name2, value];
 
@@ -206,7 +273,23 @@ class Extractor {
                             }
                             return fn_res;
                         } else {
-                            throw 'Unsupported property name'
+
+
+                            //console.log('property_name', property_name);
+
+                            if (property_name === 'value') {
+                                const fn_res = (node) => {
+                                    const found_node = node.nav(path);
+                                    if (found_node) {
+                                        return found_node.value;
+                                    }
+                                }
+                                return fn_res;
+                            } else {
+                                throw 'Unsupported property name'
+                            }
+
+                            
                         }
 
                     } else {
@@ -313,6 +396,8 @@ class Confirmer {
                     const js_ast = new JS_AST_Node({
                         source: js_ct
                     });
+                    
+                    //console.log('');
                     //console.log('js_ast.deep_type_signature', js_ast.deep_type_signature);
                     //console.log('js_ast.source', js_ast.source);
 
@@ -331,6 +416,8 @@ class Confirmer {
 
                         //console.log('be.babel.node', be.babel.node);
 
+                        //throw 'stop';
+
                         const str_op = be.babel.node.operator;
                         if (str_op === '===') {
 
@@ -345,7 +432,11 @@ class Confirmer {
 
                                     const res_fn_test = node => {
                                         const navved_to_node = node.nav(nav_path);
+                                        //console.log('nav_path', nav_path);
                                         //console.log('navved_to_node', navved_to_node);
+                                        //console.log('navved_to_node.name', navved_to_node.name);
+                                        //console.log('expected_name', expected_name);
+
                                         if (navved_to_node) {
                                             const navved_to_node_name = navved_to_node.name;
 
@@ -383,14 +474,110 @@ class Confirmer {
 
 
                     } else if (dts === 'ES(BE(ME(CaE(ID,SL),ID),ME(CaE(ID,SL),ID)))') {
-                        console.log('js_ast.source', js_ast.source);
+                        //console.log('js_ast.source', js_ast.source);
+                        //console.log('js_ast.mid_type_signature', js_ast.mid_type_signature);
 
+                        const [be, id1, sl1, id2, id3, sl2, id4] = js_ast.nav(['0', '0/0/0/0', '0/0/0/1', '0/0/1', '0/1/0/0', '0/1/0/1', '0/1/1']);
+
+                        const [name1, name2, name3, name4] = [id1.name, id2.name, id3.name, id4.name];
+
+                        //console.log('[name1, name2, name3, name4]', [name1, name2, name3, name4]);
+
+                        const [val1, val2] = [sl1.value, sl2.value];
+
+
+                        //console.log('[val1, val2]', [val1, val2]);
+                        // Looks like we need a bunch more code for this one too.
+
+
+                        const str_op = be.babel.node.operator;
+                        if (str_op === '===') {
+
+                            if (name1 === 'nav' && name3 === 'nav') {
+
+                                if (name2 === 'name' && name4 === 'name') {
+                                    
+                                    const [path1, path2] = [val1, val2];
+
+
+                                    const res_fn_test = node => {
+                                        const navved_to_node1 = node.nav(path1);
+                                        const navved_to_node2 = node.nav(path2);
+                                        //console.log('navved_to_node', navved_to_node);
+
+                                        const [name1, name2] = [navved_to_node1.name, navved_to_node2.name];
+
+                                        //console.log('[navved_to_node1, navved_to_node2]', [navved_to_node1, navved_to_node2]);
+                                        //console.log('[name1, name2]', [name1, name2]);
+
+                                        return name1 === name2;
+
+
+                                        //throw 'stop';
+                                        //if (navved_to_node1 && navved_to_node2) {
+                                        //    return navved_to_node1.name === navved_to_node2.name;
+
+                                            
+                                        //}
+                                        //return false;
+                                    }
+                                    arr_fn_subtests.push(res_fn_test);
+
+
+
+                                    //throw 'NYI';
+                                } else {
+                                    throw 'Unsupported property'
+                                }
+
+                                //throw 'NYI';
+                            } else {
+                                throw 'Unsupported operation'
+                            }
+                            
+                        } else {
+                            throw 'Unsupported operator';
+                        }
 
                     } else {
 
-                        console.log('dts', dts);
+                        
 
-                        throw 'Unrecognised syntax';
+                        if (dts === 'ES(BE(ME(ME(CaE(ID,SL),ID),ID),NumL))') {
+
+                            const [id1, id2, id3, sl, nl] = js_ast.nav(['0/0/0/0/0', '0/0/0/1', '0/0/1', '0/0/0/0/1', '0/1']);
+
+                            //console.log('[id1, id2, id3, sl, nl]', [id1.name, id2.name, id3.name, sl.value, nl.value]);
+
+                            if (id1.name === 'nav' && id2.name === 'child' && id3.name === 'count') {
+                                const [path, target_child_count] = [sl.value, nl.value];
+                                //console.log('target_child_count', target_child_count);
+                                const res_fn_test = node => {
+                                    const found_node = node.nav(path);
+                                    if (found_node) {
+                                        //console.log('node.child.count', found_node.child.count);
+                                        return found_node.child.count === target_child_count;
+                                    }
+                                }
+                                arr_fn_subtests.push(res_fn_test);
+
+                            } else {
+
+                                console.log('dts', dts);
+                                console.log('js_ct', js_ct);
+
+                                throw 'Unrecognised syntax';
+                            }
+
+
+                            //throw 'stop';
+
+                        } else {
+                            throw 'Unrecognised syntax';
+
+                        }
+
+                        
 
                     }
                 })
@@ -400,7 +587,7 @@ class Confirmer {
 
             }
 
-            console.log('arr_fn_subtests.length', arr_fn_subtests.length);
+            //console.log('arr_fn_subtests.length', arr_fn_subtests.length);
 
 
             const fn_res = node => {
@@ -423,12 +610,12 @@ class Confirmer {
 
         
         this.get_fn_confirmation_test = arr_confirmation_test => {
-            console.log('arr_confirmation_test', arr_confirmation_test);
+            //console.log('arr_confirmation_test', arr_confirmation_test);
 
             const ct_json = JSON.stringify(arr_confirmation_test);
 
             // is it cached???
-            console.log('ct_json', ct_json);
+            //console.log('ct_json', ct_json);
             const cloned_arr_confirmation_test = JSON.parse(ct_json);
 
             const initially_found_fnconf = map_fn_confirmation_tests_by_arr_json.get(ct_json);
@@ -447,15 +634,15 @@ class Confirmer {
         }
 
         this.confirm_node_specialisation = (node, arr_specialisation_confirmation) => {
-            console.log('node', node);
-            console.log('arr_specialisation_confirmation', arr_specialisation_confirmation);
+            //console.log('node', node);
+            //console.log('arr_specialisation_confirmation', arr_specialisation_confirmation);
 
             const fn_test = this.get_fn_confirmation_test(arr_specialisation_confirmation);
-            console.log('fn_test', fn_test);
+            //console.log('fn_test', fn_test);
 
             return fn_test(node);
 
-            throw 'NYI';
+            //throw 'NYI';
 
         }
     }
@@ -471,16 +658,34 @@ const confirmer = new Confirmer();
 
 
 
-const get_interpretation_object_lifecycle_events = (interpretation) => {
+const get_interpretation_object_lifecycle_events = (arr_interpretations) => {
+
+    if (Array.isArray(arr_interpretations)) {
+
+
+        if (arr_interpretations.length === 1) {
+            const interpretation = arr_interpretations[0];
+            //console.log('interpretation', interpretation);
+            console.log('interpretation.obj:', interpretation.obj);
+        }
+        if (arr_interpretations.length > 1) {
+            throw 'NYI'
+        }
+
+
+    } else {
+        throw 'stop';
+    }
 
     const res = [];
 
     //console.log('interpretation', interpretation);
-    console.log('interpretation.specialisation_name:', interpretation.specialisation_name);
-    console.log('interpretation.extracted:', interpretation.extracted);
+    
+    //console.log('interpretation.extracted:', interpretation.extracted);
+    //console.log('interpretation.node:', interpretation.node);
 
     //throw 'stop';
-
+    
 
     return res;
 }
@@ -489,7 +694,7 @@ const get_interpretation_object_lifecycle_events = (interpretation) => {
 
 
 const confirm_node_specialisation = (node, obj_spec_spec) => {
-    console.log('obj_spec_spec', obj_spec_spec);
+    //console.log('!!obj_spec_spec', !!obj_spec_spec);
 
     const obj_spec_confirm = obj_spec_spec.confirm;
 
@@ -575,14 +780,16 @@ class Interpreter extends Evented_Class {
 
 
         // indexes / maps of the different mid signatures to those specialisations.
+
+        const map_gshallow_cat_sps = new Map();
+        const map_gshallow_type_sps = new Map();
+        const map_shallow_cat_sps = new Map();
+        const map_shallow_type_sps = new Map();
+
         const map_gmid_cat_sps = new Map();
         const map_gmid_type_sps = new Map();
         const map_mid_cat_sps = new Map();
         const map_mid_type_sps = new Map();
-
-
-
-        
 
 
         // Does not take a node in its spec.
@@ -592,6 +799,248 @@ class Interpreter extends Evented_Class {
 
         const specialisations = {
 
+            multimatch: node => {
+
+                // Will probably need to use some new cleverness / abstraction.
+                //  Try copy, paste, change
+
+
+                const res_found = [];
+
+
+
+
+                const match_mid_signatures = () => {
+
+
+                    const gmidcat = node.generalised_compressed_mid_type_category_signature;
+                    const found_spec_gmidcat = map_gmid_cat_sps.get(gmidcat);
+
+                    if (found_spec_gmidcat) {
+                        console.log('found_spec_gmidcat', found_spec_gmidcat);
+
+                        //let res_confirmed;
+
+                        each(found_spec_gmidcat, item => {
+                            const confirmed = confirm_node_specialisation(node, item);
+                            console.log('1a) confirmed', confirmed);
+                            //if (confirmed) res_confirmed =  item;
+                            if (confirmed) res_found.push(item);
+
+                            // and stop each TODO:
+                        })
+                        //return res_confirmed;
+
+                    } else {
+                        const gmidtype = node.generalised_compressed_mid_type_signature;
+                        const found_spec_gmidtype = map_gmid_type_sps.get(gmidtype);
+
+                        if (found_spec_gmidtype) {
+                            //console.log('found_spec_gmidtype', found_spec_gmidtype);
+                            //const confirmed = confirm_node_specialisation(node, found_spec_gmidtype);
+                            //console.log('2) confirmed', confirmed);
+                            //if (confirmed) return found_spec_gmidtype;
+
+                            //let res_confirmed;
+
+                            each(found_spec_gmidtype, item => {
+                                const confirmed = confirm_node_specialisation(node, item);
+                                console.log('2a) confirmed', confirmed);
+                                //if (confirmed) res_confirmed =  item;
+                                if (confirmed) res_found.push(item);
+
+                                // and stop each TODO:
+                            })
+                            //return res_confirmed;
+
+                        } else {
+                            const midcat = node.compressed_mid_type_category_signature;
+                            const found_spec_midcat = map_mid_cat_sps.get(midcat);
+
+                            if (found_spec_midcat) {
+                                //console.log('found_spec_midcat', found_spec_midcat);
+
+                                //const confirmed = confirm_node_specialisation(node, found_spec_midcat);
+                                //console.log('3) confirmed', confirmed);
+                                //if (confirmed) return found_spec_midcat;
+
+                                //let res_confirmed;
+
+                                each(found_spec_midcat, item => {
+                                    const confirmed = confirm_node_specialisation(node, item);
+                                    console.log('3a) confirmed', confirmed);
+                                    //if (confirmed) res_confirmed =  item;
+                                    if (confirmed) res_found.push(item);
+
+                                    // and stop each TODO:
+                                })
+                                //return res_confirmed;
+
+
+                            } else {
+                                const midtype = node.compressed_mid_type_signature;
+                                const found_spec_midtype = map_mid_type_sps.get(midtype);
+
+                                if (found_spec_midtype) {
+                                    //console.log('4) found_spec_midtype', found_spec_midtype);
+
+                                    //const confirmed = confirm_node_specialisation(node, found_spec_midtype);
+                                    //console.log('4) confirmed', confirmed);
+
+                                    //if (confirmed) return found_spec_midtype;
+
+                                    //let res_confirmed;
+
+                                    each(found_spec_midtype, item => {
+                                        const confirmed = confirm_node_specialisation(node, item);
+                                        console.log('4a) confirmed', confirmed);
+                                        //if (confirmed) res_confirmed =  item;
+                                        if (confirmed) res_found.push(item);
+
+                                        // and stop each TODO:
+                                    })
+                                    //return res_confirmed;
+
+
+                                } else {
+                                    console.log('no matching node specialisation found for node', node);
+                                    console.log('node.generalised_compressed_mid_type_category_signature', node.generalised_compressed_mid_type_category_signature);
+                                    console.log('node.generalised_compressed_mid_type_signature', node.generalised_compressed_mid_type_signature);
+                                    console.log('node.generalised_compressed_deep_type_signature', node.generalised_compressed_deep_type_signature);
+                                    console.log('node.generalised_compressed_shallow_type_signature', node.generalised_compressed_shallow_type_signature);
+
+                                }
+                            }
+                        }
+                    }
+                    //return false;
+
+                }
+
+                const match_shallow_signatures = () => {
+                    const gshallowcat = node.generalised_compressed_shallow_type_category_signature;
+                    const found_spec_gshallowcat = map_gshallow_cat_sps.get(gshallowcat);
+
+                    if (found_spec_gshallowcat) {
+                        console.log('found_spec_gshallowcat', found_spec_gshallowcat);
+
+                        //let res_confirmed;
+
+                        each(found_spec_gshallowcat, item => {
+                            const confirmed = confirm_node_specialisation(node, item);
+                            console.log('1a) confirmed', confirmed);
+                            //if (confirmed) res_confirmed =  item;
+                            if (confirmed) res_found.push(item);
+
+                            // and stop each TODO:
+                        })
+                        //return res_confirmed;
+
+                        
+
+
+                    } else {
+                        const gshallowtype = node.generalised_compressed_shallow_type_signature;
+                        const found_spec_gshallowtype = map_gshallow_type_sps.get(gshallowtype);
+
+                        if (found_spec_gshallowtype) {
+                            //console.log('found_spec_gshallowtype', found_spec_gshallowtype);
+                            //const confirmed = confirm_node_specialisation(node, found_spec_gshallowtype);
+                            //console.log('2) confirmed', confirmed);
+                            //if (confirmed) return found_spec_gshallowtype;
+
+                            //let res_confirmed;
+
+                            each(found_spec_gshallowtype, item => {
+                                const confirmed = confirm_node_specialisation(node, item);
+                                console.log('2a) confirmed', confirmed);
+                                //if (confirmed) res_confirmed =  item;
+                                if (confirmed) res_found.push(item);
+
+                                // and stop each TODO:
+                            })
+                            //return res_confirmed;
+
+                        } else {
+                            const shallowcat = node.compressed_shallow_type_category_signature;
+                            const found_spec_shallowcat = map_shallow_cat_sps.get(shallowcat);
+
+                            if (found_spec_shallowcat) {
+                                //console.log('found_spec_shallowcat', found_spec_shallowcat);
+
+                                //const confirmed = confirm_node_specialisation(node, found_spec_shallowcat);
+                                //console.log('3) confirmed', confirmed);
+                                //if (confirmed) return found_spec_shallowcat;
+
+                                //let res_confirmed;
+
+                                each(found_spec_shallowcat, item => {
+                                    const confirmed = confirm_node_specialisation(node, item);
+                                    console.log('3a) confirmed', confirmed);
+                                    //if (confirmed) res_confirmed =  item;
+
+                                    if (confirmed) res_found.push(item);
+
+                                    // and stop each TODO:
+                                })
+                                //return res_confirmed;
+
+
+                            } else {
+                                const shallowtype = node.compressed_shallow_type_signature;
+                                const found_spec_shallowtype = map_shallow_type_sps.get(shallowtype);
+
+                                if (found_spec_shallowtype) {
+                                    //console.log('4) found_spec_shallowtype', found_spec_shallowtype);
+
+                                    //const confirmed = confirm_node_specialisation(node, found_spec_shallowtype);
+                                    //console.log('4) confirmed', confirmed);
+
+                                    //if (confirmed) return found_spec_shallowtype;
+
+                                    //let res_confirmed;
+
+                                    each(found_spec_shallowtype, item => {
+                                        const confirmed = confirm_node_specialisation(node, item);
+                                        console.log('4a) confirmed', confirmed);
+                                        //if (confirmed) res_confirmed =  item;
+                                        if (confirmed) res_found.push(item);
+
+                                        // and stop each TODO:
+                                    })
+
+
+                                    //return res_confirmed;
+
+
+                                } else {
+                                    console.log('no matching node specialisation found for node', node);
+                                    console.log('node.generalised_compressed_shallow_type_category_signature', node.generalised_compressed_shallow_type_category_signature);
+                                    console.log('node.generalised_compressed_shallow_type_signature', node.generalised_compressed_shallow_type_signature);
+                                    console.log('node.generalised_compressed_deep_type_signature', node.generalised_compressed_deep_type_signature);
+                                    console.log('node.generalised_compressed_shallow_type_signature', node.generalised_compressed_shallow_type_signature);
+
+                                }
+                            }
+                        }
+
+                    }
+                    //return false;
+                }
+
+                match_shallow_signatures();
+                match_mid_signatures();
+
+
+
+
+                return res_found;
+
+
+
+            },
+
+
             match: (node) => {
 
                 // Does the node match any of the specialisations loaded?
@@ -599,64 +1048,231 @@ class Interpreter extends Evented_Class {
                 // First match by signature comparisons, then there will be other tests to be done sequentially
                 //  
 
-                const gmidcat = node.generalised_compressed_mid_type_category_signature;
+                let found = false;
+
+                const match_mid_signatures = () => {
 
 
-                const found_spec_gmidcat = map_gmid_cat_sps.get(gmidcat);
+                    const gmidcat = node.generalised_compressed_mid_type_category_signature;
+                    const found_spec_gmidcat = map_gmid_cat_sps.get(gmidcat);
 
-                if (found_spec_gmidcat) {
-                    console.log('found_spec_gmidcat', found_spec_gmidcat);
-                    const confirmed = confirm_node_specialisation(node, found_spec_gmidcat);
-                    console.log('1) confirmed', confirmed);
-                    if (confirmed) return found_spec_gmidcat;
+                    if (found_spec_gmidcat) {
+                        console.log('found_spec_gmidcat', found_spec_gmidcat);
 
+                        let res_confirmed;
 
-                } else {
-                    const gmidtype = node.generalised_compressed_mid_type_signature;
-                    const found_spec_gmidtype = map_gmid_type_sps.get(gmidtype);
+                        each(found_spec_gmidcat, item => {
+                            const confirmed = confirm_node_specialisation(node, item);
+                            console.log('1) confirmed', confirmed);
+                            if (confirmed) res_confirmed =  item;
 
-                    if (found_spec_gmidtype) {
-                        console.log('found_spec_gmidtype', found_spec_gmidtype);
-                        const confirmed = confirm_node_specialisation(node, found_spec_gmidtype);
-                        console.log('2) confirmed', confirmed);
-                        if (confirmed) return found_spec_gmidtype;
+                            // and stop each TODO:
+                        })
+                        return res_confirmed;
+
+                        
+
 
                     } else {
-                        const midcat = node.compressed_mid_type_category_signature;
-                        const found_spec_midcat = map_mid_cat_sps.get(midcat);
+                        const gmidtype = node.generalised_compressed_mid_type_signature;
+                        const found_spec_gmidtype = map_gmid_type_sps.get(gmidtype);
 
-                        if (found_spec_midcat) {
-                            console.log('found_spec_midcat', found_spec_midcat);
+                        if (found_spec_gmidtype) {
+                            //console.log('found_spec_gmidtype', found_spec_gmidtype);
+                            //const confirmed = confirm_node_specialisation(node, found_spec_gmidtype);
+                            //console.log('2) confirmed', confirmed);
+                            //if (confirmed) return found_spec_gmidtype;
 
-                            const confirmed = confirm_node_specialisation(node, found_spec_midcat);
-                            console.log('3) confirmed', confirmed);
-                            if (confirmed) return found_spec_midcat;
+                            let res_confirmed;
+
+                            each(found_spec_gmidtype, item => {
+                                const confirmed = confirm_node_specialisation(node, item);
+                                console.log('2) confirmed', confirmed);
+                                if (confirmed) res_confirmed =  item;
+
+                                // and stop each TODO:
+                            })
+                            return res_confirmed;
+
                         } else {
-                            const midtype = node.compressed_mid_type_signature;
-                            const found_spec_midtype = map_mid_type_sps.get(midtype);
+                            const midcat = node.compressed_mid_type_category_signature;
+                            const found_spec_midcat = map_mid_cat_sps.get(midcat);
 
-                            if (found_spec_midtype) {
-                                console.log('4) found_spec_midtype', found_spec_midtype);
+                            if (found_spec_midcat) {
+                                //console.log('found_spec_midcat', found_spec_midcat);
 
-                                const confirmed = confirm_node_specialisation(node, found_spec_midtype);
-                                console.log('4) confirmed', confirmed);
+                                //const confirmed = confirm_node_specialisation(node, found_spec_midcat);
+                                //console.log('3) confirmed', confirmed);
+                                //if (confirmed) return found_spec_midcat;
 
-                                if (confirmed) return found_spec_midtype;
+                                let res_confirmed;
+
+                                each(found_spec_midcat, item => {
+                                    const confirmed = confirm_node_specialisation(node, item);
+                                    console.log('3) confirmed', confirmed);
+                                    if (confirmed) res_confirmed =  item;
+
+                                    // and stop each TODO:
+                                })
+                                return res_confirmed;
 
 
                             } else {
-                                console.log('no matching node specialisation found for node', node);
+                                const midtype = node.compressed_mid_type_signature;
+                                const found_spec_midtype = map_mid_type_sps.get(midtype);
 
+                                if (found_spec_midtype) {
+                                    //console.log('4) found_spec_midtype', found_spec_midtype);
+
+                                    //const confirmed = confirm_node_specialisation(node, found_spec_midtype);
+                                    //console.log('4) confirmed', confirmed);
+
+                                    //if (confirmed) return found_spec_midtype;
+
+                                    let res_confirmed;
+
+                                    each(found_spec_midtype, item => {
+                                        const confirmed = confirm_node_specialisation(node, item);
+                                        console.log('4) confirmed', confirmed);
+                                        if (confirmed) res_confirmed =  item;
+
+                                        // and stop each TODO:
+                                    })
+                                    return res_confirmed;
+
+
+                                } else {
+                                    console.log('no matching node specialisation found for node', node);
+                                    console.log('node.generalised_compressed_mid_type_category_signature', node.generalised_compressed_mid_type_category_signature);
+                                    console.log('node.generalised_compressed_mid_type_signature', node.generalised_compressed_mid_type_signature);
+                                    console.log('node.generalised_compressed_deep_type_signature', node.generalised_compressed_deep_type_signature);
+                                    console.log('node.generalised_compressed_shallow_type_signature', node.generalised_compressed_shallow_type_signature);
+
+                                }
                             }
                         }
+
                     }
+                    return false;
 
                 }
-                return false;
+
+                const match_shallow_signatures = () => {
+                    const gshallowcat = node.generalised_compressed_shallow_type_category_signature;
+                    const found_spec_gshallowcat = map_gshallow_cat_sps.get(gshallowcat);
+
+                    if (found_spec_gshallowcat) {
+                        console.log('found_spec_gshallowcat', found_spec_gshallowcat);
+
+                        let res_confirmed;
+
+                        each(found_spec_gshallowcat, item => {
+                            const confirmed = confirm_node_specialisation(node, item);
+                            console.log('1) confirmed', confirmed);
+                            if (confirmed) res_confirmed =  item;
+
+                            // and stop each TODO:
+                        })
+                        return res_confirmed;
+
+                        
+
+
+                    } else {
+                        const gshallowtype = node.generalised_compressed_shallow_type_signature;
+                        const found_spec_gshallowtype = map_gshallow_type_sps.get(gshallowtype);
+
+                        if (found_spec_gshallowtype) {
+                            //console.log('found_spec_gshallowtype', found_spec_gshallowtype);
+                            //const confirmed = confirm_node_specialisation(node, found_spec_gshallowtype);
+                            //console.log('2) confirmed', confirmed);
+                            //if (confirmed) return found_spec_gshallowtype;
+
+                            let res_confirmed;
+
+                            each(found_spec_gshallowtype, item => {
+                                const confirmed = confirm_node_specialisation(node, item);
+                                console.log('2) confirmed', confirmed);
+                                if (confirmed) res_confirmed =  item;
+
+                                // and stop each TODO:
+                            })
+                            return res_confirmed;
+
+                        } else {
+                            const shallowcat = node.compressed_shallow_type_category_signature;
+                            const found_spec_shallowcat = map_shallow_cat_sps.get(shallowcat);
+
+                            if (found_spec_shallowcat) {
+                                //console.log('found_spec_shallowcat', found_spec_shallowcat);
+
+                                //const confirmed = confirm_node_specialisation(node, found_spec_shallowcat);
+                                //console.log('3) confirmed', confirmed);
+                                //if (confirmed) return found_spec_shallowcat;
+
+                                let res_confirmed;
+
+                                each(found_spec_shallowcat, item => {
+                                    const confirmed = confirm_node_specialisation(node, item);
+                                    console.log('3) confirmed', confirmed);
+                                    if (confirmed) res_confirmed =  item;
+
+                                    // and stop each TODO:
+                                })
+                                return res_confirmed;
+
+
+                            } else {
+                                const shallowtype = node.compressed_shallow_type_signature;
+                                const found_spec_shallowtype = map_shallow_type_sps.get(shallowtype);
+
+                                if (found_spec_shallowtype) {
+                                    //console.log('4) found_spec_shallowtype', found_spec_shallowtype);
+
+                                    //const confirmed = confirm_node_specialisation(node, found_spec_shallowtype);
+                                    //console.log('4) confirmed', confirmed);
+
+                                    //if (confirmed) return found_spec_shallowtype;
+
+                                    let res_confirmed;
+
+                                    each(found_spec_shallowtype, item => {
+                                        const confirmed = confirm_node_specialisation(node, item);
+                                        console.log('4) confirmed', confirmed);
+                                        if (confirmed) res_confirmed =  item;
+
+                                        // and stop each TODO:
+                                    })
+                                    return res_confirmed;
+
+
+                                } else {
+                                    console.log('no matching node specialisation found for node', node);
+                                    console.log('node.generalised_compressed_shallow_type_category_signature', node.generalised_compressed_shallow_type_category_signature);
+                                    console.log('node.generalised_compressed_shallow_type_signature', node.generalised_compressed_shallow_type_signature);
+                                    console.log('node.generalised_compressed_deep_type_signature', node.generalised_compressed_deep_type_signature);
+                                    console.log('node.generalised_compressed_shallow_type_signature', node.generalised_compressed_shallow_type_signature);
+
+                                }
+                            }
+                        }
+
+                    }
+                    return false;
+                }
+
+                found = match_mid_signatures();
+
+                if (!found) {
+
+                    found = match_shallow_signatures();
+                }
+
+                
                 //if (map_gmid_cat_sps
 
 
-                
+                return found;
 
 
 
@@ -691,29 +1307,39 @@ class Interpreter extends Evented_Class {
                         const fn_confirm = confirmer.get_fn_confirmation_test(obj_specialisation_spec.confirm);
 
 
+                        // But it's the confirmation test too that really decides it.
+                        //  Looks like there should be an array of specialisations that share / can share a signature.
+                        //   Because the signature is only to identify the structure in some not that detailed way.
+
+
+
                         // .gtype
                         // .gcat
                         if (typeof sig.mid.type === 'string') {
                             // use 
 
                             if (map_mid_type_sps.has(sig.mid.type)) {
+
+                                // should still add it.
+
                                 throw 'stop';
                             } else {
-                                map_mid_type_sps.set(sig.mid.type, obj_specialisation_spec);
+
+                                map_mid_type_sps.set(sig.mid.type, [obj_specialisation_spec]);
                             }
 
                         } else if (typeof sig.mid.cat === 'string') {
                             if (map_mid_cat_sps.has(sig.mid.cat)) {
                                 throw 'stop';
                             } else {
-                                map_mid_cat_sps.set(sig.mid.cat, obj_specialisation_spec);
+                                map_mid_cat_sps.set(sig.mid.cat, [obj_specialisation_spec]);
                             }
                         } else if (typeof sig.mid.gtype === 'string') {
                             // use 
                             if (map_gmid_type_sps.has(sig.mid.gtype)) {
                                 throw 'stop';
                             } else {
-                                map_gmid_type_sps.set(sig.mid.gtype, obj_specialisation_spec);
+                                map_gmid_type_sps.set(sig.mid.gtype, [obj_specialisation_spec]);
                             }
 
                         } else if (typeof sig.mid.gcat === 'string') {
@@ -721,7 +1347,7 @@ class Interpreter extends Evented_Class {
                             if (map_gmid_cat_sps.has(sig.mid.gcat)) {
                                 throw 'stop';
                             } else {
-                                map_gmid_cat_sps.set(sig.mid.gcat, obj_specialisation_spec);
+                                map_gmid_cat_sps.set(sig.mid.gcat, [obj_specialisation_spec]);
                             }
 
 
@@ -730,7 +1356,26 @@ class Interpreter extends Evented_Class {
                         }
 
                     } else {
-                        throw 'Only mid (depth 3) signatures currently supported'
+
+                        if (typeof sig.shallow === 'object') {
+
+                            if (typeof sig.shallow.gtype === 'string') {
+                                // use 
+                                if (map_gshallow_type_sps.has(sig.shallow.gtype)) {
+                                    throw 'stop';
+                                } else {
+                                    map_gshallow_type_sps.set(sig.shallow.gtype, [obj_specialisation_spec]);
+                                }
+    
+                            } else {
+                                throw 'Unsupported shallow signaturte type (NYI)'
+                            }
+
+                        } else {
+                            throw 'Only shallow and mid (depth 3 and 4) signatures currently supported'
+                        }
+
+                        
                     }
 
                 } else {
@@ -756,13 +1401,20 @@ class Interpreter extends Evented_Class {
 
     }
     interpret(node) {
+
+        // Want the ability to return ordered multiple interpretations.
+        //  Varying in how specific they are
+        //   Maybe how complex the specifiers are.
+
+
         if (node.is_js_ast_node) {
 
             const interpret_node_child_nodes_as_scope = () => {
                 const arr_object_lifecycle_events = [];
                 node.query.each.child.exe(cn => {
+                    //console.log('cn', cn);
                     const cn_interpretation = this.interpret(cn);
-                    console.log('cn_interpretation', cn_interpretation);
+                    //console.log('cn_interpretation', cn_interpretation);
 
                     if (cn_interpretation !== undefined) {
                         const cn_interpreted_object_lifecycle_events = get_interpretation_object_lifecycle_events(cn_interpretation);
@@ -810,36 +1462,61 @@ class Interpreter extends Evented_Class {
                 
 
 
-
+                console.log('');
                 console.log('node.compressed_mid_type_signature', node.compressed_mid_type_signature);
-                console.log('node.generalised_compressed_mid_type_signature', node.generalised_compressed_mid_type_signature);
-                console.log('node.compressed_mid_type_category_signature', node.compressed_mid_type_category_signature);
-                console.log('node.generalised_compressed_mid_type_category_signature', node.generalised_compressed_mid_type_category_signature);
-                console.log('node.source', node.source);
+                //console.log('node.generalised_compressed_mid_type_signature', node.generalised_compressed_mid_type_signature);
+                //console.log('node.compressed_mid_type_category_signature', node.compressed_mid_type_category_signature);
+                //console.log('node.generalised_compressed_mid_type_category_signature', node.generalised_compressed_mid_type_category_signature);
+                console.log('node.source:\n' + node.source + '\n');
 
 
                 // check the node signatures to see if it matches any of the stored specialisations.
 
-                const m = this.specialisations.match(node);
+                // want to do multimatching of specialisations.
+                //  there could be a specialisation for variable declarations of an object with object pattern nodes
+                //   and another one for an object with object pattern nodes that the value is all string literal
+                //    because that is a case where it is easier / easy to get all of the values as js strings.
 
-                console.log('m', m);
 
-                if (m) {
 
+
+                //const m = this.specialisations.match(node);
+
+                const arr_matches = this.specialisations.multimatch(node);
+
+                const res_interpretations = [];
+
+                each(arr_matches, m => {
                     const spec_extract = m.extract;
+                    //console.log('spec_extract', spec_extract);
 
                     if (typeof spec_extract === 'string') {
+
+
                         const fn_spec_extract = extractor.get_fn_spec_extract(spec_extract);
+
+
                         const extracted = fn_spec_extract(node);
-                        console.log('extracted', extracted);
+                        //console.log('extracted', extracted);
 
                         //return extracted;
 
+                        // Interpretation_Set may be the better type of result?
+
+
                         const res = new Interpretation({
                             specialisation_name: m.name,
-                            extracted: extracted
+                            extracted: extracted,
+                            node: {
+                                type: node.type,
+                                start: node.babel.node.start,
+                                end: node.babel.node.end,
+                                length: node.babel.node.end - node.babel.node.start,
+                                path: node.path
+                            }
                         });
-                        return res;
+                        //return res;
+                        res_interpretations.push(res);
                         //throw 'NYI';
                     } else {
 
@@ -851,16 +1528,26 @@ class Interpreter extends Evented_Class {
                                 // Can still use get_fn_spec_extract I expect?
                                 //  So long as it can make the objects out of inner extractions
 
-                                console.log('spec_extract', spec_extract);
+                                //console.log('spec_extract', spec_extract);
                                 const fn_spec_extract = extractor.get_fn_spec_extract(spec_extract);
                                 const extracted = fn_spec_extract(node);
-                                console.log('extracted', extracted);
+                                //console.log('extracted', extracted);
+
+                                //throw 'stop';
 
                                 const res = new Interpretation({
                                     specialisation_name: m.name,
-                                    extracted: extracted
+                                    extracted: extracted,
+                                    node: {
+                                        type: node.type,
+                                        start: node.babel.node.start,
+                                        end: node.babel.node.end,
+                                        length: node.babel.node.end - node.babel.node.start,
+                                        path: node.path
+                                    }
                                 });
-                                return res;
+                                //return res;
+                                res_interpretations.push(res);
 
                             }
                         } else {
@@ -870,15 +1557,18 @@ class Interpreter extends Evented_Class {
 
                         
                     }
+                })
 
-                    
-
-
-                    
-                }
+                return res_interpretations;
 
 
 
+
+                //console.log('!!m', !!m);
+                //console.log('arr_matches.length', arr_matches.length);
+
+                //if (m) {
+               // }
 
                 //throw 'NYI';
             }

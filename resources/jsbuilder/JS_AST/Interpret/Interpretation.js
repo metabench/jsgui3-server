@@ -49,6 +49,32 @@ class Interpretation {
             enumerable: true,
             configurable: false
         });
+
+
+        let node;
+        if (spec.node) node = spec.node;
+        Object.defineProperty(this, 'node', {
+            get() { 
+                return node;
+            },
+            enumerable: true,
+            configurable: false
+        });
+
+        Object.defineProperty(this, 'obj', {
+            get() { 
+                return {
+                    specialisation: {
+                        name: this.specialisation_name
+                    },
+                    node: this.node,
+                    extracted: extracted
+                };
+            },
+            enumerable: true,
+            configurable: false
+        });
+        
         
 
     }

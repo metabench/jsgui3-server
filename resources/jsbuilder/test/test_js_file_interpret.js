@@ -210,7 +210,7 @@ const test_js_file = () => {
 
     const sample1_js_path = './sample1.js';
     //const file_path = '../JS_File.js';
-    const file_path = jg3_html_path;
+    const file_path = lm_path;
     // path of lang mini...
 
     // Write and test a simple and convenient way for analysing JS files and recompiling them.

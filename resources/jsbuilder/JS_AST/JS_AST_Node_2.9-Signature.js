@@ -523,8 +523,6 @@ const compress_signature = str_signature => {
 
 
     return parsed_signature.compressed_signature;
-
-
 }
 
 
@@ -541,8 +539,6 @@ const gcompress_signature = str_signature => {
     const parsed_signature = new Signature_Node({string: str_signature});
     //console.log('parsed_signature', parsed_signature);
     return parsed_signature.generalised_compressed_signature;
-
-
 }
 
 
@@ -551,6 +547,9 @@ class JS_AST_Node_Signature extends JS_AST_Node_Available_In_Scope {
         super(spec);
         const {each_child_node} = this;
         let deep_type_signature, type_signature, category_signature, mid_category_signature;
+
+
+        let shallow_type_signature, shallow_type_category_signature;
         // and then a more shallow type signature.
         //   type_signature could go to depth 2 or 3. Let's try it.
         // Want to be able to get small and usable signatures.
@@ -627,8 +626,6 @@ class JS_AST_Node_Signature extends JS_AST_Node_Available_In_Scope {
             } else {
                 return '';
             }
-
-            
         }
 
 
@@ -666,6 +663,28 @@ class JS_AST_Node_Signature extends JS_AST_Node_Available_In_Scope {
             enumerable: true,
             configurable: false
         });
+        Object.defineProperty(this, 'shallow_type_category_signature', {
+            get() { 
+                if (!shallow_type_category_signature) shallow_type_category_signature = get_deep_type_category_signature(3);
+                //if (deep_type_signature) return deep_type_signature;
+                return shallow_type_category_signature;
+                
+            },
+            //set(newValue) { bValue = newValue; },
+            enumerable: true,
+            configurable: false
+        });
+        Object.defineProperty(this, 'shallow_type_signature', {
+            get() { 
+                if (!shallow_type_signature) shallow_type_signature = get_deep_type_signature(3);
+                //if (deep_type_signature) return deep_type_signature;
+                return shallow_type_signature;
+                
+            },
+            //set(newValue) { bValue = newValue; },
+            enumerable: true,
+            configurable: false
+        });
 
         Object.defineProperty(this, 'deep_type_signature', {
             get() { 
@@ -690,11 +709,59 @@ class JS_AST_Node_Signature extends JS_AST_Node_Available_In_Scope {
             enumerable: true,
             configurable: false
         });
+        Object.defineProperty(this, 'compressed_shallow_type_signature', {
+            get() { 
+                const mts = this.shallow_type_signature;
+                const compressed = compress_signature(mts);
+                return compressed;
+                
+            },
+            //set(newValue) { bValue = newValue; },
+            enumerable: true,
+            configurable: false
+        });
 
         Object.defineProperty(this, 'compressed_mid_type_category_signature', {
             get() { 
                 const mts = this.mid_type_category_signature;
                 const compressed = compress_signature(mts);
+                return compressed;
+                
+            },
+            //set(newValue) { bValue = newValue; },
+            enumerable: true,
+            configurable: false
+        });
+        Object.defineProperty(this, 'compressed_shallow_type_category_signature', {
+            get() { 
+                const mts = this.shallow_type_category_signature;
+                const compressed = compress_signature(mts);
+                return compressed;
+                
+            },
+            //set(newValue) { bValue = newValue; },
+            enumerable: true,
+            configurable: false
+        });
+
+        // generalised_compressed_deep_type_signature
+
+        Object.defineProperty(this, 'generalised_compressed_shallow_type_signature', {
+            get() { 
+                const mts = this.shallow_type_signature;
+                const compressed = gcompress_signature(mts);
+                return compressed;
+                
+            },
+            //set(newValue) { bValue = newValue; },
+            enumerable: true,
+            configurable: false
+        });
+
+        Object.defineProperty(this, 'generalised_compressed_deep_type_signature', {
+            get() { 
+                const mts = this.deep_type_signature;
+                const compressed = gcompress_signature(mts);
                 return compressed;
                 
             },
@@ -743,6 +810,20 @@ class JS_AST_Node_Signature extends JS_AST_Node_Available_In_Scope {
         Object.defineProperty(this, 'generalised_compressed_mid_type_category_signature', {
             get() { 
                 const sig = this.mid_type_category_signature;
+                // console.log('sig', sig);
+                const compressed = gcompress_signature(sig);
+                // console.log('compressed', compressed);
+                return compressed;
+                
+            },
+            //set(newValue) { bValue = newValue; },
+            enumerable: true,
+            configurable: false
+        });
+
+        Object.defineProperty(this, 'generalised_compressed_shallow_type_category_signature', {
+            get() { 
+                const sig = this.shallow_type_category_signature;
                 // console.log('sig', sig);
                 const compressed = gcompress_signature(sig);
                 // console.log('compressed', compressed);

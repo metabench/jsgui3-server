@@ -148,7 +148,7 @@ const standard_specialisation_specs = [
         }
     },
     {
-        name: 'decl <Identifier> = require(<StringLiteral>)',
+        name: 'declare <Identifier> = require(<StringLiteral>)',
         sig: {
             mid: {
                 type: 'VDn(VDr(ID,CaE(ID,SL)))' // specialisation and interpretation will always use compressed signatures. not always generalised
@@ -257,7 +257,7 @@ const standard_specialisation_specs = [
     // CD(ID,CB(1+CM))
 
     {
-        name: 'class <Identifier1> {methods}',
+        name: 'declare class <Identifier1> {methods}',
         sig: {
             shallow: {
                 gtype: 'CD(ID,CB(1+CM))' // specialisation and interpretation will always use compressed signatures. not always generalised
@@ -277,7 +277,7 @@ const standard_specialisation_specs = [
 
 
     {
-        name: 'const <Identifier> = function() {...}', // declaration of parameterless non-arrow function, prob not async either.
+        name: 'declare <Identifier> = function() {...}', // declaration of parameterless non-arrow function, prob not async either.
         sig: {
             mid: {
                 type: 'VDn(VDr(ID,FE(BS)))' // specialisation and interpretation will always use compressed signatures. not always generalised
@@ -297,8 +297,35 @@ const standard_specialisation_specs = [
 
     // const p = Evented_Class.prototype;
 
+
+    // What about a non-prototype checking version?
+    //  Multiple items would need to share a signature.
+    //  
+    
     {
-        name: 'const <Identifier> = <Identifier2>.prototype', // declaration of parameterless non-arrow function, prob not async either.
+        name: 'declare <Identifier> = <Identifier2>.<Identifier3>', // declaration of parameterless non-arrow function, prob not async either.
+        sig: {
+            mid: {
+                type: 'VDn(VDr(ID,ME(2ID)))' // specialisation and interpretation will always use compressed signatures. not always generalised
+            }
+        },
+        confirm: [
+            //'nav("0/1/1").child.count === 0', // And matching identifiers
+            //'nav("0/1/1").name === "prototype"'
+            //'nav("0/0/1").name === nav("0/1/0/1").name'
+        ],
+        extract: {
+            declared_object_name: 'nav("0/0").name',
+            assigned_object_name: 'nav("0/1/0").name',
+            assigned_object_property_name: 'nav("0/1/1").name'
+            //object_assigned_property_name: 'nav("0/0/1").name',
+            //object_source_property_name: 'nav("0/1/1").name'
+        }
+    },
+
+
+    {
+        name: 'declare <Identifier> = <Identifier2>.prototype', // declaration of parameterless non-arrow function, prob not async either.
         sig: {
             mid: {
                 type: 'VDn(VDr(ID,ME(2ID)))' // specialisation and interpretation will always use compressed signatures. not always generalised
@@ -316,6 +343,622 @@ const standard_specialisation_specs = [
             //object_source_property_name: 'nav("0/1/1").name'
         }
     },
+
+    {
+        name: 'declare <Identifier> = {all["key": identifier]}', // declaration of parameterless non-arrow function, prob not async either.
+        sig: {
+            middeep: {
+                gtype: 'VDn(VDr(ID,OE(1+OPr(SL,ID))))' // specialisation and interpretation will always use compressed signatures. not always generalised
+            }
+        },
+        confirm: [
+            //'nav("0/1/1").child.count === 0', // And matching identifiers
+            //'nav("0/1/1").name === "prototype"'
+            //'nav("0/0/1").name === nav("0/1/0/1").name'
+        ],
+        extract: {
+            declared_object_name: 'nav("0/0").name'//,
+
+            // but extraction query to get the assignments would be the best here.
+            //  can add it later on.
+
+
+            //class_name: 'nav("0/1/0").name'
+            //object_assigned_property_name: 'nav("0/0/1").name',
+            //object_source_property_name: 'nav("0/1/1").name'
+        }
+    },
+
+    // VDn(VDr(ID,FE(1+ID,BS)))
+
+    {
+        name: 'declare <Identifier> = function(1+identifier) {...}', // declaration of parameterless non-arrow function, prob not async either.
+        sig: {
+            mid: {
+                gtype: 'VDn(VDr(ID,FE(1+ID,BS)))' // specialisation and interpretation will always use compressed signatures. not always generalised
+            }
+        },
+        confirm: [
+            //'nav("0/1/1").child.count === 0', // And matching identifiers
+            //'nav("0/1/1").name === "prototype"'
+            //'nav("0/0/1").name === nav("0/1/0/1").name'
+        ],
+        extract: {
+            declared_object_name: 'nav("0/0").name'//,
+
+            // but extraction query to get the assignments would be the best here.
+            //  can add it later on.
+
+
+            //class_name: 'nav("0/1/0").name'
+            //object_assigned_property_name: 'nav("0/0/1").name',
+            //object_source_property_name: 'nav("0/1/1").name'
+        }
+    },
+
+    {
+        name: 'declare <Identifier> = (1+identifier) => {...}', // declaration of parameterless non-arrow function, prob not async either.
+        sig: {
+            mid: {
+                gtype: 'VDn(VDr(ID,AFE(1+ID,BS)))' // specialisation and interpretation will always use compressed signatures. not always generalised
+            }
+        },
+        confirm: [
+            //'nav("0/1/1").child.count === 0', // And matching identifiers
+            //'nav("0/1/1").name === "prototype"'
+            //'nav("0/0/1").name === nav("0/1/0/1").name'
+        ],
+        extract: {
+            declared_object_name: 'nav("0/0").name'//,
+
+            // but extraction query to get the assignments would be the best here.
+            //  can add it later on.
+
+
+            //class_name: 'nav("0/1/0").name'
+            //object_assigned_property_name: 'nav("0/0/1").name',
+            //object_source_property_name: 'nav("0/1/1").name'
+        }
+    },
+
+
+    {
+        name: 'declare <Identifier> = (*) => {*}', // declaration of parameterless non-arrow function, prob not async either.
+        sig: {
+            shallow: {
+                gtype: 'VDn(VDr(ID,AFE))' // specialisation and interpretation will always use compressed signatures. not always generalised
+            }
+        },
+        confirm: [
+            //'nav("0/1/1").child.count === 0', // And matching identifiers
+            //'nav("0/1/1").name === "prototype"'
+            //'nav("0/0/1").name === nav("0/1/0/1").name'
+        ],
+        extract: {
+            declared_object_name: 'nav("0/0").name'//,
+
+            // but extraction query to get the assignments would be the best here.
+            //  can add it later on.
+
+
+            //class_name: 'nav("0/1/0").name'
+            //object_assigned_property_name: 'nav("0/0/1").name',
+            //object_source_property_name: 'nav("0/1/1").name'
+        }
+    },
+
+    {
+        name: 'declare <Identifier1> = <Identifier2>()', // declaration of parameterless non-arrow function, prob not async either.
+        sig: {
+            mid: {
+                gtype: 'VDn(VDr(ID,CaE(ID)))' // specialisation and interpretation will always use compressed signatures. not always generalised
+            }
+        },
+        example: 'const stream = get_stream();',
+        confirm: [
+            //'nav("0/1/1").child.count === 0', // And matching identifiers
+            //'nav("0/1/1").name === "prototype"'
+            //'nav("0/0/1").name === nav("0/1/0/1").name'
+        ],
+        extract: {
+            declared_object_name: 'nav("0/0").name',
+            called_function_name: 'nav("0/1/0").name'
+
+            // but extraction query to get the assignments would be the best here.
+            //  can add it later on.
+
+
+            //class_name: 'nav("0/1/0").name'
+            //object_assigned_property_name: 'nav("0/0/1").name',
+            //object_source_property_name: 'nav("0/1/1").name'
+        }
+    },
+
+    {
+        name: 'declare a, b...;', // declaration of parameterless non-arrow function, prob not async either.
+        sig: {
+            shallow: {
+                gtype: 'VDn(1+VDr(ID))' // specialisation and interpretation will always use compressed signatures. not always generalised
+            }
+        },
+        example: 'let Readable_Stream, Writable_Stream, Transform_Stream;',
+        confirm: [
+        ],
+        extract: {
+        }
+    },
+    
+    // VDn(1+VDr(ID,CaE(1+ID)))
+    //  but where they call the same function?
+    //   would be nice to make that a special case.
+
+    {
+        // naming could be clearer - but this is explicit and unambiguous at least. Maybe it could be automated from it's name...???
+        name: 'declare <Identifier1> = <IdentifierFN>(<Identifier2>), <Identifier3> = <IdentifierFN>(<Identifier4>), ...;', // want to make it the same function
+        sig: {
+            mid: {
+                gtype: 'VDn(1+VDr(ID,CaE(1+ID)))' // specialisation and interpretation will always use compressed signatures. not always generalised
+            }
+        },
+        example:
+`const v_add = vectorify(n_add),
+v_subtract = vectorify(n_subtract),
+v_multiply = vectorify(n_multiply),
+v_divide = vectorify(n_divide);`,
+        confirm: [
+
+            // confirm the function names are the same.
+
+            // TODO: the confirmation process
+
+            // 'node.query.collect.child.exe().query.collect.second.child.collect.exe().query.collect.first.child.name.exe()'
+            //  looks like generalised signature extraction will be more useful instead.
+
+            // so for the moment, not node.query...
+
+            // may use app interpreted JS for this.
+            //  or a more direct string system, similar to the signatures.
+
+            // with extract as syntax.
+            //  intermitting extraction queries within the signature perhaps.
+
+            // 'VDn(1+VDr(ID,CaE(1+ID)))'
+            // 'VDn(1+VDr(ID,CaE(1+ID).query.collect.first.child.name))'
+            // 'VDn(1+VDr(ID,CaE(1+ID).query('collect first child name as fn_name')))'
+
+
+            // node.extract(str_extraction_query)
+
+
+
+
+        ],
+        extract: {
+
+            // More advanced extraction query would be useful.
+
+            // However, it may be much simpler to do recursive interpretation.
+            //  We interpret the child nodes, and use that info nicely and programatically here.
+
+
+
+
+
+        }
+    },
+
+
+    
+
+    {
+        // naming could be clearer - but this is explicit and unambiguous at least. Maybe it could be automated from it's name...???
+        name: 'declare <Identifier1> = (*) => ?, <Identifier2> = (*) => ?, ...;', // want to make it the same function
+        sig: {
+            shallow: {
+                gtype: 'VDn(1+VDr(ID,AFE))' // specialisation and interpretation will always use compressed signatures. not always generalised
+            }
+        },
+        example:
+`const n_add = (n1, n2) => n1 + n2,
+n_subtract = (n1, n2) => n1 - n2,
+n_multiply = (n1, n2) => n1 * n2,
+n_divide = (n1, n2) => n1 / n2;`,
+        confirm: [
+        ],
+        extract: {
+        }
+    },
+    
+
+    
+    {
+        // naming could be clearer - but this is explicit and unambiguous at least. Maybe it could be automated from it's name...???
+        name: 'declare <Identifier1> = <Identifier2>;', // want to make it the same function
+        sig: {
+            shallow: {
+                type: 'VDn(VDr(2ID))' // specialisation and interpretation will always use compressed signatures. not always generalised
+            }
+        },
+        example:
+`let call_multi = call_multiple_callback_functions;`, // will need to differentiate between declaration types. Could do that in 'confirm'. Or make this for general declarations...?
+        confirm: [
+        ],
+        extract: {
+            declared_object_name: 'nav("0/0").name',
+            assigned_object_name: 'nav("0/1").name',
+        }
+    },
+    
+
+    {
+        // naming could be clearer - but this is explicit and unambiguous at least. Maybe it could be automated from it's name...???
+        name: 'declare <Identifier1> = <Identifier2>(arrowfunctionexpression);', // want to make it the same function
+        sig: {
+            mid: {
+                type: 'VDn(VDr(ID,CaE(ID,AFE)))' // specialisation and interpretation will always use compressed signatures. not always generalised
+            }
+        },
+        example:
+`let clone = fp((a, sig) => {...});`, // will need to differentiate between declaration types. Could do that in 'confirm'. Or make this for general declarations...?
+        confirm: [
+        ],
+        extract: {
+            declared_object_name: 'nav("0/0").name',
+            called_function_name: 'nav("0/1/0").name'
+        }
+    },
+
+    {
+        // naming could be clearer - but this is explicit and unambiguous at least. Maybe it could be automated from it's name...???
+        name: 'declare <Identifier1> = <Identifier2>(functionexpression);', // want to make it the same function
+        sig: {
+            mid: {
+                type: 'VDn(VDr(ID,CaE(ID,FE)))' // specialisation and interpretation will always use compressed signatures. not always generalised
+            }
+        },
+        example:
+`let call_multiple_callback_functions = fp(...`, // will need to differentiate between declaration types. Could do that in 'confirm'. Or make this for general declarations...?
+        confirm: [
+        ],
+        extract: {
+            declared_object_name: 'nav("0/0").name',
+            called_function_name: 'nav("0/1/0").name'
+        }
+    },
+
+    
+    {
+        // naming could be clearer - but this is explicit and unambiguous at least. Maybe it could be automated from it's name...???
+        name: 'declare <Identifier1> = {...};', // want to make it the same function
+        sig: {
+            shallow: {
+                type: 'VDn(VDr(ID,OE))' // specialisation and interpretation will always use compressed signatures. not always generalised
+            }
+        },
+        example:
+`const map_native_types = {
+    'string': true,
+    'boolean': true,
+    'number': true
+}`, // will need to differentiate between declaration types. Could do that in 'confirm'. Or make this for general declarations...?
+        confirm: [
+        ],
+        extract: {
+            declared_object_name: 'nav("0/0").name',
+            //called_function_name: 'nav("0/1/0").name'
+        }
+    },
+
+
+    {
+        // naming could be clearer - but this is explicit and unambiguous at least. Maybe it could be automated from it's name...???
+        name: 'declare <Identifier1> = bool;', // want to make it the same function
+        sig: {
+            shallow: {
+                type: 'VDn(VDr(ID,BL))' // specialisation and interpretation will always use compressed signatures. not always generalised
+            }
+        },
+        example:
+`const using_type_plugins = false;`, // will need to differentiate between declaration types. Could do that in 'confirm'. Or make this for general declarations...?
+        confirm: [
+        ],
+        extract: {
+            declared_object_name: 'nav("0/0").name',
+            //called_function_name: 'nav("0/1/0").name'
+        }
+    },
+
+
+    // Very specific case here I think.
+    {
+        // naming could be clearer - but this is explicit and unambiguous at least. Maybe it could be automated from it's name...???
+        name: 'declare <Identifier1> = typeof window !== "undefined";', // want to make it the same function
+        sig: {
+            middeep: {
+                type: 'VDn(VDr(ID,BE(UnE(ID),SL)))' // specialisation and interpretation will always use compressed signatures. not always generalised
+            }
+        },
+        example:
+`const running_in_browser = typeof window !== 'undefined';`, // will need to differentiate between declaration types. Could do that in 'confirm'. Or make this for general declarations...?
+        confirm: [
+            // Will need to be more specific.
+            //'nav("0/1/0/1").name === "window"' // probably use improved checking queries on this.
+        ],
+        extract: {
+            declared_object_name: 'nav("0/0").name',
+            //called_function_name: 'nav("0/1/0").name'
+        }
+    },
+
+    {
+        // naming could be clearer - but this is explicit and unambiguous at least. Maybe it could be automated from it's name...???
+        name: 'declare <Identifier1> = (*) => {*}, <Identifier2> = <Identifier1>;', // want to make it the same function
+        sig: {
+            shallow: {
+                type: 'VDn(VDr(ID,AFE),VDr(2ID))' // specialisation and interpretation will always use compressed signatures. not always generalised
+            }
+        },
+        example:
+`const is_defined = (value) => {
+    return typeof (value) !== 'undefined';
+},
+isdef = is_defined;`, // will need to differentiate between declaration types. Could do that in 'confirm'. Or make this for general declarations...?
+        confirm: [
+            // Will need to be more specific.
+            'nav("0/0").name === nav("1/1").name'
+        ],
+        extract: {
+            declared_object_name: 'nav("0/0").name',
+            alias_declared_object_name: 'nav("1/0").name'
+            //called_function_name: 'nav("0/1/0").name'
+        }
+    },
+
+    {
+        // naming could be clearer - but this is explicit and unambiguous at least. Maybe it could be automated from it's name...???
+        name: 'declare <Identifier1> = <Identifier2>(*);', // want to make it the same function
+        sig: {
+            shallow: {
+                type: 'VDn(VDr(ID,CaE))' // specialisation and interpretation will always use compressed signatures. not always generalised
+            }
+        },
+        example:
+`const mfp_not_sigs = get_truth_map_from_arr(['pre', 'default', 'post']);`, // will need to differentiate between declaration types. Could do that in 'confirm'. Or make this for general declarations...?
+        confirm: [
+            // Will need to be more specific.
+            //'nav("0/0").name === nav("1/1").name'
+        ],
+        extract: {
+            declared_object_name: 'nav("0/0").name',
+            called_function_name: 'nav("0/1/0").name'
+            //called_function_name: 'nav("0/1/0").name'
+        }
+    },
+
+    {
+        // naming could be clearer - but this is explicit and unambiguous at least. Maybe it could be automated from it's name...???
+        name: 'declare <Identifier1> = !<Identifier2>;', // want to make it the same function
+        sig: {
+            mid: {
+                type: 'VDn(VDr(ID,UnE(ID)))' // specialisation and interpretation will always use compressed signatures. not always generalised
+            }
+        },
+        example:
+`const running_in_node = !running_in_browser;`, // will need to differentiate between declaration types. Could do that in 'confirm'. Or make this for general declarations...?
+        confirm: [
+            // Will need to be more specific.
+            //'nav("0/0").name === nav("1/1").name'
+        ],
+        extract: {
+            declared_object_name: 'nav("0/0").name',
+            called_function_name: 'nav("0/1/0").name'
+            //called_function_name: 'nav("0/1/0").name'
+        }
+    },
+
+
+    // And let's have a simple one for multiple declared object expressions.
+
+    // VDn(2VDr(ID,OE))
+
+    {
+        // naming could be clearer - but this is explicit and unambiguous at least. Maybe it could be automated from it's name...???
+        name: 'declare obj1 = {*}, obj2 = {*}, ...;', // want to make it the same function
+        sig: {
+            shallow: {
+                gtype: 'VDn(1+VDr(ID,OE))' // specialisation and interpretation will always use compressed signatures. not always generalised
+            }
+        },
+        example:
+`const map_loaded_type_fn_checks = {}, map_loaded_type_abbreviations = {...}`, // will need to differentiate between declaration types. Could do that in 'confirm'. Or make this for general declarations...?
+        confirm: [
+            // Will need to be more specific.
+            //'nav("0/0").name === nav("1/1").name'
+        ],
+        extract: {
+            //declared_object_name: 'nav("0/0").name',
+            //called_function_name: 'nav("0/1/0").name'
+            //called_function_name: 'nav("0/1/0").name'
+        }
+    },
+
+
+
+    // const running_in_node = !running_in_browser;
+
+    // just do the very general VDn(VDr(ID,CaE))
+    //  declare variable = fn(*);
+
+    // declare variable to be result of function call taking an array of strings.
+    // 
+
+
+    // VDn(VDr(ID,CaE(ID,ArE(1+SL))))
+
+
+
+
+    // shallow: VDn(VDr(ID,AFE),VDr(2ID))
+
+
+
+    /*
+    const is_defined = (value) => {
+                // tof or typeof
+
+                return typeof (value) != 'undefined';
+        },
+        isdef = is_defined;
+
+    */
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    // VDn(VDr(ID,BE(UnE(ID),SL)))
+
+
+
+
+
+    // const using_type_plugins = false;
+
+
+/*
+    {
+        // naming could be clearer - but this is explicit and unambiguous at least. Maybe it could be automated from it's name...???
+        name: 'declare <Identifier1> = <Identifier2>.<Identifier3>;', // want to make it the same function
+        sig: {
+            mid: {
+                type: 'VDn(VDr(ID,ME(2ID)))' // specialisation and interpretation will always use compressed signatures. not always generalised
+            }
+        },
+        example:
+`const is_array = Array.isArray;`, // will need to differentiate between declaration types. Could do that in 'confirm'. Or make this for general declarations...?
+        confirm: [
+        ],
+        extract: {
+            declared_object_name: 'nav("0/0").name',
+            assigned_object_name: 'nav("0/1/0").name',
+            assigned_object_property_name: 'nav("0/1/1").name',
+            //called_function_name: 'nav("0/1/0").name'
+        }
+    },
+*/
+    
+    // VDn(VDr(ID,ME(2ID)))
+
+
+
+    // const is_array = Array.isArray;
+
+
+    // VDn(VDr(ID,OE))
+    // An object expression where they are all set to a boolean literal (true)
+    //  Will be able to make use of multiple interpretations when:
+    //    Assigning globally indexed values.
+
+    // Workspace_Global_Index makes a lot of sense as an object, with an API to be developed.
+    // Workspace_Global maybe
+    //  find all occurrances of any specific node (index by source hash)
+    //   should get back into calculating and making available source hashes.
+
+    // Worth having a place that brings it all together.
+    //  Workspace will get the child processes to carry out the loading and interpretation, and recieve and process interpretation messages as that takes place.
+
+
+
+
+
+
+
+    /*
+
+    // VDn(VDr(ID,CaE(ID,FE)))
+    // A declaration of an object, assigned to a function call with a function declared inside as its only parameter.
+
+    // let clone = fp((a, sig) => { ... }
+
+
+
+
+    let multi = call_multiple_callback_functions;
+    node.compressed_shallow_type_signature VDn(VDr(2ID))
+node.compressed_mid_type_signature VDn(VDr(2ID))
+node.generalised_compressed_shallow_type_signature VDn(VDr(1+ID))
+node.generalised_compressed_mid_type_signature VDn(VDr(1+ID))
+node.generalised_compressed_middeep_type_signature VDn(VDr(1+ID))
+
+
+
+
+
+
+
+    node.compressed_mid_type_signature VDn(4VDr(ID,AFE(2ID,BE)))
+node.generalised_compressed_shallow_type_signature VDn(1+VDr(ID,AFE))
+node.generalised_compressed_mid_type_signature VDn(1+VDr(ID,AFE(1+ID,BE)))
+node.generalised_compressed_middeep_type_signature VDn(1+VDr(ID,AFE(1+ID,BE(1+ID))))
+
+    const n_add = (n1, n2) => n1 + n2,
+        n_subtract = (n1, n2) => n1 - n2,
+        n_multiply = (n1, n2) => n1 * n2,
+        n_divide = (n1, n2) => n1 / n2;
+
+    */
+
+
+
+
+
+    // const running_in_browser = typeof window !== 'undefined';
+    // node.generalised_compressed_middeep_type_signature VDn(VDr(ID,BE(UnE(ID),SL)))
+
+    // can particularly be on the lookout for browser detection statements.
+    //  and for the client builds can use that info as necessary
+    //  this stage here is about making info available.
+    //   so there may be various specific statement interpretations which the system will be programmed with, rather than (only) the general case.
+
+    // About 16 of these specialisations so far - was not so hard to make
+    //  However, they don't yet have advanced extractions to get the data that is expressed within its pattern.
+
+
+
+
+    // const stream = get_stream();
+
+    // simplest interpretation for an arrow function as a single declared item.
+    //  it could be useful for dealing with the various combinations of assignment patterns of default parameters.
+    //   could have a more in-depth extraction query that finds out about the parameters, including assignments.
+
+    // maybe it will be worth writing various specific pieces of code that won't handle everything.
+    //  handling important general cases is important!
+
+
+
+
+
+
+    // VDn(VDr(ID,AFE(1+ID,BS)))
+
+
+    // VDn(VDr(ID,OE(1+OPr(SL,ID))))
+
 
     // Will need to get into extracting from multiple items.
     //  Possibility of using queries as strings as well.

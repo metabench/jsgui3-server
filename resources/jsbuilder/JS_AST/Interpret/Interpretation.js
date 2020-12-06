@@ -29,6 +29,16 @@ class Interpretation {
             configurable: false
         });
 
+        let specialisation_depth;
+        if (spec.specialisation_depth) specialisation_depth = spec.specialisation_depth;
+        Object.defineProperty(this, 'specialisation_depth', {
+            get() { 
+                return specialisation_depth;
+            },
+            enumerable: true,
+            configurable: false
+        });
+
         let extracted;
         if (spec.extracted) extracted = spec.extracted;
         Object.defineProperty(this, 'extracted', {
@@ -65,9 +75,10 @@ class Interpretation {
             get() { 
                 return {
                     specialisation: {
-                        name: this.specialisation_name
+                        name: specialisation_name,
+                        depth: specialisation_depth
                     },
-                    node: this.node,
+                    node: node,
                     extracted: extracted
                 };
             },

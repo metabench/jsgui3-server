@@ -332,9 +332,6 @@ class Extractor {
 
                 
             }
-
-
-
             throw 'NYI';
 
         }
@@ -791,6 +788,17 @@ class Interpreter extends Evented_Class {
         const map_mid_cat_sps = new Map();
         const map_mid_type_sps = new Map();
 
+        const map_gmiddeep_cat_sps = new Map();
+        const map_gmiddeep_type_sps = new Map();
+        const map_middeep_cat_sps = new Map();
+        const map_middeep_type_sps = new Map();
+
+
+        // 1) will add mid_deep as well - level 5 signatures.
+        // 2) will support extraction queries
+        //    Query_Plan, Query_Planner, Query_Executer classes?
+        //     Could code a whole system for extraction queries (though it would wrap the node.query as well) Won't allow functional filters to be given though.
+
 
         // Does not take a node in its spec.
         //  Maybe further rules
@@ -807,6 +815,113 @@ class Interpreter extends Evented_Class {
 
                 const res_found = [];
 
+                const match_middeep_signatures = () => {
+
+
+                    const gmiddeepcat = node.generalised_compressed_middeep_type_category_signature;
+                    const found_spec_gmiddeepcat = map_gmiddeep_cat_sps.get(gmiddeepcat);
+
+                    if (found_spec_gmiddeepcat) {
+                        //console.log('found_spec_gmiddeepcat', found_spec_gmiddeepcat);
+
+                        //let res_confirmed;
+
+                        each(found_spec_gmiddeepcat, item => {
+                            const confirmed = confirm_node_specialisation(node, item);
+                            //console.log('1a) confirmed', confirmed);
+                            //if (confirmed) res_confirmed =  item;
+                            if (confirmed) res_found.push(item);
+
+                            // and stop each TODO:
+                        })
+                        //return res_confirmed;
+
+                    } else {
+                        const gmiddeeptype = node.generalised_compressed_middeep_type_signature;
+                        const found_spec_gmiddeeptype = map_gmiddeep_type_sps.get(gmiddeeptype);
+
+                        if (found_spec_gmiddeeptype) {
+                            //console.log('found_spec_gmiddeeptype', found_spec_gmiddeeptype);
+                            //const confirmed = confirm_node_specialisation(node, found_spec_gmiddeeptype);
+                            //console.log('2) confirmed', confirmed);
+                            //if (confirmed) return found_spec_gmiddeeptype;
+
+                            //let res_confirmed;
+
+                            each(found_spec_gmiddeeptype, item => {
+                                const confirmed = confirm_node_specialisation(node, item);
+                                //console.log('2a) confirmed', confirmed);
+                                //if (confirmed) res_confirmed =  item;
+                                if (confirmed) res_found.push(item);
+
+                                // and stop each TODO:
+                            })
+                            //return res_confirmed;
+
+                        } else {
+                            const middeepcat = node.compressed_middeep_type_category_signature;
+                            const found_spec_middeepcat = map_middeep_cat_sps.get(middeepcat);
+
+                            if (found_spec_middeepcat) {
+                                //console.log('found_spec_middeepcat', found_spec_middeepcat);
+
+                                //const confirmed = confirm_node_specialisation(node, found_spec_middeepcat);
+                                //console.log('3) confirmed', confirmed);
+                                //if (confirmed) return found_spec_middeepcat;
+
+                                //let res_confirmed;
+
+                                each(found_spec_middeepcat, item => {
+                                    const confirmed = confirm_node_specialisation(node, item);
+                                    //console.log('3a) confirmed', confirmed);
+                                    //if (confirmed) res_confirmed =  item;
+                                    if (confirmed) res_found.push(item);
+
+                                    // and stop each TODO:
+                                })
+                                //return res_confirmed;
+
+
+                            } else {
+                                const middeeptype = node.compressed_middeep_type_signature;
+                                const found_spec_middeeptype = map_middeep_type_sps.get(middeeptype);
+
+                                if (found_spec_middeeptype) {
+                                    //console.log('4) found_spec_middeeptype', found_spec_middeeptype);
+
+                                    //const confirmed = confirm_node_specialisation(node, found_spec_middeeptype);
+                                    //console.log('4) confirmed', confirmed);
+
+                                    //if (confirmed) return found_spec_middeeptype;
+
+                                    //let res_confirmed;
+
+                                    each(found_spec_middeeptype, item => {
+                                        const confirmed = confirm_node_specialisation(node, item);
+                                        //console.log('4a) confirmed', confirmed);
+                                        //if (confirmed) res_confirmed =  item;
+                                        if (confirmed) res_found.push(item);
+
+                                        // and stop each TODO:
+                                    })
+                                    //return res_confirmed;
+
+
+                                } else {
+                                    //console.log('no matching node specialisation found for node', node);
+                                    //console.log('node.generalised_compressed_middeep_type_category_signature', node.generalised_compressed_middeep_type_category_signature);
+                                    //console.log('node.generalised_compressed_middeep_type_signature', node.generalised_compressed_middeep_type_signature);
+                                    //console.log('node.generalised_compressed_deep_type_signature', node.generalised_compressed_deep_type_signature);
+                                    //console.log('node.generalised_compressed_shallow_type_signature', node.generalised_compressed_shallow_type_signature);
+
+                                }
+                            }
+                        }
+                    }
+                    //return false;
+
+                }
+
 
 
 
@@ -817,13 +932,13 @@ class Interpreter extends Evented_Class {
                     const found_spec_gmidcat = map_gmid_cat_sps.get(gmidcat);
 
                     if (found_spec_gmidcat) {
-                        console.log('found_spec_gmidcat', found_spec_gmidcat);
+                        //console.log('found_spec_gmidcat', found_spec_gmidcat);
 
                         //let res_confirmed;
 
                         each(found_spec_gmidcat, item => {
                             const confirmed = confirm_node_specialisation(node, item);
-                            console.log('1a) confirmed', confirmed);
+                            //console.log('1a) confirmed', confirmed);
                             //if (confirmed) res_confirmed =  item;
                             if (confirmed) res_found.push(item);
 
@@ -845,7 +960,7 @@ class Interpreter extends Evented_Class {
 
                             each(found_spec_gmidtype, item => {
                                 const confirmed = confirm_node_specialisation(node, item);
-                                console.log('2a) confirmed', confirmed);
+                                //console.log('2a) confirmed', confirmed);
                                 //if (confirmed) res_confirmed =  item;
                                 if (confirmed) res_found.push(item);
 
@@ -868,7 +983,7 @@ class Interpreter extends Evented_Class {
 
                                 each(found_spec_midcat, item => {
                                     const confirmed = confirm_node_specialisation(node, item);
-                                    console.log('3a) confirmed', confirmed);
+                                    //console.log('3a) confirmed', confirmed);
                                     //if (confirmed) res_confirmed =  item;
                                     if (confirmed) res_found.push(item);
 
@@ -893,7 +1008,7 @@ class Interpreter extends Evented_Class {
 
                                     each(found_spec_midtype, item => {
                                         const confirmed = confirm_node_specialisation(node, item);
-                                        console.log('4a) confirmed', confirmed);
+                                        //console.log('4a) confirmed', confirmed);
                                         //if (confirmed) res_confirmed =  item;
                                         if (confirmed) res_found.push(item);
 
@@ -903,11 +1018,11 @@ class Interpreter extends Evented_Class {
 
 
                                 } else {
-                                    console.log('no matching node specialisation found for node', node);
-                                    console.log('node.generalised_compressed_mid_type_category_signature', node.generalised_compressed_mid_type_category_signature);
-                                    console.log('node.generalised_compressed_mid_type_signature', node.generalised_compressed_mid_type_signature);
-                                    console.log('node.generalised_compressed_deep_type_signature', node.generalised_compressed_deep_type_signature);
-                                    console.log('node.generalised_compressed_shallow_type_signature', node.generalised_compressed_shallow_type_signature);
+                                    //console.log('no matching node specialisation found for node', node);
+                                    //console.log('node.generalised_compressed_mid_type_category_signature', node.generalised_compressed_mid_type_category_signature);
+                                    //console.log('node.generalised_compressed_mid_type_signature', node.generalised_compressed_mid_type_signature);
+                                    //console.log('node.generalised_compressed_deep_type_signature', node.generalised_compressed_deep_type_signature);
+                                    //console.log('node.generalised_compressed_shallow_type_signature', node.generalised_compressed_shallow_type_signature);
 
                                 }
                             }
@@ -922,13 +1037,13 @@ class Interpreter extends Evented_Class {
                     const found_spec_gshallowcat = map_gshallow_cat_sps.get(gshallowcat);
 
                     if (found_spec_gshallowcat) {
-                        console.log('found_spec_gshallowcat', found_spec_gshallowcat);
+                        //console.log('found_spec_gshallowcat', found_spec_gshallowcat);
 
                         //let res_confirmed;
 
                         each(found_spec_gshallowcat, item => {
                             const confirmed = confirm_node_specialisation(node, item);
-                            console.log('1a) confirmed', confirmed);
+                            //console.log('1a) confirmed', confirmed);
                             //if (confirmed) res_confirmed =  item;
                             if (confirmed) res_found.push(item);
 
@@ -953,7 +1068,7 @@ class Interpreter extends Evented_Class {
 
                             each(found_spec_gshallowtype, item => {
                                 const confirmed = confirm_node_specialisation(node, item);
-                                console.log('2a) confirmed', confirmed);
+                                //console.log('2a) confirmed', confirmed);
                                 //if (confirmed) res_confirmed =  item;
                                 if (confirmed) res_found.push(item);
 
@@ -976,7 +1091,7 @@ class Interpreter extends Evented_Class {
 
                                 each(found_spec_shallowcat, item => {
                                     const confirmed = confirm_node_specialisation(node, item);
-                                    console.log('3a) confirmed', confirmed);
+                                    //console.log('3a) confirmed', confirmed);
                                     //if (confirmed) res_confirmed =  item;
 
                                     if (confirmed) res_found.push(item);
@@ -1002,7 +1117,7 @@ class Interpreter extends Evented_Class {
 
                                     each(found_spec_shallowtype, item => {
                                         const confirmed = confirm_node_specialisation(node, item);
-                                        console.log('4a) confirmed', confirmed);
+                                        //console.log('4a) confirmed', confirmed);
                                         //if (confirmed) res_confirmed =  item;
                                         if (confirmed) res_found.push(item);
 
@@ -1014,11 +1129,11 @@ class Interpreter extends Evented_Class {
 
 
                                 } else {
-                                    console.log('no matching node specialisation found for node', node);
-                                    console.log('node.generalised_compressed_shallow_type_category_signature', node.generalised_compressed_shallow_type_category_signature);
-                                    console.log('node.generalised_compressed_shallow_type_signature', node.generalised_compressed_shallow_type_signature);
-                                    console.log('node.generalised_compressed_deep_type_signature', node.generalised_compressed_deep_type_signature);
-                                    console.log('node.generalised_compressed_shallow_type_signature', node.generalised_compressed_shallow_type_signature);
+                                    //console.log('no matching node specialisation found for node', node);
+                                    //console.log('node.generalised_compressed_shallow_type_category_signature', node.generalised_compressed_shallow_type_category_signature);
+                                    //console.log('node.generalised_compressed_shallow_type_signature', node.generalised_compressed_shallow_type_signature);
+                                    //console.log('node.generalised_compressed_deep_type_signature', node.generalised_compressed_deep_type_signature);
+                                    //console.log('node.generalised_compressed_shallow_type_signature', node.generalised_compressed_shallow_type_signature);
 
                                 }
                             }
@@ -1030,6 +1145,7 @@ class Interpreter extends Evented_Class {
 
                 match_shallow_signatures();
                 match_mid_signatures();
+                match_middeep_signatures();
 
 
 
@@ -1041,7 +1157,7 @@ class Interpreter extends Evented_Class {
             },
 
 
-            match: (node) => {
+            __match: (node) => {
 
                 // Does the node match any of the specialisations loaded?
 
@@ -1072,6 +1188,8 @@ class Interpreter extends Evented_Class {
 
                         
 
+                        
+
 
                     } else {
                         const gmidtype = node.generalised_compressed_mid_type_signature;
@@ -1142,11 +1260,11 @@ class Interpreter extends Evented_Class {
 
 
                                 } else {
-                                    console.log('no matching node specialisation found for node', node);
-                                    console.log('node.generalised_compressed_mid_type_category_signature', node.generalised_compressed_mid_type_category_signature);
-                                    console.log('node.generalised_compressed_mid_type_signature', node.generalised_compressed_mid_type_signature);
-                                    console.log('node.generalised_compressed_deep_type_signature', node.generalised_compressed_deep_type_signature);
-                                    console.log('node.generalised_compressed_shallow_type_signature', node.generalised_compressed_shallow_type_signature);
+                                    //console.log('no matching node specialisation found for node', node);
+                                    //console.log('node.generalised_compressed_mid_type_category_signature', node.generalised_compressed_mid_type_category_signature);
+                                    //console.log('node.generalised_compressed_mid_type_signature', node.generalised_compressed_mid_type_signature);
+                                    //console.log('node.generalised_compressed_deep_type_signature', node.generalised_compressed_deep_type_signature);
+                                    //console.log('node.generalised_compressed_shallow_type_signature', node.generalised_compressed_shallow_type_signature);
 
                                 }
                             }
@@ -1174,9 +1292,6 @@ class Interpreter extends Evented_Class {
                             // and stop each TODO:
                         })
                         return res_confirmed;
-
-                        
-
 
                     } else {
                         const gshallowtype = node.generalised_compressed_shallow_type_signature;
@@ -1247,11 +1362,11 @@ class Interpreter extends Evented_Class {
 
 
                                 } else {
-                                    console.log('no matching node specialisation found for node', node);
-                                    console.log('node.generalised_compressed_shallow_type_category_signature', node.generalised_compressed_shallow_type_category_signature);
-                                    console.log('node.generalised_compressed_shallow_type_signature', node.generalised_compressed_shallow_type_signature);
-                                    console.log('node.generalised_compressed_deep_type_signature', node.generalised_compressed_deep_type_signature);
-                                    console.log('node.generalised_compressed_shallow_type_signature', node.generalised_compressed_shallow_type_signature);
+                                    //console.log('no matching node specialisation found for node', node);
+                                    //console.log('node.generalised_compressed_shallow_type_category_signature', node.generalised_compressed_shallow_type_category_signature);
+                                    //console.log('node.generalised_compressed_shallow_type_signature', node.generalised_compressed_shallow_type_signature);
+                                    //console.log('node.generalised_compressed_deep_type_signature', node.generalised_compressed_deep_type_signature);
+                                    //console.log('node.generalised_compressed_shallow_type_signature', node.generalised_compressed_shallow_type_signature);
 
                                 }
                             }
@@ -1292,6 +1407,39 @@ class Interpreter extends Evented_Class {
                 // JS_AST_Node_Confirmer()
 
                 // And the confirmer could be optimized separately if necessary.
+
+                const get_all_singularised_sigs = sig => {
+                    const res = [];
+
+                    console.log('sig', sig);
+
+                    const ssig = sig.split('1+');
+
+                    if (ssig.length === 2) {
+                        res.push(ssig.join(''));
+                    } else {
+
+                        if (ssig.length === 1) {
+                            //res.push(ssig[0])
+                        } else {
+
+                            if (ssig.length === 3) {
+                                // there are 2 '1+' parts of the sig.
+                                res.push(ssig[0] + ssig[1] + '1+' + ssig[2]);
+                                res.push(ssig[0] + '1+' + ssig[1] + ssig[2]);
+                                res.push(ssig.join(''));
+                            } else {
+                                console.log('ssig', ssig);
+                                throw 'stop';
+                            }
+                            
+                        }
+
+                        
+                    }
+
+                    return res;
+                }
                 
 
 
@@ -1301,11 +1449,14 @@ class Interpreter extends Evented_Class {
 
                 // sig should be an object
 
+                let spec_depth;
+
                 if (typeof sig === 'object') {
 
                     if (typeof sig.mid === 'object') {
-                        const fn_confirm = confirmer.get_fn_confirmation_test(obj_specialisation_spec.confirm);
-
+                        //const fn_confirm = confirmer.get_fn_confirmation_test(obj_specialisation_spec.confirm);
+                        spec_depth = 4;
+                        obj_specialisation_spec.spec_depth = spec_depth;
 
                         // But it's the confirmation test too that really decides it.
                         //  Looks like there should be an array of specialisations that share / can share a signature.
@@ -1318,12 +1469,27 @@ class Interpreter extends Evented_Class {
                         if (typeof sig.mid.type === 'string') {
                             // use 
 
+                            
+
                             if (map_mid_type_sps.has(sig.mid.type)) {
 
                                 // should still add it.
 
-                                throw 'stop';
+                                //console.log('sig.mid.type', sig.mid.type);
+                                //console.log('map_mid_type_sps.keys()', map_mid_type_sps.keys());
+
+                                map_mid_type_sps.get(sig.mid.type).push(obj_specialisation_spec);
+
+                                //throw 'stop';
                             } else {
+
+
+                                // need to create any alternative versions of a generalised signature without 1+
+                                //  But want all combinations of them represented as just 1...?
+                                //   The OO signature system would be the right thing to use if it gets more complicated.
+
+
+                            
 
                                 map_mid_type_sps.set(sig.mid.type, [obj_specialisation_spec]);
                             }
@@ -1339,7 +1505,17 @@ class Interpreter extends Evented_Class {
                             if (map_gmid_type_sps.has(sig.mid.gtype)) {
                                 throw 'stop';
                             } else {
+
+                                // get array of equivalent singularised signatures.
+                                //  when it is 1+, we need to be able to deal with just one of them (spot it with its sig)
+
+                                
+
                                 map_gmid_type_sps.set(sig.mid.gtype, [obj_specialisation_spec]);
+
+                                const singsigs = get_all_singularised_sigs(sig.mid.gtype);
+                                each(singsigs, singsig => {map_gmid_type_sps.set(singsig, [obj_specialisation_spec])})
+
                             }
 
                         } else if (typeof sig.mid.gcat === 'string') {
@@ -1348,6 +1524,8 @@ class Interpreter extends Evented_Class {
                                 throw 'stop';
                             } else {
                                 map_gmid_cat_sps.set(sig.mid.gcat, [obj_specialisation_spec]);
+                                const singsigs = get_all_singularised_sigs(sig.mid.gtype);
+                                each(singsigs, singsig => {map_gmid_type_sps.set(singsig, [obj_specialisation_spec])})
                             }
 
 
@@ -1358,6 +1536,8 @@ class Interpreter extends Evented_Class {
                     } else {
 
                         if (typeof sig.shallow === 'object') {
+                            spec_depth = 3;
+                            obj_specialisation_spec.spec_depth = spec_depth;
 
                             if (typeof sig.shallow.gtype === 'string') {
                                 // use 
@@ -1365,14 +1545,80 @@ class Interpreter extends Evented_Class {
                                     throw 'stop';
                                 } else {
                                     map_gshallow_type_sps.set(sig.shallow.gtype, [obj_specialisation_spec]);
+
+                                    const singsigs = get_all_singularised_sigs(sig.shallow.gtype);
+                                    each(singsigs, singsig => {
+                                        map_gshallow_type_sps.set(singsig, [obj_specialisation_spec])
+                                    })
+                                }
+    
+                            } else if (typeof sig.shallow.type === 'string') {
+                                // use 
+                                if (map_shallow_type_sps.has(sig.shallow.type)) {
+                                    throw 'stop';
+                                } else {
+                                    map_shallow_type_sps.set(sig.shallow.type, [obj_specialisation_spec]);
+
+                                    const singsigs = get_all_singularised_sigs(sig.shallow.type);
+                                    each(singsigs, singsig => {
+                                        map_shallow_type_sps.set(singsig, [obj_specialisation_spec])
+                                    })
                                 }
     
                             } else {
+
+                                console.log('sig.shallow', sig.shallow);
+
                                 throw 'Unsupported shallow signaturte type (NYI)'
                             }
 
                         } else {
-                            throw 'Only shallow and mid (depth 3 and 4) signatures currently supported'
+
+
+                            if (typeof sig.middeep === 'object') {
+                                spec_depth = 5;
+                                obj_specialisation_spec.spec_depth = spec_depth;
+
+                                if (typeof sig.middeep.gtype === 'string') {
+                                    // use 
+                                    if (map_gmiddeep_type_sps.has(sig.middeep.gtype)) {
+                                        throw 'stop';
+                                    } else {
+                                        map_gmiddeep_type_sps.set(sig.middeep.gtype, [obj_specialisation_spec]);
+
+                                        const singsigs = get_all_singularised_sigs(sig.middeep.gtype);
+                                        each(singsigs, singsig => {
+                                            map_gmiddeep_type_sps.set(singsig, [obj_specialisation_spec])
+                                        })
+                                    }
+        
+                                } else if (typeof sig.middeep.type === 'string') {
+                                    // use 
+                                    if (map_middeep_type_sps.has(sig.middeep.type)) {
+                                        throw 'stop';
+                                    } else {
+                                        map_middeep_type_sps.set(sig.middeep.type, [obj_specialisation_spec]);
+
+                                        const singsigs = get_all_singularised_sigs(sig.middeep.type);
+                                        each(singsigs, singsig => {
+                                            map_middeep_type_sps.set(singsig, [obj_specialisation_spec])
+                                        })
+                                    }
+        
+                                } else {
+                                    throw 'Unsupported shallow signaturte type (NYI)'
+                                }
+    
+                            } else {
+    
+                                
+    
+                                throw 'Only shallow and mid and middeep (depth 3 and 4 and 5) signatures currently supported'
+                            }
+
+
+
+                            //throw 'Only shallow and mid (depth 3 and 4) signatures currently supported'
                         }
 
                         
@@ -1397,8 +1643,6 @@ class Interpreter extends Evented_Class {
             enumerable: true,
             configurable: false
         });
-        
-
     }
     interpret(node) {
 
@@ -1406,6 +1650,18 @@ class Interpreter extends Evented_Class {
         //  Varying in how specific they are
         //   Maybe how complex the specifiers are.
 
+        const log_node_info = (node) => {
+            console.log('');
+            console.log('node.compressed_shallow_type_signature', node.compressed_shallow_type_signature);
+            console.log('node.compressed_mid_type_signature', node.compressed_mid_type_signature);
+            console.log('node.generalised_compressed_shallow_type_signature', node.generalised_compressed_shallow_type_signature);
+            console.log('node.generalised_compressed_mid_type_signature', node.generalised_compressed_mid_type_signature);
+            console.log('node.generalised_compressed_middeep_type_signature', node.generalised_compressed_middeep_type_signature);
+            //console.log('node.generalised_compressed_mid_type_signature', node.generalised_compressed_mid_type_signature);
+            //console.log('node.compressed_mid_type_category_signature', node.compressed_mid_type_category_signature);
+            //console.log('node.generalised_compressed_mid_type_category_signature', node.generalised_compressed_mid_type_category_signature);
+            console.log('node.source:\n' + node.source + '\n');
+        }
 
         if (node.is_js_ast_node) {
 
@@ -1414,9 +1670,35 @@ class Interpreter extends Evented_Class {
                 node.query.each.child.exe(cn => {
                     //console.log('cn', cn);
                     const cn_interpretation = this.interpret(cn);
-                    //console.log('cn_interpretation', cn_interpretation);
+                    
+                    if (cn_interpretation.length > 0) {
+                        //console.log(':) node interrpreted');
 
-                    if (cn_interpretation !== undefined) {
+                        if (cn_interpretation.length === 1) {
+                            const ipn = cn_interpretation[0];
+                            //console.log('ipn.obj', ipn.obj);
+                        } else {
+
+                            //console.log('multiple interpretations cn_interpretation.length', cn_interpretation.length);
+
+                            // Shallowest first.
+                            cn_interpretation.sort((a, b) => {
+                                const [da, db] = [a.specialisation_depth, b.specialisation_depth];
+                                return da - db;
+                            })
+
+                            each(cn_interpretation, intn => {
+                                //console.log('intn.obj', intn.obj);
+                            });
+
+
+
+                            //throw 'NYI';
+                        }
+
+
+                        /*
+
                         const cn_interpreted_object_lifecycle_events = get_interpretation_object_lifecycle_events(cn_interpretation);
 
                         if (cn_interpreted_object_lifecycle_events && cn_interpreted_object_lifecycle_events.length > 0) {
@@ -1424,8 +1706,14 @@ class Interpreter extends Evented_Class {
                                 arr_object_lifecycle_events.push(cn_int_lse);
                             })
                         }
+
+                        */
                         // Get the interpretation for the child node.
                         //  Use the interpretation to adjust variables....
+                    } else {
+                        console.log(':( node not interpreted');
+                        //console.log('cn.generalised_compressed_middeep_type_signature', cn.generalised_compressed_middeep_type_signature);
+                        log_node_info(cn);
                     }
 
                     
@@ -1461,13 +1749,10 @@ class Interpreter extends Evented_Class {
             } else {
                 
 
+                
 
-                console.log('');
-                console.log('node.compressed_mid_type_signature', node.compressed_mid_type_signature);
-                //console.log('node.generalised_compressed_mid_type_signature', node.generalised_compressed_mid_type_signature);
-                //console.log('node.compressed_mid_type_category_signature', node.compressed_mid_type_category_signature);
-                //console.log('node.generalised_compressed_mid_type_category_signature', node.generalised_compressed_mid_type_category_signature);
-                console.log('node.source:\n' + node.source + '\n');
+
+                
 
 
                 // check the node signatures to see if it matches any of the stored specialisations.
@@ -1487,6 +1772,7 @@ class Interpreter extends Evented_Class {
                 const res_interpretations = [];
 
                 each(arr_matches, m => {
+                    //console.log('m', m);
                     const spec_extract = m.extract;
                     //console.log('spec_extract', spec_extract);
 
@@ -1506,6 +1792,7 @@ class Interpreter extends Evented_Class {
 
                         const res = new Interpretation({
                             specialisation_name: m.name,
+                            specialisation_depth: m.spec_depth,
                             extracted: extracted,
                             node: {
                                 type: node.type,
@@ -1537,6 +1824,7 @@ class Interpreter extends Evented_Class {
 
                                 const res = new Interpretation({
                                     specialisation_name: m.name,
+                                    specialisation_depth: m.spec_depth,
                                     extracted: extracted,
                                     node: {
                                         type: node.type,
@@ -1560,10 +1848,6 @@ class Interpreter extends Evented_Class {
                 })
 
                 return res_interpretations;
-
-
-
-
                 //console.log('!!m', !!m);
                 //console.log('arr_matches.length', arr_matches.length);
 

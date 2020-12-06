@@ -41,6 +41,23 @@ class JS_AST_Node_Query_Result extends Array {
             enumerable: false,
             configurable: false
         });
+
+        const query_with_words = arr_words => {
+
+            // Maybe it's now expected to execute the query?
+
+            // create_query_execution_fn
+
+            const q = create_query(this, arr_words);
+            return q;
+        }
+        Object.defineProperty(this, 'query_with_words', {
+            get() { 
+                return query_with_words;
+            },
+            enumerable: false,
+            configurable: false
+        });
     }
 
 }
@@ -550,7 +567,7 @@ const create_query_execution_fn = (node, words) => {
         const collect_child_nodes = () => {
             const res = new Query_Result();
             each(node.child_nodes, cn => res.push(cn));
-            enable_array_as_queryable(res);
+            //enable_array_as_queryable(res);
             return res;
         }
         const collect_first_child_node = () => {

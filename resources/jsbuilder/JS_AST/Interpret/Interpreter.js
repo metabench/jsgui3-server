@@ -298,7 +298,166 @@ class Extractor {
 
 
                 } else {
-                    throw 'Unsupported extraction operation'
+
+                    // could be able to run query_with_words on the node.
+
+                    // it looks like we will need to split it into multiple queries and run them separately though.
+
+                    // so this part of the app may have to be fairly complex.
+                    //  the extraction of information from nodes identified by signatures will be one of the most important parts still to improve.
+
+                    const js_extraction_str_source = spec_extract;
+
+                    if (js_extraction_str_source.includes('.exe()')) {
+
+                        const words = js_extraction_str_source.split('.');
+
+                        //console.log('words', words);
+
+                        const arr_command_arrs = [];
+
+                        let i_command = 0;
+
+                        let arr_command = [];
+
+
+                        each(words, word => {
+                            if (word === 'exe()') {
+                                arr_command_arrs.push(arr_command);
+                                i_command++;
+                                arr_command = [];
+                            } else if (word === 'flat()') {
+                                arr_command.push(word);
+                                arr_command_arrs.push(arr_command);
+                                i_command++;
+                                arr_command = [];
+                            } else {
+                                arr_command.push(word);
+
+                            }
+                        })
+
+                        //console.log('arr_command_arrs', arr_command_arrs);
+
+                        const validate_arr_command_arrs = () => {
+                            let valid = true;
+
+                            each(arr_command_arrs, command_arr => {
+                                if (command_arr.length === 1) {
+                                    const command = command_arr[0];
+                                    if (command === 'flat()') {
+
+                                    } else {
+                                        valid = false;
+                                    }
+                                } else {
+
+                                    if (command_arr.length >= 3) {
+
+                                        if (command_arr[0] === 'query') {
+
+                                            if (command_arr[1] === 'collect') {
+
+                                                const str_query = command_arr.slice(1).join(' ');
+                                                //console.log('str_query', str_query);
+
+                                            } else {
+                                                valid = false;
+                                            }
+
+                                        } else {
+                                            valid = false;
+                                        }
+
+                                    } else {
+                                        valid = false;
+                                    }
+
+
+                                }
+
+                            })
+
+
+                            return valid;
+                        }
+
+
+
+                        const are_valid_arr_command_arrs = validate_arr_command_arrs();
+
+                        //console.log('are_valid_arr_command_arrs', are_valid_arr_command_arrs);
+
+
+                        if (are_valid_arr_command_arrs) {
+                            const fn_res = node => {
+
+                                let last_command_res;
+
+                                each(arr_command_arrs, command_arr => {
+                                    //console.log('command_arr', command_arr);
+
+                                    if (command_arr.length === 1) {
+                                        const command = command_arr[0];
+                                        if (command === 'flat()') {
+                                            last_command_res = last_command_res.flat();
+                                        } else {
+                                            throw 'stop';
+                                        }
+                                    } else {
+                                        if (command_arr.length >= 3) {
+
+                                            if (command_arr[0] === 'query') {
+
+                                                if(command_arr[1] === 'collect') {
+
+                                                    if (last_command_res) {
+                                                        //console.log('1) last_command_res', last_command_res);
+                                                        last_command_res = last_command_res.query_with_words(command_arr.slice(1)).exe();
+                                                    } else {
+                                                        //console.log('node', node);
+                                                        last_command_res = node.query_with_words(command_arr.slice(1)).exe();
+                                                        //console.log('2) last_command_res', last_command_res);
+                                                    }
+
+
+                                                    //throw 'NYI';
+                                                } else {
+                                                    throw 'stop';
+                                                }
+
+                                            } else {
+                                                throw 'stop';
+                                            }
+
+                                        } else {
+                                            throw 'stop';
+                                        }
+                                    }
+                                })
+                                //console.log('last_command_res', last_command_res);
+                                //throw 'stop';
+                                return Array.from(last_command_res);
+
+                            }
+                            return fn_res;
+
+
+                            
+
+                            //throw 'NYI';
+                        } else {
+                            throw 'stop';
+                        }
+
+                        
+
+
+                    } else {
+                        console.log('dts', dts);
+                        console.log('spec_extract', spec_extract);
+                        throw 'Unsupported extraction operation'
+                    }
                 }
 
             } else {
@@ -327,18 +486,10 @@ class Extractor {
 
                     }
                 }
-
-
-
-                
             }
-            throw 'NYI';
-
         }
-
         this.get_fn_spec_extract = get_fn_spec_extract;
     }
-    
 }
 
 const extractor = new Extractor();
@@ -488,6 +639,8 @@ class Confirmer {
 
 
                         const str_op = be.babel.node.operator;
+                        console.log('str_op', str_op);                        
+
                         if (str_op === '===') {
 
                             if (name1 === 'nav' && name3 === 'nav') {
@@ -570,12 +723,39 @@ class Confirmer {
                             //throw 'stop';
 
                         } else {
-                            throw 'Unrecognised syntax';
+                            console.log('dts', dts);
+                            console.log('js_ct', js_ct);
 
+                            if (dts === 'ES(BE(ME(ME(ID,ID),ID),NumL))') {
+                                const [be, me, numl] = js_ast.nav(['0', '0/0', '0/1']);
+                                const num = numl.value;
+                                if (me.source === 'node.child.count') {
+                                    //console.log('be.babel.node', be.babel.node);
+                                    const operator = be.babel.node.operator;
+
+                                    if (operator === '<') {
+                                        const res_fn_test = node => node.child.count < num;
+                                        arr_fn_subtests.push(res_fn_test);
+                                    } else if (operator === '===') {
+                                        const res_fn_test = node => node.child.count === num;
+                                        arr_fn_subtests.push(res_fn_test);
+                                    } else if (operator === '>') {
+                                        const res_fn_test = node => node.child.count > num;
+                                        arr_fn_subtests.push(res_fn_test);
+                                    } else {
+                                        throw 'Unsupported comparison operator'
+                                    }
+
+
+                                    //throw 'NYI';
+                                } else {
+                                    throw 'Unrecognised syntax'
+                                }
+
+                            } else {
+                                throw 'Unrecognised syntax';
+                            }
                         }
-
-                        
-
                     }
                 })
 
@@ -923,8 +1103,6 @@ class Interpreter extends Evented_Class {
                 }
 
 
-
-
                 const match_mid_signatures = () => {
 
 
@@ -1156,245 +1334,6 @@ class Interpreter extends Evented_Class {
 
             },
 
-
-            __match: (node) => {
-
-                // Does the node match any of the specialisations loaded?
-
-                // First match by signature comparisons, then there will be other tests to be done sequentially
-                //  
-
-                let found = false;
-
-                const match_mid_signatures = () => {
-
-
-                    const gmidcat = node.generalised_compressed_mid_type_category_signature;
-                    const found_spec_gmidcat = map_gmid_cat_sps.get(gmidcat);
-
-                    if (found_spec_gmidcat) {
-                        console.log('found_spec_gmidcat', found_spec_gmidcat);
-
-                        let res_confirmed;
-
-                        each(found_spec_gmidcat, item => {
-                            const confirmed = confirm_node_specialisation(node, item);
-                            console.log('1) confirmed', confirmed);
-                            if (confirmed) res_confirmed =  item;
-
-                            // and stop each TODO:
-                        })
-                        return res_confirmed;
-
-                        
-
-                        
-
-
-                    } else {
-                        const gmidtype = node.generalised_compressed_mid_type_signature;
-                        const found_spec_gmidtype = map_gmid_type_sps.get(gmidtype);
-
-                        if (found_spec_gmidtype) {
-                            //console.log('found_spec_gmidtype', found_spec_gmidtype);
-                            //const confirmed = confirm_node_specialisation(node, found_spec_gmidtype);
-                            //console.log('2) confirmed', confirmed);
-                            //if (confirmed) return found_spec_gmidtype;
-
-                            let res_confirmed;
-
-                            each(found_spec_gmidtype, item => {
-                                const confirmed = confirm_node_specialisation(node, item);
-                                console.log('2) confirmed', confirmed);
-                                if (confirmed) res_confirmed =  item;
-
-                                // and stop each TODO:
-                            })
-                            return res_confirmed;
-
-                        } else {
-                            const midcat = node.compressed_mid_type_category_signature;
-                            const found_spec_midcat = map_mid_cat_sps.get(midcat);
-
-                            if (found_spec_midcat) {
-                                //console.log('found_spec_midcat', found_spec_midcat);
-
-                                //const confirmed = confirm_node_specialisation(node, found_spec_midcat);
-                                //console.log('3) confirmed', confirmed);
-                                //if (confirmed) return found_spec_midcat;
-
-                                let res_confirmed;
-
-                                each(found_spec_midcat, item => {
-                                    const confirmed = confirm_node_specialisation(node, item);
-                                    console.log('3) confirmed', confirmed);
-                                    if (confirmed) res_confirmed =  item;
-
-                                    // and stop each TODO:
-                                })
-                                return res_confirmed;
-
-
-                            } else {
-                                const midtype = node.compressed_mid_type_signature;
-                                const found_spec_midtype = map_mid_type_sps.get(midtype);
-
-                                if (found_spec_midtype) {
-                                    //console.log('4) found_spec_midtype', found_spec_midtype);
-
-                                    //const confirmed = confirm_node_specialisation(node, found_spec_midtype);
-                                    //console.log('4) confirmed', confirmed);
-
-                                    //if (confirmed) return found_spec_midtype;
-
-                                    let res_confirmed;
-
-                                    each(found_spec_midtype, item => {
-                                        const confirmed = confirm_node_specialisation(node, item);
-                                        console.log('4) confirmed', confirmed);
-                                        if (confirmed) res_confirmed =  item;
-
-                                        // and stop each TODO:
-                                    })
-                                    return res_confirmed;
-
-
-                                } else {
-                                    //console.log('no matching node specialisation found for node', node);
-                                    //console.log('node.generalised_compressed_mid_type_category_signature', node.generalised_compressed_mid_type_category_signature);
-                                    //console.log('node.generalised_compressed_mid_type_signature', node.generalised_compressed_mid_type_signature);
-                                    //console.log('node.generalised_compressed_deep_type_signature', node.generalised_compressed_deep_type_signature);
-                                    //console.log('node.generalised_compressed_shallow_type_signature', node.generalised_compressed_shallow_type_signature);
-
-                                }
-                            }
-                        }
-
-                    }
-                    return false;
-
-                }
-
-                const match_shallow_signatures = () => {
-                    const gshallowcat = node.generalised_compressed_shallow_type_category_signature;
-                    const found_spec_gshallowcat = map_gshallow_cat_sps.get(gshallowcat);
-
-                    if (found_spec_gshallowcat) {
-                        console.log('found_spec_gshallowcat', found_spec_gshallowcat);
-
-                        let res_confirmed;
-
-                        each(found_spec_gshallowcat, item => {
-                            const confirmed = confirm_node_specialisation(node, item);
-                            console.log('1) confirmed', confirmed);
-                            if (confirmed) res_confirmed =  item;
-
-                            // and stop each TODO:
-                        })
-                        return res_confirmed;
-
-                    } else {
-                        const gshallowtype = node.generalised_compressed_shallow_type_signature;
-                        const found_spec_gshallowtype = map_gshallow_type_sps.get(gshallowtype);
-
-                        if (found_spec_gshallowtype) {
-                            //console.log('found_spec_gshallowtype', found_spec_gshallowtype);
-                            //const confirmed = confirm_node_specialisation(node, found_spec_gshallowtype);
-                            //console.log('2) confirmed', confirmed);
-                            //if (confirmed) return found_spec_gshallowtype;
-
-                            let res_confirmed;
-
-                            each(found_spec_gshallowtype, item => {
-                                const confirmed = confirm_node_specialisation(node, item);
-                                console.log('2) confirmed', confirmed);
-                                if (confirmed) res_confirmed =  item;
-
-                                // and stop each TODO:
-                            })
-                            return res_confirmed;
-
-                        } else {
-                            const shallowcat = node.compressed_shallow_type_category_signature;
-                            const found_spec_shallowcat = map_shallow_cat_sps.get(shallowcat);
-
-                            if (found_spec_shallowcat) {
-                                //console.log('found_spec_shallowcat', found_spec_shallowcat);
-
-                                //const confirmed = confirm_node_specialisation(node, found_spec_shallowcat);
-                                //console.log('3) confirmed', confirmed);
-                                //if (confirmed) return found_spec_shallowcat;
-
-                                let res_confirmed;
-
-                                each(found_spec_shallowcat, item => {
-                                    const confirmed = confirm_node_specialisation(node, item);
-                                    console.log('3) confirmed', confirmed);
-                                    if (confirmed) res_confirmed =  item;
-
-                                    // and stop each TODO:
-                                })
-                                return res_confirmed;
-
-
-                            } else {
-                                const shallowtype = node.compressed_shallow_type_signature;
-                                const found_spec_shallowtype = map_shallow_type_sps.get(shallowtype);
-
-                                if (found_spec_shallowtype) {
-                                    //console.log('4) found_spec_shallowtype', found_spec_shallowtype);
-
-                                    //const confirmed = confirm_node_specialisation(node, found_spec_shallowtype);
-                                    //console.log('4) confirmed', confirmed);
-
-                                    //if (confirmed) return found_spec_shallowtype;
-
-                                    let res_confirmed;
-
-                                    each(found_spec_shallowtype, item => {
-                                        const confirmed = confirm_node_specialisation(node, item);
-                                        console.log('4) confirmed', confirmed);
-                                        if (confirmed) res_confirmed =  item;
-
-                                        // and stop each TODO:
-                                    })
-                                    return res_confirmed;
-
-
-                                } else {
-                                    //console.log('no matching node specialisation found for node', node);
-                                    //console.log('node.generalised_compressed_shallow_type_category_signature', node.generalised_compressed_shallow_type_category_signature);
-                                    //console.log('node.generalised_compressed_shallow_type_signature', node.generalised_compressed_shallow_type_signature);
-                                    //console.log('node.generalised_compressed_deep_type_signature', node.generalised_compressed_deep_type_signature);
-                                    //console.log('node.generalised_compressed_shallow_type_signature', node.generalised_compressed_shallow_type_signature);
-
-                                }
-                            }
-                        }
-
-                    }
-                    return false;
-                }
-
-                found = match_mid_signatures();
-
-                if (!found) {
-
-                    found = match_shallow_signatures();
-                }
-
-                
-                //if (map_gmid_cat_sps
-
-
-                return found;
-
-
-
-                // Then a later function will do data extraction from that discovered specialised node.
-
-            },
-
             add: (obj_specialisation_spec) => {
 
                 // must have one of the signatures.
@@ -1440,10 +1379,6 @@ class Interpreter extends Evented_Class {
 
                     return res;
                 }
-                
-
-
-
 
                 const {sig} = obj_specialisation_spec;
 
@@ -1747,13 +1682,6 @@ class Interpreter extends Evented_Class {
             } else if (node.type === 'File') {
                 throw 'NYI';
             } else {
-                
-
-                
-
-
-                
-
 
                 // check the node signatures to see if it matches any of the stored specialisations.
 
@@ -1789,6 +1717,9 @@ class Interpreter extends Evented_Class {
 
                         // Interpretation_Set may be the better type of result?
 
+                        //console.log('node', node);
+                        //console.log('node.root_node.file', node.root_node.file);
+                        //console.log('node.root_node.file.path', node.root_node.file.path);
 
                         const res = new Interpretation({
                             specialisation_name: m.name,
@@ -1799,7 +1730,10 @@ class Interpreter extends Evented_Class {
                                 start: node.babel.node.start,
                                 end: node.babel.node.end,
                                 length: node.babel.node.end - node.babel.node.start,
-                                path: node.path
+                                path: node.path,
+                                file: {
+                                    path: node.root_node.file.path
+                                }
                             }
                         });
                         //return res;
@@ -1822,6 +1756,17 @@ class Interpreter extends Evented_Class {
 
                                 //throw 'stop';
 
+                                // node.file_id?
+                                // node.file_path
+
+                                // the file path seems like it would be the right / a useful way to recognise the file the node is from.
+
+                                // node.root.???
+
+                                //console.log('node', node);
+                                //console.log('node.root_node.file', node.root_node.file);
+                                //console.log('node.root_node.file.path', node.root_node.file.path);
+
                                 const res = new Interpretation({
                                     specialisation_name: m.name,
                                     specialisation_depth: m.spec_depth,
@@ -1831,7 +1776,10 @@ class Interpreter extends Evented_Class {
                                         start: node.babel.node.start,
                                         end: node.babel.node.end,
                                         length: node.babel.node.end - node.babel.node.start,
-                                        path: node.path
+                                        path: node.path,
+                                        file: {
+                                            path: node.root_node.file.path
+                                        }
                                     }
                                 });
                                 //return res;
@@ -1841,11 +1789,17 @@ class Interpreter extends Evented_Class {
                         } else {
                             throw 'stop';
                         }
-
-
-                        
                     }
                 })
+
+                res_interpretations.sort((a, b) => {
+                    const [da, db] = [a.obj.specialisation.depth, b.obj.specialisation.depth];
+                    return db - da;
+                })
+
+                this.raise('node-interpreted', {
+                    interpretations: res_interpretations
+                });
 
                 return res_interpretations;
                 //console.log('!!m', !!m);

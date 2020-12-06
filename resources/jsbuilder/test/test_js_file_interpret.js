@@ -242,13 +242,15 @@ const test_js_file = () => {
 
 
     const resolved_path = path.resolve(file_path);
-    console.log('');
-    console.log('resolved_path', resolved_path);
-    console.log('');
+    //console.log('');
+    //console.log('resolved_path', resolved_path);
+    //console.log('');
 
     const fstream = fs.createReadStream(resolved_path);
 
-    const jsf = JS_File.load_from_stream(fstream, file_path);
+    //const jsf = JS_File.load_from_stream(fstream, file_path);
+    console.log('file_path', file_path);
+    const jsf = JS_File.load_from_stream(fstream, resolved_path);
     jsf.on('ready', () => {
         const {js_ast_node_file} = jsf;
         const body_child_node_identifier_names = [];
@@ -266,7 +268,19 @@ const test_js_file = () => {
 
         const interpreter = new StandardInterpreter();
 
+        interpreter.on('node-interpreted', e_node_interpreted => {
+            const {interpretations} = e_node_interpreted;
+            console.log('interpretations.length', interpretations.length);
+
+            each(interpretations, interpretation => {
+                console.log('interpretation.obj', interpretation.obj);
+            })
+        })
+
         const program_interpretation = interpreter.interpret(program);
+
+
+
         console.log('program_interpretation', program_interpretation);
 
 

@@ -625,7 +625,6 @@ n_divide = (n1, n2) => n1 / n2;`,
             called_function_name: 'nav("0/1/0").name'
         }
     },
-
     
     {
         // naming could be clearer - but this is explicit and unambiguous at least. Maybe it could be automated from it's name...???
@@ -773,9 +772,16 @@ isdef = is_defined;`, // will need to differentiate between declaration types. C
 `const map_loaded_type_fn_checks = {}, map_loaded_type_abbreviations = {...}`, // will need to differentiate between declaration types. Could do that in 'confirm'. Or make this for general declarations...?
         confirm: [
             // Will need to be more specific.
-            //'nav("0/0").name === nav("1/1").name'
+            'node.child.count > 1'
         ],
         extract: {
+
+            //'collect_from_each_child(cn => cn.nav("0").name)',
+
+            //declared_variable_names: 'node.query.collect.child.first.child.name.exe()'
+            declared_variable_names: 'query.collect.child.exe().query.collect.first.child.name.exe().flat()' // and will turn it into a normal array too... ???
+            //  probably best by far that way. This part of the API will only use plain JS objects.
+
             //declared_object_name: 'nav("0/0").name',
             //called_function_name: 'nav("0/1/0").name'
             //called_function_name: 'nav("0/1/0").name'

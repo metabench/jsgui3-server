@@ -21,7 +21,7 @@ class JS_AST_Node_Core extends Evented_Class{
         const child_nodes = [];
 
         let depth, path, index_from_root;
-        let full_source; // only for the root.
+        let full_source, file; // only for the root.
 
         //console.log('JS_AST_Node_Core Object.keys(spec)', Object.keys(spec));
 
@@ -32,6 +32,20 @@ class JS_AST_Node_Core extends Evented_Class{
                 root_node = spec.root_node;
             }
         }
+
+        if (spec.file) {
+            file = spec.file;
+        }
+        Object.defineProperty(this, 'file', {
+            get() { 
+                return file;
+            },
+            enumerable: true,
+            configurable: false
+        });
+        
+
+
         if (spec.parent_node) {
             parent_node = spec.parent_node;
         }

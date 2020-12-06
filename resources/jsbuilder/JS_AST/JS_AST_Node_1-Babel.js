@@ -135,12 +135,19 @@ class JS_AST_Node_Babel extends JS_AST_Node_Core {
                         map_babel_nodes_by_path[path] = inner_babel_node;
                         const parent_babel_node = map_babel_nodes_by_path[parent_path];
                         const parent_js_ast_node = map_js_ast_nodes_by_path[parent_path];
-                        const new_node = parent_js_ast_node.create_append_child({
+
+                        const o_new_node = {
                             babel_node: inner_babel_node,
                             path: path,
                             index_from_root: index_from_root++,
                             depth: depth
-                        });
+                        }
+
+                        if (this.file) {
+                            o_new_node.file = this.file;
+                        }
+
+                        const new_node = parent_js_ast_node.create_append_child(o_new_node);
                         map_js_ast_nodes_by_path[path] = new_node;
                     }
                 })

@@ -36,6 +36,8 @@ class JS_File extends Evented_Class {
 
         let path = spec.path;
 
+        //throw 'stop';
+
         let sha512, source;
 
         //Object.assign(this, {

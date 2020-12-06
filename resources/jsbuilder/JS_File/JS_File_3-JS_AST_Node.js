@@ -40,10 +40,15 @@ class JS_File_JS_AST_Node extends JS_File_Babel {
 
 
             js_ast_node_file = new JS_AST_Node_Root_Interpreted({
+
+                file: this,
+
                 babel_node: e_parsed_ast.value,
                 source: this.source,
                 root_node: true
             });
+
+            //console.log('js_ast_node_file.file', js_ast_node_file.file);
 
             node_root = js_ast_node_file;
             //console.log('Object.keys(js_ast_node_file)', Object.keys(js_ast_node_file));

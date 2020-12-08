@@ -23,6 +23,9 @@ Object.assign(mod_res, {
     another_string: 'This is a longer string.'
 });
 
+const fn1 = function(a, b, c) {
+    return 'a string';
+}
 
 module.exports = mod_res;
 

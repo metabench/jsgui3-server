@@ -210,7 +210,7 @@ const test_js_file = () => {
 
     const sample1_js_path = './sample1.js';
     //const file_path = '../JS_File.js';
-    const file_path = lm_path;
+    const file_path = sample1_js_path;
     // path of lang mini...
 
     // Write and test a simple and convenient way for analysing JS files and recompiling them.
@@ -268,13 +268,27 @@ const test_js_file = () => {
 
         const interpreter = new StandardInterpreter();
 
+        const source = jsf.source;
+
         interpreter.on('node-interpreted', e_node_interpreted => {
             const {interpretations} = e_node_interpreted;
             console.log('interpretations.length', interpretations.length);
 
+            // be able to get the original source back.
+
             each(interpretations, interpretation => {
                 console.log('interpretation.obj', interpretation.obj);
+                const {start, end} = interpretation.obj.node;
+                const orig_code = source.substring(start, end);
+                console.log('orig_code', orig_code);
             })
+        })
+
+        interpreter.on('node-not-interpreted', e_node_not_interpreted => {
+            console.log('e_node_not_interpreted', e_node_not_interpreted);
+            const {start, end} = e_node_not_interpreted.node;
+            const orig_code = source.substring(start, end);
+            console.log('orig_code', orig_code);
         })
 
         const program_interpretation = interpreter.interpret(program);

@@ -206,13 +206,6 @@ const JS_AST_Node = require('../JS_AST_Node');
 // Should probably define specialisations for where we can certainly and unambiguously understand the syntax and get meaning interpreted from it.
 
 
-/*
-{
-
-
-}
-
-*/
 
 
 // And need to have parsing of Confirmation Clause Language.
@@ -331,6 +324,11 @@ class Extractor {
                                 arr_command_arrs.push(arr_command);
                                 i_command++;
                                 arr_command = [];
+                            } else if (word.startsWith('nav(')) {
+                                arr_command.push(word);
+                                arr_command_arrs.push(arr_command);
+                                i_command++;
+                                arr_command = [];
                             } else {
                                 arr_command.push(word);
 
@@ -342,10 +340,17 @@ class Extractor {
                         const validate_arr_command_arrs = () => {
                             let valid = true;
 
+                            // could have a nav() part of the query.
+
+
                             each(arr_command_arrs, command_arr => {
+                                console.log('command_arr', command_arr);
                                 if (command_arr.length === 1) {
                                     const command = command_arr[0];
-                                    if (command === 'flat()') {
+                                    
+                                    if (command.startsWith('nav(')) {
+                                        //throw 'stop';
+                                    } else if (command === 'flat()') {
 
                                     } else {
                                         valid = false;
@@ -354,11 +359,15 @@ class Extractor {
 
                                     if (command_arr.length >= 3) {
 
-                                        if (command_arr[0] === 'query') {
+                                        // first word being a navigation command
+
+                                        if (command_arr[0].startsWith('nav(')) {
+                                            throw 'stop';
+                                        } else if (command_arr[0] === 'query') {
 
                                             if (command_arr[1] === 'collect') {
 
-                                                const str_query = command_arr.slice(1).join(' ');
+                                                //const str_query = command_arr.slice(1).join(' ');
                                                 //console.log('str_query', str_query);
 
                                             } else {
@@ -377,8 +386,6 @@ class Extractor {
                                 }
 
                             })
-
-
                             return valid;
                         }
 
@@ -399,7 +406,21 @@ class Extractor {
 
                                     if (command_arr.length === 1) {
                                         const command = command_arr[0];
-                                        if (command === 'flat()') {
+                                        if (command.startsWith('nav(')) {
+                                            //console.log('js_ast.deep_type_signature', js_ast.deep_type_signature);
+                                            //
+
+                                            const snav = command.split('"');
+                                            //console.log('snav', snav);
+
+                                            const path = snav[1];
+
+                                            last_command_res = node.nav(path);
+
+                                            //const path = js_ast.nav()
+                                            //throw 'stop';
+
+                                        } else if (command === 'flat()') {
                                             last_command_res = last_command_res.flat();
                                         } else {
                                             throw 'stop';
@@ -407,7 +428,10 @@ class Extractor {
                                     } else {
                                         if (command_arr.length >= 3) {
 
-                                            if (command_arr[0] === 'query') {
+
+                                            if (command_arr[0].startsWith('nav(')) {
+
+                                            } else if (command_arr[0] === 'query') {
 
                                                 if(command_arr[1] === 'collect') {
 
@@ -639,7 +663,7 @@ class Confirmer {
 
 
                         const str_op = be.babel.node.operator;
-                        console.log('str_op', str_op);                        
+                        //console.log('str_op', str_op);                        
 
                         if (str_op === '===') {
 
@@ -718,13 +742,11 @@ class Confirmer {
 
                                 throw 'Unrecognised syntax';
                             }
-
-
                             //throw 'stop';
 
                         } else {
-                            console.log('dts', dts);
-                            console.log('js_ct', js_ct);
+                            //console.log('dts', dts);
+                            //console.log('js_ct', js_ct);
 
                             if (dts === 'ES(BE(ME(ME(ID,ID),ID),NumL))') {
                                 const [be, me, numl] = js_ast.nav(['0', '0/0', '0/1']);
@@ -1784,7 +1806,6 @@ class Interpreter extends Evented_Class {
                                 });
                                 //return res;
                                 res_interpretations.push(res);
-
                             }
                         } else {
                             throw 'stop';
@@ -1797,9 +1818,26 @@ class Interpreter extends Evented_Class {
                     return db - da;
                 })
 
-                this.raise('node-interpreted', {
-                    interpretations: res_interpretations
-                });
+                if (res_interpretations.length > 0) {
+                    this.raise('node-interpreted', {
+                        interpretations: res_interpretations
+                    });
+                } else {
+                    this.raise('node-not-interpreted', {
+                        node: {
+                            start: node.babel.node.start,
+                            end: node.babel.node.end,
+                            length: node.babel.node.end - node.babel.node.start,
+                            deep_type_signature: node.deep_type_signature,
+                            shallow_type_signature: node.shallow_type_signature,
+                            mid_type_signature: node.mid_type_signature,
+                            generalised_compressed_mid_type_signature: node.generalised_compressed_mid_type_signature,
+                            path: node.path
+                        }
+                    });
+                }
+
+                
 
                 return res_interpretations;
                 //console.log('!!m', !!m);

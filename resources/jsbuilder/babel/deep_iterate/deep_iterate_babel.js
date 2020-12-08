@@ -372,6 +372,9 @@ const deep_iterate_babel_object_property_node = (babel_node, depth, path, common
 
     deep_iterate_babel_node_$INTERNAL(key, depth + 1, path + sibling_number++ + '/', common, callback);
     
+
+    // Not sure why it would be missing a value / have the value node representing the same code as the key.
+
     if (value.start !== key.start) {
         //throw 'stop';
         deep_iterate_babel_node_$INTERNAL(value, depth + 1, path + sibling_number++ + '/', common, callback);

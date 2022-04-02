@@ -1,6 +1,6 @@
 //const babel_node_tools = require('../babel/babel_node_tools');
 
-const { each } = require('../../../../../tools/arr-tools/arr-tools');
+//const { each } = require('lang-mini');
 const JS_AST_Node_Query = require('./JS_AST_Node_7-Query');
 
 

@@ -8,7 +8,7 @@
 // Indexing at every level looks like it would be useful.
 //  so in order to get the info about how the names relate to nodes we consult indexes.
 
-const { each } = require('../../../../../tools/arr-tools/arr-tools');
+
 const JS_AST_Node_Signature = require('./JS_AST_Node_2.9-Signature');
 
 // Could make a more specific feature extraction part.

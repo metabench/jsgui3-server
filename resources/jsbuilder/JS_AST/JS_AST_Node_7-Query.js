@@ -1,6 +1,6 @@
 //const babel_node_tools = require('../babel/babel_node_tools');
 
-const { each } = require('../../../../../tools/arr-tools/arr-tools');
+//
 const JS_AST_Node_Type_Variable_Declarator = require('./JS_AST_Node_6.3-Type_Variable_Declarator');
 
 const enable_array_as_queryable = require('./query/enable_array_as_queryable');

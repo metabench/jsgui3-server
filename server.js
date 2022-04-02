@@ -1,6 +1,6 @@
 //var sockjs = require('sockjs'), jsgui = require('jsgui3-html'),
 const jsgui = require('jsgui3-html'),
-os = require('os'),
+//os = require('os'),
 http = require('http'),
 https = require('https'),
 Resource = jsgui.Resource,

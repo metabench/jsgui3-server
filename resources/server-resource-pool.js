@@ -19,6 +19,17 @@ var exec = require('child_process').exec;
 // Perhaps this will have HTTP endpoints as well?
 //  Maybe we can access it through url/resources/
 
+
+// jsgui-html could include a prototype / placeholder Templated HTML => HTML transformer.
+//  Or the class that is the superclass of the class that then gets the rsx or whatever module loaded into it.
+//  Maybe it's a Publisher anyway?
+//   Publisher seems a lot like Transformer.
+
+
+
+
+
+
 // Perhaps a resource publisher, or a few of them could be useful.
 //  HTTP_Resource_Publisher?
 //  Generally publishes a resource over HTTP.

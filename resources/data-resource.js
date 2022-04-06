@@ -37,6 +37,12 @@ var Collection = jsgui.Collection;
 // Ideally want it like image keys, then options for max size and also quality.
 //  
 
+// Data_HTTP_Resource ?
+
+// Handled with request+response.
+//  What about data that needs to be in page load?
+
+// Maybe assume resources always deal with data?
 
 class Data_Resource extends Resource {
 

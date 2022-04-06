@@ -27,6 +27,7 @@ const test_lang_mini_project = () => {
     // Worth working with a lower level part of jsgui, such as lang-mini.
     //  lang-mini itself has an external reference.
     // stream the file in.
+    throw 'STOP';
     const lm_path = '../../../../../tools/lang-mini/lang-mini.js'
     
     //const file_path = '../JS_File.js';

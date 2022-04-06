@@ -4,11 +4,13 @@
 //var sockjs = require('sockjs'), jsgui = require('jsgui3-html'),
 const jsgui = require('jsgui3-html')
 const Server_Page_Context = require('./page-context');
+jsgui.Server_Page_Context = Server_Page_Context;
 
 // Login = require('../resource/login'),
 //var Server = {};
 
 const Resource_Publisher = require('./publishing/resource-publisher');
+jsgui.Resource_Publisher = Resource_Publisher;
 jsgui.Server = require('./server');
 jsgui.fs2 = require('./fs2');
 //jsgui.Resource = Resource;

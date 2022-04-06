@@ -38,6 +38,15 @@ var serve_html_file_from_disk = function(filePath, response) {
 
 // Transformation Resource could / should appear in jsgui3-client. Makes sense on the client too.
 
+// Separate loading of transformation resource, data resource, and template (resource)
+//  The transformation resource can itself load / be provided with the data resource and template resource.
+
+// jsx processing may be the best way (by far)?
+
+// or jsui templates?
+//  jsx may seem / be easiest at this stage for long term expansion and integration.
+
+
 
 class Site_Static_HTML extends Resource {
 
@@ -83,40 +92,26 @@ class Site_Static_HTML extends Resource {
 	}
 	'process'(req, res) {
 		//console.log('Site_Static_HTML processing');
-
-
-
-
 		var remoteAddress = req.connection.remoteAddress;
-
 		var custom_paths = this.custom_paths;
-
 		var rurl = req.url;
-
 		var pool = this.pool;
 		// should have a bunch of resources from the pool.
-
 		//var pool_resources = pool.resources();
 		//console.log('pool_resources ' + stringify(pool_resources));
-
 
 		var url_parts = url.parse(req.url, true);
 		//console.log('url_parts ' + stringify(url_parts));
 		var splitPath = url_parts.path.substr(1).split('/');
 		//console.log('resource site css splitPath ' + stringify(splitPath));
 
-
 		if (rurl.substr(0, 1) == '/') rurl = rurl.substr(1);
 		rurl = rurl.replace(/\./g, '☺');
 		//console.log('rurl ' + rurl);
 
 		if (rurl == '') rurl = '/';
-
 		var custom_response_entry = custom_paths.get(rurl);
-
 		//console.log('Static HTML Resource process url', req.url);
-
-
 
 
 		//console.log('custom_response_entry ' + stringify(custom_response_entry));
@@ -124,7 +119,6 @@ class Site_Static_HTML extends Resource {
 		if (custom_response_entry) {
 			var tcr = tof(custom_response_entry);
 			//console.log('tcr ' + tcr);
-
 			if (tcr == 'data_value') {
 				var val = custom_response_entry.value();
 				//console.log('val ' + val);
@@ -195,7 +189,6 @@ class Site_Static_HTML extends Resource {
 								if (splitPath.length == 3) {
 
 								}
-
 							}
 						}
 					}

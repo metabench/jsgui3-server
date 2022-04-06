@@ -11,6 +11,10 @@ Website_Resource = require('./resources/website-resource'),
 Info = require('./resources/local-server-info-resource'),
 Server_Page_Context = require('./page-context'), {Evented_Class, each, tof} = jsgui;
 
+// Operating JSGUI_Server as a proxy server or with improved proxy capabilities may help.
+
+// The router is the same as on the client.
+
 class JSGUI_Server extends Evented_Class {
     constructor(spec = {website: true}, __type_name) {
         // Default operations mode...
@@ -47,6 +51,8 @@ class JSGUI_Server extends Evented_Class {
             });
         }
 
+        // Multiple websites - perhaps proxying to them.
+
         if (is_website) {
             const app = this.app = new Website_Resource({
                 name: 'Website'
@@ -61,6 +67,10 @@ class JSGUI_Server extends Evented_Class {
         //console.log('this.resource_pool', this.resource_pool);
         return this.resource_pool.resource_names;
     }
+
+    // could have those pairs. Possible websocket ports? websockets uses same ports: 80, 443.
+    // http_port, https_port
+
 
     'start'(port, callback, fnProcessRequest) {
         //throw 'stop';
@@ -105,7 +115,8 @@ class JSGUI_Server extends Evented_Class {
                                     //console.log('server_routing_res', server_routing_res);
                                 });
                                 https_server.timeout = 10800000;
-                                https_server.listen(443, ipv4_address);
+                                //https_server.listen(443, ipv4_address);
+                                https_server.listen(port, ipv4_address);
                                 num_to_start--;
                                 if (num_to_start === 0) {
                                     callback(null, true);

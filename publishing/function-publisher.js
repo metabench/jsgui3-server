@@ -120,7 +120,7 @@ class Function_Publisher {
                 const fn_res = fn(obj_input);
                 const tfr = tf(fn_res);
                 
-                console.log('tfr', tfr);
+                //console.log('tfr', tfr);
 
                 if (tfr === 'p') {
                     // promise

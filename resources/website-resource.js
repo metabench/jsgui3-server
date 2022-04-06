@@ -2,6 +2,9 @@
  * Created by James on 29/07/2014.
  */
 
+// Represents (and is?) a website itself, and its representation available through the Resource system.
+
+
 // Want to get the core resources working and tested.
 //  Want to run a clock website / service to start with.
 //  The server could have a clock, while clients could connect to it and share the information.
@@ -73,6 +76,17 @@ const Observable_Publisher = require("../publishing/observable-publisher");
 const Function_Publisher = require("../publishing/function-publisher");
 //const Data_Resource = require("./data-resource");
 
+// Proxy_Server_Resource possibly.
+//  Note that the client should be able to access a Proxy_Server_Resource if needed.
+//   Could just send request onwards and do same for response.
+//    Buffering rate-limiting proxies too though?
+
+
+//  May help with FirstPoint_Server.
+
+
+
+
 class Website_Resource extends Resource {
   constructor(spec = {}) {
     super(spec);
@@ -118,9 +132,9 @@ class Website_Resource extends Resource {
       }
     };
 
-    if (web_database_resource) {
-      spec_web_admin.web_database = web_database_resource;
-    }
+    //if (web_database_resource) {
+    //  spec_web_admin.web_database = web_database_resource;
+    //}
 
     var img_resource = new Site_Images({
       //'meta': {
@@ -149,9 +163,7 @@ class Website_Resource extends Resource {
         pool: resource_pool
         //}
       });
-
       resource_pool.push(static_html_resource);
-
       // Perhaps set it up with the specific files (automatically)?
       //  Probably with the index.html
     }
@@ -184,7 +196,9 @@ class Website_Resource extends Resource {
     router.set_route("js/*", js_resource, js_resource.process);
     // As well as this, it could get the JavaScript resource to serve the JavaScript from the app's js directory.
     js_resource.serve_directory("js");
+    router.set_route("i/*", img_resource, img_resource.process);
     router.set_route("img/*", img_resource, img_resource.process);
+    router.set_route("imgs/*", img_resource, img_resource.process);
     router.set_route("images/*", img_resource, img_resource.process);
     this.map_resource_publishers = this.map_resource_publishers || {};
     router.set_route("resources/:resource_name/*", this, (req, res) => {
@@ -336,9 +350,7 @@ class Website_Resource extends Resource {
         if (rp.type === 'function') {
             if (rp.schema) def.schema = rp.schema;
         }
-
-    })
-
+    });
     return res;
   }
 

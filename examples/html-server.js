@@ -2,8 +2,10 @@
  * Created by James on 02/10/2016.
  */
 
-var jsgui = require('../server/server');
+const jsgui = require('../module');
+
 var Server = jsgui.Server;
+//var Server = jsgui.Server;
 var port = 80;
 var Server_Page_Context = Server.Page_Context;
 

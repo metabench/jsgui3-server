@@ -28,6 +28,17 @@ var serve_html_file_from_disk = function(filePath, response) {
 // File_Server_Resource?
 //  So the resource has code to route to the file and then serve it.
 
+// Also a Templated_HTML resource?
+//  Connects to HTML_Template
+//  Connects to Data_Resource
+//  Populates the HTML_Template data from the Data_Resource
+
+// HTML_Template being a Data_Transformation / Data_Transformation_Resource / Transformation_Resource
+//  Codecs could be another type of Transformation_Resource
+
+// Transformation Resource could / should appear in jsgui3-client. Makes sense on the client too.
+
+
 class Site_Static_HTML extends Resource {
 
 	constructor(spec) {

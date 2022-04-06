@@ -287,69 +287,6 @@ const test_js_ast_node = () => {
 
     }
 
-
-    
-
-
-
-    // query.collect.pattern.inner.identifier.exe()
-    // query.collect.pattern.child.property.exe()
-
-    // query.collect.pattern.exe().query.collect.child.property.exe();
-
-
-
-
-
-    // Nice, being able to query the results is good.
-    //  But will get it working with more verbs than just collect.
-
-
-
-    
-
-    // .string?
-    // .qstring
-
-
-    //const q2res = q2.exe(cn => {
-    //    console.log('cn', cn);
-    //});
-
-    // each child declaration
-    //            identifier
-
-
-    // .exe function executes the query.
-
-    // Could load in various query handling modules in a tree.
-
-    // .each.child.declaration
-
-    //  Then a fairly large OO query system could do it.
-    //  Consider if that's best.
-    //   Seems best, considering usage of various objects such as relationships.
-
-
-    
-
-
-
-
-
-
-
-    // then can use specific (level 2) properties when we have a Declaration of VariableDeclaration
-
-    // let's put it in the VariableDeclaration class.
-
-
-
-    // declaration.left_terms?
-
-
-
-
     const earlier_tests = () => {
 
         console.log('js_ast_node.category', js_ast_node.category);

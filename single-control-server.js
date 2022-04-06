@@ -33,40 +33,8 @@ var Server_Page_Context = require('./page-context');
 //  debug
 //  (standard)
 
-// Want to get the library compressed sizes down. Particulatly client. Can do much more with oext.
-
-/*
-var server = new Server({
-    '*': {
-        'name': 'html-server'
-    }
-});
-
-*/
-/*
-var resource_pool = root_server.resource_pool;
-// link these getters with the resource pool resource getters?
-let app_server = resource_pool['HTML Server'];
-//console.log('app_server', app_server);
-//
-
-//console.log('app_server.resource_names', app_server.resource_names);
-//console.log('!!app_server.resource_pool', !!app_server.resource_pool);
-let js = app_server.resource_pool['Site JavaScript'];
-*/
-
-//console.log('Server', Server);
-
-// And choose the CSS file / files to send it.
-//  Could send basic jsgui css by default
-//  Then there would be app css on top of that.
-
-// Authenticated_Server?
-//  Has got authentication mechanisms as a wrapper for the controls inside.
-
-
-// Want to be able to set up icons as well.
-
+// Assumes port 80 for the moment, but want control over ports.
+//  May have / need dedicated websocket port, maybe https, secure websocket?
 
 class Single_Control_Server extends Server {
     constructor(spec) {
@@ -96,19 +64,7 @@ class Single_Control_Server extends Server {
 
             if (spec.js_mode) this.js_mode = spec.js_mode;
             if (spec.js_client) this.js_client = spec.js_client;
-            //  js client could be this file itself...?
-            //   creating a js client file in the same location probably makes most sense.
-            //    maybe a way of skipping that later...? Deleting it?
-
-
-
-            // Context data
-            //  will get loaded into the context, and usable on the server too.
-
-
             if (spec.context_data) this.context_data = spec.context_data;
-            // deliver app specific css
-            // an obj
             if (spec.css) this.css = spec.css;
 
             // Not handling icons in the spec(yet). Now using load_icon_set.
@@ -156,6 +112,9 @@ class Single_Control_Server extends Server {
     }
 
     // Could start it up with a client_js reference
+    // be able to chose the port(s) as well?
+
+    // HTTPS and other protocols?
 
     'start' (callback) {
 
@@ -213,7 +172,7 @@ class Single_Control_Server extends Server {
 
 
 
-        console.log('js_client', js_client);
+        //console.log('js_client', js_client);
         //throw 'stop';
 
         js.serve_package('/js/app.js', js_client, o_serve_package, (err, served) => {

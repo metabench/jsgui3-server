@@ -12,13 +12,13 @@
     "child-process": "^1.0.2",
     "cookies": "^0.8.0",
     "fnl": "^0.0.21",
-    "fnlfs": "^0.0.23",
-    "jsgui3-client": "^0.0.63",
+    "fnlfs": "^0.0.24",
+    "jsgui3-client": "^0.0.64",
     "jsgui3-html": "0.0.89",
     "lang-mini": "^0.0.24",
     "multiparty": "^4.2.3",
     "ncp": "^2.0.0",
-    "obext": "0.0.21",
+    "obext": "0.0.22",
     "rimraf": "^3.0.2",
     "stream-to-array": "^2.3.0",
     "url-parse": "^1.5.10"
@@ -40,5 +40,5 @@
     "type": "git",
     "url": "https://github.com/metabench/jsgui3-server.git"
   },
-  "version": "0.0.79"
+  "version": "0.0.80"
 }

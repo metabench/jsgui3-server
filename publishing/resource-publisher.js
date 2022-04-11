@@ -12,11 +12,24 @@ const multiparty = require('multiparty');
 // More observable systems?
 //  Making use of ofp could be very useful in various cases.
 //  mfp in some parts first?
+const HTTP_Publisher = require('./http-publisher');
+
+
+// For publishing a resource, implying resources don't themselves need http handling.
+
+// maybe a handle-http js file may help that will do things in a rather general purpose way?
+//  But it more seems as though we need to set the routing. Then we could assign such handlers from the router.
+
+// Possibly there should be a Website_Router Resource?
+//  Or a resource wrapper.
 
 
 
-class Resource_Publisher {
+
+// Could extend a JSON_Publisher. Resource_JSON_Publisher possibly.
+class Resource_Publisher extends HTTP_Publisher {
     constructor(spec) {
+        super(spec);
         this.resource = spec.resource;
         // Don't make a new server interface by default.
         this.name = spec.name;

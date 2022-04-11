@@ -47,7 +47,6 @@ var serve_html_file_from_disk = function(filePath, response) {
 //  jsx may seem / be easiest at this stage for long term expansion and integration.
 
 
-
 class Site_Static_HTML extends Resource {
 
 	constructor(spec) {

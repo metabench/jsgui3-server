@@ -28,6 +28,12 @@ const HTTP_Publisher = require('./http-publisher');
 
 // Could extend a JSON_Publisher. Resource_JSON_Publisher possibly.
 class Resource_Publisher extends HTTP_Publisher {
+
+    // Make this able to publish any resource?
+    //  But I don't think this is going to publish a Website Resource as a Website.
+    //  There is now the specialised HTTP_Website_Publisher.
+
+
     constructor(spec) {
         super(spec);
         this.resource = spec.resource;

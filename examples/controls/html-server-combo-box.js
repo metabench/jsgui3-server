@@ -11,12 +11,12 @@
 // Some of the wiring could be done automatically.
 //
 
-var jsgui = require('../server/server');
-var Combo_Box = jsgui.Combo_Box;
+var Server = require('../../server');
+var Combo_Box = Server.HTML.Combo_Box;
 
-var Server = jsgui.Server;
+//var Server = jsgui.Server;
 var port = 80;
-var Server_Page_Context = Server.Page_Context;
+var Server_Page_Context = Server.Server_Page_Context;
 
 var server = new Server({
 	routes: {
@@ -65,7 +65,7 @@ routing_tree.set('/', function(req, res) {
 		'resource_pool': resource_pool
 	});
 	// Page_Bounds_Specifier
-	var hd = new jsgui.Client_HTML_Document({
+	var hd = new Server.HTML.Client_HTML_Document({
 		'context': server_page_context
 	});
 	hd.include_client_css();

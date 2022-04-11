@@ -1,4 +1,7 @@
 const jsgui = require('jsgui3-html');
+
+const HTTP_Publisher = require('./http-publisher');
+
 const {
     Evented_Class, tf
 } = jsgui;
@@ -6,6 +9,10 @@ const {
 const {
     observable
 } = require('fnl');
+
+// Publishing could use a lower level HTTP_Handling.
+
+
 
 // May need a lot more work for flexibility and auth
 //  Maybe can use middleware.
@@ -20,8 +27,11 @@ const {
 
 // Use some more general, lower level HTTP?
 
-class Function_Publisher {
+
+
+class Function_Publisher extends HTTP_Publisher {
     constructor(spec) {
+        super(spec);
         //let fn = this.fn = spec;
         // attach a spec to the function?
         // including a schema or params list for the fn?

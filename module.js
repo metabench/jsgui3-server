@@ -20,4 +20,10 @@ jsgui.Single_Control_Server = require('./single-control-server');
 
 // Make the Resource_Publisher available?
 
+// could load compilers / compiler / compilation resources into jsgui.
+
+
+
+
+
 module.exports = jsgui;

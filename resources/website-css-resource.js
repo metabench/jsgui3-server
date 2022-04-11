@@ -101,7 +101,7 @@ var serve_css_file_from_disk = function (filePath, response) {
 	let attempt_load = (path, callback) => {
 		fs2.load_file_as_string(path, function (err, data) {
 			if (err) {
-				console.log('could not open file path', path);
+				//console.log('could not open file path', path);
 				//jsgui_css_file_path = '../../' + filePath;
 				//console.log('jsgui_css_file_path', jsgui_css_file_path);
 				callback(null, false);

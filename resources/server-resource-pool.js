@@ -61,6 +61,23 @@ class Server_Resource_Pool extends Resource_Pool {
 
 		this.add(lsi);
 
+		// The server-resource-pool could hold the compilation resources. Applies for all sites.
+		//  That may be the most performant default.
+
+
+		// const r_compilation = new Server_Resource_Compilation
+
+
+		//  though does it work on an AST?
+		// r_compilation.add_compiler('babel', 'js', 'js', babel.transform);
+
+		// Then load in various libraries that are used in compilation.
+		//  eg @babel/core.
+
+
+
+
+
 		//this.js = new 
 
 		// And a resource publisher resource.

@@ -1,3 +1,11 @@
+// Change name to HTTP_Resource?
+
+// May be worth doing more on local / remote transformation resources.
+//  Even loading the remote code to run locally where applicable.
+
+
+// HTTP_Resource seems like a better name as it processes an HTTP request.
+
 
 var path = require('path'),
     fs = require('fs'),

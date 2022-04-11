@@ -10,6 +10,8 @@
  Resource, JeSuisXML, Cookies, fs2) {
  */
 
+// A RAM FS may be of use here too. Cross-platform, simple to use.
+
 var libpath = require('path'),
     fs = require('fs'),
     url = require('url'),
@@ -21,7 +23,6 @@ var libpath = require('path'),
     Resource = jsgui.Resource,
     Cookies = require('cookies'),
     fs2 = require('../fs2');
-
 
     /*
 
@@ -50,11 +51,8 @@ const fnlfs = require('fnlfs');
 // Cloud_FS_Resource
 // SFTP_FS_Resource
 
-
 // Publishing an FS resource would enable a directory browsing app.
 //  File_Tree, and connect to the client-side Data_Resource.
-
-
 
 const {
     is_directory, dir_contents

@@ -1,4 +1,5 @@
 const jsgui = require('jsgui3-html');
+
 const {
     Evented_Class
 } = jsgui;
@@ -6,6 +7,8 @@ const {
 const {
     observable
 } = require('fnl');
+
+const HTTP_Publisher = require('./http-publisher');
 
 // Evented_Class_Publisher?
 //  Evented_Publisher
@@ -17,20 +20,23 @@ const {
 //     Seems simple, would work with a single process auth provider, then could have centralised auth and token issuance and checking.
 
 
-
-
-
-
-class Observable_Publisher {
+class Observable_Publisher extends HTTP_Publisher {
     constructor(spec) {
+        super(spec);
         let obs, schema;
         // needs to hook into the server though...
         if (spec.next && spec.complete && spec.error) {
             obs = spec;
         } else {
 
+            if (spec.obs) {
+                obs = spec.obs;
+            } else {
+                throw 'No observable found.';
+            }
+
             //let {schema} = spec;
-            obs = spec.obs;
+            
             schema = spec.schema;
 
             //console.trace();

@@ -22,13 +22,23 @@
 //   JS_File_
 
 
+// Much of this could be better expressed as a Compiler_Resource.
+
+
+// Plan: Do more of this through lower level compilation features.
+//  Accessing a compilation resource makes sense structurally.
+
+// May want a server to create and test compilation resources / compilers.
+
+// Compilers, Bundlers, HTTP Request Handlers - Somewhat lower level, ie tools to get things done.
+// Then also: resources which make use of upgraded and new lower level components.
+
+// Server_Resource could help?
 
 
 
 
-
-
-var path = require('path'),
+const path = require('path'),
 	fs = require('fs'),
 	url = require('url'),
 	jsgui = require('jsgui3-html'),
@@ -47,23 +57,23 @@ const fnl = require('fnl');
 const prom_or_cb = fnl.prom_or_cb;
 const fnlfs = require('fnlfs');
 
-var stringify = jsgui.stringify,
+const stringify = jsgui.stringify,
 	each = jsgui.each,
 	arrayify = jsgui.arrayify,
 	tof = jsgui.tof;
-var filter_map_by_regex = jsgui.filter_map_by_regex;
-var Class = jsgui.Class,
+const filter_map_by_regex = jsgui.filter_map_by_regex;
+const Class = jsgui.Class,
 	Data_Object = jsgui.Data_Object,
 	Enhanced_Data_Object = jsgui.Enhanced_Data_Object;
-var fp = jsgui.fp,
+	const fp = jsgui.fp,
 	is_defined = jsgui.is_defined;
-var Collection = jsgui.Collection;
-var call_multi = jsgui.call_multi,
+const Collection = jsgui.Collection;
+const call_multi = jsgui.call_multi,
 	get_truth_map_from_arr = jsgui.get_truth_map_from_arr;
 
-var browserify = require('browserify');
+const browserify = require('browserify');
 //var zlib = require('zlib');
-var util = require('util');
+const util = require('util');
 
 const babel = require('@babel/core');
 
@@ -73,6 +83,7 @@ const stream_to_array = require('stream-to-array');
 
 const process_js = require('./process-js');
 const {analyse_js_doc_formatting, extract_client_js} = process_js;
+
 
 var serve_js_file_from_disk_updated_refs = function (filePath, response, callback) {
 	fs2.load_file_as_string(filePath, function (err, data) {
@@ -155,18 +166,20 @@ class Site_JavaScript extends Resource {
 	constructor(spec) {
 		super(spec);
 		//this.meta.set('custom_paths', new Data_Object({}));
-		this.custom_paths = new Data_Object({});
+		//this.custom_paths = new Data_Object({});
 		// Those are custom file paths.
 		// could have a collection of directories, indexed by name, that get served.
 		// Index the collection by string value?
 		//this.meta.set('served_directories', new Collection({'index_by': 'name'}));
+
+		// But this could be held (only) in the router.
 		this.served_directories = new Collection({
 			'index_by': 'name'
 		});
 	}
 	'start'(callback) {
 		//console.log('Site_JavaScript start');
-		var build_on_start = this.build_on_start;
+		const build_on_start = this.build_on_start;
 		if (build_on_start) {
 			this.build_client(function (err, res_build) {
 				if (err) {
@@ -190,8 +203,34 @@ class Site_JavaScript extends Resource {
 	// There will be a variety of jsgui packages.
 
 	'build_client'(callback) {
+
+		// Configurable building mechanisms....
+		//  Want to provide jsgui events / logs on the build process.
+
+		// jsgui.notify could be used for some kinds of internal event logging.
+		//  a specific type of event system.
+
+		// jsgui.raise('notification', )
+
+		// .note may be faster.
+		
+
+
+
+		// jsgui.notify('start', 'build_client');
+		
+
 		// Need the reference relative to the application directory.
 		//var path = __dirname + '/js/app.js';
+
+		// Can we stream it to a buffer in memory instead?
+
+		// Using a compilation resource may be better long-term.
+		//  Creating and using a relevant abstraction.
+
+		// The server should have already loaded (a few) compilers.
+
+
 		var appDir = path.dirname(require.main.filename);
 		//console.log('appDir', appDir);
 		var app_path = appDir + '/js/app.js';
@@ -220,8 +259,15 @@ class Site_JavaScript extends Resource {
 	//  May be better not to allow server-side code to be read on the client.
 	//  Could have specific directories within jsgui that get served to the client.
 
+
+	// May be best thinking of bundling up one or more objects / files ready for the server to serve.
+
+
 	'serve_directory'(path) {
 		// Serves that directory, as any files given in that directory can be served from /js
+
+		// Perhaps just using the router would be better.
+
 		var served_directories = this.served_directories;
 		//console.log('served_directories ' + stringify(served_directories));
 		//served_directories.push(path);
@@ -233,10 +279,10 @@ class Site_JavaScript extends Resource {
 		//throw 'stop';
 	}
 	'serve_package'(url, js_package, options = {}, callback) {
-		console.log('serve_package', url, js_package);
-		console.log('js_package', js_package);
-		console.log('typeof js_package', typeof js_package);
-		let tjp = typeof js_package;
+		//console.log('serve_package', url, js_package);
+		//console.log('js_package', js_package);
+		//console.log('typeof js_package', typeof js_package);
+		//let tjp = typeof js_package;
 		return this.serve_package_from_path(url, require.resolve(js_package), options, callback);
 	}
 
@@ -315,7 +361,7 @@ class Site_JavaScript extends Resource {
 				//console.log('babel_option', babel_option);
 				if (babel_option === 'es5') {
 
-					let o_tranform = {
+					let o_transform = {
 						"presets": [
 							"es2015",
 							"es2017"
@@ -326,8 +372,8 @@ class Site_JavaScript extends Resource {
 						//'sourceMaps': 'inline'
 					};
 
-					if (options.include_sourcemaps) o_tranform.sourceMaps = 'inline';
-					let res_transform = babel.transform(str_js, o_tranform);
+					if (options.include_sourcemaps) o_transform.sourceMaps = 'inline';
+					let res_transform = babel.transform(str_js, o_transform);
 					//console.log('res_transform', res_transform);
 					//console.log('Object.keys(res_transform)', Object.keys(res_transform));
 					let jst_es5 = res_transform.code;
@@ -397,8 +443,9 @@ class Site_JavaScript extends Resource {
 				// Can we call browserify on the code string?
 				//  Creating a modified copy of the file would do.
 				//  Load the file, modify it, save it under a different name
+				const Stream = require('stream');
 
-				let s = new require('stream').Readable(),
+				let s = new Stream.Readable(),
 					path = require('path').parse(js_file_path);
 
 				let fileContents = await fnlfs.load(js_file_path);
@@ -421,7 +468,7 @@ class Site_JavaScript extends Resource {
 					each(options.replace, (text, key) => {
 						//console.log('key', key);
 						//console.log('text', text);
-						let running_fn = '(' + text + ')();'
+						const running_fn = '(' + text + ')();'
 						//console.log('running_fn', running_fn);
 						s_file_contents = s_file_contents.split(key).join(running_fn);
 					})
@@ -434,8 +481,10 @@ class Site_JavaScript extends Resource {
 				// want a raw option with no browserify.
 				//console.log('serve_raw', serve_raw);
 				if (serve_raw) {
-					var escaped_url = url.replace(/\./g, '☺');
-					this.custom_paths.set(escaped_url, fileContents);
+					const escaped_url = url.replace(/\./g, '☺');
+					//this.custom_paths.set(escaped_url, fileContents);
+
+					throw 'NYI';
 				} else {
 					const formatting_info = analyse_js_doc_formatting(fileContents.toString());
 					//console.log('formatting_info', formatting_info);
@@ -443,7 +492,10 @@ class Site_JavaScript extends Resource {
 					const {arr_lines, line_break, indentation_analysis} = formatting_info;
 					const {parsed_lines, str_indentation} = indentation_analysis;
 					const client_root_js = extract_client_js(formatting_info);
-					fnlfs.save('d:\\saved.js', client_root_js);
+
+					//fnlfs.save('d:\\saved.js', client_root_js);
+
+
 					s.push(client_root_js);
 					s.push(null);
 					const lines_file_content = [];
@@ -451,14 +503,14 @@ class Site_JavaScript extends Resource {
 					// Don't always include sourcemap?
 					//  Separate out the sourcemap?
 
-					let b = browserify(s, {
+					const b = browserify(s, {
 						basedir: path.dir,
 						//builtins: false,
 						builtins: ['buffer'],
 						'debug': options.include_sourcemaps
 					});
 					// Prefer the idea of sending a stream to browserify.
-					let parts = await stream_to_array(b.bundle());
+					const parts = await stream_to_array(b.bundle());
 					/*
 					var b = browserify([js_file_path], {
 						'debug': true
@@ -468,8 +520,8 @@ class Site_JavaScript extends Resource {
 					const buffers = parts
 						.map(part => util.isBuffer(part) ? part : Buffer.from(part));
 					let buf_js = Buffer.concat(buffers);
-					let str_js = buf_js.toString();
-					let str_js_code = str_js;
+					const str_js = buf_js.toString();
+					const str_js_code = str_js;
 					let str_sourcemap;
 
 					let pos_prior_sourcemap = str_js.indexOf('//# sourceMappingURL');
@@ -479,17 +531,20 @@ class Site_JavaScript extends Resource {
 					}
 					// filter_extract_css
 
+
+					/*
 					const js_remove_comments = (str_js_code) => {
 						// comments will be OK within a string.
 
 						// Be able to work out what type of code we are in at all points...?
 						//  Non-tokenising scanner...?
 
-						// Knowing whether or not */ // /* is within a string is important - because if it's in a string its not a comment.
+						// Knowing whether or not * / // / * is within a string is important - because if it's in a string its not a comment.
 						//  seems like making the scanning parser is a bit of a large task. It would constantly need to know what symbol type / string encapsulator to use.
 
 						// Could split it into lines, spot whenever a line starts a comment...?
 					} 
+					*/
 
 					const filter_js_extract_control_css = (str_js_code) => {
 						// res = [css, js_no_css]
@@ -554,7 +609,7 @@ class Site_JavaScript extends Resource {
 					this.raise('extracted-controls-css', str_css);
 					let babel_option = options.babel;
 
-					console.log('babel_option', babel_option);
+					//console.log('babel_option', babel_option);
 					//throw 'stop';
 					//babel_option = 'es5';
 					//console.log('babel_option', babel_option);
@@ -633,20 +688,58 @@ class Site_JavaScript extends Resource {
 					}
 					var escaped_url = url.replace(/\./g, '☺');
 
-					//console.log('pre compress buf_js.length', buf_js.length);
+					console.log('pre compress buf_js.length', buf_js.length);
 					zlib.gzip(buf_js, {level: 9}, (err, buffer) => {
-						//console.log('deflated buffer.length', buffer.length);
+						console.log('deflated buf_js buffer.length', buffer.length);
 	
 						if (err) {
 							reject(err);
 						} else {
 							// 
 							//buffer.encoding = 'deflate';
+							console.log('');
+							console.log('escaped_url', escaped_url);
+							console.log('url', url);
+							console.log('');
 
+							const rp = this.pool;
+							console.log('rp', rp);
+							console.log('rp.resource_names', rp.resource_names);
+
+							const router = rp.get_resource('Site Router');
+							console.log('router', router);
+
+							router.set_route(url, this, (req, res) => {
+								console.log('router', [!!req, !!res]);
+							});
+
+							/*
+							'set_route'(str_route, context, fn_handler) {
+							*/
+
+							// Setting up routing here?
+							//  Or returning it to the server?
+
+							// hack_setup_routing - as in it hacks into another part of the system (which is available)
+							//  to set up the routing. A more top-down approach would be for the Server module to set the
+							//  routing up itself.
+							// May be nice if components / resources could set up their own routing, with access to the
+							//  Resource_Pool.
+
+
+
+							/*
+
+							// Would need to check operation of custom paths.
+							//  Maybe its use was removed...?
 							this.custom_paths.set(escaped_url, {
 								raw: buf_js,
 								gzip: buffer
 							});
+
+							*/
+
+
 	
 							resolve(true);
 						}
@@ -656,15 +749,48 @@ class Site_JavaScript extends Resource {
 		}, callback);
 	}
 
+	/*
 	'set_custom_path'(url, file_path) {
 		var escaped_url = url.replace(/\./g, '☺');
 		this.custom_paths.set(escaped_url, file_path);
 	}
+	*/
+	//
+
+
+	// Not so sure that it should process the request.
+	//  A more general purpose request handler...?
+	//  Have more request handling code within one js file, a cenralised portion of the app.
+	//  And then within those request handlers call on useful abstractions.
+
+	// Setting up one or more Compilers seems like it would solve some of what this is doing.
+	//  Even a Compilation_Process object that provides data for monitoring.
+	//   Published with a Resource_Publisher possibly.
+	
+	// Website_HTTP_Publisher maybe
+
+	// or just HTTP_Publisher, a Publisher rather than a Resource.
+	//  HTTP_Publisher, which is focused on publishing HTTP, may be the best option here.
+	// Seems best to fix what we have already first though. Could then work on HTTP_Publisher.
+
+	
+
+	// Website_HTTP_Publisher_Resource possibly?
 
 	// 
 
+
+
+	// Site_JavaScript seems more about bundling / compiling rather than serving.
+	//  Resources could present their data ahead of time / be asked for them and provide it, and the server
+	//   keeps track of info more centrally.
+	//  
+
+
+
+
 	'process'(req, res) {
-		//console.log('Site_JavaScript processing req.url', req.url);
+		console.log('Site_JavaScript processing req.url', req.url);
 		var remoteAddress = req.connection.remoteAddress;
 		var custom_paths = this.custom_paths;
 		var rurl = req.url.replace(/\./g, '☺');
@@ -685,8 +811,8 @@ class Site_JavaScript extends Resource {
 			res.writeHead(200, o_head);
 			res.end(data_to_serve);
 		} else {
-			var served_directories = this.served_directories;
-			console.log('served_directories', served_directories);
+			//var served_directories = this.served_directories;
+			//console.log('served_directories', served_directories);
 			var url_parts = url.parse(req.url, true);
 			//console.log('url_parts ' + stringify(url_parts));
 			var splitPath = url_parts.path.substr(1).split('/');

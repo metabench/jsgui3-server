@@ -49,6 +49,17 @@
 //  It would be much more secure to bring up an NTP provision service automatically than a file system one. Don't want to take that risk now.
 //
 
+// Possibly WebPack could be considered such a resource? Or find a different type for that type of resource?
+
+// Compilation_Resource and Compiler_Resource...
+
+
+// Maybe should do more to represent a website on a server.
+// Maybe it needs more docs, being rather critical.
+
+
+
+
 var Site_Images = require("./website-image-resource");
 
 //console.log('1) Site_Images', Site_Images);
@@ -61,13 +72,13 @@ const Resource = jsgui.Resource;
 const Router = jsgui.Router;
 //const Evented_Class = jsgui.Evented_Class;
 
-var Resource_Pool = require("./server-resource-pool");
+const Resource_Pool = require("./server-resource-pool");
 //var Resource_Web_Admin = require('../web-admin');
 
-var Site_JavaScript = require("./website-javascript-resource");
+const Site_JavaScript = require("./website-javascript-resource");
 //console.log('1) Site_JavaScript', Site_JavaScript);
-var Site_CSS = require("./website-css-resource");
-var Site_Static_HTML = require("./website-static-html-resource");
+const Site_CSS = require("./website-css-resource");
+const Site_Static_HTML = require("./website-static-html-resource");
 //var DB_Web_Resource = require('../../web/db-resource-postgres');
 //var database_resource_factory = require('../../db/resource/factory');
 
@@ -84,6 +95,10 @@ const Function_Publisher = require("../publishing/function-publisher");
 
 //  May help with FirstPoint_Server.
 
+// Could move the publishing parts to Website_Resource_Publisher perhaps.
+
+
+
 
 
 
@@ -91,16 +106,16 @@ class Website_Resource extends Resource {
   constructor(spec = {}) {
     super(spec);
     // A bit of a special resource here because it has its own resource_pool.
-    var resource_pool = new Resource_Pool({
+    let resource_pool = new Resource_Pool({
       name: "Website Resource Pool"
     });
     this.resource_pool = resource_pool;
-    var database_spec = spec.database;
-    var web_database_resource;
+    let database_spec = spec.database;
+    let web_database_resource;
 
     if (database_spec) {
       database_spec.name = database_spec.name || database_spec.database_name;
-      var database_resource = database_resource_factory(database_spec);
+      let database_resource = database_resource_factory(database_spec);
       database_resource.start();
       // should start automatically when in the pool?
       //  does the pool need to be told to start?
@@ -115,6 +130,7 @@ class Website_Resource extends Resource {
       });
     }
 
+    // Quite a generalised interface it seems.
     if (web_database_resource) {
       resource_pool.add(web_database_resource);
     }
@@ -130,7 +146,13 @@ class Website_Resource extends Resource {
       meta: {
         name: "Web Admin"
       }
+      
     };
+    // Possibly run web admin from within the web resource itself?
+    //  The web admin could use its own website resource.
+
+
+
 
     //if (web_database_resource) {
     //  spec_web_admin.web_database = web_database_resource;
@@ -142,6 +164,8 @@ class Website_Resource extends Resource {
       pool: resource_pool
       // }
     });
+
+    // Seems like site JS is / will use a compilation resource.
 
     var js_resource = new Site_JavaScript({
       //'meta': {
@@ -174,13 +198,22 @@ class Website_Resource extends Resource {
       //}
     });
 
-
     js_resource.on('extracted-controls-css', str_extracted_css => {
       css_resource.serve_str_css('controls.css', str_extracted_css);
       // Will serve this as controls.css
       //  Separate HTTP request, will get more CSS for the moment.
 
     });
+
+
+    // And this can make a few other resources, like the compilation resource.
+    //  Website resource could include compilation resources?
+    //  But maybe they will be included on the server
+    //   May need some processor rationing with compilations taking place.
+
+
+
+
     // javascript and css resources.
     resource_pool.push(router);
     resource_pool.push(img_resource);
@@ -330,11 +363,6 @@ class Website_Resource extends Resource {
 
   get_resource(resource_name) {
     var resource_pool = this.resource_pool;
-    //console.log('resource_pool', resource_pool);
-
-    //console.log('this._.resource_pool', this._.resource_pool);
-
-    //throw 'stop';
     return resource_pool.get_resource(resource_name);
   }
 
@@ -375,9 +403,36 @@ class Website_Resource extends Resource {
     var remoteAddress = req.connection.remoteAddress;
     var router = this.router;
     var res_process = router.process(req, res);
+
+    // Likely will need to make this more advanced, possibly to suit a spec.
+    //  Website_Resource_Publisher may be the best place to deal with this.
+
+    // Gives it to the router to process.
+    //  Possibly we need a Control_Publisher?
+    //   To publish a Control at an address on the web.
+
+    console.log('Website_Resource !!res_process', !!res_process);
+
+    // Need more HTTP request to response handlers.
+    //  Or just HTTP handlers really.
+    //  They may be best accessed by the router though.
+    //   Make a decent function abstraction for them next time I need an HTTP handler.
+
+
+
+
+
+
+
+
+
     if (res_process === false) {
       if (req.url === "/") {
+        // Seems like too much of a special case.
+
         // Send this to the static HTML processing system.
+
+        /*
 
         var static_html_resource = this.resource_pool.get_resource(
           "Static HTML"
@@ -387,6 +442,19 @@ class Website_Resource extends Resource {
         if (static_html_resource) {
           static_html_resource.process(req, res);
         }
+        */
+
+        // Show the default page. ???
+
+        //console.log('deprecated functionality');
+        //throw 'stop';
+
+        res.writeHead(404, {
+          "Content-Type": "text/plain"
+        });
+        res.write("404 Not Found\n");
+        res.end();
+
       } else {
         // show a 404
         res.writeHead(404, {

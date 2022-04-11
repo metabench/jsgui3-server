@@ -120,6 +120,8 @@ class Single_Control_Server extends Server {
 
         const {context_data} = this;
 
+        // Want the right lower level abstractions for this. And similar.
+
         //throw 'stop';
         //var resource_pool = this.resource_pool;
         var resource_pool = this.app_server.resource_pool;
@@ -172,6 +174,7 @@ class Single_Control_Server extends Server {
 
 
 
+
         //console.log('js_client', js_client);
         //throw 'stop';
 
@@ -182,7 +185,7 @@ class Single_Control_Server extends Server {
             if (!server_router) {
                 throw 'no server_router';
             }
-            var routing_tree = server_router.routing_tree;
+            const routing_tree = server_router.routing_tree;
             routing_tree.set('/', (req, res) => {
                 //console.log('root path / request');
                 const o_spc = {
@@ -206,6 +209,7 @@ class Single_Control_Server extends Server {
                 });
                 hd.include_client_css();
                 hd.include_css('/css/basic.css');
+                hd.include_css('/css/controls.css');
 
                 // include compiled css too.
                 //  not much of it yet.
@@ -217,7 +221,7 @@ class Single_Control_Server extends Server {
                         hd.include_css('/css/' + serve_as);
                     });
                 }
-                hd.include_css('/css/controls.css');
+                
                 var body = hd.body;
                 let o_params = this.params || {};
                 Object.assign(o_params, {

@@ -1,0 +1,11 @@
+from jsgui3-html
+
+jsgui.Resource = require('./resource/resource');
+jsgui.Resource_Pool = require('./resource/pool');
+jsgui.Resource.Data_KV = require('./resource/data-kv-resource');
+jsgui.Resource.Data_Transform = require('./resource/data-transform-resource');
+
+
+Want a really simple search & replace type template system for the moment.
+
+Integrating react into the server at various levels would help.

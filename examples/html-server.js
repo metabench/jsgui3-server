@@ -65,6 +65,9 @@ routing_tree.set('/', function(req, res) {
 		'context': server_page_context
 	});
 
+
+	// Probably needs to create the app bundle.
+
 	hd.include_client_css();
 	hd.include_js('/js/app-bundle.js');
 

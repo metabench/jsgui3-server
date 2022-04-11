@@ -60,7 +60,7 @@ typings/
 # npm package lock
 package-lock.json
 
-.DS_STORE
+.DS_Store
 
 build_test*
 out_test*

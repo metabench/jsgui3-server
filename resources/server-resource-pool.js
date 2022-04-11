@@ -16,40 +16,10 @@ var Collection = jsgui.Collection;
 
 var exec = require('child_process').exec;
 
-// Perhaps this will have HTTP endpoints as well?
-//  Maybe we can access it through url/resources/
-
-
-// jsgui-html could include a prototype / placeholder Templated HTML => HTML transformer.
-//  Or the class that is the superclass of the class that then gets the rsx or whatever module loaded into it.
-//  Maybe it's a Publisher anyway?
-//   Publisher seems a lot like Transformer.
-
-
-
-
-
-
-// Perhaps a resource publisher, or a few of them could be useful.
-//  HTTP_Resource_Publisher?
-//  Generally publishes a resource over HTTP.
-//   Will have some authorization and authentication properties, hooked up with the proper providers.
-
-// This may be the place in which remote access to the resources is given.
-//  It would make sense.
-//  Perhaps it is worth using a resource publisher? Then is that a resource?
-//  I think the resource pool may be the sensible point of access.
-
-
 class Server_Resource_Pool extends Resource_Pool {
 	constructor(spec) {
 		super(spec);
-
-		// will add the Resource_Local_Server_Information
-		// Will be nice to set them with an object.
-		//  Not just the normal spec.
-		//  Maybe can see if the spec matches fields?
-		//  Or copy fields from the spec?
+		
 		var lsi = new Local_Server_Info({
 			'name': 'Local Server Info',
 			'startup_type': 'auto',
@@ -58,48 +28,7 @@ class Server_Resource_Pool extends Resource_Pool {
 			},
 			'pool': this
 		});
-
 		this.add(lsi);
-
-		// The server-resource-pool could hold the compilation resources. Applies for all sites.
-		//  That may be the most performant default.
-
-
-		// const r_compilation = new Server_Resource_Compilation
-
-
-		//  though does it work on an AST?
-		// r_compilation.add_compiler('babel', 'js', 'js', babel.transform);
-
-		// Then load in various libraries that are used in compilation.
-		//  eg @babel/core.
-
-
-
-
-
-		//this.js = new 
-
-		// And a resource publisher resource.
-		//  It goes in the pool, and it publishes other resources (over HTTP)
-		//   The resource pool contains its own publisher.
-
-		// Likely to want multiple publisher resources - one for each published resource.
-		//  This used to publish the resource pool. Will use a resource pool publisher for this in the future.
-
-		/*
-		 var publisher = new Resource_Publisher_HTTP({
-		 'meta': {
-		 'name': 'HTTP Resource Publisher'
-		 },
-		 'startup_type': 'auto',
-		 'access': {
-		 'full': ['server_admin']
-		 }
-		 });
-
-		 this.add(publisher);
-		 */
 	}
 
 }

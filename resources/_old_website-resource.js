@@ -121,6 +121,21 @@ const Function_Publisher = require("../publishing/function-publisher");
 // Make Website_Resource into the wrapper that wraps Website?
 // Or we don't need that, just use HTTP_Website_Publisher.
 
+// A lot of important functionality here though...
+//  Creating the various resources to add to the website resource pool on the server.
+
+// But it's going to be the publishers rather than the resources processing HTTP requests.
+//  Change of architecture.
+
+
+// Maybe won't need the variety of resources.
+//  May be simpler to program for.
+// Will initially be more compilation & bundling oriented
+//  Then will send those pieces of data to the relevant HTTP handlers.
+//  Less wrapped in Resource classes and terminology.
+//  Will be able to publish functionality as Resource should I want to.
+
+
 
 
 
@@ -128,6 +143,9 @@ const Function_Publisher = require("../publishing/function-publisher");
 
 class Website_Resource extends Resource {
   constructor(spec = {}) {
+
+    throw 'Stop - Discontinued - look for alternatives for the moment.';
+
     super(spec);
     // A bit of a special resource here because it has its own resource_pool.
     let resource_pool = new Resource_Pool({

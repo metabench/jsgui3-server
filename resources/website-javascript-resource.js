@@ -71,10 +71,11 @@ const Collection = jsgui.Collection;
 const call_multi = jsgui.call_multi,
 	get_truth_map_from_arr = jsgui.get_truth_map_from_arr;
 
-const browserify = require('browserify');
+
 //var zlib = require('zlib');
 const util = require('util');
 
+const browserify = require('browserify');
 const babel = require('@babel/core');
 
 // Extends AutoStart_Resource?
@@ -285,6 +286,10 @@ class Site_JavaScript extends Resource {
 		//let tjp = typeof js_package;
 		return this.serve_package_from_path(url, require.resolve(js_package), options, callback);
 	}
+
+	// Possibly some functionality would be better within the js bundler.
+
+
 
 	'package'(js_file_path, options = {}, callback) {
 

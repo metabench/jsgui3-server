@@ -59,7 +59,7 @@ class HTTP_Website_Publisher extends HTTP_Publisher {
         // May get admin pages working on a slightly lower level.
         //  Makes sense as they are for administering other pages (mostly).
 
-        
+
 
         const setup_website_publishing = (website) => {
             // put pages into a router here...
@@ -78,15 +78,16 @@ class HTTP_Website_Publisher extends HTTP_Publisher {
                 //console.log('page', page);
                 //console.log('page.name', page.name);
                 //console.log('page.url', page.url);
-                //console.log('page.path', page.path);
+                console.log('page.path', page.path);
 
                 const obs_bundling = Webpage_Bundler.bundle_web_page(page);
+                console.log('doing bundling');
                 //console.log('obs_bundling', obs_bundling);
 
                 obs_bundling.on('complete', res => {
                     //console.log('obs_bundling res', res);
                     const bundle = res;
-                    //console.log('bundle._arr.length', bundle._arr.length);
+                    console.log('bundle._arr.length', bundle._arr.length);
                     //console.log('Object.keys(bundle)', Object.keys(bundle));
 
                     if (bundle._arr.length === 1) {
@@ -127,7 +128,47 @@ class HTTP_Website_Publisher extends HTTP_Publisher {
                         
 
                     } else {
-                        throw 'NYI';
+
+                        // Multiple items at multiple paths....
+
+                        each(bundle, item => {
+                            //console.log('item', item);
+                            console.log('item.path', item.path);
+
+                            if (item['content-type']) {
+                                const ct = item['content-type'];
+                                if (ct === 'text/html') {
+                                    const http_serve_html = (req, res) => {
+                                        res.writeHead(200, {
+                                            'Content-Type': 'text/html'
+                                        });
+                                        res.end(item.value, 'utf-8');
+                                    }
+                                    router.set_route(item.path, (req, res) => {
+                                        http_serve_html(req, res);
+                                    });
+                                } else {
+                                    const http_serve_any = (req, res) => {
+                                        res.writeHead(200, {
+                                            'Content-Type': ct
+                                        });
+                                        res.end(item.value, 'utf-8');
+                                    }
+                                    router.set_route(item.path, (req, res) => {
+                                        http_serve_any(req, res);
+                                    });
+
+                                    //throw 'NYI';
+                                }
+    
+                            } else {
+                                throw 'NYI';
+                            }
+
+                        })
+
+                        //console.trace();
+                        //throw 'NYI';
                     }
 
 
@@ -196,7 +237,7 @@ class HTTP_Website_Publisher extends HTTP_Publisher {
         const accept_encoding = req.headers['accept-encoding'];
         const {host} = req.headers;
 
-        console.log('[httpVersion, host, url, statusCode, method, accept_endoding]', [httpVersion, host, url, statusCode, method, accept_encoding]);
+        //console.log('[httpVersion, host, url, statusCode, method, accept_endoding]', [httpVersion, host, url, statusCode, method, accept_encoding]);
 
 
         //console.log('router', router);

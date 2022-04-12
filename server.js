@@ -78,7 +78,8 @@ class JSGUI_Server extends Evented_Class {
             }
         });
 
-        let is_website = spec.website === true;
+        //let is_website = spec.website === true;
+
         this.__type_name = __type_name || 'server';
 
         // Could make Server Resource Pool optional.
@@ -124,8 +125,9 @@ class JSGUI_Server extends Evented_Class {
         }
 
         // Multiple websites - perhaps proxying to them.
-
-        if (is_website) {
+        //console.log('is_website', is_website);
+        if (true) {
+            
 
             // No, create the Website object and the HTTP_Website_Publisher.
             //  Could make a Website_Resource that wraps it and goes in the resource pool.
@@ -365,13 +367,14 @@ if (require.main === module) {
         }
     }
 
-
     // Can give it a bit of content to start with....?
 
-    const server = new JSGUI_Server();
+    const server = new JSGUI_Server({
+        name: 'jsgui3 server (command line)'
+    });
 
     const current = () => {
-        console.log('server', server);
+        //console.log('server', server);
 
 
         // And this Webpage itself is not a Control.

@@ -21,7 +21,7 @@ class Server_Page_Context extends jsgui.Page_Context {
 			this.req = spec.request;
 			this.request = spec.request;
 		};
-		if (this.req.auth) {
+		if (this.req && this.req.auth) {
 			this.auth = this.req.auth;
 		}
 		if (spec.res) {

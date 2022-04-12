@@ -5,6 +5,8 @@ const oext = require('obext');
 const Webpage = require('./webpage');
 // Website is a Publisher?
 
+const Page_Control_Admin = require('./../controls/page/admin');
+
 // Won't actually handle the HTTP requests.
 
 // Will link to / use the HTTP request handlers?
@@ -53,10 +55,33 @@ class Website {
 
 
         // Seems not to need any JS.
+
+        // May be better to put some kind of JSGUI content into there.
+        //  That will get the bundling working better.
+
+        // Make the content either a page control, or a standard (not full document) jsgui control.
+
+        // But a Control, even a Page_Control, should need and be given a context.?
+        //  Maybe not while in unrendered / pre-rendered phase.
+
+        // Could try loading content from disk, and seeing what files get referenced.
+
+
+        // A control without a Page Context here.
+        //  Or the page context would be a rendering of the root_page.
+
+        const ctrl_root = new jsgui.Control({
+
+        });
+
+
+        
+
         const root_page = new Webpage({
             'name': 'Root Webpage',
             'title': 'jsgui3-server',
-            'content': 'This is a jsgui3-server root web page.',
+            //'content': 'This is a jsgui3-server root web page.',
+            'content': ctrl_root,
             'path': '/'
         });
         pages.push(root_page);

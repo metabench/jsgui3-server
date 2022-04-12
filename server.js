@@ -18,6 +18,7 @@ const Web_Admin_Panel_Control = require('./controls/panel/admin');
 
 const Website = require('./website/website');
 const HTTP_Website_Publisher = require('./publishing/http-website-publisher');
+const Webpage = require('./website/webpage');
 
 // And the HTTP web page publisher?
 
@@ -103,6 +104,8 @@ class JSGUI_Server extends Evented_Class {
         });
         resource_pool.add(server_router);
 
+
+
         if (spec.https_options) {
             this.https_options = spec.https_options;
         }
@@ -140,7 +143,8 @@ class JSGUI_Server extends Evented_Class {
                 //  Could bypass the server router, or set the server router to be the app's router
                 //  Replace the server router with the app's router.
     
-                server_router.set_route('/*', app, app.process);
+                //server_router.set_route('/*', app, app.process);
+                server_router.set_route('/*', app.process);
             }
 
             // Or could publish a single page website.
@@ -149,6 +153,7 @@ class JSGUI_Server extends Evented_Class {
                 // Could have got spec for website content in the spec {}.
                 //  But don't have system to use that yet, or to specify it.
 
+                // And a Resource for the Website Publisher too?
 
                 const ws_app = this.app = new Website({
                     'name': this.name || 'Website'
@@ -162,9 +167,10 @@ class JSGUI_Server extends Evented_Class {
                 });
                 resource_pool.add(ws_resource);
 
-                server_router.set_route('/*', ws_app, ws_publisher.handle_http);
+                //server_router.set_route('/*', ws_app, ws_publisher.handle_http);
+                server_router.set_route('/*', ws_publisher.handle_http);
+                server_router.set_route('/*', ws_publisher, ws_publisher.handle_http);
                 // ws_publisher.start();
-
             }
             current();
         }
@@ -197,8 +203,8 @@ class JSGUI_Server extends Evented_Class {
         // Maybe does not need a resource pool to begin with.
         // 
 
-
-
+        // Cool if this returned a promise or observable....
+        // obs would make most sense for what to return when starting a server.
 
         const rp = this.resource_pool;
         if (!rp) {
@@ -211,9 +217,18 @@ class JSGUI_Server extends Evented_Class {
             } else {
 
                 // Easy abstraction for starting on multiple ports?
+                // Seems like an important part, as it actually has the first HTTP request<>response function.
+                //  Could send it to a more extended HTTP processing part of the server.
+
+                // Don't have http-server-publisher (yet).
+
+                const lsi = rp.get_resource('Local Server Info');
 
 
-                var lsi = rp.get_resource('Local Server Info');
+                const server_router = rp.get_resource('Server Router');
+
+
+                /*
                 var resource_names = rp.resource_names;
                 var js = rp.get_resource('Site JavaScript');
                 var css = rp.get_resource('Site CSS');
@@ -222,7 +237,8 @@ class JSGUI_Server extends Evented_Class {
                 var login = rp.get_resource('Login HTML Resource');
                 var admin = rp.get_resource('Web Admin');
                 var sock_router = rp.get_resource('Server Sock Router');
-                var server_router = rp.get_resource('Server Router');
+                */
+
                 lsi.getters.net((err, net) => {
                     if (err) {
                         callback(err);
@@ -249,9 +265,10 @@ class JSGUI_Server extends Evented_Class {
                                 https_server.timeout = 10800000;
                                 //https_server.listen(443, ipv4_address);
                                 https_server.listen(port, ipv4_address);
+                                console.log('* Server running at https://' + ipv4_address + ':' + port + '/');
                                 num_to_start--;
                                 if (num_to_start === 0) {
-                                    callback(null, true);
+                                    if (callback) callback(null, true);
                                 }
                             });
                         } else {
@@ -263,9 +280,9 @@ class JSGUI_Server extends Evented_Class {
                                 http_server.listen(port, ipv4_address);
                                 console.log('* Server running at http://' + ipv4_address + ':' + port + '/');
                                 num_to_start--;
-                                console.log('num_to_start', num_to_start);
+                                //console.log('num_to_start', num_to_start);
                                 if (num_to_start === 0) {
-                                    callback(null, true);
+                                    if (callback) callback(null, true);
                                 }
                             });
                         }
@@ -279,6 +296,9 @@ class JSGUI_Server extends Evented_Class {
     // Maybe will not have that function?
     //  Could pass it directly to the server router.
     'process_request'(req, res) {
+
+        throw 'request should be processed elsewhere, such as the router'
+
         var url = req.url;
         //console.log('*** server process_request url ' + url);
         var s_url = url.split('/');
@@ -301,7 +321,11 @@ class JSGUI_Server extends Evented_Class {
 
     // Probably better to do a bundle process for that page / document, so that all referenced resources are known to be / made to be
     //  available.
+
+
     'serve_document'(req, res, jsgui_html_document) {
+
+        throw 'deprecating.';
         var html = jsgui_html_document.all_html_render();
         var mime_type = 'text/html';
         //console.log('mime_type ' + mime_type);
@@ -310,6 +334,13 @@ class JSGUI_Server extends Evented_Class {
         });
         res.end(html, 'utf-8');
     }
+
+    // Properties and functions to better interact with what the server is hosting.
+    //  ms_uptime property
+
+
+
+
 }
 
 //console.log('!!2)jsgui', !!jsgui);
@@ -334,10 +365,32 @@ if (require.main === module) {
         }
     }
 
+
+    // Can give it a bit of content to start with....?
+
     const server = new JSGUI_Server();
 
     const current = () => {
         console.log('server', server);
+
+
+        // And this Webpage itself is not a Control.
+        //  It would need to specify it uses Control rendering (I think).
+
+
+        //const wp = new Webpage({
+        //    'name': 'Starter Webpage'
+        //});
+
+        // log various pieces of info / data from the server.
+        //  Maybe its resources are the more accessible place to get data from.
+
+
+        // server.host(wp, '/');
+
+
+
+        server.start(8080);
 
         // May change to a core and extended server.
         //  Extended server could have functions (via mixin) such as serve_file that are above the routing and HTTP abstraction

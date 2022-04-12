@@ -27,11 +27,9 @@ class Webpage {
         // Could contain a bunch of resources.
         // Then there are the relevant resource publishers.
         let name;
-
         if (spec.name) {
             name = spec.name;
         };
-
         Object.defineProperty(this, 'name', {
             get() {
                 return name;
@@ -41,14 +39,25 @@ class Webpage {
             }
         });
 
+        let title;
+        if (spec.title) {
+            title = spec.title;
+        };
+        Object.defineProperty(this, 'title', {
+            get() {
+                return title;
+            },
+            set(value) {
+                title = value;
+            }
+        });
+
         // A URL or URL path property would make sense
 
         let path;
-
         if (spec.path) {
             path = spec.path;
         };
-
         Object.defineProperty(this, 'path', {
             get() {
                 return path;
@@ -78,14 +87,23 @@ class Webpage {
             content = spec.content;
         };
 
+        // Could be a Web_Document_Control or similar.
+        //  A Control that takes up the whole of a web page.
         Object.defineProperty(this, 'content', {
             get() {
                 return content;
             },
             set(value) {
                 content = value;
+
+                // then depending on the type of content, it will prepare bundles in different ways.
+
             }
         });
+
+        // .prepare_bundle function
+        //   though the webpage publisher may be better for this.
+
 
 
         // Requirements...

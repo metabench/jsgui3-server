@@ -2,6 +2,7 @@ const jsgui = require('jsgui3-html');
 
 const oext = require('obext');
 
+const Webpage = require('./webpage');
 // Website is a Publisher?
 
 // Won't actually handle the HTTP requests.
@@ -12,6 +13,8 @@ const {Collection} = jsgui;
 // For the moment, an abstraction to represent a website.
 
 // A 'name property' mixin?
+
+// Not sure this even needs routes / router. Does not need to be optimised for serving at this stage.
 
 class Website {
     constructor(spec = {}) {
@@ -43,6 +46,24 @@ class Website {
                 return pages;
             }
         });
+
+        // When a page gets pushed within pages, it will need to be added to the router routes.
+
+        // For the moment, let's start the website with one initial page.
+
+
+        // Seems not to need any JS.
+        const root_page = new Webpage({
+            'name': 'Root Webpage',
+            'title': 'jsgui3-server',
+            'content': 'This is a jsgui3-server root web page.',
+            'path': '/'
+        });
+        pages.push(root_page);
+
+        console.log('pages.length()', pages.length()); // Could definitely make collections more modern.
+
+        
 
 
         // Pages or routes...

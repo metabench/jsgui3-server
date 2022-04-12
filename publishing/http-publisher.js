@@ -11,18 +11,27 @@ const { Publisher } = require('jsgui3-html');
 class HTTP_Publisher extends Publisher {
     constructor(spec) {
         super(spec)
+
+        /*
         this.handle_http = (req, res) => {
-            throw 'HTTP_Publisher: Use handle_http of subclass.';
-            // Determine input content type (if any)
-            // Headers, auth
-            //  Then get more of a programmatic model of what it requires to be done.
-            // 
+            
+            
+
+        }
+        */
+    }
+    handle_http(req, res) {
+        console.trace();
+        throw 'HTTP_Publisher: Use handle_http of subclass.';
+        // Determine input content type (if any)
+        // Headers, auth
+        //  Then get more of a programmatic model of what it requires to be done.
+        // 
 
 
-            // Use the app router to determine where the request is to go.
+        // Use the app router to determine where the request is to go.
 
-            /*
-
+        const do_response = () => {
             res.writeHead(200, {
                 //'Content-Type': 'text/event-stream',
                 'Transfer-Encoding': 'chunked',
@@ -36,8 +45,6 @@ class HTTP_Publisher extends Publisher {
                 res.write('event: message\ndata:' + s_data + '\n\n');
             }
             obs2.on('next', obs2_handler);
-
-            */
         }
     }
 }

@@ -183,8 +183,6 @@ class JSGUI_Server extends Evented_Class {
         // Multiple websites - perhaps proxying to them.
         //console.log('is_website', is_website);
         if (true) {
-            
-
             // No, create the Website object and the HTTP_Website_Publisher.
             //  Could make a Website_Resource that wraps it and goes in the resource pool.
 
@@ -475,6 +473,7 @@ if (require.main === module) {
         // server.host(wp, '/');
 
 
+        // Better to start the server once the bundling is done...?
 
         server.start(8080);
 
@@ -610,12 +609,6 @@ if (require.main === module) {
 
                         // route /js to the js resource?
 
-                        
-
-
-
-
-
                         routing_tree.set('admin', (req, res) => {
                         //console.log('root path / request');
                             const o_spc = {
@@ -652,7 +645,7 @@ if (require.main === module) {
                                 });
                             }
                             
-                            var body = hd.body;
+                            const body = hd.body;
                             let o_params = this.params || {};
                             Object.assign(o_params, {
                                 'context': server_page_context
@@ -661,7 +654,7 @@ if (require.main === module) {
                             //console.log('this.Ctrl', this.Ctrl);
 
 
-                            var ctrl = this.ctrl = new Web_Admin_Panel_Control(o_params);
+                            const ctrl = this.ctrl = new Web_Admin_Panel_Control(o_params);
                             ctrl.active();
                             //var ctrl2 = new jsgui.Control({});
                             body.add(ctrl);

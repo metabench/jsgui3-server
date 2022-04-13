@@ -27,4 +27,20 @@ Server will be in a very simple configuration.
 Single html response for all requests...?
 
 
+Server with admin interface available, and admin interface allowing it to bundle / serve selected content.
+Also want to make use of simple and stable API.
+
+Want to make the server admin page(s) with panels.
+Would be a nice place for a decent web ui.
+
+More advanced and user-friendly functionality out-of-the-box.
+A file manager interface would be cool.
+Maybe would need to use file system resource
+Could work on remote file system too.
+
+
+
+
+
+
 

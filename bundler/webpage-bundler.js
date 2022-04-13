@@ -14,6 +14,7 @@ const stream_to_array = require('stream-to-array');
 // Maybe some web pages should be unbundlable? Or we note that they are dynamic (somehow).
 //  Perhaps another fn should do that check. Don't assume all pages will bundle OK. Could raise obs error if needed.
 
+// Bundling CSS from a JS page.
 
 const bundle_js = (js_file_path, options = {}, callback) => {
 
@@ -38,6 +39,14 @@ const bundle_js = (js_file_path, options = {}, callback) => {
                 path = require('path').parse(js_file_path);
 
             let fileContents = await fnlfs.load(js_file_path);
+
+            // Modify the original file contents so that only client-side parts appear?
+            //  Could be done by programatically removing a whole code block, what to do if it is run on the server.
+
+
+
+
+
             //console.log('1) fileContents.length', fileContents.length);
             // are there any replacements to do?
             // options.replacements
@@ -143,15 +152,19 @@ const bundle_js = (js_file_path, options = {}, callback) => {
 }
 
 
-const bundle_web_page = (webpage, options) => {
+const bundle_web_page = (webpage, options = {}) => {
     const {content} = webpage;
 
+    let {disk_path_client_js} = options;
+    //if (options.js_client) js_client_disk_path = 
+
     // Then depending on the content type
+    
 
     const t_content = tof(content);
 
-    console.log('content', content);
-    console.log('t_content', t_content);
+    //console.log('content', content);
+    //console.log('t_content', t_content);
 
     return obs((next, complete, error) => {
         const res = new Bundle();
@@ -176,8 +189,8 @@ const bundle_web_page = (webpage, options) => {
             complete(res);
 
         } if (t_content === 'control') {
-            console.log ('content.context', content.context);
-            console.log('content', content);
+            //console.log ('content.context', content.context);
+            //console.log('content', content);
 
             // May need to clone this control, putting it into new contexts.
             //  Or render it with a temporary context?
@@ -187,10 +200,12 @@ const bundle_web_page = (webpage, options) => {
 
 
             if (content instanceof Control) {
-                console.log('content is control');
-                console.log('content.constructor.name', content.constructor.name);
+                //console.log('content is control');
+                //console.log('content.constructor.name', content.constructor.name);
                 if (content instanceof HTML_Document) {
                     console.log('content is an html document');
+
+                    throw 'NYI';
                 } else {
 
                     // create an HTML document
@@ -231,7 +246,12 @@ const bundle_web_page = (webpage, options) => {
                     // js.serve_package('/js/app.js', js_client, o_serve_package, (err, served) => {
                     //  maybe should make a JS_Bundler class.
 
-                    bundle_js(require.resolve('jsgui3-html'), {}, (err, res_bundle_js) => {
+                    // May need to be told earlier what file path we are using for the client js bundle.
+
+                    const diskpath_js_client = disk_path_client_js || require.resolve('jsgui3-html');
+                    //const diskpath_js_client = require.resolve('./../controls/page/admin.js');
+
+                    bundle_js(diskpath_js_client, {}, (err, res_bundle_js) => {
                         if (err) {
                             console.trace();
                             throw err;
@@ -260,12 +280,8 @@ const bundle_web_page = (webpage, options) => {
                             //  If it's just generated JS then best not to bundle JS to load.
         
                             // Could also make smaller bundles for some specific parts of the app. Could improve speed.
-        
-        
-        
                             //console.log('doc.html', doc.html);
                             const buff_html = Buffer.from(doc.html, "utf-8");
-        
                             // But add the client-side stuff to that doc.
         
                             // Remember, this part is about bundling rather than serving.
@@ -278,7 +294,6 @@ const bundle_web_page = (webpage, options) => {
                             console.log('pre complete bundlejs');
                             console.log('res.length()', res.length());
                             complete(res);
-
                         }
                     });
 
@@ -289,21 +304,78 @@ const bundle_web_page = (webpage, options) => {
             } else {
                 throw 'NYI';
             }
-
-
-            
-
-
         } else {
-            throw 'NYI';
 
-            // or error nyi.
+            console.log('t_content', t_content);
+
+            if (t_content === 'function') {
+
+                const spc = new Server_Page_Context({
+                    //request: 
+                });
+
+                const Ctrl = content;
+                const ctrl = new Ctrl({
+                    'context': spc
+                });
+
+                if (ctrl instanceof HTML_Document) {
+                    console.trace();
+                    throw 'NYI';
+                } else {
+
+
+                    const diskpath_js_client = disk_path_client_js || require.resolve('jsgui3-html');
+                    //const diskpath_js_client = require.resolve('./../controls/page/admin.js');
+
+                    bundle_js(diskpath_js_client, {}, (err, res_bundle_js) => {
+                        if (err) {
+                            console.trace();
+                            throw err;
+                        } else {
+                            //console.log('res_bundle_js', res_bundle_js);
+
+                            res.push({
+                                'path': webpage.path + 'js/app.js',
+                                'value': res_bundle_js,
+                                'content-type': 'text/javascript'
+                            });
+
+                            const doc = new Client_HTML_Document({
+                                context: spc
+                            });
+                            doc.include_js('/js/app.js');
+                            doc.body.add(ctrl);
+        
+                            // Getting it to load the JS would be nice...
+                            //  But maybe only do it automatically if it's an active document.
+                            //  If it's just generated JS then best not to bundle JS to load.
+        
+                            // Could also make smaller bundles for some specific parts of the app. Could improve speed.
+                            //console.log('doc.html', doc.html);
+                            const buff_html = Buffer.from(doc.html, "utf-8");
+        
+                            res.push({
+                                'path': webpage.path,
+                                'value': buff_html,
+                                'content-type': 'text/html'
+                            });
+                            //console.log('pre complete bundlejs');
+                            //console.log('res.length()', res.length());
+                            complete(res);
+                        }
+                    });
+                }
+
+            } else if (false) {
+                console.trace();
+                throw 'NYI';
+            } else {
+                console.trace();
+                throw 'NYI';
+            }
         }
-
     });
-
-    
-
     //throw 'NYI';
 }
 

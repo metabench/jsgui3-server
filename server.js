@@ -22,6 +22,14 @@ const Webpage = require('./website/webpage');
 
 // And the HTTP web page publisher?
 
+// A Server Application could be a reasonable abstraction.
+//  The application itself gets programmed within such a structure.
+//   Basically gets defined, rather than lots of calls made to the server to set things up.
+
+
+
+
+
 
 
 // Operating JSGUI_Server as a proxy server or with improved proxy capabilities may help.
@@ -63,7 +71,55 @@ class JSGUI_Server extends Evented_Class {
         //   All gets routed to that resource automatically.
         //   
         super();
+
+
+        // disk_path_client_js
+        //  would be a useful basic option as single page website and single control website have been retired.
+
+        let disk_path_client_js;
+
+        if (spec.disk_path_client_js) {
+            disk_path_client_js = spec.disk_path_client_js;
+        };
+
+        Object.defineProperty(this, 'disk_path_client_js', {
+            get() {
+                return disk_path_client_js;
+            },
+            set(value) {
+                disk_path_client_js = value;
+            }
+        });
+
+        //console.log('disk_path_client_js', disk_path_client_js);
+
+
+        let Ctrl;
+        if (spec.Ctrl) {
+            Ctrl = spec.Ctrl;
+        };
+        Object.defineProperty(this, 'Ctrl', {
+            get() {
+                return Ctrl;
+            },
+            set(value) {
+                Ctrl = value;
+            }
+        });
+
+
         let name;
+
+        // Could check for 'single control' mode.
+        //  Would only serve a single control (at least to start with).
+        //  A quick way of serving content.
+
+        /*
+            Ctrl: Demo_UI,
+            'client_package': require.resolve('./square_box.js')
+        */
+
+
 
         if (spec.name) {
             name = spec.name;
@@ -148,7 +204,6 @@ class JSGUI_Server extends Evented_Class {
                 //server_router.set_route('/*', app, app.process);
                 server_router.set_route('/*', app.process);
             }
-
             // Or could publish a single page website.
 
             const current = () => {
@@ -157,21 +212,47 @@ class JSGUI_Server extends Evented_Class {
 
                 // And a Resource for the Website Publisher too?
 
-                const ws_app = this.app = new Website({
+                // And the website could have it's single control?
+                const opts_website = {
                     'name': this.name || 'Website'
-                });
-                const ws_publisher = new HTTP_Website_Publisher({
+                };
+
+                if (Ctrl) {
+                    opts_website.content = Ctrl;
+                }
+
+                const ws_app = this.app = new Website(opts_website);
+
+                // The publisher, now it uses the bundler, is clearer in terms of what it needs to do
+                //  publisher needs to do a lot, but moving code to specific modules makes the publisher code higher level.
+
+                // Could give the publisher the client package js (path).
+
+                const opts_ws_publisher = {
                     'website': ws_app
-                });
+                };
+
+                if (disk_path_client_js) {
+                    opts_ws_publisher.disk_path_client_js = disk_path_client_js;
+                }
+
+
+                const ws_publisher = new HTTP_Website_Publisher(opts_ws_publisher);
+                // ws publisher could have website admin (web) tools.
+                //  website admin web interface.
+
+
+
+
                 const ws_resource = new Website_Resource({
                     'name': 'Website Resource',
                     'website': ws_app
                 });
                 resource_pool.add(ws_resource);
-
                 //server_router.set_route('/*', ws_app, ws_publisher.handle_http);
-                server_router.set_route('/*', ws_publisher.handle_http);
+                //server_router.set_route('/*', ws_publisher.handle_http);
                 server_router.set_route('/*', ws_publisher, ws_publisher.handle_http);
+                //console.log('route has been set');
                 // ws_publisher.start();
             }
             current();
@@ -196,6 +277,12 @@ class JSGUI_Server extends Evented_Class {
 
 
     'start'(port, callback, fnProcessRequest) {
+
+        if (tof(port) !== 'number') {
+            console.trace();
+            throw 'stop';
+        }
+
         //throw 'stop';
         // The resource_pool is not just a Data_Value. need to fix some get or create new field value code.
         //console.log('start');
@@ -225,10 +312,7 @@ class JSGUI_Server extends Evented_Class {
                 // Don't have http-server-publisher (yet).
 
                 const lsi = rp.get_resource('Local Server Info');
-
-
                 const server_router = rp.get_resource('Server Router');
-
 
                 /*
                 var resource_names = rp.resource_names;
@@ -326,7 +410,6 @@ class JSGUI_Server extends Evented_Class {
 
 
     'serve_document'(req, res, jsgui_html_document) {
-
         throw 'deprecating.';
         var html = jsgui_html_document.all_html_render();
         var mime_type = 'text/html';

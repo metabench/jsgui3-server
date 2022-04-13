@@ -12,6 +12,14 @@ const {obs} = require('fnl');
 
 const Webpage_Bundler = require('./../bundler/webpage-bundler');
 
+
+// Now it's the very basics of a website publisher. Quite flexible but could do with more.
+//  Better integration with bundler
+//  Rendering webpages that are dynamic and therefore not bundled (eg user specific content).
+//   Though the js could be bundled. Maybe some of the controls could be bundled? Or semi-bundled?
+
+
+
 // HTTP_Webpage_Publisher could be interesting.
 //  The Website Publisher could make use of some of its functionality.
 
@@ -22,13 +30,8 @@ const Webpage_Bundler = require('./../bundler/webpage-bundler');
 //  Maybe would not need to be (as) concerned with routing.
 //  Could be useful for publishing a SPA of course, kind of a website but as a single page.
 
-
-
-
 // This seems more like the server router these days
 //  The main server router seems to pass everything to this - maybe that will change.
-
-
 
 class HTTP_Website_Publisher extends HTTP_Publisher {
 
@@ -54,12 +57,21 @@ class HTTP_Website_Publisher extends HTTP_Publisher {
             }
         });
 
+        let disk_path_client_js;
+        if (spec.disk_path_client_js) disk_path_client_js = spec.disk_path_client_js;
+        Object.defineProperty(this, 'disk_path_client_js', {
+            get() {
+                return disk_path_client_js;
+            }
+        });
+
         // And this could be an observable too.
 
         // May get admin pages working on a slightly lower level.
         //  Makes sense as they are for administering other pages (mostly).
 
-
+        console.log('http-website-publisher disk_path_client_js', disk_path_client_js);
+        //throw 'stop';
 
         const setup_website_publishing = (website) => {
             // put pages into a router here...
@@ -68,33 +80,33 @@ class HTTP_Website_Publisher extends HTTP_Publisher {
             // Now let's try bundling an active JS client.
             // May need to compile / render JSGUI Controls to HTML / full HTML pages.
 
-            
-
-
-
             // And unspecified pages such as admin pages?
 
             each(website.pages, (page => {
                 //console.log('page', page);
                 //console.log('page.name', page.name);
                 //console.log('page.url', page.url);
-                console.log('page.path', page.path);
+                //console.log('page.path', page.path);
+                // Need a common client js file for all of them I think.
 
-                const obs_bundling = Webpage_Bundler.bundle_web_page(page);
-                console.log('doing bundling');
+                const opts_bundling = {};
+                if (disk_path_client_js) opts_bundling.disk_path_client_js = disk_path_client_js;
+
+                const obs_bundling = Webpage_Bundler.bundle_web_page(page, opts_bundling);
+                //console.log('doing bundling');
                 //console.log('obs_bundling', obs_bundling);
 
                 obs_bundling.on('complete', res => {
                     //console.log('obs_bundling res', res);
                     const bundle = res;
                     console.log('bundle._arr.length', bundle._arr.length);
-                    //console.log('Object.keys(bundle)', Object.keys(bundle));
+                    console.log('Object.keys(bundle)', Object.keys(bundle));
 
                     if (bundle._arr.length === 1) {
                         // And check it's HTML inside...?
 
                         const bundled_item = bundle._arr[0];
-                        //console.log('bundled_item', bundled_item);
+                        console.log('bundled_item', bundled_item);
 
                         if (bundled_item['content-type']) {
                             const ct = bundled_item['content-type'];
@@ -133,7 +145,7 @@ class HTTP_Website_Publisher extends HTTP_Publisher {
 
                         each(bundle, item => {
                             //console.log('item', item);
-                            console.log('item.path', item.path);
+                            console.log('item.path', item.path, item['content-type']);
 
                             if (item['content-type']) {
                                 const ct = item['content-type'];
@@ -170,29 +182,7 @@ class HTTP_Website_Publisher extends HTTP_Publisher {
                         //console.trace();
                         //throw 'NYI';
                     }
-
-
                 })
-
-
-                // 'set_route'(str_route, context, fn_handler)
-
-                // More about determining what on the pages needs to be bundled.
-
-                // Use Webpage_Publisher to create bundles for these pages.
-                //  eg JavaScript and CSS in particular.
-
-                // Create a bundle for that page.
-
-                // That would be the page publisher that can create bundles for pages.
-                // Or the webpage-bundler possibly.
-                
-
-
-
-
-
-                //router.set_route()
 
             }));
 

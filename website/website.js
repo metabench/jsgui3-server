@@ -1,4 +1,5 @@
 const jsgui = require('jsgui3-html');
+const {tof, HTML_Document} = jsgui;
 
 const oext = require('obext');
 
@@ -49,6 +50,82 @@ class Website {
             }
         });
 
+        if (spec.content) {
+            const content = spec.content;
+
+            console.log('content', content);
+            console.log('tof(content)', tof(content));
+
+            const t_content = tof(content);
+
+            // And no pages set....
+
+            if (pages.length() === 0) {
+
+
+                if (t_content === 'function') {
+
+                    // Create first and only page.
+
+
+
+                    // is it an instance of an HTML_Document control?
+    
+                    // no it's a constructor rather than an instance.
+    
+                    // Need to call that function at some point.
+                    //  Maybe the later the better.
+
+                    const root_page = new Webpage({
+                        'name': 'Root Webpage',
+                        'title': 'jsgui3-server',
+                        //'content': 'This is a jsgui3-server root web page.',
+                        'content': content,
+                        'path': '/'
+                    });
+                    pages.push(root_page);
+    
+    
+                    /*
+                    if (content instanceof HTML_Document) {
+                        console.log('t_content', t_content);
+                        console.trace();
+                        throw 'NYI'; 
+                    } else {
+                        console.log('t_content', t_content);
+                        console.trace();
+                        throw 'NYI'; 
+                    }
+                    */
+    
+    
+    
+                    // a constructor (I assume)
+                    
+    
+    
+                } else {
+                    console.log('t_content', t_content);
+                    console.trace();
+                    throw 'NYI'; 
+                }
+
+
+            } else {
+                throw 'NYI';
+            }
+
+            
+
+            //throw 'stop';
+        }
+
+        // be able to get 'content' from the spec.
+        //  if the setting is a single item for a single page, it could be easier.
+
+
+
+
         // When a page gets pushed within pages, it will need to be added to the router routes.
 
         // For the moment, let's start the website with one initial page.
@@ -70,23 +147,47 @@ class Website {
         // A control without a Page Context here.
         //  Or the page context would be a rendering of the root_page.
 
-        const ctrl_root = new jsgui.Control({
+        // Maybe render an actual placeholder control. Site_Placeholder perhaps?
 
-        });
+        // What if the content is a Control constructor?
+        //  Should be able to call the constructor (in the right circumstances).
 
+        const use_coming_soon_jsgui3 = () => {
+            const ctrl_root = new jsgui.Control({
+
+            });
+    
+            const h1 = new jsgui.h1({});
+            h1.add('Website Coming Soon');
+            ctrl_root.add(h1);
+    
+    
+            // <a href="url">link text</a>
+    
+            const p = new jsgui.p({});
+            //p.add('This website is being built using jsgui3-server');
+            p.add('This website is being built using ');
+            const a = new jsgui.a({});
+            a.dom.attributes.href = 'https://github.com/metabench/jsgui3-server';
+            a.add('jsgui3-server');
+            p.add(a);
+    
+    
+            ctrl_root.add(p);
+    
+            const root_page = new Webpage({
+                'name': 'Root Webpage',
+                'title': 'jsgui3-server',
+                //'content': 'This is a jsgui3-server root web page.',
+                'content': ctrl_root,
+                'path': '/'
+            });
+            pages.push(root_page);
+    
+            console.log('pages.length()', pages.length()); // Could definitely make collections more modern.
+        }
 
         
-
-        const root_page = new Webpage({
-            'name': 'Root Webpage',
-            'title': 'jsgui3-server',
-            //'content': 'This is a jsgui3-server root web page.',
-            'content': ctrl_root,
-            'path': '/'
-        });
-        pages.push(root_page);
-
-        console.log('pages.length()', pages.length()); // Could definitely make collections more modern.
 
         
 

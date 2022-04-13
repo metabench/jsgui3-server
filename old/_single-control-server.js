@@ -33,8 +33,43 @@ var Server_Page_Context = require('./page-context');
 //  debug
 //  (standard)
 
-// Assumes port 80 for the moment, but want control over ports.
-//  May have / need dedicated websocket port, maybe https, secure websocket?
+// Want to get the library compressed sizes down. Particulatly client. Can do much more with oext.
+
+
+
+/*
+var server = new Server({
+    '*': {
+        'name': 'html-server'
+    }
+});
+
+*/
+/*
+var resource_pool = root_server.resource_pool;
+// link these getters with the resource pool resource getters?
+let app_server = resource_pool['HTML Server'];
+//console.log('app_server', app_server);
+//
+
+//console.log('app_server.resource_names', app_server.resource_names);
+//console.log('!!app_server.resource_pool', !!app_server.resource_pool);
+let js = app_server.resource_pool['Site JavaScript'];
+*/
+
+//console.log('Server', Server);
+
+// And choose the CSS file / files to send it.
+//  Could send basic jsgui css by default
+//  Then there would be app css on top of that.
+
+// Authenticated_Server?
+//  Has got authentication mechanisms as a wrapper for the controls inside.
+
+
+// Want to be able to set up icons as well.
+
+
 
 class Single_Control_Server extends Server {
     constructor(spec) {
@@ -60,16 +95,12 @@ class Single_Control_Server extends Server {
                     throw 'Single_Control_Server needs a Ctrl property'
                 }
             }
-
-
             if (spec.js_mode) this.js_mode = spec.js_mode;
             if (spec.js_client) this.js_client = spec.js_client;
-            if (spec.context_data) this.context_data = spec.context_data;
+            // deliver app specific css
+            // an obj
             if (spec.css) this.css = spec.css;
-
-            // Not handling icons in the spec(yet). Now using load_icon_set.
-            //if (spec.icons) this.icons = spec.icons;
-
+            if (spec.icons) this.icons = spec.icons;
             if (spec.include_server_ref_in_page_context) {
                 this.include_server_ref_in_page_context = spec.include_server_ref_in_page_context;
             }
@@ -87,11 +118,13 @@ class Single_Control_Server extends Server {
         var app = new Website_Resource({
             'name': 'html-server'
         });
+
         // will need to keep access to the server?
         //  server_page_context keeping access to the server?
 
         // some place to keep variables on the server.
         //  Especially when we are not coding any / much server-side logic.
+
         // server.shared
         //  want an object that is shared between all server instances.
 
@@ -99,6 +132,7 @@ class Single_Control_Server extends Server {
         
         // Maybe make something like Resource_Pool but simpler?
         //  Less prescriptive, but allowing a more complex api...?
+
         // page_context.shared
         //  shared with the server
         //  shared with all page contexts.
@@ -112,18 +146,11 @@ class Single_Control_Server extends Server {
     }
 
     // Could start it up with a client_js reference
-    // be able to chose the port(s) as well?
-
-    // HTTPS and other protocols?
 
     'start' (callback) {
-
-        const {context_data} = this;
-
-        // Want the right lower level abstractions for this. And similar.
-
         //throw 'stop';
         //var resource_pool = this.resource_pool;
+
         var resource_pool = this.app_server.resource_pool;
         var server_router = this.resource_pool.get_resource('Server Router');
         // Build the client js and include that.
@@ -135,49 +162,80 @@ class Single_Control_Server extends Server {
         let js = this.app_server.resource_pool['Site JavaScript'];
         let css = this.app_server.resource_pool['Site CSS'];
         let imgs = this.app_server.resource_pool['Site Images'];
+
+
+
+        // will look into the resource publisher to see what is published.
+
+        // serve package with replacement options.
+        // // the activate app function.
+        //  Can be put into place in the served JS.
+
+        // with replacement option within serve_package
+
         let o_serve_package = {
             //'babel': 'mini'
         }
 
-        // Other way(s) of doing this now.
+        // babel option.
+        // Activation should be defined
+        //  Or there is some default activation in the client.js
+        //  It has the maps of controls and Controls
+        //   Then can activate these controls.
+        //    There should maybe be some more data services in the client.
+        //  Could make the client more miniature and modular once it works, and then incorporate react.
+        // Data-Resource would be general enough to work on both.
+        //  The client data resources could then direct their requests to the server ones.
+        // Could make a resource-pool for both client and server
+
+        //console.log('this.activate_app', this.activate_app);
+        //throw 'stop';
+
+        // Should do this before the babel compilation. Think that's the sequence anyway.
+        //  Not sure why it's not working.
         if (this.activate_app) {
             o_serve_package.replace = {
                 '/* -- ACTIVATE-APP -- */': this.activate_app.toString()
             }
             //
         }
+        // want it to serve with debug code map
+        //  for the moment
+        // want that to be easier to do with a --debug option.
+        //  should read command line options.
         o_serve_package.js_mode = 'mini';
         if (this.js_mode) {
             o_serve_package.js_mode = this.js_mode;
         } else {
             //o_serve_package.babel = 'mini';
         }
+        // need to minify the js.
+        //  Also, gzip compression as standard.
+        //  Need HTTPS for Brotli - but want to get HTTPS working more, tested online and running.
+
+        // Need to minify js, reduce file size.
+
+        // Minifying currently breaks it.
+
+        //o_serve_package.js_mode = 'debug';
+
+        // Extra functionality for loading / serving icon files?
+        //  Easily available / usable named icons will be very useful within the app.
+        //  Could be in sprites / pre-loaded.
+
+
+
+
+        // Not sure how to do the replace when loading from disk.
+        // Give a reference to the package to serve itself.
+        //  example servers - 
+        // serve the css as well.
         if (this.css) {
             each(this.css, (path, serve_as) => {
                 css.serve(serve_as, path);
             })
         }
-
-        
-        // css.serve_package_css
-        //  will get the css from that package?
-        //  or extract the css from the classes in the package directly?
-
-
         let js_client = this.client_package || this.js_client || 'jsgui3-client';
-
-        // The removal of server code / recompilation shouldnt make a difference in cases where we give it client-side js to start with.
-        // Have the case of the actual client-side js being given with no transformation needed.
-        //  Can detect whether there is any server-side code and transformation(s) needed...?
-
-
-
-
-
-
-        //console.log('js_client', js_client);
-        //throw 'stop';
-
         js.serve_package('/js/app.js', js_client, o_serve_package, (err, served) => {
             //var resource_pool = this.resource_pool;
             //console.log('server_router', server_router);
@@ -185,9 +243,10 @@ class Single_Control_Server extends Server {
             if (!server_router) {
                 throw 'no server_router';
             }
-            const routing_tree = server_router.routing_tree;
+            var routing_tree = server_router.routing_tree;
             routing_tree.set('/', (req, res) => {
                 //console.log('root path / request');
+
                 const o_spc = {
                     'req': req,
                     'res': res,
@@ -195,11 +254,10 @@ class Single_Control_Server extends Server {
                 }
 
                 if (this.include_server_ref_in_page_context) o_spc.server = this;
+
+
                 var server_page_context = new Server_Page_Context(o_spc);
-                // then merge the context data :)
-                if (this.context_data) {
-                    Object.assign(server_page_context, this.context_data);
-                }
+
                 // and .server property?
                 //  a different way to get the server info to the components is needed.
 
@@ -208,20 +266,46 @@ class Single_Control_Server extends Server {
                     'context': server_page_context
                 });
                 hd.include_client_css();
-                hd.include_css('/css/basic.css');
-                hd.include_css('/css/controls.css');
+                hd.include_css('/css/basic.css')
 
-                // include compiled css too.
-                //  not much of it yet.
-
-                // Will be a separate CSS file, generated upon app start.
                 if (this.css) {
                     each(this.css, (path, serve_as) => {
                         //css.serve(serve_as, path);
                         hd.include_css('/css/' + serve_as);
                     });
                 }
-                
+
+                // include a js script block, having it set up the 
+                // not include_client_js
+
+                // .include_client_config_js()
+                //  will get the resource config from the resource publisher.
+
+                // including data on published resources in the initial html download would be very useful.
+                //  auto event wiring, so that controls that rely on having this data will have it available.
+
+                // Want to get this to work, then greatly slim down the codebase, or at least delete comments, use some more syntactic sugar.
+
+                // Calling 'publish' would be a good method.
+                //console.log('this.app_server.map_resource_publishers', this.app_server.map_resource_publishers);
+                //console.log('this.app_server.def_resource_publishers', this.app_server.def_resource_publishers);
+
+                // a script block where we assign the resource publishers.
+                //  tell the client what resources are available on the server.
+
+                // include a js script block.
+                // jsgui.register_server_resources({...})
+                // o_def
+                //  an object that describes how the resources are published.
+
+                // app_server.def_resource_publishers
+                //  the urls
+                //   what data it provides / its schema.
+                //  a def from each of the publishers
+                //   with a schema similar to graphql?
+
+                //throw 'stop';
+
                 var body = hd.body;
                 let o_params = this.params || {};
                 Object.assign(o_params, {
@@ -233,7 +317,10 @@ class Single_Control_Server extends Server {
                 ctrl.active();
                 //var ctrl2 = new jsgui.Control({});
                 body.add(ctrl);
-                
+
+                let resources_script = new jsgui.script({
+                    context: server_page_context
+                });
                 // it will be a client-side function.
 
                 // Should not use 'add' here.
@@ -245,57 +332,31 @@ class Single_Control_Server extends Server {
                 hd.include_js('/js/app.js');
 
                 // Would this be a place to register icons?
-                //  and register client data.
 
-                // If we have the client data, we merge these items into the context.
-                //  register_context_data
-                //   because the page_context js object won't have been created yet...
 
-                // create the different statements.
-                //  only put that resources_script in if there is something worth doing.
+                const strc = new jsgui.String_Control({
+                    context: server_page_context,
 
-                // Or even do the CSS compilation and property removal from the JS file, all at the same time?
-                //  Maybe could do it from reference to the client controls too.
+                    // Won't have access to the context when registering there?
+                    //  Will need to access the client-side context.
+                    //   Setting jsgui.context on the client-side does make sense.
+                    //    There would only be one context per instance of jsgui on the client.
 
-                // Will work out a fairly simple way to compile together tha CSS.
-                //  May have a few methods available, make use of them in different ways / at different levels.
+                    // Could raise an event on jsgui, which the page_context listens to?
+                    //  The calls need to be set up within the page_context, I think.
 
-                let statement_rsr;
-                let statement_context_data;
-                let statements = [];
+                    // Could just set the def_server_resources property.
+                    //  Then later activation with the page_context could refer to it.
 
-                // Some data will be sent to the client each time.
-                //  Could possibly deliver some kind of token as well to represent the user.
+                    // setting up the def_resource_publishers
+                    //  maybe 'resource' will be a generic term for something in some place.
+                    //   can be non-local, but api will localise its use.
 
-                // Number of entries in this.app_server.def_resource_publishers
+                    text: `jsgui.register_server_resources(${JSON.stringify(this.app_server.def_resource_publishers)});`
+                });
 
-                if (this.app_server.def_resource_publishers) {
-                    const c = Object.keys(this.app_server.def_resource_publishers).length;
-                    if (c > 0) {
-                        statement_rsr = `jsgui.register_server_resources(${JSON.stringify(this.app_server.def_resource_publishers)});`;
-                        statements.push(statement_rsr);
-                    }
-                }
-
-                if (context_data) {
-                    const c = Object.keys(context_data).length;
-                    if (c > 0) {
-                        statement_context_data = `jsgui.register_context_data(${JSON.stringify(context_data)});`;
-                        statements.push(statement_context_data);
-                    }
-                }
-
-                if (statements.length > 0) {
-                    let resources_script = new jsgui.script({
-                        context: server_page_context
-                    });
-                    const strc = new jsgui.String_Control({
-                        context: server_page_context,
-                        text: statements.join('')
-                    });
-                    resources_script.add(strc);
-                    body.add(resources_script);
-                }
+                resources_script.add(strc);
+                body.add(resources_script);
                 
                 hd.all_html_render(function (err, deferred_html) {
                     if (err) {
@@ -329,15 +390,11 @@ class Single_Control_Server extends Server {
     load_icon_set(path, map_icons) {
         // will load each icon into the image resource.
         //  sequential way of doing this?
-        // need to register an image / icon by name within the image resource.
-        //  different version support too?
-        //  track original versions with name.
-        let site_images = this.app_server.resource_pool['Site Images'];
-        //console.log('load_icon_set');
-        //console.log('site_images', site_images);
-        // site_images.load_icon_set?
-        // read each of them from disk individually?
-        site_images.load_icon_set(path, map_icons);
+
+
+        
+
+
     }
 }
 

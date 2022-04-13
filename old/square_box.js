@@ -97,7 +97,7 @@ if (require.main === module) {
 
     // be able to choose the port / ports?
 
-    server.start(function (err, cb_start) {
+    server.start(8080, function (err, cb_start) {
         if (err) {
             throw err;
         } else {

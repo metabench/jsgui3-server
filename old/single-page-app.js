@@ -17,6 +17,8 @@ var Collection = jsgui.Collection;
 var j = jsgui;
 var Class = j.Class;
 
+// Again, jsgui3-server now is better configured to do this out-of-the-box.
+
 class Single_Page_App extends jsgui.Evented_Class {
     constructor(spec) {
         super(spec);

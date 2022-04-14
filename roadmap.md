@@ -38,6 +38,24 @@ A file manager interface would be cool.
 Maybe would need to use file system resource
 Could work on remote file system too.
 
+Or make clear this is the core of the server?
+jsgui3-server-core perhaps?
+
+A Default server? Could also include file management.
+
+
+jsgui3-website could be helpful
+a .deploy function
+possibly the website could be hosted over multiple different servers, deployment could work for that.
+The website would not only be within the server.
+
+Could have a deployment wizard.
+
+
+
+
+
+
 
 
 

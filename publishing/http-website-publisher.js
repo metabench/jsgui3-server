@@ -99,14 +99,14 @@ class HTTP_Website_Publisher extends HTTP_Publisher {
                 obs_bundling.on('complete', res => {
                     //console.log('obs_bundling res', res);
                     const bundle = res;
-                    console.log('bundle._arr.length', bundle._arr.length);
-                    console.log('Object.keys(bundle)', Object.keys(bundle));
+                    //console.log('bundle._arr.length', bundle._arr.length);
+                    //console.log('Object.keys(bundle)', Object.keys(bundle));
 
                     if (bundle._arr.length === 1) {
                         // And check it's HTML inside...?
 
                         const bundled_item = bundle._arr[0];
-                        console.log('bundled_item', bundled_item);
+                        //console.log('bundled_item', bundled_item);
 
                         if (bundled_item['content-type']) {
                             const ct = bundled_item['content-type'];
@@ -145,7 +145,7 @@ class HTTP_Website_Publisher extends HTTP_Publisher {
 
                         each(bundle, item => {
                             //console.log('item', item);
-                            console.log('item.path', item.path, item['content-type']);
+                            //console.log('item.path', item.path, item['content-type']);
 
                             if (item['content-type']) {
                                 const ct = item['content-type'];
@@ -185,13 +185,10 @@ class HTTP_Website_Publisher extends HTTP_Publisher {
                 })
 
             }));
-
             //throw 'NYI';
         }
-
         if (website) {
             setup_website_publishing(website);
-
         }
 
         // Create a router for the website if it does not already have one.
@@ -199,7 +196,6 @@ class HTTP_Website_Publisher extends HTTP_Publisher {
 
         // Do we already know all of the pages in the website?
         //  Maybe there are dynamic pages.
-
 
         // Probably best to come up with a bundle here, or at an early stage.
 
@@ -246,10 +242,6 @@ class HTTP_Website_Publisher extends HTTP_Publisher {
         //  It (probably) should.
 
         // Possibly the publisher has the router for the website.
-
-
-
-
 
         // May have bundle already prepared anyway.
         //  Possibly the Website or the Website_Resource could do the bundling / building.

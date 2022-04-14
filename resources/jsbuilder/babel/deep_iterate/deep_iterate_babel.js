@@ -533,6 +533,9 @@ const deep_iterate_babel_node_$INTERNAL = (babel_node, depth, path, common, call
             } else if (type === 'Super') {
                 return deep_iterate_babel_super_node(babel_node, depth, path, common, callback);
             } else {
+
+                // Need to make this handle a template literal too.
+
                 console.log('');
                 console.log('type', type);
                 console.log('');

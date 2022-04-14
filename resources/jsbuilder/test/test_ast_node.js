@@ -9,7 +9,7 @@
 
 // Load a JS file into an OO structure
 
-const JS_File = require('..//JS_File/JS_File');
+const JS_File = require('../JS_File/JS_File');
 //const JS_File_Comprehension = require('../JS_File_Comprehension');
 const path = require('path');
 const fs = require('fs');

@@ -433,6 +433,16 @@ JSGUI_Server.Page_Context = Server_Page_Context;
 JSGUI_Server.Server_Page_Context = Server_Page_Context;
 JSGUI_Server.Website_Resource = Website_Resource;
 
+// Maybe jsgui3-website should be its own module.
+//  Would (completely?) abstract away from the server.
+
+// And maybe jsgui3-webpage
+//  Could be integrated within jsgui3-server.
+
+
+
+
+
 module.exports = JSGUI_Server;
 
 if (require.main === module) {

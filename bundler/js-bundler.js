@@ -23,6 +23,10 @@ const Stream = require('stream');
 
 // JS_Bundler reporting css that gets found while bundling JS would make sense.
 
+// jsgui3-jsbuilder could be a separate project too.
+// or jsgui3-js-builder even.
+
+
 
 
 
@@ -32,6 +36,8 @@ const bundle_js = (js_file_path, options = {}, callback) => {
     // Returning an observable and not using a callback would work best.
 
     const res = obs((next, complete, error) => {
+
+
 
         let a = arguments;
         if (typeof a[2] === 'function') {
@@ -51,6 +57,12 @@ const bundle_js = (js_file_path, options = {}, callback) => {
                 path = require('path').parse(js_file_path);
 
             let fileContents = await fnlfs.load(js_file_path);
+
+            // Could use the CSS bundler to scan_js_for_css
+            //  Seems as though it would be best as an observable.
+
+
+            // Could first get own system AST of the JS file.
 
             // Modify the original file contents so that only client-side parts appear?
             //  Could be done by programatically removing a whole code block, what to do if it is run on the server.
@@ -98,6 +110,10 @@ const bundle_js = (js_file_path, options = {}, callback) => {
             });
 
             // May be able to better put the bundle stream info into the observable results.
+            //  Browserify gets given the stream.
+
+            // Nice if this function could output a stream as well.
+
 
             let parts = await stream_to_array(b.bundle());
 

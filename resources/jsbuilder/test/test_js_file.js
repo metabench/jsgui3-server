@@ -33,7 +33,7 @@
 
 
 
-const JS_File = require('..//JS_File/JS_File');
+const JS_File = require('../JS_File/JS_File');
 //const JS_File_Comprehension = require('../JS_File_Comprehension');
 const path = require('path');
 const fs = require('fs');
@@ -48,7 +48,7 @@ const test_js_file = () => {
     // stream the file in.
     const lm_path = '../../../../../tools/lang-mini/lang-mini.js'
     const lt_path = '../../../../../tools/lang-tools/lang.js'
-    const fnl_path = '../../../../../tools/fnl/fnl.js'
+    const fnl_path = require.resolve('fnl');
     const filecomp_path = '../JS_File_Comprehension.js';
     const jsfile_path = '../JS_File/JS_File.js';
     const jsbuilder_path = '../JS_Builder.js';

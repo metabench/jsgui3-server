@@ -68,7 +68,7 @@ const bundle_web_page = (webpage, options = {}) => {
             });
             complete(res);
 
-        } if (t_content === 'control') {
+        } else if (t_content === 'control') {
             //console.log ('content.context', content.context);
             //console.log('content', content);
 

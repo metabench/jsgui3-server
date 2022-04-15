@@ -73,7 +73,124 @@ class HTTP_Website_Publisher extends HTTP_Publisher {
         console.log('http-website-publisher disk_path_client_js', disk_path_client_js);
         //throw 'stop';
 
+        // This could be an observable that acts sequentially and async.
+
         const setup_website_publishing = (website) => {
+
+            return obs(async(next, complete, error) => {
+
+                for (const page in website.pages) {
+
+                    const opts_bundling = {};
+                    if (disk_path_client_js) opts_bundling.disk_path_client_js = disk_path_client_js;
+    
+                    const obs_bundling = await Webpage_Bundler.bundle_web_page(page, opts_bundling);
+                    //console.log('doing bundling');
+                    console.log('obs_bundling', obs_bundling);
+
+                    throw 'stop';
+    
+
+                    const old = () => {
+                        obs_bundling.on('complete', res => {
+                            //console.log('obs_bundling res', res);
+                            const bundle = res;
+                            //console.log('bundle._arr.length', bundle._arr.length);
+                            //console.log('Object.keys(bundle)', Object.keys(bundle));
+        
+                            if (bundle._arr.length === 1) {
+                                // And check it's HTML inside...?
+        
+                                const bundled_item = bundle._arr[0];
+                                //console.log('bundled_item', bundled_item);
+        
+                                if (bundled_item['content-type']) {
+                                    const ct = bundled_item['content-type'];
+                                    if (ct === 'text/html') {
+                                        const http_serve_html = (req, res) => {
+                                            res.writeHead(200, {
+                                                'Content-Type': 'text/html'
+                                            });
+                                            res.end(bundled_item.value, 'utf-8');
+                                        }
+                                        router.set_route(bundled_item.path, (req, res) => {
+                                            http_serve_html(req, res);
+                                        });
+                                    } else {
+                                        throw 'NYI';
+                                    }
+        
+                                } else {
+                                    throw 'NYI';
+                                }
+        
+                                // need to create / use the handler for it here.
+                                //  will have various http handler functions to reference and use.
+                                //  will have details of http handling in other files.
+        
+                                // Maybe use an HTML publisher for this? (if it's HTML).
+                                //  Or publisher by mime type (lookup).
+        
+                                // create http handler function....
+        
+                                
+        
+                            } else {
+        
+                                // Multiple items at multiple paths....
+        
+                                each(bundle, item => {
+                                    //console.log('item', item);
+                                    //console.log('item.path', item.path, item['content-type']);
+        
+                                    if (item['content-type']) {
+                                        const ct = item['content-type'];
+                                        if (ct === 'text/html') {
+                                            const http_serve_html = (req, res) => {
+                                                res.writeHead(200, {
+                                                    'Content-Type': 'text/html'
+                                                });
+                                                res.end(item.value, 'utf-8');
+                                            }
+                                            router.set_route(item.path, (req, res) => {
+                                                http_serve_html(req, res);
+                                            });
+                                        } else {
+                                            const http_serve_any = (req, res) => {
+                                                res.writeHead(200, {
+                                                    'Content-Type': ct
+                                                });
+                                                res.end(item.value, 'utf-8');
+                                            }
+                                            router.set_route(item.path, (req, res) => {
+                                                http_serve_any(req, res);
+                                            });
+        
+                                            //throw 'NYI';
+                                        }
+            
+                                    } else {
+                                        throw 'NYI';
+                                    }
+        
+                                })
+        
+                                //console.trace();
+                                //throw 'NYI';
+                            }
+                        })
+                    }
+
+                    
+
+
+
+
+                    //console.log(`${property}: ${object[property]}`);
+                }
+
+
+            });
             // put pages into a router here...
             //  however, may need to be on the lookout for other content that needs to be bundled with each page in the site.
 
@@ -82,113 +199,13 @@ class HTTP_Website_Publisher extends HTTP_Publisher {
 
             // And unspecified pages such as admin pages?
 
-            each(website.pages, (page => {
-                //console.log('page', page);
-                //console.log('page.name', page.name);
-                //console.log('page.url', page.url);
-                //console.log('page.path', page.path);
-                // Need a common client js file for all of them I think.
-
-                const opts_bundling = {};
-                if (disk_path_client_js) opts_bundling.disk_path_client_js = disk_path_client_js;
-
-                const obs_bundling = Webpage_Bundler.bundle_web_page(page, opts_bundling);
-                //console.log('doing bundling');
-                //console.log('obs_bundling', obs_bundling);
-
-                obs_bundling.on('complete', res => {
-                    //console.log('obs_bundling res', res);
-                    const bundle = res;
-                    //console.log('bundle._arr.length', bundle._arr.length);
-                    //console.log('Object.keys(bundle)', Object.keys(bundle));
-
-                    if (bundle._arr.length === 1) {
-                        // And check it's HTML inside...?
-
-                        const bundled_item = bundle._arr[0];
-                        //console.log('bundled_item', bundled_item);
-
-                        if (bundled_item['content-type']) {
-                            const ct = bundled_item['content-type'];
-                            if (ct === 'text/html') {
-                                const http_serve_html = (req, res) => {
-                                    res.writeHead(200, {
-                                        'Content-Type': 'text/html'
-                                    });
-                                    res.end(bundled_item.value, 'utf-8');
-                                }
-                                router.set_route(bundled_item.path, (req, res) => {
-                                    http_serve_html(req, res);
-                                });
-                            } else {
-                                throw 'NYI';
-                            }
-
-                        } else {
-                            throw 'NYI';
-                        }
-
-                        // need to create / use the handler for it here.
-                        //  will have various http handler functions to reference and use.
-                        //  will have details of http handling in other files.
-
-                        // Maybe use an HTML publisher for this? (if it's HTML).
-                        //  Or publisher by mime type (lookup).
-
-                        // create http handler function....
-
-                        
-
-                    } else {
-
-                        // Multiple items at multiple paths....
-
-                        each(bundle, item => {
-                            //console.log('item', item);
-                            //console.log('item.path', item.path, item['content-type']);
-
-                            if (item['content-type']) {
-                                const ct = item['content-type'];
-                                if (ct === 'text/html') {
-                                    const http_serve_html = (req, res) => {
-                                        res.writeHead(200, {
-                                            'Content-Type': 'text/html'
-                                        });
-                                        res.end(item.value, 'utf-8');
-                                    }
-                                    router.set_route(item.path, (req, res) => {
-                                        http_serve_html(req, res);
-                                    });
-                                } else {
-                                    const http_serve_any = (req, res) => {
-                                        res.writeHead(200, {
-                                            'Content-Type': ct
-                                        });
-                                        res.end(item.value, 'utf-8');
-                                    }
-                                    router.set_route(item.path, (req, res) => {
-                                        http_serve_any(req, res);
-                                    });
-
-                                    //throw 'NYI';
-                                }
-    
-                            } else {
-                                throw 'NYI';
-                            }
-
-                        })
-
-                        //console.trace();
-                        //throw 'NYI';
-                    }
-                })
-
-            }));
+            
             //throw 'NYI';
         }
         if (website) {
             setup_website_publishing(website);
+        } else {
+            this.raise('ready');
         }
 
         // Create a router for the website if it does not already have one.

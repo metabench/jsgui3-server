@@ -236,8 +236,18 @@ class JSGUI_Server extends Evented_Class {
 
 
                 const ws_publisher = new HTTP_Website_Publisher(opts_ws_publisher);
+
+                // but need to wait until that website publisher is ready.
+
+
+
+
                 // ws publisher could have website admin (web) tools.
                 //  website admin web interface.
+
+                ws_publisher.on('ready', () => {
+
+                });
 
 
 
@@ -254,6 +264,9 @@ class JSGUI_Server extends Evented_Class {
                 // ws_publisher.start();
             }
             current();
+
+            
+
         }
 
         // a 'router' property that returns the server router.

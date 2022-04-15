@@ -23,13 +23,19 @@ if (require.main === module) {
 
     // then start the server....
     // be able to choose the port / ports?
+    console.log('waiting for server ready event');
+    server.on('ready', () => {
+        server.start(8080, function (err, cb_start) {
+            if (err) {
+                throw err;
+            } else {
+                // Should have build it by now...
+    
+                console.log('server started');
+            }
+        });
+    })
 
-    server.start(8080, function (err, cb_start) {
-        if (err) {
-            throw err;
-        } else {
-            console.log('server started');
-        }
-    });
+    
 
 }

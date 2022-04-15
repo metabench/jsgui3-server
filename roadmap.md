@@ -1,3 +1,7 @@
+To fix:
+CSS bundled from the JS.
+
+
 Make it work as a stand-alone application.
 Start it, get it serving a directory easily.
 Start it, access it through admin pages.

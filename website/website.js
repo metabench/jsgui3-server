@@ -3,6 +3,32 @@ const {tof, HTML_Document} = jsgui;
 
 const oext = require('obext');
 
+// Should maybe become its own module.
+
+// jsgui3-website and jsgui3-webpage
+// jsgui3-application
+// jsgui3-ui-app
+// jsgui3-app may be enough
+//   could build / deploy it to phonegap / other native app wrapper.
+//   And could deploy a jsgui3-app as a website...?
+//   Deploy same app to other platforms?
+// possibly jsgui3-bundler could bundle a website for different uses and formats.
+// could have some kind of non-node server operating on client-side apps.
+
+// jsgui3-coming-soon could itself be a website.
+//  or a webpage?
+
+// website with a single page.
+
+
+
+
+
+
+
+
+
+
 const Webpage = require('./webpage');
 // Website is a Publisher?
 

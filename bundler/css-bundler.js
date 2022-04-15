@@ -34,7 +34,15 @@ const Stream = require('stream');
 
 
 
+const bundle_css_from_js = (js_file_path, options = {}) => {
 
+    return obs(async (next, complete, error) => {
+
+        // Go through each file? Just the first?
+        
+    });
+
+}
 
 
 
@@ -44,5 +52,5 @@ class CSS_Bundler extends Bundler {
     }
 }
 
-//CSS_Bundler.bundle_css = bundle_css;
+CSS_Bundler.bundle_css_from_js = bundle_css_from_js;
 module.exports = CSS_Bundler;

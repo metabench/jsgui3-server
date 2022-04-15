@@ -36,6 +36,15 @@ const bundle_web_page = (webpage, options = {}) => {
     const {content} = webpage;
 
     let {disk_path_client_js} = options;
+
+
+    // Could use the CSS bundler to extract the css from the JS.
+
+    
+
+    // Could look for the css within disk_path_client_js.
+
+
     //if (options.js_client) js_client_disk_path = 
 
     // Then depending on the content type
@@ -76,9 +85,6 @@ const bundle_web_page = (webpage, options = {}) => {
             //  Or render it with a temporary context?
 
             // Controls with temportary contexts could be useful.
-
-
-
             if (content instanceof Control) {
                 //console.log('content is control');
                 //console.log('content.constructor.name', content.constructor.name);
@@ -111,7 +117,6 @@ const bundle_web_page = (webpage, options = {}) => {
 
                     //console.log('cloned_content', cloned_content);
 
-
                     // The page context may not have a request and response.
                     //  For bundling, won't have one (unless one were made).
 
@@ -135,10 +140,6 @@ const bundle_web_page = (webpage, options = {}) => {
                     //  So when it finds CSS, it can output that.
                     //  A Control's CSS property, within the JS definition.
                     //   That can be output to a CSS file, copied or removed from the JS file.
-
-                    
-
-
                     bundle_js(diskpath_js_client, {
                         'js_mode': 'mini',
                         'babel': 'mini'
@@ -149,6 +150,7 @@ const bundle_web_page = (webpage, options = {}) => {
                         } else {
                             //console.log('res_bundle_js', res_bundle_js);
 
+                            // Could search at this point for class.css properties.
                             res.push({
                                 'path': webpage.path + 'js/app.js',
                                 'value': res_bundle_js,
@@ -197,7 +199,7 @@ const bundle_web_page = (webpage, options = {}) => {
             }
         } else {
 
-            console.log('t_content', t_content);
+            //console.log('t_content', t_content);
 
             if (t_content === 'function') {
 

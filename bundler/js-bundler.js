@@ -33,6 +33,11 @@ const Stream = require('stream');
 
 const bundle_js = (js_file_path, options = {}, callback) => {
 
+    // Could even split a file into its server and client components.
+    // Maybe providing found css would work well here.
+
+
+
     // Returning an observable and not using a callback would work best.
 
     const res = obs((next, complete, error) => {
@@ -57,6 +62,9 @@ const bundle_js = (js_file_path, options = {}, callback) => {
                 path = require('path').parse(js_file_path);
 
             let fileContents = await fnlfs.load(js_file_path);
+
+
+            // Maybe do that post browserify - can read through whole thing to find the css template literals.
 
             // Could use the CSS bundler to scan_js_for_css
             //  Seems as though it would be best as an observable.
@@ -122,6 +130,8 @@ const bundle_js = (js_file_path, options = {}, callback) => {
             let buf_js = Buffer.concat(buffers);
             let str_js = buf_js.toString();
 
+            // full browserified (client) js app.
+
             let babel_option = options.babel
             //console.log('babel_option', babel_option);
             if (babel_option === 'es5') {
@@ -173,7 +183,6 @@ const bundle_js = (js_file_path, options = {}, callback) => {
             } else {
                 buf_js = Buffer.from(str_js);
             }
-
             complete(buf_js);
         })();
 

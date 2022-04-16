@@ -36,10 +36,12 @@ const Stream = require('stream');
 
 const bundle_css_from_js = (js_file_path, options = {}) => {
 
-    return obs(async (next, complete, error) => {
+    return obs((next, complete, error) => {
 
         // Go through each file? Just the first?
-        
+
+        // Or should the whole bundled (browserified) JS be consulted?
+
     });
 
 }

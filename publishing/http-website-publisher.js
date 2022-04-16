@@ -77,117 +77,178 @@ class HTTP_Website_Publisher extends HTTP_Publisher {
 
         const setup_website_publishing = (website) => {
 
-            return obs(async(next, complete, error) => {
+            console.log('website', website);
+            console.log('website.pages', website.pages);
+            console.log('website.pages.length()', website.pages.length());
+            //throw 'stop';
 
-                for (const page in website.pages) {
+            return obs((next, complete, error) => {
 
+                (async () => {
+
+
+                    // not iterating properly through the collection without ._arr.
+
+                    // May make more sense to have 2 versions,
+                    //  for 1 page
+                    //  for 2+ pages
                     const opts_bundling = {};
                     if (disk_path_client_js) opts_bundling.disk_path_client_js = disk_path_client_js;
-    
-                    const obs_bundling = await Webpage_Bundler.bundle_web_page(page, opts_bundling);
-                    //console.log('doing bundling');
-                    console.log('obs_bundling', obs_bundling);
 
-                    throw 'stop';
+                    if (website.pages._arr.length === 0) {
+                        throw 'NYI';
+                    } else if (website.pages._arr.length === 1) {
+                        const page = website.pages._arr[0];
+                        const obs_bundling = Webpage_Bundler.bundle_web_page(page, opts_bundling);
+                        //console.log('doing bundling');
+                        //console.log('obs_bundling', obs_bundling);
     
+                        //throw 'stop';
 
-                    const old = () => {
                         obs_bundling.on('complete', res => {
                             //console.log('obs_bundling res', res);
-                            const bundle = res;
-                            //console.log('bundle._arr.length', bundle._arr.length);
-                            //console.log('Object.keys(bundle)', Object.keys(bundle));
-        
-                            if (bundle._arr.length === 1) {
-                                // And check it's HTML inside...?
-        
-                                const bundled_item = bundle._arr[0];
-                                //console.log('bundled_item', bundled_item);
-        
-                                if (bundled_item['content-type']) {
-                                    const ct = bundled_item['content-type'];
-                                    if (ct === 'text/html') {
-                                        const http_serve_html = (req, res) => {
-                                            res.writeHead(200, {
-                                                'Content-Type': 'text/html'
-                                            });
-                                            res.end(bundled_item.value, 'utf-8');
-                                        }
-                                        router.set_route(bundled_item.path, (req, res) => {
-                                            http_serve_html(req, res);
-                                        });
-                                    } else {
-                                        throw 'NYI';
-                                    }
-        
-                                } else {
-                                    throw 'NYI';
-                                }
-        
-                                // need to create / use the handler for it here.
-                                //  will have various http handler functions to reference and use.
-                                //  will have details of http handling in other files.
-        
-                                // Maybe use an HTML publisher for this? (if it's HTML).
-                                //  Or publisher by mime type (lookup).
-        
-                                // create http handler function....
-        
-                                
-        
-                            } else {
-        
-                                // Multiple items at multiple paths....
-        
-                                each(bundle, item => {
-                                    //console.log('item', item);
-                                    //console.log('item.path', item.path, item['content-type']);
-        
-                                    if (item['content-type']) {
-                                        const ct = item['content-type'];
-                                        if (ct === 'text/html') {
-                                            const http_serve_html = (req, res) => {
-                                                res.writeHead(200, {
-                                                    'Content-Type': 'text/html'
-                                                });
-                                                res.end(item.value, 'utf-8');
-                                            }
-                                            router.set_route(item.path, (req, res) => {
-                                                http_serve_html(req, res);
-                                            });
-                                        } else {
-                                            const http_serve_any = (req, res) => {
-                                                res.writeHead(200, {
-                                                    'Content-Type': ct
-                                                });
-                                                res.end(item.value, 'utf-8');
-                                            }
-                                            router.set_route(item.path, (req, res) => {
-                                                http_serve_any(req, res);
-                                            });
-        
-                                            //throw 'NYI';
-                                        }
+                            const page_bundle = res;
+
+                            console.log('1) page_bundle._arr.length', page_bundle._arr.length);
+
+                            complete(page_bundle);
+
+                        });
+
+                    } else if (website.pages._arr.length > 1) {
+                        throw 'NYI';
+                        for (const page in website.pages._arr) {
+
+                            
+    
+                            // With multiple pages, add page to bundle.
             
+                            const obs_bundling = Webpage_Bundler.bundle_web_page(page, opts_bundling);
+                            //console.log('doing bundling');
+                            //console.log('obs_bundling', obs_bundling);
+        
+                            //throw 'stop';
+    
+                            obs_bundling.on('complete', res => {
+                                //console.log('obs_bundling res', res);
+                                const page_bundle = res;
+    
+                                console.log('page_bundle._arr.length', page_bundle._arr.length);
+    
+                                //complete(bundle);
+    
+                            });
+            
+        
+                            const old = () => {
+                                obs_bundling.on('complete', res => {
+                                    //console.log('obs_bundling res', res);
+                                    const bundle = res;
+                                    //console.log('bundle._arr.length', bundle._arr.length);
+                                    //console.log('Object.keys(bundle)', Object.keys(bundle));
+                
+                                    if (bundle._arr.length === 1) {
+                                        // And check it's HTML inside...?
+                
+                                        const bundled_item = bundle._arr[0];
+                                        //console.log('bundled_item', bundled_item);
+                
+                                        if (bundled_item['content-type']) {
+                                            const ct = bundled_item['content-type'];
+                                            if (ct === 'text/html') {
+                                                const http_serve_html = (req, res) => {
+                                                    res.writeHead(200, {
+                                                        'Content-Type': 'text/html'
+                                                    });
+                                                    res.end(bundled_item.value, 'utf-8');
+                                                }
+                                                router.set_route(bundled_item.path, (req, res) => {
+                                                    http_serve_html(req, res);
+                                                });
+                                            } else {
+                                                throw 'NYI';
+                                            }
+                
+                                        } else {
+                                            throw 'NYI';
+                                        }
+                
+                                        // need to create / use the handler for it here.
+                                        //  will have various http handler functions to reference and use.
+                                        //  will have details of http handling in other files.
+                
+                                        // Maybe use an HTML publisher for this? (if it's HTML).
+                                        //  Or publisher by mime type (lookup).
+                
+                                        // create http handler function....
+                
+                                        
+                
                                     } else {
-                                        throw 'NYI';
+                
+                                        // Multiple items at multiple paths....
+                
+                                        each(bundle, item => {
+                                            //console.log('item', item);
+                                            //console.log('item.path', item.path, item['content-type']);
+                
+                                            if (item['content-type']) {
+                                                const ct = item['content-type'];
+                                                if (ct === 'text/html') {
+                                                    const http_serve_html = (req, res) => {
+                                                        res.writeHead(200, {
+                                                            'Content-Type': 'text/html'
+                                                        });
+                                                        res.end(item.value, 'utf-8');
+                                                    }
+                                                    router.set_route(item.path, (req, res) => {
+                                                        http_serve_html(req, res);
+                                                    });
+                                                } else {
+                                                    const http_serve_any = (req, res) => {
+                                                        res.writeHead(200, {
+                                                            'Content-Type': ct
+                                                        });
+                                                        res.end(item.value, 'utf-8');
+                                                    }
+                                                    router.set_route(item.path, (req, res) => {
+                                                        http_serve_any(req, res);
+                                                    });
+                
+                                                    //throw 'NYI';
+                                                }
+                    
+                                            } else {
+                                                throw 'NYI';
+                                            }
+                
+                                        })
+                
+                                        //console.trace();
+                                        //throw 'NYI';
                                     }
-        
                                 })
-        
-                                //console.trace();
-                                //throw 'NYI';
                             }
-                        })
-                    }
+        
+                            
+        
+        
+        
+        
+                            //console.log(`${property}: ${object[property]}`);
+                        }
+                    } 
+
 
                     
 
 
+                    
+                })().catch(err => {
+                    console.error(err);
+                });
 
-
-                    //console.log(`${property}: ${object[property]}`);
-                }
+                
 
 
             });

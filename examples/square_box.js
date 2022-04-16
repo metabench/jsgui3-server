@@ -25,6 +25,7 @@ if (require.main === module) {
     // be able to choose the port / ports?
     console.log('waiting for server ready event');
     server.on('ready', () => {
+        console.log('server ready');
         server.start(8080, function (err, cb_start) {
             if (err) {
                 throw err;

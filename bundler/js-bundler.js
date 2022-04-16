@@ -133,6 +133,11 @@ const bundle_js = (js_file_path, options = {}, callback) => {
             // full browserified (client) js app.
 
             let babel_option = options.babel
+
+
+            // could send str_js to a CSS extractor / bundler.
+
+
             //console.log('babel_option', babel_option);
             if (babel_option === 'es5') {
 
@@ -177,7 +182,6 @@ const bundle_js = (js_file_path, options = {}, callback) => {
                     //plugins: ["minify-dead-code-elimination"]
                 };
                 if (options.include_sourcemaps) o_transform.sourceMaps = 'inline';
-
                 let res_transform = babel.transform(str_js, o_transform);
                 buf_js = Buffer.from(res_transform.code);
             } else {

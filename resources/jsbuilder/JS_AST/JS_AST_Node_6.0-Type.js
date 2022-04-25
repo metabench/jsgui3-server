@@ -15,6 +15,8 @@ class JS_AST_Node_Type extends JS_AST_Node_Category_Statement {
         Object.defineProperty(this, 'abbreviated_type', {
             get() { 
                 const abb = type_abbreviations[this.babel.node.type];
+                // Maybe need a load more abbreviations now there are more babel types.
+
                 if (abb) {
                     return abb;
                 } else {

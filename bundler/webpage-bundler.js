@@ -1,6 +1,9 @@
 const Bundler = require('./bundler');
 
 const JS_Bundler = require('./js-bundler');
+const CSS_Bundler = require('./css-bundler');
+
+const {bundle_css_from_js_str} = CSS_Bundler;
 
 const Bundle = require('./bundle');
 const {obs, prom_or_cb} = require('fnl');
@@ -13,6 +16,17 @@ const Server_Page_Context = require('./../page-context');
 const browserify = require('browserify');
 const babel = require('@babel/core');
 const stream_to_array = require('stream-to-array');
+
+
+// Bundling maybe would not be proper SSR sometimes.
+//  SSR is needed when the server needs to generate the specific info to start the page with.
+//   However, specific info could be quickly updated too.
+//   In many cases bundling would be more efficient that per-page SSR.
+
+
+
+
+
 
 // Maybe some web pages should be unbundlable? Or we note that they are dynamic (somehow).
 //  Perhaps another fn should do that check. Don't assume all pages will bundle OK. Could raise obs error if needed.
@@ -34,9 +48,9 @@ const {bundle_js} = JS_Bundler;
 
 const bundle_web_page = (webpage, options = {}) => {
     const {content} = webpage;
-    console.log('bundle web page');
-    console.log('webpage', webpage);
-    console.trace();
+    //console.log('bundle web page');
+    //console.log('webpage', webpage);
+    //console.trace();
 
 
     // What if there is no content in the webpage?
@@ -59,10 +73,10 @@ const bundle_web_page = (webpage, options = {}) => {
 
     const t_content = tof(content);
 
-    console.log('content', content);
-    console.log('t_content', t_content);
+    //console.log('content', content);
+    //console.log('t_content', t_content);
 
-    console.log('');
+    //console.log('');
 
     //console.log('pre return obs');
     //console.trace();
@@ -241,9 +255,7 @@ const bundle_web_page = (webpage, options = {}) => {
                 complete(res);
     
             } else {
-    
                 //console.log('t_content', t_content);
-    
                 if (t_content === 'function') {
     
                     const spc = new Server_Page_Context({
@@ -255,55 +267,223 @@ const bundle_web_page = (webpage, options = {}) => {
                         'context': spc
                     });
     
+
+                    // Or from a different chain maybe? Seems unorganised that way.
+                    
                     if (ctrl instanceof HTML_Document) {
                         console.trace();
                         throw 'NYI';
                     } else {
-    
-    
-                        const diskpath_js_client = disk_path_client_js || require.resolve('jsgui3-html');
-                        //const diskpath_js_client = require.resolve('./../controls/page/admin.js');
-    
-                        bundle_js(diskpath_js_client, {
-                            'js_mode': 'mini',
-                            'babel': 'mini'
-                        }, (err, res_bundle_js) => {
-                            if (err) {
-                                console.trace();
-                                throw err;
-                            } else {
-                                //console.log('res_bundle_js', res_bundle_js);
-    
-                                res.push({
-                                    'path': webpage.path + 'js/app.js',
-                                    'value': res_bundle_js,
-                                    'content-type': 'text/javascript'
-                                });
-    
-                                const doc = new Client_HTML_Document({
-                                    context: spc
-                                });
-                                doc.include_js('/js/app.js');
-                                doc.body.add(ctrl);
-            
-                                // Getting it to load the JS would be nice...
-                                //  But maybe only do it automatically if it's an active document.
-                                //  If it's just generated JS then best not to bundle JS to load.
-            
-                                // Could also make smaller bundles for some specific parts of the app. Could improve speed.
-                                //console.log('doc.html', doc.html);
-                                const buff_html = Buffer.from(doc.html, "utf-8");
-            
-                                res.push({
-                                    'path': webpage.path,
-                                    'value': buff_html,
-                                    'content-type': 'text/html'
-                                });
-                                //console.log('pre complete bundlejs');
-                                //console.log('res.length()', res.length());
-                                complete(res);
-                            }
-                        });
+
+                        console.log('Bundle path A');
+
+
+                        // is ctrl a Control instance?
+
+                        // Is it a control in some other way?
+
+
+
+                        if (ctrl instanceof Control || tof(ctrl) === 'control') {
+
+
+                            const doc = new Client_HTML_Document({
+                                context: spc
+                            });
+                            doc.include_js('/js/app.js');
+                            doc.include_css('/css/app.css');
+                            ctrl.active();
+                            doc.body.add(ctrl);
+        
+                            // Getting it to load the JS would be nice...
+                            //  But maybe only do it automatically if it's an active document.
+                            //  If it's just generated JS then best not to bundle JS to load.
+        
+                            // Could also make smaller bundles for some specific parts of the app. Could improve speed.
+                            //console.log('doc.html', doc.html);
+                            const buff_html = Buffer.from(doc.html, "utf-8");
+        
+                            res.push({
+                                'path': webpage.path,
+                                'value': buff_html,
+                                'content-type': 'text/html'
+                            });
+
+
+                            const diskpath_js_client = disk_path_client_js || require.resolve('jsgui3-html');
+
+                            let waiting_for_css_extraction = false, handle_css_extraction_complete = undefined;
+
+
+                            //const diskpath_js_client = require.resolve('./../controls/page/admin.js');
+
+
+                            const obs_bundle = bundle_js(diskpath_js_client, {
+                                'js_mode': 'mini',
+                                'babel': 'mini'
+                            });
+
+
+
+
+                            obs_bundle.on('next', data => {
+                                //console.log('next data', data);
+                                console.log('next Object.keys(data)', Object.keys(data));
+
+                                // at this point, could go through the js to extract any CSS.
+
+                                const {lang, operation, compress, type, value} = data;
+
+                                if (lang === 'JavaScript') {
+                                    if (type === 'single-string') {
+
+                                        // Get the CSS classes (as a JS object) from the JS file.
+                                        // Or get them as a CSS file stored in a buffer?
+                                        //  Or maybe better they get returned as a 'Bundle' object.
+
+                                        const obs_css_from_js = bundle_css_from_js_str(value);
+                                        console.log('post obs_css_from_js = bundle_css_from_js_str(value) call');
+
+                                        waiting_for_css_extraction = true;
+
+                                        obs_css_from_js.on('next', data => {
+                                            console.log('obs_css_from_js next data', data);
+                                        });
+                                        obs_css_from_js.on('complete', obs_css_from_js_res => {
+
+
+                                            console.log('obs_css_from_js complete obs_css_from_js_res', obs_css_from_js_res);
+
+                                            if (tof(obs_css_from_js_res) === 'string') {
+                                                // should be added to the page bundle.
+
+                                                res.push({
+                                                    'path': webpage.path + 'css/app.css',
+                                                    'value': Buffer.from(obs_css_from_js_res),
+                                                    'content-type': 'text/css'
+                                                });
+
+                                                waiting_for_css_extraction = false;
+                                                console.log('obs_css_from_js complete');
+
+                                                if (handle_css_extraction_complete) {
+                                                    handle_css_extraction_complete();
+                                                } else {
+                                                    console.trace();
+                                                    throw 'stop';
+                                                }
+
+                                            }
+
+                                                //console.log('tof(res)', tof(res));
+                                                //throw 'stop';
+                                            
+
+                                        });
+
+
+
+
+
+
+                                    }
+                                }
+
+                            })
+
+                            obs_bundle.on('complete', res_bundle_js => {
+                                // the result object is a buffer.
+                                //  maybe it should be a Bundle.
+
+                                // Should only be considered complete once css extraction from js is complete (incl if nothing gets extracted).
+
+                                const do_when_complete = () => {
+                                    console.log('js-bundler bundle is complete');
+
+                                    console.trace();
+                                    console.log('res_bundle_js', res_bundle_js);
+                                    console.log('res', res);
+                                    res.push({
+                                        'path': webpage.path + 'js/app.js',
+                                        'value': res_bundle_js,
+                                        'content-type': 'text/javascript'
+                                    });
+                                    //throw 'stop';
+                                    complete(res);
+
+                                }
+
+                                if (waiting_for_css_extraction) {
+                                    handle_css_extraction_complete = do_when_complete;
+                                } else {
+                                    do_when_complete();
+                                }
+
+
+                                //console.log('complete res', res);
+                                //console.trace();
+                                //throw 'stop';
+
+                            })
+
+
+                        } else {
+                            console.trace();
+                            console.log('ctrl', ctrl);
+                            throw 'NYI';
+                        }
+
+                        // better to render the HTML document (control) first?
+
+
+
+                        
+
+
+
+                        const old = () => {
+                            bundle_js(diskpath_js_client, {
+                                'js_mode': 'mini',
+                                'babel': 'mini'
+                            }, (err, res_bundle_js) => {
+                                if (err) {
+                                    console.trace();
+                                    throw err;
+                                } else {
+                                    //console.log('res_bundle_js', res_bundle_js);
+        
+                                    res.push({
+                                        'path': webpage.path + 'js/app.js',
+                                        'value': res_bundle_js,
+                                        'content-type': 'text/javascript'
+                                    });
+        
+                                    const doc = new Client_HTML_Document({
+                                        context: spc
+                                    });
+                                    doc.include_js('/js/app.js');
+                                    doc.body.add(ctrl);
+                
+                                    // Getting it to load the JS would be nice...
+                                    //  But maybe only do it automatically if it's an active document.
+                                    //  If it's just generated JS then best not to bundle JS to load.
+                
+                                    // Could also make smaller bundles for some specific parts of the app. Could improve speed.
+                                    //console.log('doc.html', doc.html);
+                                    const buff_html = Buffer.from(doc.html, "utf-8");
+                
+                                    res.push({
+                                        'path': webpage.path,
+                                        'value': buff_html,
+                                        'content-type': 'text/html'
+                                    });
+                                    //console.log('pre complete bundlejs');
+                                    //console.log('res.length()', res.length());
+                                    complete(res);
+                                }
+                            });
+                        }
+                        
                     }
     
                 } else if (false) {
@@ -315,12 +495,12 @@ const bundle_web_page = (webpage, options = {}) => {
                     console.trace();
                     throw 'NYI';
                 }
-    
             }
-
-            
         })().catch(err => {
-            console.error(err);
+            console.trace();
+
+            throw 'err';
+            //console.error(err);
         });
 
         // The observable could / should return updates along the way, things that contribute to the full result.

@@ -246,20 +246,32 @@ class JSGUI_Server extends Evented_Class {
                 //  website admin web interface.
 
                 ws_publisher.on('ready', () => {
+                    console.log('ws publisher is ready');
+
+                    // server not started yet though?
+
+                    const ws_resource = new Website_Resource({
+                        'name': 'Website Resource',
+                        'website': ws_app
+                    });
+                    resource_pool.add(ws_resource);
+                    //server_router.set_route('/*', ws_app, ws_publisher.handle_http);
+                    //server_router.set_route('/*', ws_publisher.handle_http);
+
+                    // Should render the Ctrl homepage at some point.
+
+                    server_router.set_route('/*', ws_publisher, ws_publisher.handle_http);
+                    //throw 'stop';
+
+                    this.raise('ready');
+
 
                 });
 
 
 
 
-                const ws_resource = new Website_Resource({
-                    'name': 'Website Resource',
-                    'website': ws_app
-                });
-                resource_pool.add(ws_resource);
-                //server_router.set_route('/*', ws_app, ws_publisher.handle_http);
-                //server_router.set_route('/*', ws_publisher.handle_http);
-                server_router.set_route('/*', ws_publisher, ws_publisher.handle_http);
+                
                 //console.log('route has been set');
                 // ws_publisher.start();
             }
@@ -286,6 +298,8 @@ class JSGUI_Server extends Evented_Class {
     // could have those pairs. Possible websocket ports? websockets uses same ports: 80, 443.
     // http_port, https_port
 
+
+    // will change to observable API.
 
     'start'(port, callback, fnProcessRequest) {
 

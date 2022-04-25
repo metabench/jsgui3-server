@@ -1,6 +1,8 @@
-const jsgui = require('jsgui3-html'); // and will replace this with jsgui-client, I presume.
+const jsgui = require('jsgui3-client'); // and will replace this with jsgui-client, I presume.
 const {controls, Control, mixins} = jsgui;
 const {dragable} = mixins;
+
+// Relies on extracting CSS from JS files.
 
 class Demo_UI extends Control {
     constructor(spec) {

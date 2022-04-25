@@ -130,6 +130,14 @@ const bundle_js = (js_file_path, options = {}, callback) => {
             let buf_js = Buffer.concat(buffers);
             let str_js = buf_js.toString();
 
+            next({
+                'lang': 'JavaScript',
+                'operation': 'bundle',
+                'compress': false,
+                'type': 'single-string',
+                'value': str_js
+            });
+
             // full browserified (client) js app.
 
             let babel_option = options.babel

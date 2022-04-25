@@ -5,12 +5,13 @@
 // This is going to take over some of the responsibilities of the old website resource, which was unfocused code that was
 //  doing some of the main / most important parts of serving the website.
 
-const {each, Router} = require('jsgui3-html');
+const {each, Router, tof} = require('jsgui3-html');
 const HTTP_Publisher = require('./http-publisher');
 const {obs} = require('fnl');
 
 
 const Webpage_Bundler = require('./../bundler/webpage-bundler');
+const Bundle = require('./../bundler/bundle');
 
 
 // Now it's the very basics of a website publisher. Quite flexible but could do with more.
@@ -77,10 +78,13 @@ class HTTP_Website_Publisher extends HTTP_Publisher {
 
         const setup_website_publishing = (website) => {
 
-            console.log('website', website);
-            console.log('website.pages', website.pages);
-            console.log('website.pages.length()', website.pages.length());
+            //console.log('website', website);
+            //console.log('website.pages', website.pages);
+            //console.log('website.pages.length()', website.pages.length());
             //throw 'stop';
+
+            // should the website have a 'main' or 'front' or 'first' page, with it having its HTML rendered?
+
 
             return obs((next, complete, error) => {
 
@@ -105,13 +109,76 @@ class HTTP_Website_Publisher extends HTTP_Publisher {
     
                         //throw 'stop';
 
-                        obs_bundling.on('complete', res => {
-                            //console.log('obs_bundling res', res);
-                            const page_bundle = res;
+                        obs_bundling.on('complete', obs_bundling_res => {
+                            // Should be a Bundle rather than a Buffer?
 
-                            console.log('1) page_bundle._arr.length', page_bundle._arr.length);
+                            //console.log('obs_bundling res', obs_bundling_res);
 
-                            complete(page_bundle);
+                            // Need to have the HTML rendering and HTTP serving here as well.
+
+                            
+
+
+                            //const page_bundle = res;
+
+                            if (obs_bundling_res instanceof Bundle) {
+                                //console.log('1) obs_bundling_res._arr.length', obs_bundling_res._arr.length);
+
+                                // then need to handle the page construction and routing of http requests.
+
+                                console.log('obs_bundling_res._arr.length', obs_bundling_res._arr.length);
+
+                                each(obs_bundling_res, item => {
+                                    //console.log('item', item);
+                                    //console.log('item.path', item.path, item['content-type']);
+        
+                                    if (item['content-type']) {
+                                        const ct = item['content-type'];
+                                        if (ct === 'text/html') {
+                                            const http_serve_html = (req, res) => {
+                                                res.writeHead(200, {
+                                                    'Content-Type': 'text/html'
+                                                });
+                                                res.end(item.value, 'utf-8');
+                                            }
+                                            router.set_route(item.path, (req, res) => {
+                                                http_serve_html(req, res);
+                                            });
+                                        } else {
+                                            const http_serve_any = (req, res) => {
+                                                res.writeHead(200, {
+                                                    'Content-Type': ct
+                                                });
+                                                res.end(item.value, 'utf-8');
+                                            }
+                                            router.set_route(item.path, (req, res) => {
+                                                http_serve_any(req, res);
+                                            });
+        
+                                            //throw 'NYI';
+                                        }
+            
+                                    } else {
+                                        throw 'NYI';
+                                    }
+        
+                                })
+
+                                //console.trace();
+                                //throw 'stop';
+
+
+
+                                complete(obs_bundling_res);
+                            } else {
+
+                                console.log('tof(obs_bundling_res)', tof(obs_bundling_res));
+
+                                console.trace();
+                                throw 'stop';
+                            }
+
+                            
 
                         });
 
@@ -264,7 +331,17 @@ class HTTP_Website_Publisher extends HTTP_Publisher {
             //throw 'NYI';
         }
         if (website) {
-            setup_website_publishing(website);
+            const obs_setup = setup_website_publishing(website);
+            obs_setup.on('complete', res_complete => {
+                console.log('setup complete');
+
+
+                this.raise('ready');
+
+                //complete(res_complete);
+
+
+            })
         } else {
             this.raise('ready');
         }
@@ -300,6 +377,13 @@ class HTTP_Website_Publisher extends HTTP_Publisher {
         const {url, method, statusCode, httpVersion} = req;
         const accept_encoding = req.headers['accept-encoding'];
         const {host} = req.headers;
+
+        // count of routes in the router?
+
+        // router.routes.length?
+        // router.num_routes?
+
+
 
         //console.log('[httpVersion, host, url, statusCode, method, accept_endoding]', [httpVersion, host, url, statusCode, method, accept_encoding]);
 

@@ -9,6 +9,7 @@
 
 
 const {each} = require('lang-mini');
+//const babel_node_tools = require('../babel_node_tools');
 
 
 // deep_iterate_babel_super_node
@@ -53,6 +54,10 @@ const deep_iterate_babel_object_method_node = (babel_node, depth, path, common, 
 // deep_iterate_object_method_node
 const deep_iterate_this_expression_node = (babel_node, depth, path, common, callback) => {
 
+    // Maybe no further iteration to do???
+
+
+    //throw 'stop';
 }
 
 // const deep_iterate_array_pattern_node
@@ -273,7 +278,11 @@ const deep_iterate_babel_member_expression_node = (babel_node, depth, path, comm
 
 
     if (extra) {
-        throw 'NYI'
+
+        //console.log('babel_node', babel_node);
+        //console.log('extra', extra);
+
+        //throw 'NYI'
     };
     deep_iterate_babel_node_$INTERNAL(object, depth + 1, path + sibling_number++ + '/', common, callback);
     deep_iterate_babel_node_$INTERNAL(property, depth + 1, path + sibling_number++ + '/', common, callback);
@@ -370,6 +379,18 @@ const deep_iterate_babel_block_statement_node = (babel_node, depth, path, common
     });
 }
 
+const deep_iterate_babel_function_declaration_node = (babel_node, depth, path, common, callback) => {
+    const {extra, id, generator, async, params, body} = babel_node;
+
+    let sibling_number = 0;
+
+    deep_iterate_babel_node_$INTERNAL(id, depth + 1, path + sibling_number++ + '/', common, callback);
+    each(params, param => deep_iterate_babel_node_$INTERNAL(param, depth + 1, path + sibling_number++ + '/', common, callback));
+    deep_iterate_babel_node_$INTERNAL(body, depth + 1, path + sibling_number++ + '/', common, callback);
+
+
+}
+
 const deep_iterate_babel_arrow_function_expression_node = (babel_node, depth, path, common, callback) => {
     //console.log('deep_iterate_babel_arrow_function_expression_node', babel_node);
 
@@ -434,6 +455,204 @@ const deep_iterate_babel_binary_expression_node = (babel_node, depth, path, comm
 
     //throw 'stop';
 }
+
+const deep_iterate_babel_template_literal_node = (babel_node, depth, path, common, callback) => {
+    // expressions and quasis
+
+    const {generator, async, params, body, quasis, expressions} = babel_node;
+
+    const q0 = babel_node.quasis[0];
+    //console.log('babel_node', babel_node);
+    //throw 'NYI';
+    //console.log('q0', q0);
+    // has both raw and cooked values.
+
+    // template element.
+
+    //const {} = babel_node;
+    let sibling_number = 0;
+    // Assume the params are nodes.
+
+
+    if (expressions.length > 0) {
+        throw 'NYI';
+    }
+
+    if (quasis.length > 0) {
+        each(quasis, x => deep_iterate_babel_node_$INTERNAL(x, depth + 1, path + sibling_number++ + '/', common, callback));
+        //console.log('params', params);
+        //throw 'NYI';
+        //each(quasis, quasi => {
+        //    deep_iterate_babel_node_$INTERNAL(quasi, depth + 1, path + sibling_number++ + '/', common, callback);
+        //})
+    }
+
+
+    
+}
+
+// deep_iterate_babel_template_element_node
+
+const deep_iterate_babel_template_element_node = (babel_node, depth, path, common, callback) => {
+    // value.raw is basically it.
+
+    const {value} = babel_node;
+    const {raw, cooked} = value;
+
+};
+
+// deep_iterate_babel_try_statement_node
+
+const deep_iterate_babel_try_statement_node = (babel_node, depth, path, common, callback) => {
+    // value.raw is basically it.
+
+    const {block, handler} = babel_node;
+    let sibling_number = 0;
+
+    deep_iterate_babel_node_$INTERNAL(block, depth + 1, path + sibling_number++ + '/', common, callback);
+    deep_iterate_babel_node_$INTERNAL(handler, depth + 1, path + sibling_number++ + '/', common, callback);
+
+};
+
+//deep_iterate_babel_catch_clause_node
+
+const deep_iterate_babel_catch_clause_node = (babel_node, depth, path, common, callback) => {
+    // value.raw is basically it.
+
+    const {param, body} = babel_node;
+    let sibling_number = 0;
+
+    deep_iterate_babel_node_$INTERNAL(param, depth + 1, path + sibling_number++ + '/', common, callback);
+    deep_iterate_babel_node_$INTERNAL(body, depth + 1, path + sibling_number++ + '/', common, callback);
+
+};
+
+// deep_iterate_babel_switch_statement_node   1 discriminant, n cases
+
+const deep_iterate_babel_switch_statement_node = (babel_node, depth, path, common, callback) => {
+    // value.raw is basically it.
+
+    const {discriminant, cases} = babel_node;
+    let sibling_number = 0;
+
+    deep_iterate_babel_node_$INTERNAL(discriminant, depth + 1, path + sibling_number++ + '/', common, callback);
+
+    each(cases, x => deep_iterate_babel_node_$INTERNAL(x, depth + 1, path + sibling_number++ + '/', common, callback));
+    //deep_iterate_babel_node_$INTERNAL(body, depth + 1, path + sibling_number++ + '/', common, callback);
+
+};
+
+// deep_iterate_babel_switch_case_node
+
+
+const deep_iterate_babel_switch_case_node = (babel_node, depth, path, common, callback) => {
+    // value.raw is basically it.
+
+    //console.log('babel_node', babel_node);
+    //throw 'NYI';
+
+    const {consequent, test} = babel_node;
+    let sibling_number = 0;
+
+
+    if (consequent.length > 0) {
+        //throw 'NYI';
+        each(consequent, x => deep_iterate_babel_node_$INTERNAL(x, depth + 1, path + sibling_number++ + '/', common, callback));
+    }
+
+    deep_iterate_babel_node_$INTERNAL(test, depth + 1, path + sibling_number++ + '/', common, callback);
+
+    
+    //deep_iterate_babel_node_$INTERNAL(body, depth + 1, path + sibling_number++ + '/', common, callback);
+
+};
+
+// deep_iterate_babel_regexp_literal_node
+
+
+const deep_iterate_babel_regexp_literal_node = (babel_node, depth, path, common, callback) => {
+
+    
+
+};
+
+// deep_iterate_babel_break_statement_node
+
+const deep_iterate_babel_break_statement_node = (babel_node, depth, path, common, callback) => {
+
+    
+
+};
+
+// deep_iterate_babel_for_in_statement_node
+
+
+const deep_iterate_babel_for_in_statement_node = (babel_node, depth, path, common, callback) => {
+    // value.raw is basically it.
+
+    const {left, right, body} = babel_node;
+    let sibling_number = 0;
+
+    deep_iterate_babel_node_$INTERNAL(left, depth + 1, path + sibling_number++ + '/', common, callback);
+    deep_iterate_babel_node_$INTERNAL(right, depth + 1, path + sibling_number++ + '/', common, callback);
+    deep_iterate_babel_node_$INTERNAL(body, depth + 1, path + sibling_number++ + '/', common, callback);
+
+};
+
+// deep_iterate_babel_sequence_expression_node
+
+
+const deep_iterate_babel_sequence_expression_node = (babel_node, depth, path, common, callback) => {
+    // value.raw is basically it.
+
+    const {expressions} = babel_node;
+    let sibling_number = 0;
+
+    //deep_iterate_babel_node_$INTERNAL(discriminant, depth + 1, path + sibling_number++ + '/', common, callback);
+
+    each(expressions, x => deep_iterate_babel_node_$INTERNAL(x, depth + 1, path + sibling_number++ + '/', common, callback));
+    //deep_iterate_babel_node_$INTERNAL(body, depth + 1, path + sibling_number++ + '/', common, callback);
+
+};
+
+// deep_iterate_babel_class_expression_node
+const deep_iterate_babel_class_expression_node = (babel_node, depth, path, common, callback) => {
+    // value.raw is basically it.
+
+    const {id, superClass, node} = babel_node;
+    let sibling_number = 0;
+
+    if (id) deep_iterate_babel_node_$INTERNAL(id, depth + 1, path + sibling_number++ + '/', common, callback);
+    deep_iterate_babel_node_$INTERNAL(superClass, depth + 1, path + sibling_number++ + '/', common, callback);
+    deep_iterate_babel_node_$INTERNAL(node, depth + 1, path + sibling_number++ + '/', common, callback);
+
+};
+
+// deep_iterate_babel_rest_element_node
+const deep_iterate_babel_rest_element_node = (babel_node, depth, path, common, callback) => {
+    // value.raw is basically it.
+
+    const {argument} = babel_node;
+    let sibling_number = 0;
+
+    if (argument) deep_iterate_babel_node_$INTERNAL(argument, depth + 1, path + sibling_number++ + '/', common, callback);
+    
+
+};
+
+// deep_iterate_babel_await_expression_node
+
+const deep_iterate_babel_await_expression_node = (babel_node, depth, path, common, callback) => {
+    // value.raw is basically it.
+
+    const {argument} = babel_node;
+    let sibling_number = 0;
+
+    if (argument) deep_iterate_babel_node_$INTERNAL(argument, depth + 1, path + sibling_number++ + '/', common, callback);
+    
+
+};
+
 
 const deep_iterate_babel_node_$INTERNAL = (babel_node, depth, path, common, callback) => {
 
@@ -532,7 +751,41 @@ const deep_iterate_babel_node_$INTERNAL = (babel_node, depth, path, common, call
                 return deep_iterate_babel_conditional_expression_node(babel_node, depth, path, common, callback);
             } else if (type === 'Super') {
                 return deep_iterate_babel_super_node(babel_node, depth, path, common, callback);
+            } else if (type === 'FunctionDeclaration') {
+                return deep_iterate_babel_function_declaration_node(babel_node, depth, path, common, callback);
+            } else if (type === 'TemplateLiteral') {
+                return deep_iterate_babel_template_literal_node(babel_node, depth, path, common, callback);
+            } else if (type === 'TemplateElement') {
+                return deep_iterate_babel_template_element_node(babel_node, depth, path, common, callback);
+            } else if (type === 'TryStatement') {
+                return deep_iterate_babel_try_statement_node(babel_node, depth, path, common, callback);
+            } else if (type === 'CatchClause') {
+                return deep_iterate_babel_catch_clause_node(babel_node, depth, path, common, callback);
+            } else if (type === 'SwitchStatement') {
+                return deep_iterate_babel_switch_statement_node(babel_node, depth, path, common, callback);
+            } else if (type === 'SwitchCase') {
+                return deep_iterate_babel_switch_case_node(babel_node, depth, path, common, callback);
+            } else if (type === 'RegExpLiteral') {
+                return deep_iterate_babel_regexp_literal_node(babel_node, depth, path, common, callback);
+            } else if (type === 'BreakStatement') {
+                return deep_iterate_babel_break_statement_node(babel_node, depth, path, common, callback);
+            } else if (type === 'ForInStatement') {
+                return deep_iterate_babel_for_in_statement_node(babel_node, depth, path, common, callback);
+            } else if (type === 'SequenceExpression') {
+                return deep_iterate_babel_sequence_expression_node(babel_node, depth, path, common, callback);
+            } else if (type === 'ClassExpression') {
+                return deep_iterate_babel_class_expression_node(babel_node, depth, path, common, callback);
+            } else if (type === 'RestElement') {
+                return deep_iterate_babel_rest_element_node(babel_node, depth, path, common, callback);
+            } else if (type === 'AwaitExpression') {
+                return deep_iterate_babel_await_expression_node(babel_node, depth, path, common, callback);
             } else {
+
+                // FunctionDeclaration TemplateLiteral TemplateElement TryStatement CatchClause
+                // SwitchStatement SwitchCase RegExpLiteral BreakStatement ForInStatement
+                // SequenceExpression
+                // ClassExpression
+                // RestElement (what is this?) A: ...
 
                 // Need to make this handle a template literal too.
 

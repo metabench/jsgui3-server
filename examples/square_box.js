@@ -26,6 +26,9 @@ if (require.main === module) {
     console.log('waiting for server ready event');
     server.on('ready', () => {
         console.log('server ready');
+
+        // server start will change to observable?
+
         server.start(8080, function (err, cb_start) {
             if (err) {
                 throw err;

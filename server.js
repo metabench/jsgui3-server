@@ -350,6 +350,8 @@ class JSGUI_Server extends Evented_Class {
                 var sock_router = rp.get_resource('Server Sock Router');
                 */
 
+                // just lsi.get?
+
                 lsi.getters.net((err, net) => {
                     if (err) {
                         callback(err);

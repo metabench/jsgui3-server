@@ -47,6 +47,8 @@ Demo_UI.css = `
 }
 `;
 
+
+
 class Square_Box extends Control {
     constructor(spec) {
         spec.__type_name = spec.__type_name || 'square_box';
@@ -81,6 +83,8 @@ Square_Box.css = `
 }
 `;
 controls.Square_Box = Square_Box;
+
+// need records in the map of controls by name
 
 if (require.main === module) {
     const SCS = require('../../single-control-server');

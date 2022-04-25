@@ -167,6 +167,8 @@ const bundle_web_page = (webpage, options = {}) => {
                         //  So when it finds CSS, it can output that.
                         //  A Control's CSS property, within the JS definition.
                         //   That can be output to a CSS file, copied or removed from the JS file.
+
+                        // js_mode debug
     
                         res_bundle_js = await bundle_js(diskpath_js_client, {
                             'js_mode': 'mini',
@@ -317,10 +319,12 @@ const bundle_web_page = (webpage, options = {}) => {
 
                             //const diskpath_js_client = require.resolve('./../controls/page/admin.js');
 
+                            // debug mode
+
 
                             const obs_bundle = bundle_js(diskpath_js_client, {
-                                'js_mode': 'mini',
-                                'babel': 'mini'
+                                'js_mode': 'debug',
+                                'babel': 'debug'
                             });
 
 

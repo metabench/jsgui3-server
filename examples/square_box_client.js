@@ -85,9 +85,29 @@ Square_Box.css = `
     height: 220px;
 }
 `;
-//controls.Square_Box = Square_Box;
 
+// then if running on the client...?
+
+
+
+//controls.Square_Box = Square_Box;
+// could export jsgui with the updated controls....
+//  so that they are in the correct Page Context.?
+
+
+controls.Demo_UI = Demo_UI;
+controls.Square_Box = Square_Box;
+
+module.exports = jsgui;
+
+/*
 module.exports = {
     Square_Box: Square_Box,
     Demo_UI: Demo_UI
 }
+*/
+
+// Then if window...?
+
+// Need to add the Square_Box control to the context or original map of controls...
+

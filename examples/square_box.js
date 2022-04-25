@@ -1,5 +1,6 @@
+const jsgui = require('./square_box_client');
 
-const {Demo_UI, Square_Box} = require('./square_box_client');
+const {Demo_UI, Square_Box} = jsgui.controls;
 const Server = require('../server');
 
 // Want to exclude this from the client bundle.

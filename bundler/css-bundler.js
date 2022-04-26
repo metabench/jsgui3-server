@@ -9,6 +9,8 @@ const stream_to_array = require('stream-to-array');
 const util = require('util');
 const Stream = require('stream');
 // Will put the JS together. Maybe images?
+const fs = require('fs');
+const path = require('path');
 
 const JS_AST_Node = require('./../resources/jsbuilder/JS_AST/JS_AST_Node');
 
@@ -35,16 +37,31 @@ const JS_AST_Node = require('./../resources/jsbuilder/JS_AST/JS_AST_Node');
 //  maybe scan an AST or AST stream as it's coming in.
 
 
+// Needs to be able to copy / access the basic.css from jsgui3-html.
+//  Maybe be able to find them on disk.
+
+// Streaming does seem like the best meachanism for loading data etc.
+
+
+const stream_html_basic_css = () => {
+    const css_file_path = path.join(path.dirname(require.resolve('jsgui3-html')), 'css', 'basic.css');
+    console.log('css_file_path', css_file_path);
+
+    const res_stream = fs.createReadStream(css_file_path);
+
+    return res_stream;
+
+}
 
 const bundle_css_from_js_str = (js_str, options = {}) => {
 
-    console.log('js_str.length', js_str.length);
+    //console.log('js_str.length', js_str.length);
     // Moving towards using observables as a matter of course for longer-running functions.
 
     // Seems like this makes a settimeout as well???
     return obs((next, complete, error) => {
 
-        console.log('js_str.length', js_str.length);
+        //console.log('js_str.length', js_str.length);
 
         // Returning a Bundle object when done could be best...?
 
@@ -54,15 +71,15 @@ const bundle_css_from_js_str = (js_str, options = {}) => {
 
         const js_ast_node = JS_AST_Node.from_spec(spec);
 
-        console.log('!!js_ast_node', !!js_ast_node);
+        //console.log('!!js_ast_node', !!js_ast_node);
 
-        console.log('Object.keys(js_ast_node)', Object.keys(js_ast_node));
+        //console.log('Object.keys(js_ast_node)', Object.keys(js_ast_node));
 
         // count all
 
         //console.log('js_ast_node.query("count all")', js_ast_node.query("count all"));
 
-        console.log('js_ast_node.query.count.all.exe()', js_ast_node.query.count.all.exe());
+        //console.log('js_ast_node.query.count.all.exe()', js_ast_node.query.count.all.exe());
 
         // A filter iterate query....? filter_deep_iterate could work.
         //  but we are looking specifically for 'ClassName.css'
@@ -142,7 +159,7 @@ const bundle_css_from_js_str = (js_str, options = {}) => {
                 //console.log('css_ae_node.source', css_ae_node.source);
                 const tl = css_ae_node.child_nodes[1].child_nodes[0];
                 //console.log('tl', tl);
-                console.log('tl.source', tl.source);
+                //console.log('tl.source', tl.source);
                 arr_css.push(tl.source);
 
 
@@ -156,10 +173,6 @@ const bundle_css_from_js_str = (js_str, options = {}) => {
         } else {
             complete();
         }
-
-
-
-
 
         
         // Can then do query to get all .css properties that are string templates.
@@ -195,4 +208,5 @@ class CSS_Bundler extends Bundler {
 }
 
 CSS_Bundler.bundle_css_from_js_str = bundle_css_from_js_str;
+CSS_Bundler.stream_html_basic_css = stream_html_basic_css;
 module.exports = CSS_Bundler;

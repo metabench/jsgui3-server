@@ -3,7 +3,7 @@ const Bundler = require('./bundler');
 const JS_Bundler = require('./js-bundler');
 const CSS_Bundler = require('./css-bundler');
 
-const {bundle_css_from_js_str} = CSS_Bundler;
+const {bundle_css_from_js_str, stream_html_basic_css} = CSS_Bundler;
 
 const Bundle = require('./bundle');
 const {obs, prom_or_cb} = require('fnl');
@@ -46,6 +46,40 @@ const stream_to_array = require('stream-to-array');
 const {bundle_js} = JS_Bundler;
 
 
+// Observable to load the basic CSS, or return it.
+
+
+const get_basic_css_content_obj = () => {
+    return obs((next, complete, error) => {
+
+        const s_css = stream_html_basic_css();
+
+        const chunks = [];
+        let buf_css;
+
+        s_css.once('end', () => {
+            // create the final data Buffer from data chunks;
+            buf_css = Buffer.concat(chunks);
+            complete({
+                'value': buf_css,
+                'content-type': 'text/css'
+            });
+            
+            // Of course, you can do anything else you need to here, like emit an event!
+        });
+        
+        // Data is flushed from fileStream in chunks,
+        // this callback will be executed for each chunk
+        s_css.on('data', (chunk) => {
+            chunks.push(chunk); // push data chunk to array
+        
+            // We can perform actions on the partial data we have so far!
+        });
+
+    });
+}
+
+
 const bundle_web_page = (webpage, options = {}) => {
     const {content} = webpage;
     //console.log('bundle web page');
@@ -85,7 +119,15 @@ const bundle_web_page = (webpage, options = {}) => {
         const res = new Bundle();
 
 
+        
+
+
         (async () => {
+
+            const o_basic_css = await get_basic_css_content_obj();
+            //console.log('o_css', o_css);
+            //console.log('t_content', t_content);
+            //throw 'stop';
 
             if (t_content === 'string') {
                 // Hardly anything to bundle. No JS required, so it seems.
@@ -327,9 +369,6 @@ const bundle_web_page = (webpage, options = {}) => {
                                 'babel': 'debug'
                             });
 
-
-
-
                             obs_bundle.on('next', data => {
                                 //console.log('next data', data);
                                 console.log('next Object.keys(data)', Object.keys(data));
@@ -361,14 +400,16 @@ const bundle_web_page = (webpage, options = {}) => {
                                             if (tof(obs_css_from_js_res) === 'string') {
                                                 // should be added to the page bundle.
 
+                                                const basic_and_app_css = Buffer.concat([o_basic_css.value, Buffer.from(obs_css_from_js_res)]);
+
                                                 res.push({
                                                     'path': webpage.path + 'css/app.css',
-                                                    'value': Buffer.from(obs_css_from_js_res),
+                                                    'value': basic_and_app_css,
                                                     'content-type': 'text/css'
                                                 });
 
                                                 waiting_for_css_extraction = false;
-                                                console.log('obs_css_from_js complete');
+                                                //console.log('obs_css_from_js complete');
 
                                                 if (handle_css_extraction_complete) {
                                                     handle_css_extraction_complete();
@@ -502,8 +543,9 @@ const bundle_web_page = (webpage, options = {}) => {
             }
         })().catch(err => {
             console.trace();
+            console.log('err', err);
 
-            throw 'err';
+            throw err;
             //console.error(err);
         });
 

@@ -60,6 +60,16 @@ class Demo_UI extends Control {
             // Then indicating how much space it's supposed to take...?
             //  Could it automatically size itself depending on space available?
 
+            // Grid should use the 'display' mixin by default?
+            //  display_modes may be a better name after all.
+            //   
+
+            // Have Grid and other controls able to adaptively choose / grow to a size.
+            //  Could that be css flexbox though?
+
+            // cell size being content item size.
+            // 
+
             const grid = new Grid({
                 context: context,
                 grid_size: [32, 32],
@@ -72,11 +82,116 @@ class Demo_UI extends Control {
             
             this._ctrl_fields = this._ctrl_fields || {};
             this._ctrl_fields.grid = grid;
-            
-
 
             // cell_size property perhaps?
             // cell_size auto?
+
+            // Want basic usage of .display mixin...
+            //  display_mode may well be the better name....
+            //  display.mode makes sense though!
+
+            // mx display makes a lot of sense for higher level display properties and functionality.
+            //  or even .ui rather than display?
+
+            // .ui mixin perhaps?
+            //  easy naming.
+            // .ui and .data
+            //  so a control represents actual data (model in mvc)
+            // .view perhaps?
+            // .model even?
+
+            // Could move towards some MVC naming fundamentals.
+            //  It would be as a higher level then some core things like CSS.
+            //  .data = .model probably.
+
+            // the .mvc or .mv 'overhaul' mixin should come.
+            //  .model could / should refer to a part of a larger model.
+            //    the data being represented by the control.
+
+            // view.editable property could be standard.
+            //  as in user_editable possibly.
+
+            // Dividing into .model and .view could make sense.
+            //  view.dom.attributes for example
+            //   of course there can be models of the view.
+
+            // ctrl.model would (always?) hold and represent the core data.
+            //  class Model_Data_Access
+            //    full_model
+            //    access_path (string???)
+            //    part of model (model for that control)
+
+            // model = {text: 'hello'}
+            //  then the view we tell it to display the text (maybe it knows to do that, or its one very simple setting.)
+
+            // Even make a Control_View component?
+            //   That seemed to be what the Control was before?
+            //   Being more explicit about referencing the View may help.
+            //     Especially with different view / display modes.
+
+            // Also, keeping control data model logic while changing view logic...?
+            //   Keeping code separate should help with upgradability.
+
+            // .model.data_type for example.
+            //   such as date.
+            //    or some types / structs which have definitions.
+
+            // Then when making a View, we can specify that it only works for a set data_type
+            //  Then different implementations could compete / be compared.
+
+            // Editors for specific data types, only supposed to or designed to work to edit a limited range of data.
+            //   Enforced programatically.
+            //   Have a schema of the data or something like it.
+            //     Then with the data defined, an editor could be put together programatically automatically.
+            //       May be a bit of a rudimentary / unflexible one but may be useful.
+
+            // UI components for viewing and editing data
+            //   Could / should start with some really simple types of data
+            //   Need data type definitions within the code so that the editiors know what to do.
+            //    Could have them within JSON of course.
+
+            // Max number, min number, integers only, etc...
+
+            // so .view rather than .display probably...
+            //  .controller even could refer to various algorithms / hooks that get used when connecting the model and the view.
+            //    may be possible to use the control without accessing control.controller?
+            //      or the control itself is the controller?
+            //      .controller may make sense for accessing some properties.
+
+            // const [mvc] = ctrl.mvc for example.
+            //  
+
+            // Doing this more gradually...?
+            //  Where properties may have two means of accessing them?
+            //    or move some lower level view things into .view perhaps.
+
+
+            // making .view as a mixin perhaps...?
+            //  could make some of the functions more universally callable perhaps?
+            //   not so sure about performance when used so widely. Could still make good use of prototypes somehow though.
+
+            
+
+
+            
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
             // size: auto for various controls?
             //  a 'size' mixin? Autosize mixin?

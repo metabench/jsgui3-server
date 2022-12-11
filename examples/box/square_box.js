@@ -1,13 +1,12 @@
 const jsgui = require('./square_box_client');
 
 const {Demo_UI, Square_Box} = jsgui.controls;
-const Server = require('../server');
+const Server = require('../../server');
 
 // Want to exclude this from the client bundle.
 //  Some kind of marking to say that it's server-side only?
 
 if (require.main === module) {
-    
     const server = new Server({
         Ctrl: Demo_UI,
         // Giving it the Ctrl and disk path client js should enable to server to get the JS-bundled CSS from the file(s).
@@ -18,7 +17,6 @@ if (require.main === module) {
         'disk_path_client_js': require.resolve('./square_box_client.js')
         //js_client: require.resolve('./square_box.js')
     });
-
     // A callback or event for when the bundling has been completed
     //  a 'ready' event.
 

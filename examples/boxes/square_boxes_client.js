@@ -62,8 +62,10 @@ class Demo_UI extends Control {
             // or even box2.color = ... and it would know which color was meant
             //  or be able to access the .color reference / property name when asked for.
 
+            box2.background.color = '#6655CC';
 
-            box2.dom.attributes.style['background-color'] = '#6655CC';
+
+            //box2.dom.attributes.style['background-color'] = '#6655CC';
             this.add(box2);
 
             const box3 = new Square_Box({
@@ -108,12 +110,9 @@ Demo_UI.css = `
 
 // then if running on the client...?
 
-
-
 //controls.Square_Box = Square_Box;
 // could export jsgui with the updated controls....
 //  so that they are in the correct Page Context.?
-
 
 controls.Demo_UI = Demo_UI;
 controls.Square_Box = Square_Box;

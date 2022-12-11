@@ -1,4 +1,4 @@
-const jsgui = require('jsgui3-client'); // and will replace this with jsgui-client, I presume.
+const jsgui = require('jsgui3-client');
 const {controls, Control, mixins} = jsgui;
 const {dragable} = mixins;
 
@@ -73,6 +73,9 @@ class Square_Box extends Control {
 
             this.on('dragend', e => {
                 console.log('square box dragend e', e);
+                //this.background.color = '#FF4444';
+                //this.color = '#FF4444';
+                this.dom.el.style.backgroundColor = '#FF4444';
             });
 
         }

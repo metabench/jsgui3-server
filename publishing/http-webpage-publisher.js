@@ -115,15 +115,38 @@ class HTTP_Webpage_Publisher extends HTTP_Publisher {
 
 
 
-        console.log('HTTP_Webpage_Publisher handle_http');
+        //console.log('HTTP_Webpage_Publisher handle_http');
         //console.log('req', req);
+
+        const {webpage} = this;
+        //console.log('webpage', webpage);
+        //console.log('webpage.render()', webpage.render());
+        //console.log('Object.keys (webpage)', Object.keys (webpage));
+
+        //console.log('webpage.content', webpage.content);
+
+        const Ctrl = webpage.content;
+        const ctrl = new Ctrl();
+
+        //console.log('webpage.content.render()', webpage.content.render());
+        //console.log('webpage.content[0]', webpage.content[0]);
+
+        //res.statusCode = 200;
+        //response.setHeader('Content-Type', 'text/html');
+        res.writeHead(200, {
+            'Content-Type': 'text/html'
+          });
+
+        res.end(ctrl.all_html_render());
+
+
 
 
         // May have bundle already prepared anyway.
         //  Possibly the Website or the Website_Resource could do the bundling / building.
         //  Could even bundle into a ZIP file :)
 
-        throw 'NYI';
+        //throw 'NYI';
     }
 }
 

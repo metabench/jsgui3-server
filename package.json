@@ -13,7 +13,7 @@
     "cookies": "^0.8.0",
     "fnl": "^0.0.23",
     "fnlfs": "^0.0.27",
-    "jsgui3-client": "^0.0.73",
+    "jsgui3-client": "^0.0.75",
     
     "multiparty": "^4.2.3",
     "ncp": "^2.0.0",
@@ -41,5 +41,5 @@
     "type": "git",
     "url": "https://github.com/metabench/jsgui3-server.git"
   },
-  "version": "0.0.94"
+  "version": "0.0.95"
 }

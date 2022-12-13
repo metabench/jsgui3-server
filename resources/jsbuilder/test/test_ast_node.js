@@ -366,10 +366,7 @@ const test_js_ast_node = () => {
 
 
 
-        })
-
-        
-
+        });
         
         // Find out how many declarators it has.
 
@@ -380,9 +377,6 @@ const test_js_ast_node = () => {
         //   Would prefer for it to load automatically and not be part of the API.
 
     }
-
-    
-
 }
 
 test_js_ast_node();

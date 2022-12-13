@@ -3,6 +3,7 @@ CSS bundled from the JS.
 
 
 Make it work as a stand-alone application.
+  It's already quite a large codebase. Make use of existing code and expand somewhat further.
 Start it, get it serving a directory easily.
 Start it, access it through admin pages.
   Admin interface showing by default.

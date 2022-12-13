@@ -13,12 +13,16 @@ const jsgui = require('jsgui3-html'),
 		each,
 		tof
 	} = jsgui;
+
+	
 const lib_path = require('path');
 const Web_Admin_Page_Control = require('./controls/page/admin');
 const Web_Admin_Panel_Control = require('./controls/panel/admin');
 const Website = require('./website/website');
 const HTTP_Website_Publisher = require('./publishing/http-website-publisher');
 const Webpage = require('./website/webpage');
+const HTTP_Webpage_Publisher = require('./publishing/http-webpage-publisher');
+
 class JSGUI_Server extends Evented_Class {
 	constructor(spec = {
 		website: true
@@ -28,42 +32,11 @@ class JSGUI_Server extends Evented_Class {
 		if (spec.disk_path_client_js) {
 			disk_path_client_js = spec.disk_path_client_js;
 		};
-		Object.defineProperty(this, 'disk_path_client_js', {
-			get() {
-				return disk_path_client_js;
-			},
-			set(value) {
-				disk_path_client_js = value;
-			}
-		});
-		let Ctrl;
-		if (spec.Ctrl) {
-			Ctrl = spec.Ctrl;
-		};
-
-
-		Object.defineProperty(this, 'Ctrl', {
-			get() {
-				return Ctrl;
-			},
-			set(value) {
-				Ctrl = value;
-			}
-		});
-
-        
-		let name;
-		if (spec.name) {
-			name = spec.name;
-		};
-		Object.defineProperty(this, 'name', {
-			get() {
-				return name;
-			},
-			set(value) {
-				name = value;
-			}
-		});
+		Object.defineProperty(this, 'disk_path_client_js', {get: () => disk_path_client_js, set: (value) => disk_path_client_js = value})
+		let Ctrl = spec.Ctrl || undefined
+		Object.defineProperty(this, 'Ctrl', {get: () => Ctrl, set: value => Ctrl = value})
+		let name = spec.name || undefined;
+		Object.defineProperty(this, 'name', {get: () => name, set: value => name = value})
 		this.__type_name = __type_name || 'server';
 		const resource_pool = this.resource_pool = new Server_Resource_Pool({
 			'access': {
@@ -75,9 +48,7 @@ class JSGUI_Server extends Evented_Class {
 			'pool': resource_pool
 		});
 		resource_pool.add(server_router);
-		if (spec.https_options) {
-			this.https_options = spec.https_options;
-		}
+		this.https_options = spec.https_options || undefined;
 		if (spec.routes) {
 			throw 'NYI - will use Website class rather than Website_Resource here'
 			each(spec.routes, (app_spec, route) => {
@@ -86,47 +57,66 @@ class JSGUI_Server extends Evented_Class {
 				server_router.set_route(route, app, app.process);
 			});
 		}
-		if (true) {
-			const old = () => {
-				const app = this.app = new Website_Resource({
-					name: 'Website'
+		const opts_website = {
+			'name': this.name || 'Website'
+		};
+		const opts_webpage = {
+			'name': this.name || 'Website'
+		};
+		
+		if (Ctrl) {
+			// could be a web page, not a web site.
+			//  But a site can contain one page. Easy enough default?
+			//   Though more directly serving a page seems simpler. More logical too, if we are not serving a site with it.
+			//opts_website.content = Ctrl;
+			//opts_webpage.content = Ctrl;
+
+			// set up a web page with the ctrl, and a web page publisher.
+
+			const wp_app = new Webpage({content: Ctrl});
+			const opts_wp_publisher = {
+				'webpage': wp_app
+			};
+			const wp_publisher = new HTTP_Webpage_Publisher(opts_wp_publisher);
+			console.log('waiting for wp_publisher ready');
+			wp_publisher.on('ready', () => {
+				console.log('wp publisher is ready');
+				const wp_resource = new Website_Resource({
+					'name': 'Webpage Resource',
+					'webpage': wp_app
 				});
-				resource_pool.add(app);
-				server_router.set_route('/*', app.process);
+				resource_pool.add(wp_resource);
+				server_router.set_route('/', wp_publisher, wp_publisher.handle_http);
+				this.raise('ready');
+			});
+
+
+		} else {
+			const ws_app = this.app = new Website(opts_website);
+			// Be able to treat Webpage as an app?
+
+			const opts_ws_publisher = {
+				'website': ws_app
+			};
+			if (disk_path_client_js) {
+				opts_ws_publisher.disk_path_client_js = disk_path_client_js;
 			}
-			const current = () => {
-				const opts_website = {
-					'name': this.name || 'Website'
-				};
-				if (Ctrl) {
-					opts_website.content = Ctrl;
-				}
-				const ws_app = this.app = new Website(opts_website);
-				const opts_ws_publisher = {
+			const ws_publisher = new HTTP_Website_Publisher(opts_ws_publisher);
+			ws_publisher.on('ready', () => {
+				console.log('ws publisher is ready');
+				const ws_resource = new Website_Resource({
+					'name': 'Website Resource',
 					'website': ws_app
-				};
-				if (disk_path_client_js) {
-					opts_ws_publisher.disk_path_client_js = disk_path_client_js;
-				}
-				const ws_publisher = new HTTP_Website_Publisher(opts_ws_publisher);
-				ws_publisher.on('ready', () => {
-					console.log('ws publisher is ready');
-					const ws_resource = new Website_Resource({
-						'name': 'Website Resource',
-						'website': ws_app
-					});
-					resource_pool.add(ws_resource);
-					server_router.set_route('/*', ws_publisher, ws_publisher.handle_http);
-					this.raise('ready');
 				});
-			}
-			current();
+				resource_pool.add(ws_resource);
+				server_router.set_route('/*', ws_publisher, ws_publisher.handle_http);
+				this.raise('ready');
+			});
 		}
-		Object.defineProperty(this, 'router', {
-			get() {
-				return server_router;
-			}
-		});
+
+
+		
+		Object.defineProperty(this, 'router', { get: () => server_router })
 	}
 	get resource_names() {
 		return this.resource_pool.resource_names;
@@ -191,32 +181,6 @@ class JSGUI_Server extends Evented_Class {
 			}
 		});
 	}
-	'process_request' (req, res) {
-		throw 'request should be processed elsewhere, such as the router'
-		var url = req.url;
-		var s_url = url.split('/');
-		var a_path = [];
-		each(s_url, (v, i) => {
-			if (v.length > 0) {
-				a_path.push(v);
-			}
-		});
-		var router = this.get('router');
-		if (a_path.length > 0) {
-			var routing_res = router.process(req, res);
-		} else {
-			console.log('need to process short path');
-		}
-	}
-	'serve_document' (req, res, jsgui_html_document) {
-		throw 'deprecating.';
-		var html = jsgui_html_document.all_html_render();
-		var mime_type = 'text/html';
-		res.writeHead(200, {
-			'Content-Type': mime_type
-		});
-		res.end(html, 'utf-8');
-	}
 }
 JSGUI_Server.HTML = require('jsgui3-html');
 JSGUI_Server.Resource = Resource;
@@ -240,144 +204,63 @@ if (require.main === module) {
 		server.start(8080);
 	}
 	current();
-	const old = () => {
-		const app_admin = new Website_Resource({
-			name: 'Admin Website'
-		});
-		server.resource_pool.add(app_admin);
-		let js = app_admin.resource_pool['Site JavaScript'];
-		let js_client = lib_path.resolve('./controls/page/admin.js');
-		let o_serve_package = {
-			'babel': 'mini'
-		}
-		js.serve_package('admin/js/app.js', js_client, o_serve_package, (err, served) => {
-			if (err) {
-				console.log('err', err);
-				throw 'stop';
-			} else {
-				if (served) {
-					console.log('served', served);
-					const prepare_app = () => {
-						const server_router = server.router;
-						if (!server_router) {
-							throw 'no server_router';
-						}
-						var routing_tree = server_router.routing_tree;
-						routing_tree.set('admin', (req, res) => {
-							const o_spc = {
-								'req': req,
-								'res': res,
-								'resource_pool': app_admin.resource_pool
-							}
-							if (this.include_server_ref_in_page_context) o_spc.server = this;
-							var server_page_context = new Server_Page_Context(o_spc);
-							if (this.context_data) {
-								Object.assign(server_page_context, this.context_data);
-							}
-							var hd = new jsgui.Client_HTML_Document({
-								'context': server_page_context
-							});
-							hd.include_client_css();
-							hd.include_css('/admin/css/basic.css');
-							if (this.css) {
-								each(this.css, (path, serve_as) => {
-									hd.include_css('/admin/css/' + serve_as);
-								});
-							}
-							const body = hd.body;
-							let o_params = this.params || {};
-							Object.assign(o_params, {
-								'context': server_page_context
-							});
-							const ctrl = this.ctrl = new Web_Admin_Panel_Control(o_params);
-							ctrl.active();
-							body.add(ctrl);
-							hd.include_js('/admin/js/app.js');
-							let statement_rsr;
-							let statement_context_data;
-							let statements = [];
-							if (app_admin.def_resource_publishers) {
-								const c = Object.keys(app_admin.def_resource_publishers).length;
-								if (c > 0) {
-									statement_rsr = `jsgui.register_server_resources(${JSON.stringify(app_admin.def_resource_publishers)});`;
-									statements.push(statement_rsr);
-								}
-							}
-							if (statements.length > 0) {
-								let resources_script = new jsgui.script({
-									context: server_page_context
-								});
-								const strc = new jsgui.String_Control({
-									context: server_page_context,
-									text: statements.join('')
-								});
-								resources_script.add(strc);
-								body.add(resources_script);
-							}
-							hd.all_html_render(function(err, deferred_html) {
-								if (err) {
-									throw err;
-								} else {
-									var mime_type = 'text/html';
-									res.writeHead(200, {
-										'Content-Type': mime_type
-									});
-									res.end('<!DOCTYPE html>' + deferred_html, 'utf-8');
-								}
-							});
-						});
-					}
-					prepare_app();
-					server.start(port, (err, obj_start) => {
-						if (err) {
-							console.log('There was an error starting the server: \n', err);
-						} else {
-							console.log('Server started on port: ' + port);
-						}
-					});
-				} else {
-					throw 'stop';
-				}
-			}
-		});
-		const start_it = () => {
-			server.start(port, (err, obj_start) => {
-				if (err) {
-					console.log('There was an error starting the server: \n', err);
-				} else {
-					console.log('Server started on port: ' + port);
-					const do_more_post_start = () => {
-						let wr = server.resource_pool.get_resource('Website Resource');
-						console.log('server.resource_pool', server.resource_pool);
-						console.log('wr', wr);
-						throw 'stop';
-						server.router.set_route('admin', (req, res) => {
-							const pc = new Server_Page_Context({
-								req: req,
-								res: res
-							});
-							const hd = new Web_Admin_Page_Control({
-								'context': pc
-							});
-							hd.include_client_css();
-							hd.include_css('/css/basic.css');
-							hd.include_css('/css/controls.css');
-							hd.include_js('/js/app.js');
-							hd.all_html_render(function(err, deferred_html) {
-								if (err) {
-									throw err;
-								} else {
-									var mime_type = 'text/html';
-									res.writeHead(200, {
-										'Content-Type': mime_type
-									});
-									res.end('<!DOCTYPE html>' + deferred_html, 'utf-8');
-								}
-							});
-						});
-					}
-				}
-			});
-		}
-	}
+
 } else {}
+
+// 
+
+const summary = {
+    "classes": [
+        "JSGUI_Server",
+        "Server_Resource_Pool",
+        "Router",
+        "Website_Resource",
+        "Server_Page_Context",
+        "Web_Admin_Page_Control",
+        "Web_Admin_Panel_Control",
+        "Website",
+        "HTTP_Website_Publisher",
+        "Webpage"
+    ],
+    "methods": {
+        "JSGUI_Server": [
+            "constructor",
+            "start",
+            "stop"
+        ],
+        "Server_Resource_Pool": [
+            "constructor"
+        ],
+        "Router": [
+            "constructor",
+            "set_route",
+            "unset_route"
+        ],
+        "Website_Resource": [
+            "constructor",
+            "process"
+        ],
+        "Server_Page_Context": [
+            "constructor",
+            "respond_string"
+        ],
+        "Web_Admin_Page_Control": [
+            "constructor"
+        ],
+        "Web_Admin_Panel_Control": [
+            "constructor"
+        ],
+        "Website": [
+            "constructor",
+            "add_page",
+            "add_page_resource",
+            "add_page_resource_from_webpage"
+        ],
+        "HTTP_Website_Publisher": [
+            "constructor"
+        ],
+        "Webpage": [
+            "constructor"
+        ]
+    }
+}

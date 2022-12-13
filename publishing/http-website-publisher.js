@@ -1,5 +1,3 @@
-
-
 // A publisher handles HTTP requests.
 
 // This is going to take over some of the responsibilities of the old website resource, which was unfocused code that was
@@ -9,17 +7,13 @@ const {each, Router, tof} = require('jsgui3-html');
 const HTTP_Publisher = require('./http-publisher');
 const {obs} = require('fnl');
 
-
 const Webpage_Bundler = require('./../bundler/webpage-bundler');
 const Bundle = require('./../bundler/bundle');
-
 
 // Now it's the very basics of a website publisher. Quite flexible but could do with more.
 //  Better integration with bundler
 //  Rendering webpages that are dynamic and therefore not bundled (eg user specific content).
 //   Though the js could be bundled. Maybe some of the controls could be bundled? Or semi-bundled?
-
-
 
 // HTTP_Webpage_Publisher could be interesting.
 //  The Website Publisher could make use of some of its functionality.
@@ -35,7 +29,6 @@ const Bundle = require('./../bundler/bundle');
 //  The main server router seems to pass everything to this - maybe that will change.
 
 class HTTP_Website_Publisher extends HTTP_Publisher {
-
     // Website generally serves JS from a single address.
     //  Webpage could have its specific JS.
 
@@ -65,34 +58,23 @@ class HTTP_Website_Publisher extends HTTP_Publisher {
                 return disk_path_client_js;
             }
         });
-
         // And this could be an observable too.
-
         // May get admin pages working on a slightly lower level.
         //  Makes sense as they are for administering other pages (mostly).
-
         console.log('http-website-publisher disk_path_client_js', disk_path_client_js);
         //throw 'stop';
-
         // This could be an observable that acts sequentially and async.
 
         const setup_website_publishing = (website) => {
-
             //console.log('website', website);
             //console.log('website.pages', website.pages);
             //console.log('website.pages.length()', website.pages.length());
             //throw 'stop';
 
             // should the website have a 'main' or 'front' or 'first' page, with it having its HTML rendered?
-
-
             return obs((next, complete, error) => {
-
                 (async () => {
-
-
                     // not iterating properly through the collection without ._arr.
-
                     // May make more sense to have 2 versions,
                     //  for 1 page
                     //  for 2+ pages
@@ -106,32 +88,19 @@ class HTTP_Website_Publisher extends HTTP_Publisher {
                         const obs_bundling = Webpage_Bundler.bundle_web_page(page, opts_bundling);
                         //console.log('doing bundling');
                         //console.log('obs_bundling', obs_bundling);
-    
                         //throw 'stop';
-
                         obs_bundling.on('complete', obs_bundling_res => {
                             // Should be a Bundle rather than a Buffer?
-
-                            //console.log('obs_bundling res', obs_bundling_res);
-
+                            console.log('obs_bundling res', obs_bundling_res);
                             // Need to have the HTML rendering and HTTP serving here as well.
-
-                            
-
-
                             //const page_bundle = res;
-
                             if (obs_bundling_res instanceof Bundle) {
                                 //console.log('1) obs_bundling_res._arr.length', obs_bundling_res._arr.length);
-
                                 // then need to handle the page construction and routing of http requests.
-
                                 console.log('obs_bundling_res._arr.length', obs_bundling_res._arr.length);
-
                                 each(obs_bundling_res, item => {
                                     //console.log('item', item);
                                     //console.log('item.path', item.path, item['content-type']);
-        
                                     if (item['content-type']) {
                                         const ct = item['content-type'];
                                         if (ct === 'text/html') {
@@ -154,14 +123,12 @@ class HTTP_Website_Publisher extends HTTP_Publisher {
                                             router.set_route(item.path, (req, res) => {
                                                 http_serve_any(req, res);
                                             });
-        
                                             //throw 'NYI';
                                         }
             
                                     } else {
                                         throw 'NYI';
                                     }
-        
                                 })
 
                                 //console.trace();
@@ -177,11 +144,7 @@ class HTTP_Website_Publisher extends HTTP_Publisher {
                                 console.trace();
                                 throw 'stop';
                             }
-
-                            
-
                         });
-
                     } else if (website.pages._arr.length > 1) {
                         throw 'NYI';
                         for (const page in website.pages._arr) {
@@ -305,19 +268,9 @@ class HTTP_Website_Publisher extends HTTP_Publisher {
                             //console.log(`${property}: ${object[property]}`);
                         }
                     } 
-
-
-                    
-
-
-                    
                 })().catch(err => {
                     console.error(err);
                 });
-
-                
-
-
             });
             // put pages into a router here...
             //  however, may need to be on the lookout for other content that needs to be bundled with each page in the site.
@@ -334,13 +287,7 @@ class HTTP_Website_Publisher extends HTTP_Publisher {
             const obs_setup = setup_website_publishing(website);
             obs_setup.on('complete', res_complete => {
                 console.log('setup complete');
-
-
                 this.raise('ready');
-
-                //complete(res_complete);
-
-
             })
         } else {
             this.raise('ready');
@@ -364,7 +311,6 @@ class HTTP_Website_Publisher extends HTTP_Publisher {
 
     }
     handle_http(req, res) {
-
         // Called from a different context? Doubt we want that.
         // Now called strangely, without context.
 
@@ -379,11 +325,8 @@ class HTTP_Website_Publisher extends HTTP_Publisher {
         const {host} = req.headers;
 
         // count of routes in the router?
-
         // router.routes.length?
         // router.num_routes?
-
-
 
         //console.log('[httpVersion, host, url, statusCode, method, accept_endoding]', [httpVersion, host, url, statusCode, method, accept_encoding]);
 
@@ -393,12 +336,8 @@ class HTTP_Website_Publisher extends HTTP_Publisher {
         //console.log('this', this);
         //console.trace();
         router.process(req, res);
-
         // can then get the port from after the : in the host.
-
         //router.set_route(url,)
-
-
 
         // But then the website itself, does it have a router?
         //  It (probably) should.

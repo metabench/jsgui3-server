@@ -8,8 +8,6 @@
 */
 
 const {each} = require('lang-mini');
-
-
 // Strings of js?
 //  Array of lines?
 
@@ -54,8 +52,6 @@ const analyse_js_doc_formatting = (str_js) => {
     //  then can detect if the factor is either 2 or 4.
 
     const map_num_spaces = {};
-
-
     // Find the proportion in this map that are a factor of both 2 and 4
     //  Find the proportion that fit in with each.
 
@@ -72,8 +68,6 @@ const analyse_js_doc_formatting = (str_js) => {
         let arr_unindented_lines = new Array(s_js.length);
 
         let arr_indentation_parsed_lines = new Array(s_js.length);
-
-        
 
         each(s_js, (line, line_num) => {
             line_begins_with_space = false;
@@ -158,7 +152,6 @@ const analyse_js_doc_formatting = (str_js) => {
             //console.log('line_beginning_spaces', line_beginning_spaces);
             //console.log('line_beginning_tabs', line_beginning_tabs);
 
-
             if (line_begins_with_tab) {
                 
                 // A map of the number of tabs...?
@@ -177,11 +170,6 @@ const analyse_js_doc_formatting = (str_js) => {
         //console.log('count_lines_beginning_tab', count_lines_beginning_tab);
 
         let str_indentation;
-
-        // Go through the lines again I think....
-
-
-
 
         if (count_lines_beginning_space > count_lines_beginning_tab) {
             //console.log('indentation uses spaces');
@@ -227,12 +215,6 @@ const analyse_js_doc_formatting = (str_js) => {
                 throw 'NYI';
             }
 
-            //console.log('arr_num_spaces', arr_num_spaces);
-
-            // Then calculate how many indentations per line...
-
-            // // arr_unindented_lines, arr_indentation_parsed_lines, arr_num_indentations
-
             each(arr_num_spaces, (num_spaces, line_num) => {
                 const num_indentations = Math.floor((num_spaces || 0) / indentation_length);
                 //console.log('num_indentations', num_indentations);
@@ -240,10 +222,7 @@ const analyse_js_doc_formatting = (str_js) => {
                 const unindented_line = s_js[line_num].substr(num_indentations * indentation_length);
                 //console.log('unindented_line', unindented_line);
                 arr_unindented_lines[line_num] = unindented_line;
-            })
-
-
-
+            });
         } else {
             console.log('indentation uses tabs');
             str_indentation = '\t';
@@ -257,8 +236,6 @@ const analyse_js_doc_formatting = (str_js) => {
         // also the unindented string lines, alongside their indentation levels.
         // recreate the lines....
         //  
-
-
         // return unindented lines as well....
 
         const arr_res = new Array(s_js.length);
@@ -324,7 +301,6 @@ const extract_client_js = (js_formatting_info) => {
     //  Makes sense to do parsing once it's detected.
     //  Maybe only need to parse require statements.
 
-
     // Removing comment blocks...?
 
     const map_line_type_detect_parse = {
@@ -337,8 +313,6 @@ const extract_client_js = (js_formatting_info) => {
             //console.log('line', line);
             //console.log('typeof line', typeof line);
             if (line.startsWith('if (require.main === module) {')) return true;
-
-
             return false;
         },
         end_block: line => {
@@ -355,7 +329,6 @@ const extract_client_js = (js_formatting_info) => {
 
 
             return false;
-
         },
 
         require: (line) => {
@@ -412,8 +385,6 @@ const extract_client_js = (js_formatting_info) => {
         if (indentation_level === 0) {
             //console.log('unindented_line', unindented_line);
 
-            
-
             each(map_line_type_detect_parse, (fn, name, stop) => {
                 const detection = fn(unindented_line);
                 //console.log('detection', detection);
@@ -449,21 +420,6 @@ const extract_client_js = (js_formatting_info) => {
                         block_type = undefined;
                         
                     }
-
-                    // if we are not in a server block, copy it over to the compiled client js result.
-
-                    
-                    
-
-                    
-
-
-
-
-
-
-                    // Check for block ends...
-
                 }
 
                 // or end of block.?

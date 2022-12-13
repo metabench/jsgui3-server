@@ -1,12 +1,9 @@
 var jsgui = require('jsgui3-html');
-
 // This should be running in node.js
-
 var stringify = jsgui.stringify, each = jsgui.each, arrayify = jsgui.arrayify, tof = jsgui.tof;
 var filter_map_by_regex = jsgui.filter_map_by_regex;
 var Class = jsgui.Class, Data_Object = jsgui.Data_Object;
 var fp = jsgui.fp, is_defined = jsgui.is_defined;
-
 var get_a_sig = jsgui.get_a_sig;
 
 // Need to find out what this one requires to put it in its own module.
@@ -35,24 +32,17 @@ class Server_Page_Context extends jsgui.Page_Context {
 		if (spec.server) {
 			this.server = spec.server;
 		}
-
-
 		this.selection_scope_count = 0;
 		// Perhaps things could be more sandboxed, so that controls don't get access to the resource pool by default.
 		//  Maybe only a small number of controls should have access to this.
 		if (spec.pool) {
 			this.pool = spec.pool;
 		}
-		//if (spec.rendering_mode) {
-		//	this.rendering_mode = spec.rendering_mode;
-		//}
 		this.rendering_mode = spec.rendering_mode || 'html5';
 		// The item IDs could be handled here... use the local variable closure here.
 		var map_new_ids = {};
 		// and have the objects registered within the context too.
-
 		var map_objects = {};
-
 		var _get_new_typed_object_id = function(type_name) {
 			if (!is_defined(map_new_ids[type_name])) {
 				map_new_ids[type_name] = 0;

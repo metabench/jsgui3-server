@@ -113,6 +113,10 @@ const Function_Publisher = require("../publishing/http-function-publisher");
 
 // Maybe worth just having a Website object.
 //  Then the Website_Resource can encapsulate that.
+//  Website_Resource may be useful in the future to control a Website as a Resource.
+
+// May be better to integrate the website and webpage publishers more fully into the server system.
+//  Not clear where they fit in right now.
 
 // Better if this wraps the Website object?
 

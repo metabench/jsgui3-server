@@ -39,6 +39,15 @@ obs((next, complete, error) => {
 //  Perhaps HTTP_Webpage_Bundler would be an important class to have here.
 //   Considering how it could be interchangable from the publisher if it's a different class.
 
+// Possibly a Publisher should be called to provide something over HTTP.
+//  So the call is routed to a Webpage object, through the Publisher.
+//  Publisher could maintain a cache.
+//   Maybe the publisher should read the bundle?
+//   Maybe the publisher should do the bundling?
+//    Perhaps there should be a bit more coordination of the bundling process, possibly accessed once needed.
+//     
+
+
 
 
 class HTTP_Webpage_Publisher extends HTTP_Publisher {
@@ -72,9 +81,18 @@ class HTTP_Webpage_Publisher extends HTTP_Publisher {
 
         // Bundling and compiling web content seems like a better thing to get working before serving (or attempting to serve) it.
         // .build?
+        setTimeout(() => {
+            this.raise('ready');
+        }, 0);
 
     }
     handle_http(req, res) {
+
+        // Is the webpage rendered?
+        // Does the webpage require rendering?
+        //   Seems like the main question to ask here.
+
+        
 
 
         // returning an observable would make sense.

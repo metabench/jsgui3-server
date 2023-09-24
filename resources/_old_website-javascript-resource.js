@@ -16,27 +16,6 @@
 // Need to refactor, this code no longer works as first intended, and was slow when it did its full thing.
 //   Can do things much more optimially, maybe with esbuild and hashing and caching.
 
-// List of processes that get done on JS resources:
-//  Parsing
-//  Extracting CSS
-//  Building
-//   Compressing
-//  (Serving) - probably not a 'process' like the others. But maybe could be.
-//   Though 'serve' is indeed one of the things the functions currently here perportedly do.
-//    Many are for some more specific needs / APIs, want to keep the functionalty available but provide and require a few more options.
-//    Using esbuild or even something else for various parts of it. Encapsulating esbuild or babel within an API so they are swappable easily?
-
-// Defaulting to esbuild for some things will help.
-// Breaking the longer pieces of code up into different files and classes and functions, with more flexibility.
-// Do this so that it is very easy to run the server, and also will be able to view the progress of what it does to build,
-//  and hopefully see it all go very quickly. Maybe % complete estimates.
-
-
-
-
-
-
-
 
 
 
@@ -166,6 +145,70 @@ const process_js = require('./process-js');
 const {analyse_js_doc_formatting, extract_client_js} = process_js;
 
 
+var serve_js_file_from_disk_updated_refs = function (filePath, response, callback) {
+	fs2.load_file_as_string(filePath, function (err, data) {
+		if (err) {
+			throw err;
+		} else {
+			//console.log('');
+			//console.log('serve_js_file_from_disk_updated_refs filePath ' + filePath);
+			//console.log('data ' + data);
+			//var servableJs = updateReferencesForServing(data);
+			response.writeHead(200, {
+				'Content-Type': 'text/javascript'
+			});
+			//response.end(servableJs);
+			response.end(data);
+		}
+	});
+}
+
+var check_served_directories_for_requested_file = function (arr_served_paths, split_path_within_js, callback) {
+
+	var fns = [
+
+	]
+	var checkPath = function (path, callback) {
+		// check to see if an existing file matches up with the path that is requested.
+		// so, from that path, we use the split_path_within_js for the rest of the file path.
+		// then we check if such a (JS) file exists.
+	}
+	// fns.push([fs2.load_file_as_string, [source_path_item], function(err, res_loaded) {
+
+	// Not so sure I can use the exists function like this...
+	var reconstitutedPathWithinJs = split_path_within_js.join('/');
+	var firstFoundPath;
+	each(arr_served_paths, function (i, fsPath) {
+		fns.push([function (callback) {
+				var checkingPath = fsPath + '/' + reconstitutedPathWithinJs;
+				fs.exists(checkingPath, function (exists) {
+					//console.log('cb fsPath ' + checkingPath + ' exists ' + exists)
+					if (exists & !firstFoundPath) {
+						firstFoundPath = checkingPath;
+					}
+					callback(null, exists);
+				})
+			},
+			[]
+		]);
+	});
+	call_multi(fns, function (err, res_multi) {
+		if (err) {
+			console.log('err ' + err);
+			throw 'stop';
+		} else {
+			//console.log('res_multi ' + stringify(res_multi));
+			//throw 'stop';
+
+			if (firstFoundPath) {
+				callback(null, firstFoundPath);
+			} else {
+				callback(null, null);
+			}
+		}
+	});
+}
+
 // A way of serving a file so that it includes custom code.
 //  Or have a standard client template that is easy to serve.
 
@@ -221,15 +264,6 @@ class Site_JavaScript extends Resource {
 
 
 	// Will be better as a promise.
-
-	// client_builder processor?
-
-	// Should use / allow for this functionality, but not default to writing it to disk in a set place,
-	//  have that clearer when it's fully set up, then specify whatever shorthands.
-
-
-	// And make this async / promise / observable instead.
-
 
 	'build_client'(callback) {
 
@@ -287,8 +321,6 @@ class Site_JavaScript extends Resource {
 			// no more writes after end
 			// emit "close" (optional)
 		}
-
-
 	}
 	// Will could serve all jsgui code?
 	//  May be better not to allow server-side code to be read on the client.
@@ -863,7 +895,101 @@ class Site_JavaScript extends Resource {
 
 
 
-	
+
+	'process'(req, res) {
+		console.log('Site_JavaScript processing req.url', req.url);
+		var remoteAddress = req.connection.remoteAddress;
+		var custom_paths = this.custom_paths;
+		var rurl = req.url.replace(/\./g, '☺');
+		var custom_response_entry = custom_paths[rurl];
+		var pool = this.pool;
+		if (custom_response_entry) {
+			const ae = req.headers['accept-encoding'];
+			let data_to_serve;
+			let o_head = {
+				'Content-Type': 'text/javascript'
+			}
+			if (ae.includes('gzip')) {
+				o_head['Content-Encoding'] = 'gzip';
+				data_to_serve = custom_response_entry._.gzip;
+			} else {
+				data_to_serve = custom_response_entry._.raw;
+			}
+			res.writeHead(200, o_head);
+			res.end(data_to_serve);
+		} else {
+			//var served_directories = this.served_directories;
+			//console.log('served_directories', served_directories);
+			var url_parts = url.parse(req.url, true);
+			//console.log('url_parts ' + stringify(url_parts));
+			var splitPath = url_parts.path.substr(1).split('/');
+
+			var wildcard_value = req.params.wildcard_value;
+			//console.log('*** wildcard_value', wildcard_value);
+
+			if (wildcard_value == 'web/require.js') {
+
+			} else {
+				var disk_path = path.dirname(require.main.filename) + '/' + 'js/' + wildcard_value;
+				var compress = false;
+
+
+				//console.log('disk_path', disk_path);
+
+				if (compress) {
+					throw 'NYI with Babel';
+
+				} else {
+					// try to load it from the project's js path.
+					//console.log('disk_path', disk_path);
+					var project_js_path = 'js/' + wildcard_value;
+					//console.log('project_js_path', project_js_path);
+
+					fs2.load_file_as_string(disk_path, function (err, str_js) {
+						if (err) {
+							console.log('error loading from project_js_path: ', project_js_path);
+							console.log(err);
+						} else {
+							// Have loaded the js from the project path, we can serve it.
+							console.log('have loaded js');
+							// serve the js.
+
+
+							//res.writeHead(200, {'Content-Type': 'text/javascript'});
+							// Could possibly stream it from disk instead, that would likely be more efficient.
+							console.log('str_js.length', str_js.length);
+
+
+							// use gzip in many cases.
+							// want to support that.
+
+							// a streaming middleware fn could work...?
+
+							zlib.deflate(str_js, function (err, buffer) {
+								console.log('deflated buffer.length', buffer.length);
+
+
+								if (err) throw err;
+								res.writeHead(200, {
+									'Content-Encoding': 'deflate',
+									'Content-Type': 'text/javascript'
+								});
+								res.end(buffer);
+								//res.writeHead(200, {'Content-Type': 'text/javascript'});
+								//response.end(servableJs);
+								//res.end(minified.code);
+							});
+
+
+							//response.end(servableJs);
+							//res.end(str_js);
+							//throw 'stop';
+						}
+					})
+				}
+			}
+		}
+	}
 }
 
 module.exports = Site_JavaScript;

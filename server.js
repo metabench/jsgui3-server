@@ -19,11 +19,24 @@ const lib_path = require('path');
 const Web_Admin_Page_Control = require('./controls/page/admin');
 const Web_Admin_Panel_Control = require('./controls/panel/admin');
 const Website = require('./website/website');
-const HTTP_Website_Publisher = require('./publishing/http-website-publisher');
+const HTTP_Website_Publisher = require('./publishers/http-website-publisher');
 const Webpage = require('./website/webpage');
-const HTTP_Webpage_Publisher = require('./publishing/http-webpage-publisher');
+const HTTP_Webpage_Publisher = require('./publishers/http-webpage-publisher');
 
-class JSGUI_Server extends Evented_Class {
+// A class that contains resources and publishers?
+// Is the server itself a publisher?
+// Is this a Server_Process, whereby a Server could hold multiple processes?
+
+// Think this is / should be a Server. Not sure though.
+// Maybe Single_Process_Server ????
+// Could make for cleaner debugs if we have multiples of them and maybe a Multi_Process_Coordinator_Server ???
+//  Multi_Single_Process_Server_Coordinater_Server ???
+
+
+
+
+
+class JSGUI_Single_Process_Server extends Evented_Class {
 	constructor(spec = {
 		website: true
 	}, __type_name) {
@@ -31,8 +44,18 @@ class JSGUI_Server extends Evented_Class {
 		let disk_path_client_js;
 		if (spec.disk_path_client_js) {
 			disk_path_client_js = spec.disk_path_client_js;
+		} else if (spec.src_path_client_js) {
+			disk_path_client_js = spec.src_path_client_js;
+		} else if (spec.source_path_client_js) {
+			disk_path_client_js = spec.source_path_client_js;
 		};
-		Object.defineProperty(this, 'disk_path_client_js', {get: () => disk_path_client_js, set: (value) => disk_path_client_js = value})
+
+		// or src_path_client_js as well...
+
+		Object.defineProperty(this, 'disk_path_client_js', {get: () => disk_path_client_js, set: (value) => disk_path_client_js = value});
+		Object.defineProperty(this, 'src_path_client_js', {get: () => disk_path_client_js, set: (value) => disk_path_client_js = value});
+		Object.defineProperty(this, 'source_path_client_js', {get: () => disk_path_client_js, set: (value) => disk_path_client_js = value});
+
 		let Ctrl = spec.Ctrl || undefined
 		Object.defineProperty(this, 'Ctrl', {get: () => Ctrl, set: value => Ctrl = value})
 		let name = spec.name || undefined;
@@ -63,6 +86,10 @@ class JSGUI_Server extends Evented_Class {
 		const opts_webpage = {
 			'name': this.name || 'Website'
 		};
+
+		// Seems like a decent mechanism already in here at the moment, but may want to make the API more powerful and flexible.
+
+
 		
 		if (Ctrl) {
 			// could be a web page, not a web site.
@@ -73,16 +100,90 @@ class JSGUI_Server extends Evented_Class {
 
 			// set up a web page with the ctrl, and a web page publisher.
 
+			// But does that Webpage need (automatically or not) to include the necessary (built) JS client file?
+
+
+			// May need to process / get info on the referenced JS first.
+			//  Better to make something like a JS_File_Info_Provider than to do it here.
+			//  Want a really DRY framework and to make it so slower parts can be upgraded as files and swapped as files.
+
+
+
+
+			// Tell the webpage it needs to have a built version of the referenced client JS?
+
+			// The Webpage is an app???
+
+
+			// And give it the src_path_client_js ...?
+			//  Best to be specific with the API, but make it fairly short and simple on the top level.
+
+			// But the webpage needs to have stuff in its head that references the JS.
+			//  But maybe the publisher could insert that.
+
+			// Basically need to put everything in the relevant lower level abstraction and use it there.
+			//  Need to make it very clear what is being done, but concise too.
+			//  Really need to get it simply serving JS clients, extracting CSS from JS too.
+			//   Want to make it easy to make some really interesting demos with very simple idiomatic code
+			//   that is clear how it works both on client and server.
+
+			// Could get more into 'undo button' type transformations, that's something React and Redux can do well,
+			//  would be worth going into UI_Action classes or similar.
+			//  UI_Action_Result too - but def want to keep it really simple on the top level, simple enough on the 2nd level,
+			//  and then it can be moderately to very complex on 3rd level down (though there could be options like choosing which
+			//  js build system to use).
+
+			// Def looks like a fair bit more work to be done to get all the abstractions made and working to run simple apps,
+			//   with really simple and efficient defaults.
+
+			
+
+
+
+
+
+
+
 			const wp_app = new Webpage({content: Ctrl});
+
+
+
+
+			// And maybe by default the webpage publisher should make sure that the relevant JS and CSS is built / packaged and ready to serve.
+			//  May need to give it one or two file paths.
+			//  But if we give it those file path(s) do we need to provide that Ctrl in the first place?
+			//   For the moment a single (or 2) extra properties should be fine.
+			//  a client_src_js_path property should be fine.
+			//  src_path_client_js
+			//  or src_client_js as a string.
+
+
+
 			const opts_wp_publisher = {
 				'webpage': wp_app
 			};
+
+			
+
+			// HTTP_Webpage_Publisher probably needs to build the JavaScript. Possibly other assets too.
 			const wp_publisher = new HTTP_Webpage_Publisher(opts_wp_publisher);
 			console.log('waiting for wp_publisher ready');
+
+			// Server can (maybe just in theory) serve multiple websites at once.
+			//   Worth making that more of a feature.
+			//   For the moment, seems like new website resource inside server makes sense.
+			//    Then does the website resource contain a lot of its own resources, in a pool???
+
+
+
+
 			wp_publisher.on('ready', () => {
 				console.log('wp publisher is ready');
+
+
+
 				const wp_resource = new Website_Resource({
-					'name': 'Webpage Resource',
+					'name': 'Website_Resource - Single Webpage',
 					'webpage': wp_app
 				});
 				resource_pool.add(wp_resource);
@@ -182,12 +283,20 @@ class JSGUI_Server extends Evented_Class {
 		});
 	}
 }
-JSGUI_Server.HTML = require('jsgui3-html');
-JSGUI_Server.Resource = Resource;
-JSGUI_Server.Page_Context = Server_Page_Context;
-JSGUI_Server.Server_Page_Context = Server_Page_Context;
-JSGUI_Server.Website_Resource = Website_Resource;
-module.exports = JSGUI_Server;
+
+
+JSGUI_Single_Process_Server.HTML = require('jsgui3-html');
+
+// Also want Active_HTML_Document
+//  or Active_HTML - needs to be simple to use, putting in the active stuff automatically.
+
+
+
+JSGUI_Single_Process_Server.Resource = Resource;
+JSGUI_Single_Process_Server.Page_Context = Server_Page_Context;
+JSGUI_Single_Process_Server.Server_Page_Context = Server_Page_Context;
+JSGUI_Single_Process_Server.Website_Resource = Website_Resource;
+module.exports = JSGUI_Single_Process_Server;
 if (require.main === module) {
 	const args = process.argv.slice(2);
 	let port = 80;
@@ -197,7 +306,7 @@ if (require.main === module) {
 			port = i;
 		}
 	}
-	const server = new JSGUI_Server({
+	const server = new JSGUI_Single_Process_Server({
 		name: 'jsgui3 server (command line)'
 	});
 	const current = () => {
@@ -211,7 +320,7 @@ if (require.main === module) {
 
 const summary = {
     "classes": [
-        "JSGUI_Server",
+        "JSGUI_Single_Process_Server",
         "Server_Resource_Pool",
         "Router",
         "Website_Resource",
@@ -223,7 +332,7 @@ const summary = {
         "Webpage"
     ],
     "methods": {
-        "JSGUI_Server": [
+        "JSGUI_Single_Process_Server": [
             "constructor",
             "start",
             "stop"

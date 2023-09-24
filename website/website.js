@@ -3,6 +3,14 @@ const {tof, HTML_Document} = jsgui;
 
 const oext = require('obext');
 
+// This is not really doing that much here.
+//  As its own module it could better be extended / used as its own platform.
+//  Could be the constructor for a whole website. Could then be worked on / modified in the abstract before being served.
+
+const Website = require('jsgui3-website');
+// Really basic and flexible Website object for the moment.
+
+
 // Should maybe become its own module.
 
 // jsgui3-website and jsgui3-webpage
@@ -45,7 +53,7 @@ const {Collection} = jsgui;
 
 // Not sure this even needs routes / router. Does not need to be optimised for serving at this stage.
 
-class Website {
+class Obselete_Style_Website {
     constructor(spec = {}) {
         // Variety of routes get served with variety of different formats and options.
 

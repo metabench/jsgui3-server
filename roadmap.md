@@ -1,6 +1,12 @@
 To fix:
 CSS bundled from the JS.
 
+Generally tidy it up.
+Be clear about the responsibilities of the different parts of it.
+Make a documentation, demo and marketing/promotion/awareness server app within this repo (a simple one at least)
+  But just specific to jsgui3-server, could be used in a larger webapp for jsgu3 doc, demo, promo
+
+
 
 Make it work as a stand-alone application.
   It's already quite a large codebase. Make use of existing code and expand somewhat further.

@@ -1,3 +1,12 @@
+// Basically need to split things up into isolated and specific encapsulated pieces of functionality.
+
+
+// Just need to make the appropriate class names and structures....
+
+// And CSS from JS extraction.
+// Maybe even JS from JS.
+
+
 const Bundler = require('./bundler');
 
 const JS_Bundler = require('./js-bundler');
@@ -10,7 +19,7 @@ const {obs, prom_or_cb} = require('fnl');
 const fnlfs = require('fnlfs');
 const {tof, HTML_Document, Client_HTML_Document, Control} = require('jsgui3-html');
 const util = require('util');
-const Server_Page_Context = require('./../page-context');
+const Server_Page_Context = require('../../../page-context');
 // Will put the JS together. Maybe images?
 //  Get everything ready to serve.
 const browserify = require('browserify');
@@ -19,6 +28,14 @@ const stream_to_array = require('stream-to-array');
 
 const {bundle_js} = JS_Bundler;
 // Observable to load the basic CSS, or return it.
+
+
+// This may / will be another part of it.
+//   Or a specific analysis / css extraction part of the build.
+
+
+
+
 
 const get_basic_css_content_obj = () => {
     return obs((next, complete, error) => {
@@ -51,7 +68,57 @@ const get_basic_css_content_obj = () => {
 }
 
 
+// /bundlers/webpage/babel-and-browserify
+
+
+// Webpage_Bundler_Using_Babel_And_Browserify
+// Webpage_Bundler_Using_ESBuild
+
+
+// Multiple steps...
+//   Initial step of building to 1 js file, and also extracting other content from the JS, such as CSS.
+//   Possibly want to remove that CSS from the JS?
+//     Possibly want it in the CSS file rather than the JS.
+
+
+
+// Interpret / compile (from) JS?
+
+
+// Split JS to JS and CSS?
+//   And do that with the built (initially built) JS....
+
+
+
+// Extract bundle pieces from... js file(s).
+
+
+
+// Resource_Transformer???
+
+// JS_To_JS????
+
+
+
+
+
+
+
+
+
+
+
+
 const bundle_web_page = (webpage, options = {}) => {
+
+
+    // But we need specific bundlers that use specific tools internally.
+
+
+
+    // Nice here as an obs fn.
+
+
     const {content} = webpage;
     let {disk_path_client_js} = options;
 
@@ -316,5 +383,8 @@ class Webpage_Bundler extends Bundler {
 }
 
 Webpage_Bundler.bundle_web_page = bundle_web_page;
+Webpage_Bundler.prototype.bundle_web_page = bundle_web_page;
+Webpage_Bundler.prototype.bundle = bundle_web_page;
+
 
 module.exports = Webpage_Bundler;

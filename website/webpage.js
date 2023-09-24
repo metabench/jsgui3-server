@@ -1,3 +1,10 @@
+// Late 2023 - have now made other Website and Webpage packages.
+//  Seems like they are not only for the Server, but can be defined in the abstract before being served.
+
+
+
+
+
 const jsgui = require('jsgui3-html');
 
 const oext = require('obext');
@@ -6,8 +13,24 @@ const {obs} = require('fnl');
 
 // Website is a Publisher?
 
+const Webpage = require('jsgui3-webpage');
+
 // Won't actually handle the HTTP requests.
 const {Collection} = jsgui;
+
+
+// But perhaps Active_Webpage will help somewhere...?
+
+// Server_Instance_Of_Active_Webpage
+//   Can get complex and explicit with the structures and the names - moving the complexity away from single files.
+
+
+
+
+
+
+
+
 // Will link to / use the HTTP request handlers?
 
 // Not sure this will be used...
@@ -21,7 +44,19 @@ const {Collection} = jsgui;
 //  Though could / should an HTML document control be used here?
 //    Probably not, because it's a specific type of web page. By far the most common one I think though.
 //    And the Webpage (helpfully) connects the path with the document.
-class Webpage {
+
+
+class Obselete_Style_Webpage {
+
+    // The object itself... not so essential right now.
+
+    // Maybe will use jsgui3-website instead.
+    // Could basically be a JS Obj (class) that assigns itself from its spec.
+    //  
+
+
+
+
     constructor(spec = {}) {
         // Variety of routes get served with variety of different formats and options.
         // Maybe will connect handlers with functionality.

@@ -1,4 +1,6 @@
-const { Publisher } = require('jsgui3-html');
+//const { Publisher } = require('jsgui3-html');
+
+const {Evented_Class} = require('lang-tools');
 
 // Could have this as the general purpose HTTP publishing component / system / part of the system.
 
@@ -8,7 +10,7 @@ const { Publisher } = require('jsgui3-html');
 
 
 
-class HTTP_Publisher extends Publisher {
+class HTTP_Publisher extends Evented_Class {
     constructor(spec) {
         super(spec)
 

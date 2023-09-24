@@ -3,8 +3,8 @@ const Bundle = require('./bundle');
 const {obs, prom_or_cb} = require('fnl');
 const {tof, each} = require('jsgui3-html');
 const fnlfs = require('fnlfs');
-const browserify = require('browserify');
-const babel = require('@babel/core');
+//const browserify = require('browserify');
+//const babel = require('@babel/core');
 const stream_to_array = require('stream-to-array');
 const util = require('util');
 const Stream = require('stream');
@@ -12,7 +12,7 @@ const Stream = require('stream');
 const fs = require('fs');
 const path = require('path');
 
-const JS_AST_Node = require('./../resources/jsbuilder/JS_AST/JS_AST_Node');
+const JS_AST_Node = require('../../jsbuilder/JS_AST/JS_AST_Node');
 
 // Will put the JS together. Maybe images?
 //  Get everything ready to serve.

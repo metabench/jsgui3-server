@@ -16,20 +16,14 @@
 // Need to refactor, this code no longer works as first intended, and was slow when it did its full thing.
 //   Can do things much more optimially, maybe with esbuild and hashing and caching.
 
-// List of processes that get done on JS resources:
-//  Parsing
-//  Extracting CSS
-//  Building
-//   Compressing
-//  (Serving) - probably not a 'process' like the others. But maybe could be.
-//   Though 'serve' is indeed one of the things the functions currently here perportedly do.
-//    Many are for some more specific needs / APIs, want to keep the functionalty available but provide and require a few more options.
-//    Using esbuild or even something else for various parts of it. Encapsulating esbuild or babel within an API so they are swappable easily?
+// The current codebase is quite complicated and specific in terms of API and using babel.
+// Want to make it a more generalised but simpler to use API.
+// Simple and efficient defaults, but somewhat flexible and complex settings underneith.
 
-// Defaulting to esbuild for some things will help.
-// Breaking the longer pieces of code up into different files and classes and functions, with more flexibility.
-// Do this so that it is very easy to run the server, and also will be able to view the progress of what it does to build,
-//  and hopefully see it all go very quickly. Maybe % complete estimates.
+// But before too long want to approach it from the other end of getting it doing some specific esbuild with quite specific
+// settings, and having that code served to the client with minimal need to specify things in the (demo) app itself.
+
+// Need to break down the complex processes so they can be followed betweem files, and then files can be swapped.
 
 
 
@@ -37,7 +31,51 @@
 
 
 
+const path = require('path'),
+	fs = require('fs'),
+	url = require('url'),
+	jsgui = require('jsgui3-html'),
+	os = require('os'),
+	http = require('http'),
+	libUrl = require('url'),
+	Resource = jsgui.Resource,
+	fs2 = require('../fs2'),
+	//brotli = require('iltorb').compress,
+	//UglifyJS = require('uglify-js'),
+	zlib = require('zlib');
 
+//fs.createReadStream(filename).pipe(brotli()).pipe(res);
+
+const fnl = require('fnl');
+const prom_or_cb = fnl.prom_or_cb;
+const fnlfs = require('fnlfs');
+
+const each = jsgui.each,
+	arrayify = jsgui.arrayify,
+	tof = jsgui.tof;
+const filter_map_by_regex = jsgui.filter_map_by_regex;
+const Class = jsgui.Class,
+	Data_Object = jsgui.Data_Object,
+	Enhanced_Data_Object = jsgui.Enhanced_Data_Object;
+	const fp = jsgui.fp,
+	is_defined = jsgui.is_defined;
+const Collection = jsgui.Collection;
+const call_multi = jsgui.call_multi,
+	get_truth_map_from_arr = jsgui.get_truth_map_from_arr;
+
+
+//var zlib = require('zlib');
+const util = require('util');
+
+const browserify = require('browserify');
+const babel = require('@babel/core');
+
+// Extends AutoStart_Resource?
+const stream_to_array = require('stream-to-array');
+const Resource_Processor = require('./website-resource-processor');
+
+const process_js = require('./process-js');
+const {analyse_js_doc_formatting, extract_client_js} = process_js;
 
 
 
@@ -114,58 +152,6 @@
 
 
 
-
-
-
-
-
-const path = require('path'),
-	fs = require('fs'),
-	url = require('url'),
-	jsgui = require('jsgui3-html'),
-	os = require('os'),
-	http = require('http'),
-	libUrl = require('url'),
-	Resource = jsgui.Resource,
-	fs2 = require('../fs2'),
-	//brotli = require('iltorb').compress,
-	//UglifyJS = require('uglify-js'),
-	zlib = require('zlib');
-
-//fs.createReadStream(filename).pipe(brotli()).pipe(res);
-
-const fnl = require('fnl');
-const prom_or_cb = fnl.prom_or_cb;
-const fnlfs = require('fnlfs');
-
-const each = jsgui.each,
-	arrayify = jsgui.arrayify,
-	tof = jsgui.tof;
-const filter_map_by_regex = jsgui.filter_map_by_regex;
-const Class = jsgui.Class,
-	Data_Object = jsgui.Data_Object,
-	Enhanced_Data_Object = jsgui.Enhanced_Data_Object;
-	const fp = jsgui.fp,
-	is_defined = jsgui.is_defined;
-const Collection = jsgui.Collection;
-const call_multi = jsgui.call_multi,
-	get_truth_map_from_arr = jsgui.get_truth_map_from_arr;
-
-
-//var zlib = require('zlib');
-const util = require('util');
-
-const browserify = require('browserify');
-const babel = require('@babel/core');
-
-// Extends AutoStart_Resource?
-const stream_to_array = require('stream-to-array');
-
-
-const process_js = require('./process-js');
-const {analyse_js_doc_formatting, extract_client_js} = process_js;
-
-
 // A way of serving a file so that it includes custom code.
 //  Or have a standard client template that is easy to serve.
 
@@ -176,7 +162,7 @@ const {analyse_js_doc_formatting, extract_client_js} = process_js;
 // Possibly this should have its own routing tree to connect paths with js files?
 //  Need to set up custom paths.
 
-class Site_JavaScript extends Resource {
+class Site_JavaScript_Resource_Processor extends Resource_Processor {
 	//'fields': {
 	//	'custom_paths': 'data_object'
 	//},
@@ -190,12 +176,29 @@ class Site_JavaScript extends Resource {
 		//this.meta.set('served_directories', new Collection({'index_by': 'name'}));
 
 		// But this could be held (only) in the router.
+		// Not so sure this will serve directories (or at least not the base JS res proc)
+
+		/*
+
 		this.served_directories = new Collection({
 			'index_by': 'name'
 		});
+
+		*/
+
 	}
-	'start'(callback) {
-		//console.log('Site_JavaScript start');
+	async 'start'() {
+		console.log('Site_JavaScript_Resource_Processor start');
+
+		// Not necessarily. This is just the base class.
+		//  Could make more specific processors, such as builders / packagers.
+		//  Packager maybe compresses the file with brotli too, puts it in an object that says that (maybe has http headers ready).
+
+
+
+
+		/*
+
 		const build_on_start = this.build_on_start;
 		if (build_on_start) {
 			this.build_client(function (err, res_build) {
@@ -208,6 +211,8 @@ class Site_JavaScript extends Resource {
 		} else {
 			callback(null, true);
 		}
+
+		*/
 		// Let's have it build the client-side code.
 		//  Need the options to ignore various files, as well as to include the source maps in the output.
 	}
@@ -222,15 +227,17 @@ class Site_JavaScript extends Resource {
 
 	// Will be better as a promise.
 
-	// client_builder processor?
-
-	// Should use / allow for this functionality, but not default to writing it to disk in a set place,
-	//  have that clearer when it's fully set up, then specify whatever shorthands.
+	// resource-builder perhaps extending resource-processor.
+	//  could have a few build process specific settings / assumptions / uses.
 
 
-	// And make this async / promise / observable instead.
 
 
+
+	// website-javascript-resource-client-builder
+
+
+	/*
 	'build_client'(callback) {
 
 		// Configurable building mechanisms....
@@ -287,9 +294,8 @@ class Site_JavaScript extends Resource {
 			// no more writes after end
 			// emit "close" (optional)
 		}
-
-
 	}
+	*/
 	// Will could serve all jsgui code?
 	//  May be better not to allow server-side code to be read on the client.
 	//  Could have specific directories within jsgui that get served to the client.
@@ -297,7 +303,9 @@ class Site_JavaScript extends Resource {
 
 	// May be best thinking of bundling up one or more objects / files ready for the server to serve.
 
+	// Will / should be in the Publisher.
 
+	/*
 	'serve_directory'(path) {
 		// Serves that directory, as any files given in that directory can be served from /js
 
@@ -313,6 +321,19 @@ class Site_JavaScript extends Resource {
 		//console.log('path ' + path);
 		//throw 'stop';
 	}
+
+	*/
+
+	// May need to be clearer about what packages are in terms of resources - maybe they are a typed of processed resource,
+	// and ready / more ready to be served. Possibly could be serialised as is for optimisation.
+
+
+	// Site_JavaScript_Resource_Processor will no itself serve JS.
+	//  In fact it maybe won't itself do very much at all with its own code, but serve as a base class for more specific
+	//  JS resource processors.
+
+
+	/*
 	'serve_package'(url, js_package, options = {}, callback) {
 		//console.log('serve_package', url, js_package);
 		//console.log('js_package', js_package);
@@ -320,12 +341,28 @@ class Site_JavaScript extends Resource {
 		//let tjp = typeof js_package;
 		return this.serve_package_from_path(url, require.resolve(js_package), options, callback);
 	}
+	*/
 
 	// Possibly some functionality would be better within the js bundler.
 
 
+	// Create the package?
+	// Would need Package, JS_Package classes, JS_Packer???
+	//  Want more options for how things get packaged / built.
+	//  Package and build seem very similar in intent and function.
+	//  Package here includes some kind of transformation (like to es5 syntax).
 
-	'package'(js_file_path, options = {}, callback) {
+
+
+
+
+
+	// Probably want classes that specifically use esbuild or babel.
+
+	// And of course the TypeScript compiler.
+
+
+	'__package'(js_file_path, options = {}, callback) {
 
 		let a = arguments;
 		if (typeof a[2] === 'function') {
@@ -450,7 +487,7 @@ class Site_JavaScript extends Resource {
 				resolve(buf_js);
 			})();
 		}, callback);
-	}
+	} // not in use
 
 	// This is a lot about creating some 'package' that includes built JS and CSS
 
@@ -486,8 +523,10 @@ class Site_JavaScript extends Resource {
 
 
 
+	// Complex - but the 'path' would already be a part of the Resource.
 
-	'serve_package_from_path'(url, js_file_path, options = {}, callback) {
+	// Not in use...
+	'__serve_package_from_path'(url, js_file_path, options = {}, callback) {
 		//console.log('serve_package_from_path', url, js_file_path);
 		// js_mode option may need to be used.
 
@@ -822,7 +861,7 @@ class Site_JavaScript extends Resource {
 				}
 			})();
 		}, callback);
-	}
+	} // Not in use
 
 	/*
 	'set_custom_path'(url, file_path) {
@@ -862,8 +901,9 @@ class Site_JavaScript extends Resource {
 	//  
 
 
+	// No, the publisher will do this.
 
 	
 }
 
-module.exports = Site_JavaScript;
+module.exports = Site_JavaScript_Resource_Processor;

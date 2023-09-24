@@ -94,9 +94,9 @@ const Site_Static_HTML = require("./website-static-html-resource");
 //var DB_Web_Resource = require('../../web/db-resource-postgres');
 //var database_resource_factory = require('../../db/resource/factory');
 
-const Resource_Publisher = require("../publishing/http-resource-publisher");
-const Observable_Publisher = require("../publishing/http-observable-publisher");
-const Function_Publisher = require("../publishing/http-function-publisher");
+const Resource_Publisher = require("../publishers/http-resource-publisher");
+const Observable_Publisher = require("../publishers/http-observable-publisher");
+const Function_Publisher = require("../publishers/http-function-publisher");
 //const Data_Resource = require("./data-resource");
 
 // Proxy_Server_Resource possibly.
@@ -128,6 +128,8 @@ const Function_Publisher = require("../publishing/http-function-publisher");
 // Maybe this won't be necessary in various cases.
 
 // For the moment won't make this website resource do all that much.
+//  holds a 'website' from the spec.
+
 
 class Website_Resource extends Resource {
   constructor(spec = {}) {

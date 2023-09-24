@@ -1,3 +1,11 @@
+// Want to get it (back) working as a server easily serving simple controls and pages and sites.
+// Need to tame some of the more complex layers inside it to get it to easily serve the app.
+// Then should work on making / improving some of the specific controls.
+// Make the code idiomatic and DRY. The more complex lower and middle level abstractions will help with that.
+// Use polymorphism and run-time checks to allow for some more flexibility.
+
+
+
 
 
 // A publisher handles HTTP requests.
@@ -8,6 +16,14 @@
 
 const HTTP_Publisher = require('./http-publisher');
 const {obs} = require('fnl');
+
+// May want / need to more carefully and specifically define APIs.
+// It's nice to have classes for specific things like this, but need to make them do what is needed.
+//  Maybe get a 'Website' object or control ready to be served.
+//  
+
+
+
 
 // Named observables?
 /*
@@ -48,12 +64,23 @@ obs((next, complete, error) => {
 //     
 
 
+// Should include or use various other publishers, such as html or js?
 
 
 class HTTP_Webpage_Publisher extends HTTP_Publisher {
 
     // Website generally serves JS from a single address.
     //  Webpage could have its specific JS.
+    //  This component may need to handle the JS building.
+    //  webpage-bundler within the 'bundler' directory.
+
+    // But not sure if babel or esbuild is better here.
+    //   Babel has obviously improved since I had to switch to esbuild years ago.
+    //   Being able to use either would help.
+
+
+
+
 
     constructor(spec = {}) {
         super(spec)

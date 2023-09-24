@@ -6,6 +6,17 @@
 
 
 
+// Not so sure it's best as a collection...?
+//   Maybe it could work though.
+//   Simple collection code could be fine.
+
+
+
+
+// bundle.add(obj that is part of the bundle)
+
+
+
 
 
 const {Collection} = require('jsgui3-html');

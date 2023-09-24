@@ -7,8 +7,13 @@ const {each, Router, tof} = require('jsgui3-html');
 const HTTP_Publisher = require('./http-publisher');
 const {obs} = require('fnl');
 
-const Webpage_Bundler = require('./../bundler/webpage-bundler');
-const Bundle = require('./../bundler/bundle');
+// The Webpage bundler should be able to come up with the compiled JS and CSS, maybe even a favicon.
+
+
+const Website = require('jsgui3-website');
+
+const Webpage_Bundler = require('../resources/processors/bundlers/webpage-bundler');
+const Bundle = require('../resources/processors/bundlers/bundle');
 
 // Now it's the very basics of a website publisher. Quite flexible but could do with more.
 //  Better integration with bundler
@@ -28,21 +33,92 @@ const Bundle = require('./../bundler/bundle');
 // This seems more like the server router these days
 //  The main server router seems to pass everything to this - maybe that will change.
 
+// Maybe give it some kind of Website_Server????
+
+// Have the Website_Server use the Website_Publisher????
+
+// Need to somewhat separate concerns.
+
+// Publisher here could be simple in terms of bundling, and then giving the paths to the router.
+//   And could have really simple code implementation of doing just that.
+
+// This basically can be simple....
+//   But make the classes' structures more complicated where necessary to accommodate.
+
+
+// Could be just a few lines of logic probably, at least the simplest core implementation.
+
+// Think the server or the website already has a router, so have the website resource's router do the routing.
+//   Maybe upgrade the routers to handle premade (compressed) responses.
+
+// Maybe better to bundle and publish resources.
+// resource-processors in its own dir?
+//   as in it's not actually part of resources?
+
+
+
+
+// Need to basically make this do very little.
+
+// Publish (website, server_router)
+
+
+// Or publish it only under some URLs / domains....?
+
+
+
+
+
+
+
+
+
+
+
 class HTTP_Website_Publisher extends HTTP_Publisher {
     // Website generally serves JS from a single address.
     //  Webpage could have its specific JS.
+
+
+    // Maybe the Publisher should not have its own router?
+    //  But it provides items with paths from bundles it gets made to the website server's router.
+
+    // Def looks like its worth rearchitecturing this to provide more consistency on the lower level, and a 'just works' simplicity
+    //   on the higher level.
+
+    // Plus some base classes that themselves don't do all that much, and then subclasses of them that do things in specific
+    //  ways, so that implementations of specific parts are interchangable.
+
+
+
+
 
     constructor(spec = {}) {
         super(spec)
         // A website property.
 
         let website;
-        if (spec.website) website = spec.website;
+        if (spec.website) {
+            if (spec.website instanceof Website) {
+                website = spec.website;
+            } else {
+                console.trace();
+                throw 'Expected spec.website to be of type "jsgui3-website" class instance';
+            }
+        } 
         Object.defineProperty(this, 'website', {
             get() {
                 return website;
             }
         });
+
+        // The publisher should not have a router (for the moment???)
+        //   It should however determine routes, and provide them to the router.
+
+        // Creating a Published_Website object perhaps.
+
+
+        /*
 
         let router = new Router();
         Object.defineProperty(this, 'router', {
@@ -51,6 +127,14 @@ class HTTP_Website_Publisher extends HTTP_Publisher {
             }
         });
 
+        */
+
+
+
+        // Disk path client js being a property of the website itself?
+        //   Critical overall functionality, dont want to remove it from here for the moment. See if not critical here.
+
+
         let disk_path_client_js;
         if (spec.disk_path_client_js) disk_path_client_js = spec.disk_path_client_js;
         Object.defineProperty(this, 'disk_path_client_js', {
@@ -58,18 +142,107 @@ class HTTP_Website_Publisher extends HTTP_Publisher {
                 return disk_path_client_js;
             }
         });
+
+
+
         // And this could be an observable too.
         // May get admin pages working on a slightly lower level.
         //  Makes sense as they are for administering other pages (mostly).
-        console.log('http-website-publisher disk_path_client_js', disk_path_client_js);
+
+
+        //console.log('http-website-publisher disk_path_client_js', disk_path_client_js);
+
+
+
         //throw 'stop';
         // This could be an observable that acts sequentially and async.
 
-        const setup_website_publishing = (website) => {
+        // See about moving specific complexity elsewhere....
+        //  See if what the website publisher does can be summed up expressively in JS.
+
+        // Uses a builder / packager on the website.
+        // Keeps track of a little bit of data on what's been published (could have an observable status event)
+        // Tells the server to publish it (on specified URL / Route - specified where? Defaults? Interchangable systems of default URLS paths?)
+
+
+        // But make this async (obs as well?)
+        // Have a sequence of events that takes place.
+        // Use the correct specific classes to do the correct specific things.
+        //   Then make sure the implementations are correct.
+
+
+
+
+
+
+
+
+
+
+        const __old__setup_website_publishing = (website) => {
+
+
+            // Split up the bundling and response serving responsibilities.
+            //  Should put it through the router (more as normal) when published.
+            //   Maybe I'll need another 100 classes for this to work, maybe not, but should make everything explicit, but also concise,
+            //   and then work on abbreviations and (unambiguous) shorthands.
+            // Or even settings for what the (default) shorthands do.
+
+
+            // Bundle it - Get some package(bundle) of pages.
+
+            // Website_Bundle perhaps...?
+            //  All the static assets put together.
+            //    Pages that don't have dynamic content are pre-rendered and compressed.
+
+
+
+            
+
+            // 1)   Bundle
+            // 2)   Publish that bundle
+            // 2a)    Provide the router with all the necessary URLs and (compressed) pregenerated responses from that bundle.
+
+
+            // Website_Bundle_Publisher perhaps....?
+
+            // Def seems worth it to refactor it into still more complicated classes, but to aim for really simple and concise code within
+            //  those classes, at least when it comes to a simple and intuitive API that represents what is going on.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
             //console.log('website', website);
             //console.log('website.pages', website.pages);
             //console.log('website.pages.length()', website.pages.length());
             //throw 'stop';
+
+            // This is currently really inflexible for a website with multiple pages.
+            //  Pages could be given names.
+            //  Don't want to be too prescriptive here, but do want to get this bundling and working.
+
+            // Do want to get it right in theory and in structure for a variety of possibilities.
+
+            // Should pay more attention to setting up the headers on the responses.
+
+
+
+
+
+
 
             // should the website have a 'main' or 'front' or 'first' page, with it having its HTML rendered?
             return obs((next, complete, error) => {
@@ -133,9 +306,6 @@ class HTTP_Website_Publisher extends HTTP_Publisher {
 
                                 //console.trace();
                                 //throw 'stop';
-
-
-
                                 complete(obs_bundling_res);
                             } else {
 
@@ -283,12 +453,63 @@ class HTTP_Website_Publisher extends HTTP_Publisher {
             
             //throw 'NYI';
         }
+
+
         if (website) {
+
+
+            console.trace();
+
+            throw 'NYI - HTTP_Website_Publisher needs to publish specified website';
+
+
+            // Website_Bundle class would help.
+
+            // jsgui3-website-bundle.
+            //  Could make a separate module for it, give it a very simple API.
+            //    Probably would only want to bundle websites on the server though.
+
+
+            
+
+
+
+
+
+
+            // Prepare website for publishing
+            // Prepare being building static resources, making a list of the static routes / page content to serve.
+            //   Static_Route_Content clases somewhere too.
+
+
+            // Use many different class names to help keep track of what the objects do, and allow for flexibility.
+
+
+
+            // Then the type of the website....
+            // Do make use of runtime polymorphism and type checking.
+
+
+
+
+
+
+
+
+
+            /*
+
             const obs_setup = setup_website_publishing(website);
+
+
             obs_setup.on('complete', res_complete => {
                 console.log('setup complete');
                 this.raise('ready');
+
+
             })
+
+            */
         } else {
             this.raise('ready');
         }
@@ -310,9 +531,20 @@ class HTTP_Website_Publisher extends HTTP_Publisher {
         // .build?
 
     }
+
+
     handle_http(req, res) {
+        // Because it's already been set up in the router! It should have been.
+        return this.router.process(req, res);
+
         // Called from a different context? Doubt we want that.
         // Now called strangely, without context.
+
+
+        // The router does it all...???
+        
+
+        /*
 
         const {website, router} = this;
 
@@ -336,6 +568,11 @@ class HTTP_Website_Publisher extends HTTP_Publisher {
         //console.log('this', this);
         //console.trace();
         router.process(req, res);
+
+        */
+
+
+
         // can then get the port from after the : in the host.
         //router.set_route(url,)
 

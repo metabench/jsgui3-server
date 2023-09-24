@@ -5,7 +5,12 @@
     Could have browserify here too?
     Idea being to make the js resource code a lot clearer and more concise.
 
+
+    2023 - Will be best to rename / refactor this to be much clearer about what processing it is doing.
+
 */
+
+
 
 const {each} = require('lang-mini');
 // Strings of js?

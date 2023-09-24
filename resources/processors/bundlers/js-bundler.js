@@ -1,10 +1,26 @@
+// Bundler could be moved to with resource / resource processor / publisher.
+// Maybe a bunder is a type of resource publisher or should be used by it.
+
+
+
+
+
 const Bundler = require('./bundler');
 const Bundle = require('./bundle');
 const {obs, prom_or_cb} = require('fnl');
 const {tof} = require('jsgui3-html');
 const fnlfs = require('fnlfs');
+
+// May want a more base JS_Bundler class, and then subclasses will use specific modules like Babel or ESBuild to bundle.
+//  That way can go for nice defaults and provide flexibility too. Plus interchangability of some inner components, eg if someone
+//
+
+
+
 const browserify = require('browserify');
 const babel = require('@babel/core');
+
+
 const stream_to_array = require('stream-to-array');
 const util = require('util');
 const Stream = require('stream');
@@ -25,6 +41,18 @@ const Stream = require('stream');
 
 // jsgui3-jsbuilder could be a separate project too.
 // or jsgui3-js-builder even.
+
+
+
+
+// A JS Bundler or JS Packager class will probably be best.
+
+// This seems more like a babel specific JS Bundler.
+// Or even compiler???
+// Source_Compiler????
+
+// Giving the classes simple and intuitive APIs, allowing for them to be nicely interchangable.
+
 
 
 

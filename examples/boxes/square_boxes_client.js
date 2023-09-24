@@ -41,7 +41,7 @@ Square_Box.css = `
 // Relies on extracting CSS from JS files.
 
 class Demo_UI extends Control {
-    constructor(spec) {
+    constructor(spec = {}) {
         spec.__type_name = spec.__type_name || 'demo_ui';
         super(spec);
         const {context} = this;

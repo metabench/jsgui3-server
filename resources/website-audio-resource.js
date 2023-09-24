@@ -1,4 +1,7 @@
 
+// Need to maintain the various concepts applying here.
+//  Get them working or throwing errors / set to NYI if they are not so simple to fix / implement.
+
 /*
 if (typeof define !== 'function') {
     var define = require('amdefine')(module);

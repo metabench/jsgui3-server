@@ -7,6 +7,21 @@
 // Maybe even JS from JS.
 
 
+// Late 2023 - Looks best to retire this one, make it really flexible in terms of what it does internally, with (many?) more classes doing
+//   specific things. It looks like ESBuild is the fastest option, may need to mix that with some very specific pieces of functionality
+//   for things like splitting / extracting CSS.
+
+// Will identify the various parts of the tasks involved in bundling (and then serving) assets on the web.
+//   Will make classes that are named 1st in terms of that they do, but then there will be directories with different implementations
+//   of that functionality.
+
+// May well be worth having this link to (require and export) an improved and specific version of the Webpage_Bundler class.
+
+
+
+
+
+
 const Bundler = require('./bundler');
 
 const JS_Bundler = require('./js-bundler');

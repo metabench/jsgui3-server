@@ -1,3 +1,5 @@
+// Or will use some different 'Bundler' classes for the moment.
+// Bundlers will extract CSS from JS too.
 
 // Will make use of features already in jsgui to handle / do compilation.
 

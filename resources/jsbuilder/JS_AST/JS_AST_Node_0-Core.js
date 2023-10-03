@@ -125,6 +125,32 @@ class JS_AST_Node_Core {
             configurable: false
         });
 
+
+        this.remove = () => {
+            const {parent_node} = this;
+            if (parent_node) {
+                const i = parent_node.child_nodes.indexOf(this);
+                if (typeof i === 'number') {
+                    parent_node.child_nodes.splice(i, 1);
+                }
+            }
+        }
+
+
+        /*
+            // Remove node - tell the parent to remove that node from its childnodes.
+
+            function removeItemOnce(arr, value) {
+                var index = arr.indexOf(value);
+                if (index > -1) {
+                    arr.splice(index, 1);
+                }
+                return arr;
+            }
+
+        */
+
+
         Object.defineProperty(this, 'root_node', {
             get() { 
                 return root_node;

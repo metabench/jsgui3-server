@@ -17,9 +17,9 @@ var jsgui = require('jsgui3-html');
 var Start_Stop_Toggle_Button = jsgui.Start_Stop_Toggle_Button;
 var Color_Palette = jsgui.Color_Palette;
 
-var Server = require('../../server');
+var Server = require('../../../server');
 var port = 8000;
-var Server_Page_Context = require('../../page-context');
+var Server_Page_Context = require('../../../page-context');
 
 var server = new Server({
 	'routes': {

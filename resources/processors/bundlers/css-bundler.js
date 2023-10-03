@@ -1,5 +1,5 @@
 const Bundler = require('./bundler');
-const Bundle = require('./bundle');
+//const Bundle = require('./bundle');
 const {obs, prom_or_cb} = require('fnl');
 const {tof, each} = require('jsgui3-html');
 const fnlfs = require('fnlfs');
@@ -59,6 +59,12 @@ const bundle_css_from_js_str = (js_str, options = {}) => {
     // Moving towards using observables as a matter of course for longer-running functions.
 
     // Seems like this makes a settimeout as well???
+
+
+    // OK, but see about also getting the JS without the CSS parts.
+
+
+
     return obs((next, complete, error) => {
 
         //console.log('js_str.length', js_str.length);
@@ -69,7 +75,17 @@ const bundle_css_from_js_str = (js_str, options = {}) => {
             source: js_str
         };
 
+        // This part is kind-of slow.
+
+        console.log('pre create js ast node');
         const js_ast_node = JS_AST_Node.from_spec(spec);
+        console.log('post create js ast node');
+
+        // Maybe a faster / different JS parser.
+        //  Or do it using regex / specialised algorithm of some sort.
+
+
+
 
         //console.log('!!js_ast_node', !!js_ast_node);
 
@@ -91,7 +107,14 @@ const bundle_css_from_js_str = (js_str, options = {}) => {
         // Just assigning a template literal to .css?
         const css_ae_nodes = [];
 
+        // How about removing those parts from the JS AST?
+
+
+
         js_ast_node.deep_iterate(node => {
+
+            // Maybe this part is slow? Don't think so though.
+
             //console.log('node', node);
             //console.log('Object.keys(node)', Object.keys(node));
             //console.log('node.type_signature', node.type_signature);

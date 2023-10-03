@@ -9,6 +9,9 @@ const {obs} = require('fnl');
 
 // The Webpage bundler should be able to come up with the compiled JS and CSS, maybe even a favicon.
 
+// HTTP_Webpageorsite_Publisher
+
+
 
 const Website = require('jsgui3-website');
 
@@ -70,12 +73,19 @@ const Bundle = require('../resources/processors/bundlers/bundle');
 
 
 
+// Probably is worth by default having it use the HTTP_Website_Publisher with really simple server setups.
+
+
+// Extend HTTP_Web_Item_Publisher   HTTP_Web_Page_Or_Site_Publisher  (synonym) ????
+
+// Share functionality between webpage and website where useful.
+
+
+const HTTP_Webpageorsite_Publisher = require('./http-webpageorsite-publisher');
 
 
 
-
-
-class HTTP_Website_Publisher extends HTTP_Publisher {
+class HTTP_Website_Publisher extends HTTP_Webpageorsite_Publisher {
     // Website generally serves JS from a single address.
     //  Webpage could have its specific JS.
 
@@ -97,6 +107,11 @@ class HTTP_Website_Publisher extends HTTP_Publisher {
         super(spec)
         // A website property.
 
+        //console.trace();
+        //throw 'stop';
+
+        // spec webpage????
+
         let website;
         if (spec.website) {
             if (spec.website instanceof Website) {
@@ -111,6 +126,13 @@ class HTTP_Website_Publisher extends HTTP_Publisher {
                 return website;
             }
         });
+
+
+        // A get_ready function for every level of the class for web publishing may help.
+
+
+
+
 
         // The publisher should not have a router (for the moment???)
         //   It should however determine routes, and provide them to the router.
@@ -131,9 +153,13 @@ class HTTP_Website_Publisher extends HTTP_Publisher {
 
 
 
+
+
+
         // Disk path client js being a property of the website itself?
         //   Critical overall functionality, dont want to remove it from here for the moment. See if not critical here.
 
+        /*
 
         let disk_path_client_js;
         if (spec.disk_path_client_js) disk_path_client_js = spec.disk_path_client_js;
@@ -142,6 +168,8 @@ class HTTP_Website_Publisher extends HTTP_Publisher {
                 return disk_path_client_js;
             }
         });
+
+        */
 
 
 
@@ -177,6 +205,11 @@ class HTTP_Website_Publisher extends HTTP_Publisher {
 
 
 
+        // Will probably insert new bundling code here - but refer to advanced classes that handle the details.
+
+        console.log('\n\nskipping __old__setup_website_publishing');
+        console.trace();
+        console.log('\n\n');
 
 
         const __old__setup_website_publishing = (website) => {
@@ -511,7 +544,18 @@ class HTTP_Website_Publisher extends HTTP_Publisher {
 
             */
         } else {
-            this.raise('ready');
+
+            // Do the async get_ready function....
+
+            (async() => {
+
+                await this.get_ready();
+                this.raise('ready');
+
+            })();
+
+
+            //
         }
 
         // Create a router for the website if it does not already have one.
@@ -529,6 +573,11 @@ class HTTP_Website_Publisher extends HTTP_Publisher {
 
         // Bundling and compiling web content seems like a better thing to get working before serving (or attempting to serve) it.
         // .build?
+
+    }
+
+    async get_ready() {
+        await super.get_ready();
 
     }
 

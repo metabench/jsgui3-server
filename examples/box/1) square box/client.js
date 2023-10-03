@@ -2,9 +2,20 @@ const jsgui = require('jsgui3-client');
 const {controls, Control, mixins} = jsgui;
 const {dragable} = mixins;
 
-const Active_HTML_Document = require('../../controls/Active_HTML_Document');
+const Active_HTML_Document = require('../../../controls/Active_HTML_Document');
 
 // Maybe better to include it within an Active_HTML_Document.
+
+// Is currently a decent demo of a small active control running from the server, activated on the client.
+//   This square box is really simple, and it demonstrates the principle of the code for the draggable square box not being all that complex
+//   compared to a description of it.
+
+// A container with reorderable internal draggable items could help.
+
+// would be nice to be able to have all code in 1 file...???
+//  Though the sever code should be separate.
+
+
 
 
 
@@ -21,8 +32,29 @@ class Demo_UI extends Active_HTML_Document {
         //  Though making that 'effortless' on the server may help more.
 
 
+        // Maybe can't do this here???
 
-        this.body.add_class('demo-ui');
+        // Does not have .body (yet) on the client.
+        //   simple way to get the client to attach the body of the Active_HTML_Document?
+        //     maybe with jsgui-data-controls?
+        //   Though automatically having the .body property available on the client without sending extra HTTP
+        //     plumbing will help.
+
+        // .body will not be available before activation.
+
+
+        // .body should not be a normal function....?
+        //   a getter function would be better.
+
+
+
+        if (typeof this.body.add_class === 'function') {
+            this.body.add_class('demo-ui');
+        }
+
+        //console.log('this.body', this.body);
+        //console.log('this.body.add_class', this.body.add_class);
+
 
         const compose = () => {
             const box = new Square_Box({
@@ -39,11 +71,11 @@ class Demo_UI extends Active_HTML_Document {
             super.activate();
             const {context} = this;
 
-            console.log('activate Demo_UI');
+            //console.log('activate Demo_UI');
             // listen for the context events regarding frames, changes, resizing.
 
             context.on('window-resize', e_resize => {
-                console.log('window-resize', e_resize);
+                //console.log('window-resize', e_resize);
             });
 
         }
@@ -104,7 +136,7 @@ class Square_Box extends Control {
                 drag_mode: 'translate'
             });
             
-            console.log('dragable mixin applied to square');
+            console.log('dragable mixin applied to square box');
             this.dragable = true;
             //console.log('this.dragable = true;');
 
@@ -113,6 +145,9 @@ class Square_Box extends Control {
                 //this.background.color = '#FF4444';
                 //this.color = '#FF4444';
                 this.dom.el.style.backgroundColor = '#FF4444';
+                
+
+                // this.background.color perhaps?
             });
 
         }

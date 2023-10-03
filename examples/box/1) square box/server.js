@@ -1,7 +1,12 @@
-const jsgui = require('./square_box_client');
+const jsgui = require('./client');
 
 const {Demo_UI, Square_Box} = jsgui.controls;
-const Server = require('../../server');
+const Server = require('../../../server');
+
+
+// what would be the (best?) way to include the whole thing in one JS file?
+//  Maybe don't try that right now.
+//  maybe standardise on the dir, then client.js and server.js inside.
 
 
 
@@ -12,6 +17,8 @@ const Server = require('../../server');
 //   Seems like an earlier code simplification removed this functionality?
 //   Just specifying a Ctrl for the server - and giving it the 'disk_path_client_js'.
 //     May as well fix that....
+
+
 
 
 
@@ -76,7 +83,7 @@ if (require.main === module) {
 
 
         //'js_mode': 'debug',
-        'src_path_client_js': require.resolve('./square_box_client.js')
+        'src_path_client_js': require.resolve('./client.js')
         //js_client: require.resolve('./square_box.js')
     });
     // A callback or event for when the bundling has been completed

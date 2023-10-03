@@ -33,7 +33,7 @@ const HTTP_Webpage_Publisher = require('./publishers/http-webpage-publisher');
 //  Multi_Single_Process_Server_Coordinater_Server ???
 
 
-
+const Static_Route_HTTP_Responder = require('./http/responders/static/Static_Route_HTTP_Responder');
 
 
 class JSGUI_Single_Process_Server extends Evented_Class {
@@ -88,6 +88,8 @@ class JSGUI_Single_Process_Server extends Evented_Class {
 		};
 
 		// Seems like a decent mechanism already in here at the moment, but may want to make the API more powerful and flexible.
+
+		// A single Ctrl that represents a page (could a Ctrl represent a site too? Could be possible with a bit of work.)
 
 
 		
@@ -161,7 +163,10 @@ class JSGUI_Single_Process_Server extends Evented_Class {
 
 			const opts_wp_publisher = {
 				'webpage': wp_app
+
 			};
+
+			if (disk_path_client_js) opts_wp_publisher.src_path_client_js = disk_path_client_js;
 
 			
 
@@ -175,24 +180,188 @@ class JSGUI_Single_Process_Server extends Evented_Class {
 			//    Then does the website resource contain a lot of its own resources, in a pool???
 
 
+			// The publisher should (probably) set things up with the server itself....
+			//   Give the publisher access to the server.
+			//   Or access to a more limited number of functions that the publisher can call.
+
+			// So the Publisher itself finds the Server Router and sets up routes on it, but uses very specific classes to help do that.
+
+			// Maybe Http_Publisher on a lower level could put together headers and do compression.
+			//   This part will be a little more like Express (and other) middleware.
+
+			// http_publisher.publish_static_content_to_routes
+			// .publish_static_bundle_to_routes
 
 
-			wp_publisher.on('ready', () => {
+
+
+
+
+
+
+
+			wp_publisher.on('ready', (wp_ready_res) => {
 				console.log('wp publisher is ready');
 
+				// The ready res on complete(res) ???
+				//   But the ready event does not (easily) carry this object.
 
 
-				const wp_resource = new Website_Resource({
+				//console.log('wp_ready_res', wp_ready_res);
+
+				// then go through the array....
+
+				if (wp_ready_res._arr) {
+
+
+					for (const bundle_item of wp_ready_res._arr) {
+						//console.log('Object.keys(bundle_item)', Object.keys(bundle_item));
+
+						
+
+						const {type, extension, text, route, response_buffers, response_headers} = bundle_item;
+						//console.log('');
+						//console.log('bundle_item route:', route);
+						//console.log('bundle_item type:', type);
+
+						const bundle_item_http_responder = new Static_Route_HTTP_Responder(bundle_item);
+
+						//console.log('bundle_item_http_responder.handle_http', bundle_item_http_responder.handle_http);
+
+						// So set_route needs to set it up with the proper context for the handle_http call.
+						//   At least it looks fairly close to being solved, though maybe Router and Routing tree
+						//     should have comprehensive fixes and improvements.
+
+
+
+						server_router.set_route(route, bundle_item_http_responder, bundle_item_http_responder.handle_http);
+
+
+					}
+	
+					//console.trace();
+					//throw 'stop';
+
+				} else {
+					console.trace();
+					throw 'NYI';
+				}
+
+				// But do we get a bundle from it when ready?
+				//  Maybe it should provide that bundle in the 'ready' event.
+
+
+
+
+				const ws_resource = new Website_Resource({
 					'name': 'Website_Resource - Single Webpage',
 					'webpage': wp_app
 				});
-				resource_pool.add(wp_resource);
-				server_router.set_route('/', wp_publisher, wp_publisher.handle_http);
+				resource_pool.add(ws_resource);
+
+				// 
+
+
+				// Possibly set multiple routes here, with multiple response buffers depending on the encoding-type
+				//  accepted by the client.
+
+				// Seems best not to rely on the Webpage_Publisher to handle the HTTP.
+				//   Better for the Publisher to create the Bundle that is ready to serve, than provide that
+				//   to the Server here, or maybe to something else.
+
+				// Seems best to get that ready to serve static bundle from the publisher,
+				//  and if it helps use some kind of system to set up some more details with the server router...?
+
+				// Initial_Response_Handler perhaps?
+
+				// Webpage_HTTP_Response_Handler?
+
+				// Static_Webpage_HTTP_Response_Handler???
+
+				// Static_Webpage_Bundle_HTTP_Response_Handler ???
+
+				// Static_Webpage_Bundle_HTTP_Route_Response_Handler ????
+
+
+				// Static_Webpage_Bundle_HTTP_Route_Responder ???
+
+				// new Static_Webpage_Bundle_HTTP_Route_Responder(bundle_item)
+
+
+
+
+				// Static_Webpage_Bundle_HTTP_Responder ??? (would do routing / route checking itself perhaps?)
+				//   Seems like for the moment we should continue to use the server router.
+
+
+
+
+				// Need to decide which encoded (compressed) buffer to return depending
+				//   on what Content-Type(s) are supported on the client.
+
+
+
+
+				// Very explicit class names make the responsibilities very clear.
+
+				// Static_Route_HTTP_Responder seems best to provide the handle_http function.
+				//   Even after routing a decision needs to be made regarding which buffer to send to the client
+				//     Should be the last thing needed to get this simple square box demo server working properly.
+				//     Hopefully the client-side activation still works fine.
+
+
+
+				// HTTP_Responder class and subclasses???
+				//   Could be a helpful type of middleware.
+				//   Want to have it handle creating or using the correct compressed buffer.
+
+				// go through the array of bundle items....
+
+
+				// Need the bundle object / array here.
+				//   Would be nice to have the bundle itself hold info on what's inside.
+				//     Incl what packaging stage it is at, how ready to serve.
+
+				// Though possible one object could handle the whole static bundle setup with the router...?
+
+				// The code in a loop should be simple enough here though.
+
+
+
+
+
+
+
+
+				// Set the routes of the various items in the bundle (and use the handlers provided by class
+				//   instance objects that specifically provide HTTP handlers)
+
+
+				// Should be the very last part of serving the HTTP for this particular server type.
+
+
+
+
+
+				
+
+
+
+
+
+				//server_router.set_route('/', wp_publisher, wp_publisher.handle_http);
+
+
 				this.raise('ready');
 			});
 
 
 		} else {
+
+			// Ahhh the web page publisher may be used instead of the website publisher.
+			//   See about making use of relevant shared abstractions.
+
+
 			const ws_app = this.app = new Website(opts_website);
 			// Be able to treat Webpage as an app?
 
@@ -297,6 +466,8 @@ JSGUI_Single_Process_Server.Page_Context = Server_Page_Context;
 JSGUI_Single_Process_Server.Server_Page_Context = Server_Page_Context;
 JSGUI_Single_Process_Server.Website_Resource = Website_Resource;
 module.exports = JSGUI_Single_Process_Server;
+
+
 if (require.main === module) {
 	const args = process.argv.slice(2);
 	let port = 80;

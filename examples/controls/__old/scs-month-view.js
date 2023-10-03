@@ -21,7 +21,6 @@ const Month_View = jsgui.Month_View;
 // Give it a live Control?
 //  Would want to give that Control access to a server-side resource too.
 
-
 // We should be able to give that single control params too.
 
 // Body_Server

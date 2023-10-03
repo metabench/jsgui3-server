@@ -6,6 +6,21 @@ var Class = jsgui.Class, Data_Object = jsgui.Data_Object;
 var fp = jsgui.fp, is_defined = jsgui.is_defined;
 var get_a_sig = jsgui.get_a_sig;
 
+
+// Server_Static_Page_Context could help just by the more explicit name.
+// Used for a single rendering.
+
+// Will not be in the context of a request and response.
+//   Though could help with creating a response that can be reused.
+
+// Think we should continue making the various (very specific) bits and pieces that represent all parts of the process.
+
+// 
+
+
+
+
+
 // Need to find out what this one requires to put it in its own module.
 class Server_Page_Context extends jsgui.Page_Context {
 	constructor(spec) {

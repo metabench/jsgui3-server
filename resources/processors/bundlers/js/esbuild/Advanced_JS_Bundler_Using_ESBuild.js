@@ -21,12 +21,20 @@ class Advanced_JS_Bundler_Using_ESBuild extends Bundler_Using_ESBuild {
     constructor(spec) {
         super(spec);
 
+        if (spec.debug !== undefined) this.debug = spec.debug;
+
         //this.css_extractor = new CSS_Extractor();
 
 
-        this.non_minifying_bundler = new Core_JS_Non_Minifying_Bundler_Using_ESBuild();
+        this.non_minifying_bundler = new Core_JS_Non_Minifying_Bundler_Using_ESBuild({
+            debug: this.debug
+        });
+
+
         this.css_and_js_from_js_string_extractor = new CSS_And_JS_From_JS_String_Extractor();
 
+
+        // Probably don't use that minifying bundler in debug mode.
         this.minifying_js_single_file_bundler = new Core_JS_Single_File_Minifying_Bundler_Using_ESBuild();
 
     }
@@ -59,130 +67,182 @@ class Advanced_JS_Bundler_Using_ESBuild extends Bundler_Using_ESBuild {
                         //console.log('bundle_item', bundle_item);
 
                         if (bundle_item.type === 'JavaScript') {
+
+                            // But in debug mode don't minify it.
+                            //   Maybe create and add the sourcemap here instead....?
+
                             const {text} = bundle_item;
                             // Then use the css and js from js extractor.
 
                             const res_extract_css_and_js_from_js = await css_and_js_from_js_string_extractor.extract(text);
-
-
                             const {css, js} = res_extract_css_and_js_from_js;
 
-                            const minified_js = await minifying_js_single_file_bundler.bundle(js);
+                            if (this.debug) {
 
-                            //console.log('minified_js', minified_js);
-                            //console.log('minified_js.length', minified_js.length);
+                                // sourcemap: 'inline'
 
-                            // it's an array....
+                                // Don't minify the js.
 
-                            if (is_array(minified_js)) {
+                                // Make res bundle items that include the CSS and the non-minified JS.
 
-                                if (minified_js.length === 1) {
+                                // Including the source map would be better still.
 
+                                const res_bundle = new Bundle();
+                                // Add the non-minified JS (as a bundle item object)
 
-                                    // Should put it all in a single res bundle though....
-                                    //   Though merging / concating bundles will be fine too.
+                                const o_js_bundle_item = {
+                                    type: 'JavaScript',
+                                    extension: 'JS',
+                                    text: js
+                                }
+                                res_bundle.add(o_js_bundle_item);
+                                const o_css_bundle_item = {
+                                    type: 'CSS',
+                                    extension: 'css',
+                                    text: css
+                                }
 
-
-
-                                    const minified_js_bundle_collection = minified_js[0];
-
-                                    
-
-                                    const o_css_bundle_item = {
-                                        type: 'CSS',
-                                        extension: 'css',
-                                        text: css
-                                    }
-
-                                    minified_js_bundle_collection.push(o_css_bundle_item);
-
-
-                                    // Maybe will provide the class / class instance that processes CSS or SASS/SCSS / whatever else.
-
-
-
-                                    // Could add the extracted CSS here.
-
-
-
-                                    next(minified_js_bundle_collection);
-
-                                    // But create a CSS bundle item...
+                                res_bundle.push(o_css_bundle_item);
+                                next(res_bundle);
+                                complete(res_bundle);
 
 
 
 
 
-                                    // And also the CSS...
+
+
+
+                            } else {
+
+
+                                const minified_js = await minifying_js_single_file_bundler.bundle(js);
+
+                                //console.log('minified_js', minified_js);
+                                //console.log('minified_js.length', minified_js.length);
+
+                                // it's an array....
+
+                                if (is_array(minified_js)) {
+
+                                    if (minified_js.length === 1) {
+
+
+                                        // Should put it all in a single res bundle though....
+                                        //   Though merging / concating bundles will be fine too.
+
+
+
+                                        const minified_js_bundle_collection = minified_js[0];
+
+                                        
+
+                                        const o_css_bundle_item = {
+                                            type: 'CSS',
+                                            extension: 'css',
+                                            text: css
+                                        }
+
+                                        minified_js_bundle_collection.push(o_css_bundle_item);
+
+
+                                        // Maybe will provide the class / class instance that processes CSS or SASS/SCSS / whatever else.
+
+
+
+                                        // Could add the extracted CSS here.
+
+
+
+                                        next(minified_js_bundle_collection);
+
+                                        // But create a CSS bundle item...
 
 
 
 
 
-                                    complete(minified_js_bundle_collection);
-
-
-
-                                    const unneeded_looking_into_the_js_bundle = () => {
-                                        if (minified_js_bundle_collection._arr) {
-
-                                            if (minified_js_bundle_collection._arr.length === 1) {
-
-                                                const minified_js_bundle_item = minified_js_bundle_collection._arr[0];
-                                                console.log('minified_js_bundle_item', minified_js_bundle_item);
-
-
-                                                if (minified_js_bundle_item.type === 'JavaScript') {
-
-                                                    //const str_minified_js = minified_js_bundle_item.text;
-
-                                                    //const res = 
+                                        // And also the CSS...
 
 
 
 
 
-                                                } else {
+                                        complete(minified_js_bundle_collection);
+
+
+
+                                        const unneeded_looking_into_the_js_bundle = () => {
+                                            if (minified_js_bundle_collection._arr) {
+
+                                                if (minified_js_bundle_collection._arr.length === 1) {
+
+                                                    const minified_js_bundle_item = minified_js_bundle_collection._arr[0];
+                                                    console.log('minified_js_bundle_item', minified_js_bundle_item);
+
+
+                                                    if (minified_js_bundle_item.type === 'JavaScript') {
+
+                                                        //const str_minified_js = minified_js_bundle_item.text;
+
+                                                        //const res = 
+
+
+
+
+
+                                                    } else {
+
+                                                        console.trace();
+                                                        throw 'NYI';
+
+                                                    }
+
+
+                                                    // Could even check it's js here...?
+
 
                                                     console.trace();
                                                     throw 'NYI';
 
+
+                                                } else {
+                                                    console.trace();
+                                                    throw 'NYI';
                                                 }
 
-
-                                                // Could even check it's js here...?
-
-
-                                                console.trace();
-                                                throw 'NYI';
-
-
                                             } else {
+
                                                 console.trace();
                                                 throw 'NYI';
+
                                             }
-
-                                        } else {
-
-                                            console.trace();
-                                            throw 'NYI';
 
                                         }
 
+                                        
+
+                                    } else {
+                                        console.trace();
+                                        throw 'stop';
                                     }
 
-                                    
-
                                 } else {
+
                                     console.trace();
                                     throw 'stop';
                                 }
 
-                            } else {
 
-                                console.trace();
-                                throw 'stop';
                             }
+
+
+                            
+
+
+
+
+                            
 
 
 

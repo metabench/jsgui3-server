@@ -132,7 +132,8 @@ Demo_UI.css = `
 }
 
 body {
-    
+    overflow-x: hidden;
+    overflow-y: hidden;
     background-color: #E0E0E0;
 }
 

@@ -16,6 +16,10 @@ const Bundler_Using_ESBuild = require('./Bundler_Using_ESBuild');
 class Core_JS_Non_Minifying_Bundler_Using_ESBuild extends Bundler_Using_ESBuild {
     constructor(spec) {
         super(spec);
+
+        if (spec.debug !== undefined) this.debug = spec.debug;
+
+
     }
 
     // And the options....
@@ -47,7 +51,7 @@ class Core_JS_Non_Minifying_Bundler_Using_ESBuild extends Bundler_Using_ESBuild 
 
             // Looks like we need better linking build options....
 
-            let result = await esbuild.build({
+            const o_build = {
                 entryPoints: [js_file_path],
                 bundle: true,
                 
@@ -59,23 +63,31 @@ class Core_JS_Non_Minifying_Bundler_Using_ESBuild extends Bundler_Using_ESBuild 
                 //sourcemap: 'external',
                 write: false,
                 outdir: 'out',
-            })
-            console.log('result.outputFiles:\n\n');
-            for (let out of result.outputFiles) {
-                //console.log('out.path, out.contents, out.hash, out.text', out.path, out.contents, out.hash, out.text)
             }
 
-            console.log('result.outputFiles.length', result.outputFiles.length);
+            if (this.debug) {
+                o_build.sourcemap = 'inline';
+            }
+
+
+
+            let result = await esbuild.build(o_build);
+            //console.log('result.outputFiles:\n\n');
+            //for (let out of result.outputFiles) {
+                //console.log('out.path, out.contents, out.hash, out.text', out.path, out.contents, out.hash, out.text)
+            //}
+
+            //console.log('result.outputFiles.length', result.outputFiles.length);
 
 
             if (result.outputFiles.length === 1) {
 
                 const output_file = result.outputFiles[0];
 
-                console.log('output_file.text.length', output_file.text.length);
+                //console.log('output_file.text.length', output_file.text.length);
                 //console.log('output_file.text', output_file.text);
 
-                console.log('Object.keys(output_file)', Object.keys(output_file));
+                //console.log('Object.keys(output_file)', Object.keys(output_file));
 
                 // The Bundle is a subclass of Collection.
                 //  Maybe its better to make it an Object class that assigns all properties from spec.

@@ -97,6 +97,8 @@ class HTTP_Webpageorsite_Publisher extends HTTP_Publisher {
     constructor(spec) {
         super(spec);
 
+        if (spec.debug !== undefined) this.debug = spec.debug;
+
         // But then some properties to do with the js client(s?) file path.
 
         // This should be fairly simple in terms of making use of the bundler, then providing the server (maybe the router component)
@@ -124,7 +126,9 @@ class HTTP_Webpageorsite_Publisher extends HTTP_Publisher {
 
         // Maybe need a get_ready (async or obs) function....
 
-        this.js_bundler = new JS_Bundler();
+        this.js_bundler = new JS_Bundler({
+            'debug': this.debug || false
+        });
 
 
     }
@@ -155,6 +159,9 @@ class HTTP_Webpageorsite_Publisher extends HTTP_Publisher {
         const {src_path_client_js} = this;
 
         //console.log('src_path_client_js', src_path_client_js);
+
+
+        // The js_bundler may need to operate in 'debug' mode.
 
         const js_bundler_res = await js_bundler.bundle(src_path_client_js);
         // Should also get the CSS from it....

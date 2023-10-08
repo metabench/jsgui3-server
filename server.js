@@ -50,6 +50,11 @@ class JSGUI_Single_Process_Server extends Evented_Class {
 			disk_path_client_js = spec.source_path_client_js;
 		};
 
+
+		if (spec.debug !== undefined) {
+			this.debug = spec.debug;
+		}
+
 		// or src_path_client_js as well...
 
 		Object.defineProperty(this, 'disk_path_client_js', {get: () => disk_path_client_js, set: (value) => disk_path_client_js = value});
@@ -166,12 +171,19 @@ class JSGUI_Single_Process_Server extends Evented_Class {
 
 			};
 
+			if (this.debug) {
+				opts_wp_publisher.debug = this.debug;
+			}
+
 			if (disk_path_client_js) opts_wp_publisher.src_path_client_js = disk_path_client_js;
 
 			
 
 			// HTTP_Webpage_Publisher probably needs to build the JavaScript. Possibly other assets too.
 			const wp_publisher = new HTTP_Webpage_Publisher(opts_wp_publisher);
+			// Specific options for when that publisher is in debug mode.
+
+
 			console.log('waiting for wp_publisher ready');
 
 			// Server can (maybe just in theory) serve multiple websites at once.

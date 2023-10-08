@@ -10,6 +10,13 @@ class Static_Routes_Responses_Webpage_Bundle_Preparer {
 
     constructor(spec = {}) {
 
+        // Probably should be able to operate in debug mode.
+        //   Not minifying the js, and including the js debug symbols / map as well.
+
+        // But something else prepares the bundle....
+
+        //if (spec.debug !== undefined) this.debug = spec.debug;
+
         this.routes_assigner = new Single_Control_Webpage_Server_Static_Routes_Assigner();
 
         // And the uncompressed response buffer(s) assigner....?

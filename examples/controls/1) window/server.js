@@ -83,7 +83,8 @@ if (require.main === module) {
 
 
         //'js_mode': 'debug',
-        'src_path_client_js': require.resolve('./client.js')
+        'src_path_client_js': require.resolve('./client.js'),
+        debug: true // should not minify the js, should include the symbols.
         //js_client: require.resolve('./square_box.js')
     });
     // A callback or event for when the bundling has been completed

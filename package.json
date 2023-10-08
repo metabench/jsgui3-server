@@ -14,7 +14,7 @@
     "esbuild": "^0.19.4",
     "fnl": "^0.0.29",
     "fnlfs": "^0.0.29",
-    "jsgui3-client": "^0.0.84",
+    "jsgui3-client": "^0.0.85",
     "jsgui3-webpage": "^0.0.6",
     "jsgui3-website": "^0.0.6",
     "lang-tools": "^0.0.17",
@@ -45,5 +45,5 @@
     "type": "git",
     "url": "https://github.com/metabench/jsgui3-server.git"
   },
-  "version": "0.0.100"
+  "version": "0.0.101"
 }

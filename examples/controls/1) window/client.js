@@ -60,7 +60,8 @@ class Demo_UI extends Active_HTML_Document {
             // Then how to arrange them...?
 
             const window = new controls.Window({
-                context: context
+                context: context,
+                title: 'jsgui3-html Window Control'
             })
             this.body.add(window);
 

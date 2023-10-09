@@ -53,6 +53,9 @@ class Core_JS_Non_Minifying_Bundler_Using_ESBuild extends Bundler_Using_ESBuild 
 
             const o_build = {
                 entryPoints: [js_file_path],
+
+
+                //format: 'iife',
                 bundle: true,
                 
                 // Possibly no minification here....

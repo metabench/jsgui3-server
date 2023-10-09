@@ -19,10 +19,6 @@ const Server = require('../../../server');
 //     May as well fix that....
 
 
-// The server code may be tiny, it seems best not to abstract it away totally though.
-// At least not for the moment.
-
-
 
 
 

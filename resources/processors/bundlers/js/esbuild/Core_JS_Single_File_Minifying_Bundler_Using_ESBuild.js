@@ -67,6 +67,7 @@ class Core_JS_Single_File_Minifying_Bundler_Using_ESBuild extends Bundler_Using_
 
                 treeShaking: true,
                 minify: true,
+                //format: 'iife',
 
                 //sourcemap: 'external',
                 write: false,

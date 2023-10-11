@@ -61,7 +61,8 @@ class Demo_UI extends Active_HTML_Document {
 
             const window = new controls.Window({
                 context: context,
-                title: 'jsgui3-html Window Control'
+                title: 'jsgui3-html Window Control',
+                pos: [10, 10]
             })
             this.body.add(window);
 
@@ -122,7 +123,7 @@ class Demo_UI extends Active_HTML_Document {
 //   
 
 // Would need to parse the JS files to extract the CSS.
-//  Maybe could do it an easier way???
+//  Maybe could do it an easier way??? Now that it's easy, want a faster way.
 
 
 Demo_UI.css = `

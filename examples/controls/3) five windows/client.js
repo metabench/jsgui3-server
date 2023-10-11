@@ -56,7 +56,7 @@ class Demo_UI extends Active_HTML_Document {
 
         //console.log('this.body', this.body);
         //console.log('this.body.add_class', this.body.add_class);
-        
+
 
         const compose = () => {
             // put 20 of them in place.
@@ -65,12 +65,24 @@ class Demo_UI extends Active_HTML_Document {
 
             const num_windows = 5;
 
+            let [x, y] = [0, 0];
+
+            // pos property?
+            //. consider a pos_info or pos_details property, or use another class to help with it.
+
+            // the .pos property would be a nice shortcut.
+            //.  seems more like it's for enhanced controls? Not sure.
+
+
             for (let c = 1; c <= num_windows; c++) {
                 const window = new controls.Window({
                     context: context,
-                    title: c + ') jsgui3-html Window Control'
+                    title: c + ') jsgui3-html Window Control',
+                    pos: [x, y]
                 })
                 this.body.add(window);
+
+                x += 32; y += 64;
             }
 
             /*

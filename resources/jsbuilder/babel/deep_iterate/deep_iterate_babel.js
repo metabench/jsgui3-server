@@ -599,6 +599,20 @@ const deep_iterate_babel_for_in_statement_node = (babel_node, depth, path, commo
 
 };
 
+const deep_iterate_babel_for_of_statement_node = (babel_node, depth, path, common, callback) => {
+    // value.raw is basically it.
+
+    const {left, right, body} = babel_node;
+    let sibling_number = 0;
+
+    deep_iterate_babel_node_$INTERNAL(left, depth + 1, path + sibling_number++ + '/', common, callback);
+    deep_iterate_babel_node_$INTERNAL(right, depth + 1, path + sibling_number++ + '/', common, callback);
+    deep_iterate_babel_node_$INTERNAL(body, depth + 1, path + sibling_number++ + '/', common, callback);
+
+};
+
+// deep_iterate_babel_for_of_statement_node
+
 // deep_iterate_babel_sequence_expression_node
 
 
@@ -771,6 +785,8 @@ const deep_iterate_babel_node_$INTERNAL = (babel_node, depth, path, common, call
                 return deep_iterate_babel_break_statement_node(babel_node, depth, path, common, callback);
             } else if (type === 'ForInStatement') {
                 return deep_iterate_babel_for_in_statement_node(babel_node, depth, path, common, callback);
+            } else if (type === 'ForOfStatement') {
+                return deep_iterate_babel_for_of_statement_node(babel_node, depth, path, common, callback);
             } else if (type === 'SequenceExpression') {
                 return deep_iterate_babel_sequence_expression_node(babel_node, depth, path, common, callback);
             } else if (type === 'ClassExpression') {
@@ -779,6 +795,9 @@ const deep_iterate_babel_node_$INTERNAL = (babel_node, depth, path, common, call
                 return deep_iterate_babel_rest_element_node(babel_node, depth, path, common, callback);
             } else if (type === 'AwaitExpression') {
                 return deep_iterate_babel_await_expression_node(babel_node, depth, path, common, callback);
+
+                // ForOfStatement
+
             } else {
 
                 // FunctionDeclaration TemplateLiteral TemplateElement TryStatement CatchClause

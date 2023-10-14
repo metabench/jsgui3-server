@@ -92,7 +92,10 @@ if (require.main === module) {
 
     // then start the server....
     // be able to choose the port / ports?
-    console.log('waiting for server ready event');
+    //console.log('waiting for server ready event');
+
+    // 
+
     server.on('ready', () => {
         console.log('server ready');
 

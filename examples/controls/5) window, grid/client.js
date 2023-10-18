@@ -2,6 +2,9 @@ const jsgui = require('jsgui3-client');
 const {controls, Control, mixins} = jsgui;
 const {dragable} = mixins;
 
+
+const {Grid} = controls;
+
 const Active_HTML_Document = require('../../../controls/Active_HTML_Document');
 
 // Maybe better to include it within an Active_HTML_Document.
@@ -61,32 +64,21 @@ class Demo_UI extends Active_HTML_Document {
 
             const window = new controls.Window({
                 context: context,
-                title: 'jsgui3-html Window Control',
+                title: 'jsgui3-html Grid Control',
                 pos: [10, 10]
             });
 
             // Have Tab_Page items inside???
 
-            // Maybe need some more code to do with setting up the radio button group of tabs....
-
-
-
-            const tabbed_panel = new controls.Tabbed_Panel({
-                context,
-
-                // Nice to be able to make it flexible in terms of taking string names for the tab specifications.
-
-
-
-                tabs: ['tab 1', 'tab 2']
-            });
-
-            // want to be able to reference the tab pages.
-            //  could have a 0 indexed array (property?)
+            // Maybe ne
             
+            const grid = new Grid({
+                context,
+                grid_size: [10, 10],
+                size: [200, 200]
+            })
 
-
-            window.inner.add(tabbed_panel);
+            window.inner.add(grid);
 
             this.body.add(window);
 

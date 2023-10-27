@@ -51,9 +51,10 @@ class CSS_And_JS_From_JS_String_Using_AST_Node_Extractor extends Extractor {
 
             // This part is kind-of slow.
 
-            console.log('pre create js ast node');
+            //console.log('pre create js ast node');
+            console.log('Separating CSS and JS');
             const js_ast_node = JS_AST_Node.from_spec(spec);
-            console.log('post create js ast node');
+            //console.log('post create js ast node');
             
             //const ae_nodes = [];
 

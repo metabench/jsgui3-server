@@ -465,8 +465,23 @@ class JSGUI_Single_Process_Server extends Evented_Class {
 	}
 }
 
+// Not sure that controls should be considered server only????
+//   Possibly makes sense, though the 'client' part may need the active HTML document.
 
-JSGUI_Single_Process_Server.HTML = require('jsgui3-html');
+// Possibly the server could / should produce / provide such a document.
+
+
+
+
+
+// Return the 'jsgui' object???
+
+//jsgui.controls.Active_HTML_Document = require('./controls/Active_HTML_Document');
+
+
+JSGUI_Single_Process_Server.jsgui = jsgui;
+
+
 
 // Also want Active_HTML_Document
 //  or Active_HTML - needs to be simple to use, putting in the active stuff automatically.

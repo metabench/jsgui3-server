@@ -8,6 +8,9 @@ const {Blank_HTML_Document} = jsgui;
 //  When starting the server...?
 //  Want really easy and simple top-level syntax.
 
+// Maybe this should be in the 'client' part of the system...?
+//   Due to ease of referencing it...?
+
 
 class Active_HTML_Document extends Blank_HTML_Document {
 

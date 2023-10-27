@@ -78,7 +78,7 @@ class Core_JS_Single_File_Minifying_Bundler_Using_ESBuild extends Bundler_Using_
                 //console.log('out.path, out.contents, out.hash, out.text', out.path, out.contents, out.hash, out.text)
             }
 
-            console.log('result.outputFiles.length', result.outputFiles.length);
+            //console.log('result.outputFiles.length', result.outputFiles.length);
 
             //console.trace();
             //throw 'stop';
@@ -90,10 +90,10 @@ class Core_JS_Single_File_Minifying_Bundler_Using_ESBuild extends Bundler_Using_
 
                 //console.log('output_file', output_file);
 
-                console.log('output_file.text.length', output_file.text.length);
+                //console.log('output_file.text.length', output_file.text.length);
                 //console.log('output_file.text', output_file.text);
 
-                console.log('Object.keys(output_file)', Object.keys(output_file));
+                //console.log('Object.keys(output_file)', Object.keys(output_file));
 
                 // The Bundle is a subclass of Collection.
                 //  Maybe its better to make it an Object class that assigns all properties from spec.

@@ -8,17 +8,14 @@
     "@babel/parser": "7.22.16",
     "babel-plugin-transform-runtime": "^6.23.0",
     "babel-preset-minify": "^0.5.2",
-    "browserify": "17.0.0",
-    "child-process": "^1.0.2",
     "cookies": "^0.8.0",
     "esbuild": "^0.19.5",
     "fnl": "^0.0.29",
     "fnlfs": "^0.0.29",
-    "jsgui3-client": "^0.0.94",
+    "jsgui3-client": "^0.0.96",
     "jsgui3-webpage": "^0.0.6",
     "jsgui3-website": "^0.0.6",
     "lang-tools": "^0.0.22",
-    
     "multiparty": "^4.2.3",
     "ncp": "^2.0.0",
     "obext": "^0.0.27",
@@ -45,5 +42,5 @@
     "type": "git",
     "url": "https://github.com/metabench/jsgui3-server.git"
   },
-  "version": "0.0.108"
+  "version": "0.0.110"
 }

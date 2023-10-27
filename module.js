@@ -6,11 +6,16 @@ const jsgui = require('jsgui3-html')
 const Server_Page_Context = require('./page-context');
 jsgui.Server_Page_Context = Server_Page_Context;
 
+//console.log('jsgui.controls', jsgui.controls);
+
+jsgui.controls.Active_HTML_Document = require('./controls/Active_HTML_Document');
 // Login = require('../resource/login'),
+console.log('jsgui.controls.Active_HTML_Document', jsgui.controls.Active_HTML_Document);
+
 //var Server = {};
 
-const Resource_Publisher = require('./publishing/http-resource-publisher');
-jsgui.Resource_Publisher = Resource_Publisher;
+//const Resource_Publisher = require('./publishing/http-resource-publisher');
+//jsgui.Resource_Publisher = Resource_Publisher;
 jsgui.Server = require('./server');
 jsgui.fs2 = require('./fs2');
 //jsgui.Resource = Resource;

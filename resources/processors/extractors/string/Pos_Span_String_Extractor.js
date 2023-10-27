@@ -69,7 +69,7 @@ class Pos_Span_String_Extractor extends Extractor {
         if (options.invert){
             arr_pos_spans = invert_arr_pos_spans(arr_pos_spans, str.length);
 
-            console.log('inverted arr_pos_spans', arr_pos_spans);
+            //console.log('inverted arr_pos_spans', arr_pos_spans);
         }
 
         let arr_str_res = [];

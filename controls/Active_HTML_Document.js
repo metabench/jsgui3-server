@@ -12,6 +12,30 @@ const {Blank_HTML_Document} = jsgui;
 //   Due to ease of referencing it...?
 
 
+// jsgui3-server-controls perhaps???
+
+// jsgui3-client perhaps???
+
+// May be worth doing more about 'server controls' or server-only functionality for the controls that will not get bundled / served
+//   to the clients.
+
+// jsgui3-html-server-control ???
+
+// But basically want some server-side functionality, but it's still a control that gets rendered and sent to the client.
+//   Could see about marking the server functions specifically.
+
+
+// Moving this to jsgui3-html or jsgui3-client would make most sense.
+//   jsgui3-client.
+//     Could have an explanation as to why a Server_Control is in the 'client' module.
+
+
+
+
+
+
+
+
 class Active_HTML_Document extends Blank_HTML_Document {
 
 

@@ -667,6 +667,22 @@ const deep_iterate_babel_await_expression_node = (babel_node, depth, path, commo
 
 };
 
+// deep_iterate_babel_do_while_statement_node
+
+
+const deep_iterate_babel_do_while_statement_node = (babel_node, depth, path, common, callback) => {
+    // 
+
+    const {body, test} = babel_node;
+
+    
+    let sibling_number = 0;
+
+    deep_iterate_babel_node_$INTERNAL(body, depth + 1, path + sibling_number++ + '/', common, callback);
+    deep_iterate_babel_node_$INTERNAL(test, depth + 1, path + sibling_number++ + '/', common, callback);
+};
+
+
 
 const deep_iterate_babel_node_$INTERNAL = (babel_node, depth, path, common, callback) => {
 
@@ -798,7 +814,13 @@ const deep_iterate_babel_node_$INTERNAL = (babel_node, depth, path, common, call
 
                 // ForOfStatement
 
+            }else if (type === 'DoWhileStatement') {
+                return deep_iterate_babel_do_while_statement_node(babel_node, depth, path, common, callback);
             } else {
+
+                // DoWhileStatement
+                //   body, test
+                //   BlockStatement, LogicalExpression
 
                 // FunctionDeclaration TemplateLiteral TemplateElement TryStatement CatchClause
                 // SwitchStatement SwitchCase RegExpLiteral BreakStatement ForInStatement

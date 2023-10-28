@@ -2,7 +2,7 @@
 
 
 //var sockjs = require('sockjs'), jsgui = require('jsgui3-html'),
-const jsgui = require('jsgui3-html')
+const jsgui = require('jsgui3-client')
 const Server_Page_Context = require('./page-context');
 jsgui.Server_Page_Context = Server_Page_Context;
 

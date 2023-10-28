@@ -1,4 +1,7 @@
 var jsgui = require('jsgui3-html');
+
+// Not extend the client page context would be best....
+
 // This should be running in node.js
 var stringify = jsgui.stringify, each = jsgui.each, arrayify = jsgui.arrayify, tof = jsgui.tof;
 var filter_map_by_regex = jsgui.filter_map_by_regex;

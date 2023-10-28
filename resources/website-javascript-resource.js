@@ -155,7 +155,7 @@ const call_multi = jsgui.call_multi,
 //var zlib = require('zlib');
 const util = require('util');
 
-const browserify = require('browserify');
+//const browserify = require('browserify');
 const babel = require('@babel/core');
 
 // Extends AutoStart_Resource?
@@ -233,6 +233,9 @@ class Site_JavaScript extends Resource {
 
 	'build_client'(callback) {
 
+		console.trace();
+		throw 'Deprecated';
+
 		// Configurable building mechanisms....
 		//  Want to provide jsgui events / logs on the build process.
 
@@ -269,6 +272,9 @@ class Site_JavaScript extends Resource {
 		var app_path = appDir + '/js/app.js';
 		var app_bundle_path = appDir + '/js/app-bundle.js';
 		var wstream = fs.createWriteStream(app_bundle_path);
+
+
+
 		var b = browserify();
 		//b.require(app_path, {
 		//	entry: true,

@@ -65,45 +65,6 @@ class Demo_UI extends Active_HTML_Document {
 
             window.size = [480, 160];
 
-            // Have Tab_Page items inside???
-
-            // Setting a 'selectable' property at the composition stage could be very helpful in some cases,
-            //   May want composition-level mixins?
-            //   Maybe those mixins would also have code that runs on activation.
-            //     'compositional mixins' ???
-
-            // Need mixins to be very flexible to avoid the probles React had with them.
-            //   Choose what functionality the mixin provides in some cases.
-            //     Need to keep tight control over the coupling of mixins.
-            //   Each mixin may need to be somewhat complex to avoid hiccups - and to consistently act in the set modes.
-            //     If a mixin is to do something different to before that functionality should be called differently.
-
-            // mixin.enabled_feature_sets = [feature_set_1_name, feature_set_2_name] ....
-
-
-
-            // Will work on more options & perfection for month_view.
-
-            /*
-
-            new Checkbox({
-                context,
-                label: {
-                    text: 'A checkbox'
-                }
-            })
-
-            */
-            
-            // Sensible properties like this will help.
-            
-            // A progressively enhancing control could help a lot.
-            //   Something that when it's in the doc will even replace its own element.
-            //   Lower level code to enable really simple to express progressive enhancement could help, maybe would not be needed.
-
-
-
-
 
             const ti1 = new Text_Field({
                 context,
@@ -183,7 +144,7 @@ class Demo_UI extends Active_HTML_Document {
 
             // Need to work on having it update the dom with value changes....
 
-            ti1.view.model.on('change', e => {
+            ti1.model.on('change', e => {
                 //console.log('ti1 change e', e);
 
 
@@ -199,7 +160,7 @@ class Demo_UI extends Active_HTML_Document {
                 
 
             })
-            ti2.view.model.on('change', e => {
+            ti2.model.on('change', e => {
                 //console.log('ti2 change e', e);
 
                 // 

@@ -12,6 +12,105 @@ const Active_HTML_Document = require('../../../controls/Active_HTML_Document');
 //     May want code that checks for .el being changed.
 
 
+/*
+    Though this works through simple principles, it may be much better to do data binding with a shared ctrl.data.model.
+    Want the top-level code to be really simple and intuitive when specifying data flows, and when not specifying them
+    using sensible defaults.
+
+    The granularity between data.model and view.model should help a lot.
+
+    // Also data.model.value being a possible default.
+    // Data models will become more advanced and capable of holding multiple values.
+    //   For the moment, although the Control_Data and Control_View classes exist, will continue with a POJO.
+    //     Then could later work on getter / setters for when a data.model or a view.model gets changed.
+
+
+
+    Also should work on functional constraints or / and class based constraints for fields / text fields.
+    // Both for data in the system, as well as in the UI.
+    // Could integrate a bit more with data types / class data types.
+
+    // Typed_Data_Value perhaps.
+
+    // Anyway, want to set things up better with the .view.model and .data.model system.
+
+    // Then later support more complex (and / or app-defined) data and view models.
+
+    // Defining what the underlying data of the app is could help (a lot).
+    //   Some data may be for editing, some not.
+
+    // A data model could have a bunch of news articles, and be set up so that they can be viewed nicely.
+    //   Would not be so important to edit the articles themselves, though maybe the user may want to tag them
+    //   and comment on them.
+
+    // Mid-level complexity handling a fair bit of what needs to happen with multiple models, how updates get sequenced
+    //   but then at a high level code must be really simple.
+    // Could distinguish between view and data models at high level - may help a lot in some cases.
+    //   However, will generally assume a shared data model between controls, not a shared view model, and the data model
+    //     will be updated with at least some small / sensible hesitation.
+    //       Maybe even define the update hesitations / update hesitation mode.
+    //   Data Model Update Hesitation Mode???
+
+    // View Model To Data Model Syncing Update Hesitation Mode???
+    //   really explicit names on the more complex mid level will help the code and system to make sense.
+    
+    // syncing.view_to_data.hesitation = 'leave-control' ????
+    //   And could have that one as the default.
+    //     Or could hesitate / debounce 250ms for example.
+    // Very very explicit on the more complex mid / lower level, so that it's really simple on the higher level,
+    //   and can (quickly?) get into more explicit details when needed.
+
+    // Data model syncing seems best in general.
+    //   Then sync data model changes immediately to view models.
+    //   Then only sync view model changes to data model after necessary hesitation / event / confirmation.
+    //     Also be able to cancel view model changes (load values back from data model possibly, some contexts makes a lot more sense)
+
+
+    // The view model is essentially internal to the control - though maybe it would integrate with a whole Page_Context view
+    //   model that's for all the controls...?
+
+    // Internal and separate view models for the controls seems best for the moment.
+    //   Could always use refs to some place else.
+
+    // Have the controls automatically create their view model.
+
+    // Some controls should not determine the data model at application (or larger control) start.
+    //   Maybe some should?
+
+    // Or better to change it so that the Data_Model gets set first, then all the controls given access to it at start (on server)
+    //   and get rendered on the server with the correct data, then on the client it only sets the view_model at the start.
+    //     Or does it???
+    // Want different sensible options for getting that Data_Model to the client. Maybe getting the View_Model to the client????
+
+    // Make it simple and easy to code on the top level API.
+
+    
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+*/
+
 
 
 
@@ -65,6 +164,20 @@ class Demo_UI extends Active_HTML_Document {
 
             window.size = [480, 160];
 
+            // Without specifying the data model.
+            //   Should be able to use and refer to data and view models even when not specified.
+            //     Want this complexity on the lower level to enable simple (but not overly simple/simplstic) higher level programming.
+
+
+
+            // Should set up its data model automatically if not specified here.
+            //   An independent data model, specifically for that text field.
+
+            // Or in the data.model.label_text perhaps?
+
+            // Want to make it easy to make and use somewhat more complex and expressive structures.
+
+            // The text label makes more sense being in the view.data.model???
 
             const ti1 = new Text_Field({
                 context,
@@ -92,19 +205,85 @@ class Demo_UI extends Active_HTML_Document {
 
             
             this._ctrl_fields = this._ctrl_fields || {};
-            this._ctrl_fields.ti1 = ti1;
-            this._ctrl_fields.ti2 = ti2;
+            this._ctrl_fields.ti1 = this.ti1 = ti1;
+            this._ctrl_fields.ti2 = this.ti2 = ti2;
 
 
         }
         if (!spec.el) {
             compose();
+            this.add_change_listeners();
         }
+
+
+        // Can respond to / deal with changes to the data models here, not only when activated.
+        //   The data.model and view.model system seems to offer some higher level improved programming by putting
+        //   more in the constructor. Maybe the activated code ('.activate') would not be needed on higher level controls,
+        //   because the lower level ones will connect it all up the the dom <> view <> data models / system.
+
+        // It even has a 'dom model' too, of sorts ????
+        //   Though currently it's not named that or considered that throughout the code there.
+        // Could be worth moding to dom.model
+        // then view.model
+        // then data.model
+
+        // Could be a structure that better supports non-dom models.
+        //   Though in this case, it would no yet have the refs to all the child things????
+
+        // Getting that back in the 'compose' or 'recompose' stage could help.
+        //   Though it's currently auto-recompose pre activate.
+
+        // Maybe want code to run either when activated, or post-compose.
+        //   add_change_listeners.
+
+        // Would be run server-side after compose (or when composing it like that on the client)
+        //   but when it gets recomosed on the client-side would need to run then instead.
+
+        
+
+
+
+
+
+
+
+
     }
+
+    add_change_listeners() {
+        const {ti1, ti2} = this;
+
+        // Need to fix the text_field data model and view model system.
+
+        //console.log('add_change_listeners');
+        ti1.data.model.on('change', e => {
+            //console.log('ti1 e', e);
+            if (e.name === 'value') {
+                if (e.value !== e.old) {
+                    ti2.data.model.value = e.value;
+                }
+            }
+        });
+
+        ti2.data.model.on('change', e => {
+            //console.log('ti2 e', e);
+            if (e.name === 'value') {
+                if (e.value !== e.old) {
+                    ti1.data.model.value = e.value;
+                }
+            }
+        });
+
+    }
+
+
     activate() {
         if (!this.__active) {
             super.activate();
             const {context, ti1, ti2} = this;
+
+            this.add_change_listeners();
+
 
             console.log('activate Demo_UI');
             // and events dealing with changes to those tis.
@@ -144,13 +323,21 @@ class Demo_UI extends Active_HTML_Document {
 
             // Need to work on having it update the dom with value changes....
 
-            ti1.model.on('change', e => {
-                //console.log('ti1 change e', e);
+            // .data.model change instead.
+            //   referring to a .data.model does seem like a more explicit way to do it.
+            //     definitely looks like a good way to avoid confusion, at a small cost of more code to write.
+
+            /*
+
+            ti1.data.model.on('change', e => {
+                console.log('ti1.data.model change e', e);
 
 
-                if (e.property_name === 'value') {
+
+
+                if (e.name === 'value') {
                     if (e.value !== e.old) {
-                        ti2.value = e.value;
+                        ti2.data.model.value = e.value;
                     }
                 }
 
@@ -160,17 +347,22 @@ class Demo_UI extends Active_HTML_Document {
                 
 
             })
-            ti2.model.on('change', e => {
-                //console.log('ti2 change e', e);
+            ti2.data.model.on('change', e => {
+                console.log('ti2.data.model change e', e);
 
                 // 
 
-                if (e.value !== e.old) {
-                    ti1.value = e.value;
+                if (e.name === 'value') {
+                    if (e.value !== e.old) {
+                        ti1.data.model.value = e.value;
+                    }
                 }
 
                 
+
+                
             })
+            */
 
             // listen for change events.
             //   would be nice to know which change events originated from the user interacting with that specific HTML element (or ctrl???)

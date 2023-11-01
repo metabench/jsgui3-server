@@ -152,26 +152,44 @@ class Demo_UI extends Active_HTML_Document {
             //   Automatically avoiding feedback somehow???
             //     If it gets changed to its current value it does not push the change...?
 
+            // on the data model change instead....
 
-            ti1.on('change', e => {
+
+            // Code has got more complex supporting things by data model changes for the moment.
+            //   May help a lot when making it more explicit.
+
+
+
+            // But could make 'on' (normally?) refer to the .data.model???
+            //   For the moment, keep the more explicit notations, as well as backwards compatibility.
+
+            // ctrl.dom.on may help, be a nicer and more concise syntax, just as explicit (considering the 'on' abbreviatrion)
+
+
+            // does seem convenient having .on refer to dom events if it's an appropriate event name for that.
+
+            
+
+
+            ti1.data.model.on('change', e => {
                 //console.log('ti1 change e', e);
 
                 if (e.value !== e.old) {
-                    ti2.value = e.value;
+                    ti2.data.model.value = e.value;
                 }
 
                 
 
-            })
-            ti2.on('change', e => {
+            });
+            ti2.data.model.on('change', e => {
                 //console.log('ti2 change e', e);
 
                 if (e.value !== e.old) {
-                    ti1.value = e.value;
+                    ti1.data.model.value = e.value;
                 }
 
                 
-            })
+            });
 
             // listen for change events.
             //   would be nice to know which change events originated from the user interacting with that specific HTML element (or ctrl???)

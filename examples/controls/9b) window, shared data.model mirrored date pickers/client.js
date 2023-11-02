@@ -1,7 +1,7 @@
 const jsgui = require('jsgui3-client');
-const {controls, Control, mixins} = jsgui;
+const {controls, Control, mixins, Data_Object} = jsgui;
 const {dragable} = mixins;
-
+const {field} = require('obext');
 
 const {Checkbox, Date_Picker} = controls;
 
@@ -18,11 +18,6 @@ const Active_HTML_Document = require('../../../controls/Active_HTML_Document');
 // Then could have 2 shared model mirrored date pickers.
 
 // still could use just .value and respond to changes in that.
-
-
-
-
-
 
 
 // Maybe any control which has one or more values will benefit from having these 2 or more model levels added to them.
@@ -100,6 +95,32 @@ class Demo_UI extends Active_HTML_Document {
             this.body.add_class('demo-ui');
         }
 
+        // In near future want to make this automatic / lower level.
+        //   Possibly automatic on a Data_Model_View_Model_Control.
+
+        // DMVM_Control perhaps too.
+        //  Or DMVMC perhaps?
+        //   CDMVM / CMVM
+        //    CDMVDM ???
+        //      Could make work on it a bit more and see which ancronym best fits the pattern(s).
+        //    Could have variety of different setups, such as when there is no 'view model'?
+        //    Or there is no 'data model', but it's only for adjusting the value of a 'view model' of another control.
+
+        
+
+
+
+        const setup_demo_ui_data_model = () => {
+            this.data = {
+                model: new Data_Object({
+                    context
+                })
+            }
+            field(this.data.model, 'value');
+            context.register_control(this.data.model);
+        }
+        setup_demo_ui_data_model();
+
         //console.log('this.body', this.body);
         //console.log('this.body.add_class', this.body.add_class);
 
@@ -114,7 +135,7 @@ class Demo_UI extends Active_HTML_Document {
 
             const window = new controls.Window({
                 context: context,
-                title: 'jsgui3-html Checkbox Control',
+                title: 'jsgui3-html Shared Data Model Date_Picker Controls',
                 pos: [10, 10]
             });
 
@@ -156,18 +177,39 @@ class Demo_UI extends Active_HTML_Document {
 
 
 
+            // Then the shared model...
+            //   Being able to set this up on composition would help.
+            //     However, it looks like they need to be assigned the field named 'value' for the value change events to work.
 
-
-            const date_picker = new Date_Picker({
+            const date_picker_1 = new Date_Picker({
                 context,
+                data: {
+                    model: this.data.model
+                }
                 //label: {
                 //    text: 'A checkbox'
                 //}
-            })
+            });
 
-            window.inner.add(date_picker);
+            window.inner.add(date_picker_1);
+
+            const date_picker_2 = new Date_Picker({
+                context,
+                data: {
+                    model: this.data.model
+                }
+                //label: {
+                //    text: 'A checkbox'
+                //}
+            });
+
+            window.inner.add(date_picker_2);
 
             this.body.add(window);
+
+            this._ctrl_fields = this._ctrl_fields || {};
+            this._ctrl_fields.date_picker_1 = date_picker_1;
+            this._ctrl_fields.date_picker_2 = date_picker_2;
 
 
 
@@ -182,39 +224,45 @@ class Demo_UI extends Active_HTML_Document {
     activate() {
         if (!this.__active) {
             super.activate();
-            const {context} = this;
+            const {context, date_picker_1, date_picker_2} = this;
 
             //console.log('activate Demo_UI');
+
+            const activate_demo_ui_data_model = () => {
+                console.log('date_picker_1.data.model === date_picker_2.data.model', date_picker_1.data.model === date_picker_2.data.model);
+                
+                if (date_picker_1.data.model === date_picker_2.data.model) {
+
+                } else {
+
+                    // Should not need this code.
+                    //   Want decent low/mid level code to send the info to the client so the client can automatically reconstruct it.
+                    ///    Maybe a different function as standard to assign isomorphic things.
+
+
+                    const dm = new Data_Object({context});
+                    field(dm, 'value');
+                    date_picker_1.data.model = dm;
+                    date_picker_2.data.model = dm;
+
+                    // But then need to get them to reassign their data model change listeners....?
+                    //   value change even....
+
+                    date_picker_1.assign_data_model_value_change_handler();
+                    date_picker_2.assign_data_model_value_change_handler();
+
+
+                }
+            }
+
+            activate_demo_ui_data_model();
+
+
+
+
             // listen for the context events regarding frames, changes, resizing.
 
             context.on('window-resize', e_resize => {
-                
-                // Could see about having some window contents bound through CSS to the size of the window.
-                //   Though having a framework of adjusting CSS from the JS on-the-fly could work too.
-
-                // May be done with the 'bind' mixin, or will make more specific mixins to do things like bind
-                //   a control to the space within another control, space within a specific part of that control.
-
-                // Or bind to parent size. That should be possible with CSS though.
-                //   May make some controls make more use of CSS by default
-                //   Or having an absolutely positioned box model used extensively could avoid some ambiguity, though
-                //     making use of and supporting generally respected CSS features will help too.
-
-                //console.log('window-resize', e_resize);
-
-                // Make all internal controls go absolute in terms of position
-                //   Remove them from their containers too?
-                //   Ie their containing divs?
-
-                // Would be nice to do this really simple with a fn call or very simple piece of code.
-                // Like get absolute position, set position to be absolute, move to that position.
-                // Maybe something within jsgui3-client helps with this, this is more about what needs to be done on the client.
-                //   Though recognising perf implications, it's (more) OK to include client-side functionality in jsgui3-html.
-
-
-
-
-
 
             });
 

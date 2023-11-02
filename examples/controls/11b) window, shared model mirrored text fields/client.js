@@ -68,20 +68,22 @@ class Demo_UI extends Active_HTML_Document {
         //  Maybe adding the fields to the Data_Object is needed.
 
 
-
-
-
-        this.data = {
-            model: new Data_Object({
-                context
-            })
+        const setup_demo_ui_data_model = () => {
+            this.data = {
+                model: new Data_Object({
+                    context
+                })
+            }
+            field(this.data.model, 'value');
+            context.register_control(this.data.model);
         }
+        setup_demo_ui_data_model();
 
-        //  Not enough....
 
-        //   Maybe it reconnects it with a data.model on the client that lacks that?
+        
 
-        field(this.data.model, 'value');
+
+
 
         // The app as a whole having a view.data.model ????
 
@@ -130,7 +132,7 @@ class Demo_UI extends Active_HTML_Document {
 
 
 
-        context.register_control(this.data.model);
+        
 
 
         // And have it persisted to the HTML by the server that they both use that same data.model???
@@ -331,6 +333,18 @@ class Demo_UI extends Active_HTML_Document {
 
 
 
+            // ._ctrl_fields should automatically be set up.
+            //   Also make it so when there are 0 entries in there it won't render the DOM attribute.
+
+            // First get the MVC properly and explicitly working accross some more controls.
+            //   If any abstractions come really easily then do that.
+            //     Maybe a DMVM_Control could be very effective soon.
+
+            // An 'adjuster' control could possibly have no 'data model' of its own.
+            // It could be set up to adjust either a data model, or a view model.
+
+            
+
             
             this._ctrl_fields = this._ctrl_fields || {};
             this._ctrl_fields.ti1 = ti1;
@@ -374,32 +388,40 @@ class Demo_UI extends Active_HTML_Document {
             //console.log('ti1.data.model', ti1.data.model);
             //console.log('ti2.data.model', ti2.data.model);
 
-            console.log('ti1.data.model === ti2.data.model', ti1.data.model === ti2.data.model);
+            
 
-            if (ti1.data.model === ti2.data.model) {
+            const activate_demo_ui_data_model = () => {
+                console.log('ti1.data.model === ti2.data.model', ti1.data.model === ti2.data.model);
 
-            } else {
+                if (ti1.data.model === ti2.data.model) {
 
-                // Should not need this code.
-                //   Want decent low/mid level code to send the info to the client so the client can automatically reconstruct it.
-                ///    Maybe a different function as standard to assign isomorphic things.
+                } else {
 
-
-
-
-                const dm = new Data_Object({context});
-                field(dm, 'value');
-                ti1.data.model = dm;
-                ti2.data.model = dm;
-
-                // But then need to get them to reassign their data model change listeners....?
-                //   value change even....
-
-                ti1.assign_data_model_value_change_handler();
-                ti2.assign_data_model_value_change_handler();
+                    // Should not need this code.
+                    //   Want decent low/mid level code to send the info to the client so the client can automatically reconstruct it.
+                    ///    Maybe a different function as standard to assign isomorphic things.
 
 
+
+
+                    const dm = new Data_Object({context});
+                    field(dm, 'value');
+                    ti1.data.model = dm;
+                    ti2.data.model = dm;
+
+                    // But then need to get them to reassign their data model change listeners....?
+                    //   value change even....
+
+                    ti1.assign_data_model_value_change_handler();
+                    ti2.assign_data_model_value_change_handler();
+
+
+                }
             }
+
+            activate_demo_ui_data_model();
+
+            
 
             // Create a new data_model (and view_model?) for both of them?
             //   The view_model gets created by default and does not need to be shared (and should not be)

@@ -7,6 +7,11 @@ const {Checkbox, Date_Picker} = controls;
 
 const Active_HTML_Document = require('../../../controls/Active_HTML_Document');
 
+// Late 2023 - Definitely want to get into improving and simplifying the use of the control.data.model and control.view.model system.
+// 
+
+
+
 // Will make Date_Picker use progressive enhancement.
 //   On activation would create a new element? Create a new sibling?
 //     May want code that checks for .el being changed.
@@ -58,10 +63,59 @@ const Active_HTML_Document = require('../../../controls/Active_HTML_Document');
 
 
 // It's .value would refer to its .data.model.value
-
-
-
 // Nice to have the date picker (be able to) use .data.model and .view.model.
+
+
+// Not needing to ever make the ._ctrl_fields object may help a decent bit with the code idiom.
+//   Making it more concise.
+//     Maybe want a different / better way to set the data.model and view.model.
+
+// Possibly the view.model could be a single field / object of the data.model.
+//   Want to allow for intuitive and powerful setups of that kind of data binding.
+
+// May be worth making a mixin that sets things up for it, while have a Control_DataModel_ViewModel may help...
+//   Even possibly 2 view models - one for while it's being set, the other being its last valid state.
+//     If someone sets it to an invalid state, then the change can't be made on the Data_Model, would want to
+//       return it to its last valid state, or the current state of the data_model.
+
+// Seems like there could be a few functions that could be written with very little code that will deal with the necessary things.
+//   For the moment, does seem like it's worth making explicit within controls.
+
+// Though - the view model could include scroll positions, and what is selected.
+//   Maybe consider the view.data.model to be more specific still.
+
+// view.data.model does actually seem important when it comes to a copy of, or reference to, (or portion of) the data.model.
+
+// The way the view.data.model interacts with the data.model could be important.
+//   the view.data.model could possibly just represent the data in the view, and also data ready to be viewed.
+//     Take necessary steps to sync it with the data.model.
+
+
+
+
+
+
+//   And also the view.ui.model as well.
+//     Or view.ui.data.model????
+
+
+//     Where font-size could be the font-size that the user is setting for a document they are writing, or they could
+//       be adjusting the font-size so it fits better on their screen.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -106,7 +160,7 @@ class Demo_UI extends Active_HTML_Document {
         //    Could have variety of different setups, such as when there is no 'view model'?
         //    Or there is no 'data model', but it's only for adjusting the value of a 'view model' of another control.
 
-        
+
 
 
 
@@ -204,17 +258,10 @@ class Demo_UI extends Active_HTML_Document {
             });
 
             window.inner.add(date_picker_2);
-
             this.body.add(window);
-
             this._ctrl_fields = this._ctrl_fields || {};
             this._ctrl_fields.date_picker_1 = date_picker_1;
             this._ctrl_fields.date_picker_2 = date_picker_2;
-
-
-
-            
-
 
         }
         if (!spec.el) {

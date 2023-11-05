@@ -22,6 +22,14 @@ const Active_HTML_Document = require('../../../controls/Active_HTML_Document');
 // Relies on extracting CSS from JS files.
 // Usage of windows should be very easy on this level.
 
+// Grid Control would definitely benefit from the .data.model and .view.data.model distinction.
+
+
+//   and view.ui.data.model too perhaps.
+
+
+
+
 
 class Demo_UI extends Active_HTML_Document {
     constructor(spec = {}) {
@@ -105,6 +113,11 @@ class Demo_UI extends Active_HTML_Document {
             compose();
         }
     }
+
+    // Should not need own activation code.
+
+    /*
+
     activate() {
         if (!this.__active) {
             super.activate();
@@ -134,6 +147,7 @@ class Demo_UI extends Active_HTML_Document {
 
         }
     }
+    */
 }
 
 // Include this in bundling.

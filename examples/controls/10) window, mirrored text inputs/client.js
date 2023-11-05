@@ -12,7 +12,7 @@ const Active_HTML_Document = require('../../../controls/Active_HTML_Document');
 //     May want code that checks for .el being changed.
 
 
-
+// Should not need to refer to the .data.model? view.data.model?
 
 
 
@@ -168,7 +168,7 @@ class Demo_UI extends Active_HTML_Document {
 
             // does seem convenient having .on refer to dom events if it's an appropriate event name for that.
 
-            
+
 
 
             ti1.data.model.on('change', e => {

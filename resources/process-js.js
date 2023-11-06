@@ -12,7 +12,7 @@
 
 
 
-const {each} = require('lang-mini');
+const {each} = require('lang-tools');
 // Strings of js?
 //  Array of lines?
 

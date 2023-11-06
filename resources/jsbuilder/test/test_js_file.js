@@ -38,7 +38,7 @@ const JS_File = require('../JS_File/JS_File');
 const path = require('path');
 const fs = require('fs');
 const Project = require('../Project');
-const {each} = require('lang-mini');
+const {each} = require('lang-tools');
 
 const JS_AST_Node = require('../JS_AST_Node_Extended/JS_AST_Node_Extended');
 
@@ -217,7 +217,7 @@ const test_js_file = () => {
                                 //console.log('node.source', node.source);
 
                             if (node.signature === 'VDn(VDr(ID,CE(ID,SL)))') {
-                                // var lang_mini = require('lang-mini');
+                                // var lang_mini = require('lang-tools');
 
                                 // could spot that it's a require call here.
                                 //  basically this code is going to be re-worked in some ways to make use of improved queries.

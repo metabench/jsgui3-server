@@ -1,5 +1,5 @@
 //const JS_AST_Node = require('../JS_AST/JS_AST_Node');
-const {each} = require('lang-mini');
+const {each} = require('lang-tools');
 const JS_AST_Node_Extended_Core = require('./JS_AST_Node_Extended_0-Core');
 
 class JS_AST_Node_Declaration extends JS_AST_Node_Extended_Core {

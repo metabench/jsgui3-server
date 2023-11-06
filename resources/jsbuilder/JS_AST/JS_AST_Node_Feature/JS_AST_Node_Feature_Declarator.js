@@ -1,7 +1,7 @@
 // When a declaration is treated as a feature, there is programming less specifically for it being a node.
 
 // Feature is an abstraction on top of JS_AST_Node.
-const {each} = require('lang-mini');
+const {each} = require('lang-tools');
 
 const JS_AST_Node_Feature = require('./JS_AST_Node_Feature');
 

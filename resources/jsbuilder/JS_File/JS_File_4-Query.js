@@ -1,4 +1,4 @@
-const {each, tof} = require('lang-mini');
+const {each, tof} = require('lang-tools');
 const JS_File_JS_AST_Node = require('./JS_File_3-JS_AST_Node');
 
 const JS_File_Import_References = require('./JS_File_Import_References');

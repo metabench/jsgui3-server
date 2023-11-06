@@ -1,6 +1,6 @@
 // Do more to get the mirrored node structure set up earlier.
 
-const {each} = require('lang-mini');
+const {each} = require('lang-tools');
 const JS_AST_Node_Changing = require('./JS_AST_Node_10-Changing');
 
 const babel_node_tools = require('../babel/babel_node_tools');

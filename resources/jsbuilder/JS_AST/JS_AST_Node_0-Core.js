@@ -1,4 +1,4 @@
-const {each} = require('lang-mini');
+const {each} = require('lang-tools');
 
 class JS_AST_Node_Core {
     constructor(spec = {}) {

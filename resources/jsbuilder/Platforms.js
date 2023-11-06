@@ -3,7 +3,7 @@
 
 
 // Acts as an array / collection of platforms. Will use enumerator.
-const {tof, each, Evented_Class} = require('lang-mini');
+const {tof, each, Evented_Class} = require('lang-tools');
 
 // A platform can require a variety of other platforms under it.
 

@@ -1,7 +1,7 @@
 // Defines a single constant, which is also functionality to be built.
 
 
-const {each, Evented_Class} = require('lang-mini');
+const {each, Evented_Class} = require('lang-tools');
 
 // Is this necessary, is it worth going further than Babel AST?
 //  Or JS_AST_Node?

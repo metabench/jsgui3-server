@@ -20,7 +20,7 @@ const test_lang_mini_project = () => {
     const path = require('path');
     const fs = require('fs');
     const Project = require('../Project');
-    const {each} = require('lang-mini');
+    const {each} = require('lang-tools');
 
     const JS_AST_Node = require('../JS_AST_Node_Extended/JS_AST_Node_Extended');
 

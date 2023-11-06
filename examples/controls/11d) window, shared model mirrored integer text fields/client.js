@@ -1,8 +1,7 @@
 const jsgui = require('jsgui3-client');
-const {controls, Control, mixins, Data_Object} = jsgui;
+const {controls, Control, mixins, Data_Value, Functional_Data_Type} = jsgui;
 const {dragable} = mixins;
 
-const {field} = require('obext');
 
 const {Checkbox, Date_Picker, Text_Input, Text_Field} = controls;
 
@@ -70,11 +69,12 @@ class Demo_UI extends Active_HTML_Document {
 
         const setup_demo_ui_data_model = () => {
             this.data = {
-                model: new Data_Object({
-                    context
+                model: new Data_Value({
+                    context,
+                    data_type: Functional_Data_Type.integer
                 })
             }
-            field(this.data.model, 'value');
+            //field(this.data.model, 'value');
             context.register_control(this.data.model);
         }
         setup_demo_ui_data_model();
@@ -404,8 +404,12 @@ class Demo_UI extends Active_HTML_Document {
 
 
 
-                    const dm = new Data_Object({context});
-                    field(dm, 'value');
+                    const dm = new Data_Value({context,
+                        data_type: Functional_Data_Type.integer});
+
+                    // Should be enough here....
+                    
+                    //field(dm, 'value');
                     ti1.data.model = dm;
                     ti2.data.model = dm;
 

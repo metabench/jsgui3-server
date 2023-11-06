@@ -1,4 +1,4 @@
-const {each, Evented_Class} = require('lang-mini');
+const {each, Evented_Class} = require('lang-tools');
 const crypto = require('crypto');
 
 const whitespace_chars = {

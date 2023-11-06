@@ -4,7 +4,7 @@
 //  Internally, it operates in a sequence (kind of). 
 
 
-const {each, Evented_Class} = require('lang-mini');
+const {each, Evented_Class} = require('lang-tools');
 
 class Declaration_Sequence extends Evented_Class {
     constructor(spec = {}) {

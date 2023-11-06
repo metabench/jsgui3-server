@@ -14,7 +14,7 @@ const JS_File = require('../JS_File/JS_File');
 const path = require('path');
 const fs = require('fs');
 const Project = require('../Project');
-const {each} = require('lang-mini');
+const {each} = require('lang-tools');
 
 //const JS_AST_Node = require('../JS_AST/JS_AST_Node');
 const JS_AST_Node = require('../JS_AST_Node_Extended/JS_AST_Node_Extended');

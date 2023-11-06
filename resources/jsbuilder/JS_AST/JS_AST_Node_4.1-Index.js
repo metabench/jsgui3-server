@@ -7,7 +7,7 @@
 // Indexing at every level looks like it would be useful.
 //  so in order to get the info about how the names relate to nodes we consult indexes.
 
-const { each } = require('lang-mini');
+const { each } = require('lang-tools');
 const JS_AST_Node_Basics_Callmap = require('./JS_AST_Node_3.6-Basics_Callmap');
 const JS_AST_Node_Indexes = require('./JS_AST_Node_4.0-Index_Indexes');
 

@@ -1,5 +1,5 @@
 
-const {each} = require('lang-mini');
+const {each} = require('lang-tools');
 
 //const find_object_keys = require('../../query/find_object_keys');
 

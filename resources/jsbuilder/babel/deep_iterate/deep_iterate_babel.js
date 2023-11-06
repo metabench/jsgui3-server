@@ -8,7 +8,7 @@
 
 
 
-const {each} = require('lang-mini');
+const {each} = require('lang-tools');
 //const babel_node_tools = require('../babel_node_tools');
 
 

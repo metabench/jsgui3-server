@@ -1,4 +1,4 @@
-const {each, Evented_Class} = require('lang-mini');
+const {each, Evented_Class} = require('lang-tools');
 const Declaration_Sequence = require('./Abstract_Single_Declaration_Sequence');
 
 class Scope extends Evented_Class {

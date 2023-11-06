@@ -8,16 +8,16 @@
     "@babel/parser": "7.23.0",
     "cookies": "^0.8.0",
     "esbuild": "^0.19.5",
-    "fnl": "^0.0.31",
-    "fnlfs": "^0.0.29",
-    "jsgui3-client": "^0.0.106",
-    "jsgui3-html": "^0.0.144",
+    "fnl": "^0.0.34",
+    "fnlfs": "^0.0.30",
+    "jsgui3-client": "^0.0.109",
+    "jsgui3-html": "^0.0.147",
     "jsgui3-webpage": "^0.0.8",
     "jsgui3-website": "^0.0.8",
-    "lang-tools": "^0.0.25",
+    "lang-tools": "^0.0.29",
     "multiparty": "^4.2.3",
     "ncp": "^2.0.0",
-    "obext": "^0.0.28",
+    "obext": "^0.0.30",
     "rimraf": "^3.0.2",
     "stream-to-array": "^2.3.0",
     "url-parse": "^1.5.10"
@@ -38,5 +38,5 @@
     "type": "git",
     "url": "https://github.com/metabench/jsgui3-server.git"
   },
-  "version": "0.0.119"
+  "version": "0.0.120"
 }

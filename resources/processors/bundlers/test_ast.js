@@ -42,7 +42,7 @@ const JS_File = require('../resources/jsbuilder/JS_File/JS_File');
 //const JS_File_Comprehension = require('../JS_File_Comprehension');
 const path = require('path');
 const fs = require('fs');
-const {each} = require('lang-mini');
+const {each} = require('lang-tools');
 
 const JS_AST_Node = require('../resources/jsbuilder/JS_AST_Node_Extended/JS_AST_Node_Extended');
 

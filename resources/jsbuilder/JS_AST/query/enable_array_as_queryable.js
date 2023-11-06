@@ -1,4 +1,4 @@
-const {each} = require('lang-mini');
+const {each} = require('lang-tools');
 
 const create_query_execution_fn = (arr, words = []) => {
     //console.log('words', words);

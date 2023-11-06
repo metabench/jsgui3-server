@@ -1,6 +1,6 @@
 const JS_File_Query_Features = require('./JS_File_4.1-Query_Features.js');
 const Variable_Name_Provider = require('../Variable_Name_Provider');
-const { each } = require('lang-mini');
+const { each } = require('lang-tools');
 class JS_File_Planning extends JS_File_Query_Features {
     constructor(spec) {
         super(spec);

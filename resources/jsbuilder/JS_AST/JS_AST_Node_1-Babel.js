@@ -1,5 +1,5 @@
 const babel_node_tools = require('../babel/babel_node_tools');
-const {each} = require('lang-mini');
+const {each} = require('lang-tools');
 const {deep_iterate_babel_node} = babel_node_tools;
 const parser = require('@babel/parser');
 const JS_AST_Node_Core = require('./JS_AST_Node_0-Core');

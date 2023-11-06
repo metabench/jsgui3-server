@@ -2,7 +2,7 @@
 
 // Want to write out jsgui in such a way that the lower levels are all accessed as local functions and objects within an inner scope.
 
-const {each, Evented_Class} = require('lang-mini');
+const {each, Evented_Class} = require('lang-tools');
 //const { default: JS_Builder } = require('./JS_Builder');
 
 // Interpret / arrange a file in terms of the other objects within this system.

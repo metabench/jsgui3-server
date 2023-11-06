@@ -1,6 +1,6 @@
 // Make a platform about providing variables.
 
-const {each, Evented_Class} = require('lang-mini');
+const {each, Evented_Class} = require('lang-tools');
 const Declaration_Sequence = require('./Abstract_Single_Declaration_Sequence');
 
 class Platform extends Evented_Class {

@@ -1,6 +1,6 @@
 const JS_File_Planning = require('./JS_File_5-Planning');
 const Variable_Name_Provider = require('../Variable_Name_Provider');
-const { each } = require('lang-mini');
+const { each } = require('lang-tools');
 
 const {transform} = require("@babel/core");
 // import { transform } from "@babel/core";

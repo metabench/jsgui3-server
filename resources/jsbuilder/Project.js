@@ -8,7 +8,7 @@
 //   Could load a whole load of them / category.
 //   Or 
 
-const {each, Evented_Class} = require('lang-mini');
+const {each, Evented_Class} = require('lang-tools');
 
 //const JS_File = require('./JS_File_Core');
 const Platforms = require('./Platforms');

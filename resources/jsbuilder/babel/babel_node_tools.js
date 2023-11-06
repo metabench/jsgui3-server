@@ -1,5 +1,5 @@
 //const { resolvePlugin } = require('@babel/core');
-const {each} = require('lang-mini');
+const {each} = require('lang-tools');
 
 const deep_iterate_babel_node = require('./deep_iterate/deep_iterate_babel');
 

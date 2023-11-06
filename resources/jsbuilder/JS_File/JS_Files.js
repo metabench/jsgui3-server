@@ -1,4 +1,4 @@
-const {each, Evented_Class} = require('lang-mini');
+const {each, Evented_Class} = require('lang-tools');
 
 class JS_Files extends Evented_Class {
     constructor(spec) {

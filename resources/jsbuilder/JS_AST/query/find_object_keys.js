@@ -1,4 +1,4 @@
-const {each} = require('lang-mini');
+const {each} = require('lang-tools');
 
 
 // Doesn't use the index - at least not yet.

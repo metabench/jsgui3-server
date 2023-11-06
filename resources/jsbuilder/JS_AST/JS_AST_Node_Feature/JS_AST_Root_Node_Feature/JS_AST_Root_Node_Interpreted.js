@@ -4,7 +4,7 @@ const JS_AST_Node = require('../../JS_AST_Node');
 const JS_AST_Root_Node_Feature_Exports = require('./JS_AST_Root_Node_Feature_Exports');
 
 
-const {each} = require('lang-mini');
+const {each} = require('lang-tools');
 // A map of named / relevant inner nodes could be a useful feature of the ast node overall.
 
 // or is it an index if it's mapping to an array?

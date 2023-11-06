@@ -1,5 +1,5 @@
 // Change to Group_Relationship?
-const {each} = require('lang-mini');
+const {each} = require('lang-tools');
 const JS_AST_Group_Shared = require('./JS_AST_Group_Shared');
 
 

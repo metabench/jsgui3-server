@@ -1,5 +1,5 @@
 const JS_File_Early_Parse = require('./JS_File_1-Early_Parse');
-const {each, tof} = require('lang-mini');
+const {each, tof} = require('lang-tools');
 
 const parser = require('@babel/parser');
 

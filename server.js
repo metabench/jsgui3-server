@@ -422,39 +422,75 @@ class JSGUI_Single_Process_Server extends Evented_Class {
 					if (err) {
 						callback(err);
 					} else {
-						var arr_ipv4_addresses = [];
+						 // NEW: Filter addresses by allowed_addresses if specified.
+						let arr_ipv4_addresses = [];
 						each(net, (arr_addresses, name) => {
 							each(arr_addresses, (obj_address) => {
 								if (obj_address.family === 'IPv4') {
 									arr_ipv4_addresses.push(obj_address.address);
 								}
-							})
+							});
 						});
+						if (this.allowed_addresses && this.allowed_addresses.length) {
+							arr_ipv4_addresses = arr_ipv4_addresses.filter(a => this.allowed_addresses.indexOf(a) > -1);
+						}
 						let num_to_start = arr_ipv4_addresses.length;
+						if (num_to_start === 0) {
+							callback('No allowed network interfaces found.');
+							return;
+						}
 						if (this.https_options) {
 							each(arr_ipv4_addresses, (ipv4_address) => {
-								var https_server = https.createServer(this.https_options, function(req, res) {
-									var server_routing_res = server_router.process(req, res);
-								});
-								https_server.timeout = 10800000;
-								https_server.listen(port, ipv4_address);
-								console.log('* Server running at https://' + ipv4_address + ':' + port + '/');
-								num_to_start--;
-								if (num_to_start === 0) {
-									if (callback) callback(null, true);
+								try {
+									var https_server = https.createServer(this.https_options, function(req, res) {
+										var server_routing_res = server_router.process(req, res);
+									});
+									https_server.on('error', (err) => {
+										if (err.code === 'EACCES') {
+											console.error('Permission denied:', err.message);
+										} else {
+											console.error('https_server error:', err);
+										}
+										num_to_start--;
+										if (num_to_start === 0 && callback) callback(null, true);
+									});
+									https_server.timeout = 10800000;
+									https_server.listen(port, ipv4_address, () => {
+										console.log('* Server running at https://' + ipv4_address + ':' + port + '/');
+										num_to_start--;
+										if (num_to_start === 0 && callback) callback(null, true);
+									});
+								} catch (err) {
+									console.log('https_server err', err);
+									num_to_start--;
+									if (num_to_start === 0 && callback) callback(null, true);
 								}
 							});
 						} else {
 							each(arr_ipv4_addresses, (ipv4_address) => {
-								var http_server = http.createServer(function(req, res) {
-									var server_routing_res = server_router.process(req, res);
-								});
-								http_server.timeout = 10800000;
-								http_server.listen(port, ipv4_address);
-								console.log('* Server running at http://' + ipv4_address + ':' + port + '/');
-								num_to_start--;
-								if (num_to_start === 0) {
-									if (callback) callback(null, true);
+								try {
+									var http_server = http.createServer(function(req, res) {
+										var server_routing_res = server_router.process(req, res);
+									});
+									http_server.on('error', (err) => {
+										if (err.code === 'EACCES') {
+											console.error('Permission denied:', err.message);
+										} else {
+											console.error('http_server error:', err);
+										}
+										num_to_start--;
+										if (num_to_start === 0 && callback) callback(null, true);
+									});
+									http_server.timeout = 10800000;
+									http_server.listen(port, ipv4_address, () => {
+										console.log('* Server running at http://' + ipv4_address + ':' + port + '/');
+										num_to_start--;
+										if (num_to_start === 0 && callback) callback(null, true);
+									});
+								} catch (err) {
+									console.log('http_server err', err);
+									num_to_start--;
+									if (num_to_start === 0 && callback) callback(null, true);
 								}
 							});
 						}

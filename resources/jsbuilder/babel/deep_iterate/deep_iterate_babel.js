@@ -475,7 +475,13 @@ const deep_iterate_babel_template_literal_node = (babel_node, depth, path, commo
 
 
     if (expressions.length > 0) {
-        throw 'NYI';
+        //console.log('babel_node', babel_node);
+        //console.log('expressions', expressions);
+        //throw 'NYI';
+
+        each(expressions, expression => {
+            deep_iterate_babel_node_$INTERNAL(expression, depth + 1, path + sibling_number++ + '/', common, callback);
+        });
     }
 
     if (quasis.length > 0) {
@@ -491,6 +497,13 @@ const deep_iterate_babel_template_literal_node = (babel_node, depth, path, commo
     
 }
 
+// deep_iterate_babel_bigint_literal_node
+
+const deep_iterate_babel_bigint_literal_node = (babel_node, depth, path, common, callback) => {
+    // Maybe nothing to do here? For now?
+
+}
+
 // deep_iterate_babel_template_element_node
 
 const deep_iterate_babel_template_element_node = (babel_node, depth, path, common, callback) => {
@@ -498,6 +511,10 @@ const deep_iterate_babel_template_element_node = (babel_node, depth, path, commo
 
     const {value} = babel_node;
     const {raw, cooked} = value;
+
+    //console.log('babel_node', babel_node);
+    //throw 'NYI';
+    
 
 };
 
@@ -814,13 +831,19 @@ const deep_iterate_babel_node_$INTERNAL = (babel_node, depth, path, common, call
 
                 // ForOfStatement
 
-            }else if (type === 'DoWhileStatement') {
+            } else if (type === 'DoWhileStatement') {
                 return deep_iterate_babel_do_while_statement_node(babel_node, depth, path, common, callback);
+            } else if (type === 'BigIntLiteral') {
+                return deep_iterate_babel_bigint_literal_node(babel_node, depth, path, common, callback);
             } else {
 
                 // DoWhileStatement
                 //   body, test
                 //   BlockStatement, LogicalExpression
+
+                // BigIntLiteral
+
+
 
                 // FunctionDeclaration TemplateLiteral TemplateElement TryStatement CatchClause
                 // SwitchStatement SwitchCase RegExpLiteral BreakStatement ForInStatement

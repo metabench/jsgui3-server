@@ -7,8 +7,7 @@ if (require.main === module) {
     
     const server = new Server({
         Ctrl: Demo_UI,
-        // Giving it the Ctrl and disk path client js should enable to server to get the JS-bundled CSS from the file(s).
-        //  Putting the JS files through proper parsing and into a syntax tree would be best.
+        debug: true,
 
 
         //'js_mode': 'debug',

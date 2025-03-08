@@ -1,7 +1,7 @@
 const jsgui = require('jsgui3-client');
 const {controls, Control, mixins} = jsgui;
 const {dragable} = mixins;
-const {Checkbox, Date_Picker, Text_Input, Text_Field, Select_Options} = controls;
+const {Checkbox, Date_Picker, Text_Input, Text_Field, Dropdown_Menu} = controls;
 const Active_HTML_Document = require('../../../controls/Active_HTML_Document');
 class Demo_UI extends Active_HTML_Document {
     constructor(spec = {}) {
@@ -18,7 +18,7 @@ class Demo_UI extends Active_HTML_Document {
                 pos: [5, 5]
             });
             window.size = [480, 160];
-            const select_options = new Select_Options({
+            const select_options = new Dropdown_Menu({
                 context,
                 options: ['zero', 'one', 'two', 'three', 'four', 'five']
             });

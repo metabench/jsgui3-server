@@ -1,6 +1,6 @@
 const jsgui = require('jsgui3-client');
 const {controls, Control, mixins} = jsgui;
-const {dragable} = mixins;
+const {dragable, selectable} = mixins;
 
 const Active_HTML_Document = require('../../../../controls/Active_HTML_Document');
 
@@ -67,12 +67,24 @@ class Square_Box extends Control {
             super.activate();
             console.log('Activate square box');
 
+            /*
             dragable(this, {
                 drag_mode: 'translate'
             });
-            
             console.log('dragable mixin applied to square box');
             this.dragable = true;
+            */
+
+            selectable(this);
+            console.log('selectable mixin applied to square box');
+            this.selectable = true;
+            // Maybe should turn on selectable by default?
+            //   Though mixins may be best to add functionality rather than add and enable it always.
+
+            //this.selectable = true;
+            
+            
+            
             //console.log('this.dragable = true;');
 
             this.on('dragend', e => {
@@ -100,9 +112,14 @@ class Square_Box extends Control {
 }
 Square_Box.css = `
 .square-box {
+    box-sizing: border-box;
     background-color: #BB3333;
     width: 80px;
     height: 80px;
+}
+.square-box.selected {
+    background-color: #3333BB;
+    border: 3px solid #000;
 }
 `;
 

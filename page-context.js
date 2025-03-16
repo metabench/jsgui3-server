@@ -73,6 +73,7 @@ class Server_Page_Context extends jsgui.Page_Context {
 			return res;
 		}
 		this.new_id = _get_new_typed_object_id;
+		this.mixins = jsgui.mixins;
 	}
 	'get_dtd'() {
 		if (this.rendering_mode === 'html5') {

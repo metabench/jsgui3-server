@@ -76,37 +76,12 @@ class Square_Box extends Control {
             */
 
             selectable(this);
-            console.log('selectable mixin applied to square box');
+            console.log('selectable mixin applied to square box on activation');
             this.selectable = true;
             // Maybe should turn on selectable by default?
             //   Though mixins may be best to add functionality rather than add and enable it always.
 
-            //this.selectable = true;
             
-            
-            
-            //console.log('this.dragable = true;');
-
-            this.on('dragend', e => {
-                this.background.color = '#44FF44';
-                const bcr = this.bcr();
-                const absolutise_position = () => {
-                    const style = this.dom.attributes.style;
-                    // but need to move it to the body....
-                    // But then when it's in absolute position the dragable mixin needs to support it and not mess up...
-
-                    style.position = 'absolute';
-                    style.left = bcr[0][0];
-                    style.top = bcr[0][1];
-                    style.transform = 'none';
-                    // Much better if these lines were not needed. Should be able to set these ta translate x and y values once the
-                    //   style transform gets set.
-                    this.ta[6] = 0; // This ta system may be a good and fast way to set translations, should not need to
-                    // use it when using a higher level api though.
-                    this.ta[7] = 0;
-                }
-                absolutise_position();
-            });
         }
     }
 }

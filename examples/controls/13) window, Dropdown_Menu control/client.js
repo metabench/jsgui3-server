@@ -14,7 +14,7 @@ class Demo_UI extends Active_HTML_Document {
         const compose = () => {
             const window = new controls.Window({
                 context: context,
-                title: 'jsgui3-html Select_Options',
+                title: 'jsgui3-html Dropdown_Menu',
                 pos: [5, 5]
             });
             window.size = [480, 160];

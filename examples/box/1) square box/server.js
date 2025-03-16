@@ -1,6 +1,6 @@
 const jsgui = require('./client');
 
-const {Demo_UI, Square_Box} = jsgui.controls;
+const {Demo_UI} = jsgui.controls;
 const Server = require('../../../server');
 
 
@@ -97,7 +97,7 @@ if (require.main === module) {
 
         // server start will change to observable?
 
-        server.start(8080, function (err, cb_start) {
+        server.start(52000, function (err, cb_start) {
             if (err) {
                 throw err;
             } else {

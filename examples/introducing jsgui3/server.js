@@ -54,7 +54,7 @@ if (require.main === module) {
 
         // server start will change to observable?
 
-        server.start(8080, function (err, cb_start) {
+        server.start(52000, function (err, cb_start) {
             if (err) {
                 throw err;
             } else {

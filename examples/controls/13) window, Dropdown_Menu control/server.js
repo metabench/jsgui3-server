@@ -4,6 +4,7 @@ const Server = require('../../../server');
 if (require.main === module) {
     const server = new Server({
         Ctrl: Demo_UI,
+        debug: true,
         'src_path_client_js': require.resolve('./client.js'),
     });
     console.log('waiting for server ready event');

@@ -10,7 +10,7 @@ jsgui.Server_Page_Context = Server_Page_Context;
 
 jsgui.controls.Active_HTML_Document = require('./controls/Active_HTML_Document');
 // Login = require('../resource/login'),
-console.log('jsgui.controls.Active_HTML_Document', jsgui.controls.Active_HTML_Document);
+//console.log('jsgui.controls.Active_HTML_Document', jsgui.controls.Active_HTML_Document);
 
 //var Server = {};
 

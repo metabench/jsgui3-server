@@ -4,14 +4,14 @@
   "license": "MIT",
   "dependencies": {
     "@babel/core": "^7.26.10",
-    "@babel/generator": "^7.26.10",
-    "@babel/parser": "7.26.10",
+    "@babel/generator": "^7.27.5",
+    "@babel/parser": "7.27.7",
     "cookies": "^0.9.1",
-    "esbuild": "^0.25.1",
+    "esbuild": "^0.25.5",
     "fnl": "^0.0.36",
-    "fnlfs": "^0.0.32",
-    "jsgui3-client": "^0.0.113",
-    "jsgui3-html": "^0.0.159",
+    "fnlfs": "^0.0.33",
+    "jsgui3-client": "^0.0.4",
+    "jsgui3-html": "^0.0.161",
     "jsgui3-webpage": "^0.0.8",
     "jsgui3-website": "^0.0.8",
     "lang-tools": "^0.0.36",
@@ -38,5 +38,5 @@
     "type": "git",
     "url": "https://github.com/metabench/jsgui3-server.git"
   },
-  "version": "0.0.124"
+  "version": "0.0.125"
 }

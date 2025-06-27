@@ -196,7 +196,6 @@ The framework includes several consistency verification patterns:
 
 - **Console Logging:** Extensive logging during server startup and events
 - **Port Configuration:** Standardized on port 52000 for examples
-- **Hot Reloading:** Server can be restarted to pick up client.js changes
 - **Activation Lifecycle:** `activate()` method provides hook for post-initialization logic
 
 ## Dependencies and Integration
@@ -383,8 +382,7 @@ context.on('window-resize', e_resize => { });
 ### Event Naming Conventions
 
 - `window-resize` - Browser window size changes
-- `data-model-value-change` - Data model property updates
-- Control-specific events follow `control-event` pattern
+- Control-specific events follow framework patterns
 
 ## Control Composition Hierarchy
 
@@ -602,10 +600,8 @@ window.pos                   // Current position
 ```
 
 **Window Features:**
-- Draggable by title bar (via `dragable` mixin)
-- Resizable borders
-- Close button functionality
-- Z-index management for overlapping windows
+- Draggable by title bar
+- Window positioning and management
 - Child control containment via `inner` property
 
 ### Data_Object Reactive System
@@ -665,9 +661,6 @@ context.on('event-name', handler);
 
 // Common event types:
 'window-resize'              // Browser window size changes
-'data-model-value-change'    // Data model property updates
-'control-activated'          // Control becomes active
-'control-deactivated'        // Control becomes inactive
 
 // Event handler patterns
 context.on('window-resize', e_resize => {
@@ -714,11 +707,8 @@ activate() {
 const sharedModel = new Data_Object({ context });
 field(sharedModel, 'value');
 
-const controls = [
-  new Date_Picker({ context, data: { model: sharedModel } }),
-  new Text_Input({ context, data: { model: sharedModel } }),
-  new Display_Label({ context, data: { model: sharedModel } })
-];
+const date_picker_1 = new Date_Picker({ context, data: { model: sharedModel } });
+const date_picker_2 = new Date_Picker({ context, data: { model: sharedModel } });
 
 // Any control's changes propagate to all others
 ```
@@ -769,20 +759,14 @@ const server = new Server({
 // 1. Browser requests application
 // 2. Server serves bundled JavaScript
 // 3. Client executes and creates UI
-// 4. WebSocket connection established for real-time updates
-// 5. UI events flow back to server via WebSocket
-// 6. Server processes events and updates models
-// 7. Model changes propagate back to client
+// 4. Real-time updates handled through framework
+// 5. UI events processed by client-side framework
+// 6. Data model changes handled by shared state system
 ```
 
 ### Multi-Client Synchronization
 
-```javascript
-// Server maintains shared state across multiple clients
-// Changes from one client propagate to all connected clients
-// Data models are server-authoritative
-// Client UI updates reflect server state changes
-```
+Data models can be shared within a single client instance, enabling synchronized UI controls.
 
 ## CSS Architecture and Styling
 
@@ -855,14 +839,7 @@ context.on('window-resize', e_resize => {
 ```javascript
 const checkbox = new Checkbox({
   context,
-  label: { text: 'Checkbox Label' },     // Label configuration
-  // Optional data binding
-  data: { model: booleanModel }          // Binds to boolean field
-});
-
-// Checkbox events
-checkbox.on('change', (checked) => {
-  // Handle checkbox state changes
+  label: { text: 'A checkbox' }
 });
 ```
 
@@ -872,19 +849,9 @@ checkbox.on('change', (checked) => {
 const tabbed_panel = new controls.Tabbed_Panel({
   context,
   tabs: [
-    // String-only tabs (content provided separately)
-    'Tab 1', 'Tab 2', 'Tab 3',
-    
-    // OR control-embedded tabs
-    ['Tab 1', controlInstance1],
-    ['Tab 2', controlInstance2],
-    ['Tab 3', controlInstance3]
+    ['tab 1', new Control({context, size: [250, 250], background: {color: '#553311'}})],
+    ['tab 2', new Control({context, size: [250, 250], background: {color: '#1177AA'}})]
   ]
-});
-
-// Tab switching events
-tabbed_panel.on('tab-changed', (tabIndex) => {
-  // Handle tab selection
 });
 ```
 
@@ -893,16 +860,7 @@ tabbed_panel.on('tab-changed', (tabIndex) => {
 ```javascript
 const date_picker = new Date_Picker({
   context,
-  data: { model: dateModel },            // Binds to date field
-  // Optional configuration
-  format: 'YYYY-MM-DD',                  // Date display format
-  minDate: new Date('2020-01-01'),       // Minimum selectable date
-  maxDate: new Date('2030-12-31')        // Maximum selectable date
-});
-
-// Date selection events
-date_picker.on('date-selected', (date) => {
-  // Handle date selection
+  data: { model: sharedDataModel }
 });
 ```
 
@@ -910,16 +868,7 @@ date_picker.on('date-selected', (date) => {
 
 ```javascript
 const month_view = new Month_View({
-  context,
-  // Optional configuration
-  showToday: true,                       // Highlight today's date
-  showWeekNumbers: false,                // Show week numbers
-  firstDayOfWeek: 0                      // 0=Sunday, 1=Monday, etc.
-});
-
-// Month navigation events
-month_view.on('month-changed', (year, month) => {
-  // Handle month navigation
+  context
 });
 ```
 

@@ -63,6 +63,28 @@ class Demo_UI extends Active_HTML_Document {
 
             // Then how to arrange them...?
 
+            const num_windows = 2
+            let [x, y] = [40, 40];
+
+            // pos property?
+            //. consider a pos_info or pos_details property, or use another class to help with it.
+
+            // the .pos property would be a nice shortcut.
+            //.  seems more like it's for enhanced controls? Not sure.
+
+
+            for (let c = 1; c <= num_windows; c++) {
+                const window = new controls.Window({
+                    context: context,
+                    title: c + ') jsgui3-html Window Control',
+                    pos: [x, y]
+                })
+                this.body.add(window);
+
+                x += 0; y += 80;
+            }
+
+            /*
             const window_1 = new controls.Window({
                 context: context,
                 title: '1) jsgui3-html Window Control'
@@ -74,6 +96,7 @@ class Demo_UI extends Active_HTML_Document {
                 title: '2) jsgui3-html Window Control'
             })
             this.body.add(window_2);
+            */
 
 
         }

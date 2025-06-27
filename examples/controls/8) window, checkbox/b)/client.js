@@ -2,7 +2,7 @@ const jsgui = require('jsgui3-client');
 const { controls, Control, mixins } = jsgui;
 const { dragable } = mixins;
 const { Checkbox } = controls;
-const Active_HTML_Document = require('../../../controls/Active_HTML_Document');
+const Active_HTML_Document = require('../../../../controls/Active_HTML_Document');
 class Demo_UI extends Active_HTML_Document {
   constructor(spec = {}) {
     spec.__type_name = spec.__type_name || 'demo_ui';
@@ -12,7 +12,10 @@ class Demo_UI extends Active_HTML_Document {
       // Compose window with a checkbox control
       const window = new controls.Window({ context, title: 'jsgui3-html Checkbox Control', pos: [10,10] });
       const checkbox = new Checkbox({ context, label: { text: 'A checkbox' } });
-      window.inner.add(checkbox); this.body.add(window);
+      const st_ind = new controls.Status_Indicator({ context });
+      st_ind.data.model = (checkbox.data.model);
+      // Special handling code for setting a data model?
+      window.inner.add(checkbox); window.inner.add(st_ind); this.body.add(window);
     };
     if (!spec.el) { compose(); }
   }

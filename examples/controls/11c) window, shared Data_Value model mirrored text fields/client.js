@@ -422,8 +422,8 @@ class Demo_UI extends Active_HTML_Document {
                     // But then need to get them to reassign their data model change listeners....?
                     //   value change even....
 
-                    ti1.assign_data_model_value_change_handler();
-                    ti2.assign_data_model_value_change_handler();
+                    //ti1.assign_data_model_value_change_handler();
+                    //ti2.assign_data_model_value_change_handler();
 
 
                 }

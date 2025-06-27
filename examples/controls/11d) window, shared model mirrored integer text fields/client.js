@@ -277,8 +277,8 @@ class Demo_UI extends Active_HTML_Document {
                     // But then need to get them to reassign their data model change listeners....?
                     //   value change even....
 
-                    ti1.assign_data_model_value_change_handler();
-                    ti2.assign_data_model_value_change_handler();
+                    //ti1.assign_data_model_value_change_handler();
+                    //ti2.assign_data_model_value_change_handler();
 
 
                 }
@@ -303,6 +303,34 @@ body {
     overflow-y: hidden;
     background-color: #E0E0E0;
 }
+
+
+.window .relative .inner {
+    padding: 0.38em;}
+
+
+.window .relative .inner .text-field {
+    margin-top: 0.125em;
+    margin-bottom: 0.125em;
+    display: flex;
+    }
+
+.window .relative .inner .text-field label{
+    display: block;
+    width: 1.085em;
+    }
+
+    
+
+
+.window .relative .inner .text-field .left {
+    margin-right: 0.125em;
+    }
+
+.window .relative .inner .text-field .right {
+    margin-left: 0.125em;
+    }
+
 
 .demo-ui {
     

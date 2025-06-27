@@ -300,8 +300,8 @@ if (date_picker_1.data.model !== date_picker_2.data.model) {
   field(dm, 'value');
   date_picker_1.data.model = dm;
   date_picker_2.data.model = dm;
-  date_picker_1.assign_data_model_value_change_handler();
-  date_picker_2.assign_data_model_value_change_handler();
+  //date_picker_1.assign_data_model_value_change_handler();
+  //date_picker_2.assign_data_model_value_change_handler();
 }
 ```
 
@@ -693,8 +693,8 @@ activate() {
       picker2.data.model = dm;
       
       // Re-establish change handlers
-      picker1.assign_data_model_value_change_handler();
-      picker2.assign_data_model_value_change_handler();
+      //picker1.assign_data_model_value_change_handler();
+      //picker2.assign_data_model_value_change_handler();
     }
   }
 }

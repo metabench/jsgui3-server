@@ -49,8 +49,8 @@ class Demo_UI extends Active_HTML_Document {
         field(dm, 'value');
         date_picker_1.data.model = dm; 
         date_picker_2.data.model = dm;
-        date_picker_1.assign_data_model_value_change_handler();
-        date_picker_2.assign_data_model_value_change_handler();
+        //date_picker_1.assign_data_model_value_change_handler();
+        //date_picker_2.assign_data_model_value_change_handler();
       }
       context.on('window-resize', e_resize => { });
     }

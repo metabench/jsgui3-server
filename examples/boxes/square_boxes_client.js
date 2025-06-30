@@ -37,8 +37,9 @@ Square_Box.css = `
 }
 `;
 
-
 // Relies on extracting CSS from JS files.
+
+// want to have an easy way to put this inside an HTML document (rendered webpage);
 
 class Demo_UI extends Control {
     constructor(spec = {}) {
@@ -46,7 +47,6 @@ class Demo_UI extends Control {
         super(spec);
         const {context} = this;
         this.add_class('demo-ui');
-
         const compose = () => {
             const box = new Square_Box({
                 context: context
@@ -58,7 +58,6 @@ class Demo_UI extends Control {
             });
             //box2.background_color = '#6655CC';
             //box2.background.color = '#6655CC';
-
             // or even box2.color = ... and it would know which color was meant
             //  or be able to access the .color reference / property name when asked for.
 

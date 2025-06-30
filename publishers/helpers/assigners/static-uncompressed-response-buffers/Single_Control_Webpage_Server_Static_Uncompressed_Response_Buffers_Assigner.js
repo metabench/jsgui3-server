@@ -41,35 +41,9 @@ class Single_Control_Webpage_Server_Static_Uncompressed_Response_Buffers_Assigne
     // assign to (bundle) items in array.
 
     async assign(arr_bundled_items) {
-        // go through them....
-
-        // Maybe check that the correct items are in the bundle.
-
-        // Perhaps check for 1 of each js, css, html
-        //   And could use a specific other class to assign these.
-
-        //   Should be OK to make classes for really specific things.
-        //     At this part of the system / API, it's not necessary / important to limit complexity in that way.
-
-        // The goal is to provide a very simple high level interface. Powerful too.
-
-        // Could assign a static_route property to the items in the bundles.
-
-
-
-
-
         if (is_array(arr_bundled_items)) {
-
             for (const item of arr_bundled_items) {
-                //console.log('item', item);
-
                 const {type} = item;
-
-                // And need to create the uncompressed response buffer.
-
-                // // response_buffers.identity I think....
-
                 if (item.text) {
                     const buf_identity_response = Buffer.from(item.text, 'utf-8');
 
@@ -78,11 +52,6 @@ class Single_Control_Webpage_Server_Static_Uncompressed_Response_Buffers_Assigne
                 } else {
 
                 }
-
-                
-
-                //console.trace();
-                //throw 'stop';
             }
 
         } else {

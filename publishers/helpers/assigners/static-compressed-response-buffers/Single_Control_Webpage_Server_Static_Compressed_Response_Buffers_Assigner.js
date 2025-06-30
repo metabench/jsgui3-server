@@ -86,15 +86,8 @@ class Single_Control_Webpage_Server_Static_Compressed_Response_Buffers_Assigner 
                 if (item.text) {
 
                     // Async compression definitely seems much better here.
-
-
                     const buf_gzipped = await gzip_compress(item.response_buffers.identity);
-
                     item.response_buffers.gzip = buf_gzipped;
-
-                    // Maybe should be 11 in many cases.
-                    //  Seems right when publishing static JS resources.???
-                    //  Compromise with 10 for the moment.
 
                     const buf_br = await br_compress(item.response_buffers.identity, {
                         params: {
@@ -105,28 +98,9 @@ class Single_Control_Webpage_Server_Static_Compressed_Response_Buffers_Assigner 
                     });
 
                     item.response_buffers.br = buf_br;
-
-
-                    // The gzip response
-                    // The brotli response
-
-                    // promisifying these calls would help.
-
-
-                    /*
-
-
-                    const buf_identity_response = Buffer.from(item.text, 'utf-8');
-
-                    item.response_buffers = item.response_buffers || {};
-                    item.response_buffers.identity = buf_identity_response;
-                    */
                 } else {
 
                 }
-
-                
-
                 //console.trace();
                 //throw 'stop';
             }
@@ -135,13 +109,7 @@ class Single_Control_Webpage_Server_Static_Compressed_Response_Buffers_Assigner 
             console.trace();
             throw 'stop';
         }
-
-
-
-
     }
-
-
 }
 
 

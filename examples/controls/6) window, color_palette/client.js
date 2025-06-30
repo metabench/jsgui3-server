@@ -20,7 +20,7 @@ class Demo_UI extends Active_HTML_Document {
             const color_palette = new Color_Palette({
                 context,
                 //grid_size: [10, 10],
-                size: [200, 200]
+                size: [280, 180]
             })
             window.inner.add(color_palette);
             this.body.add(window);

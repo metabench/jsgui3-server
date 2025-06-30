@@ -137,6 +137,7 @@ class CSS_And_JS_From_JS_String_Using_AST_Node_Extractor extends Extractor {
             //console.log('ae_nodes', ae_nodes);
             //console.log('ae_nodes.length', ae_nodes.length);
             //console.log('css_ae_nodes.length', css_ae_nodes.length);
+            console.log('arr_pos_spans_css_js_nodes.length', arr_pos_spans_css_js_nodes.length);
 
             const arr_css = [];
 
@@ -159,66 +160,16 @@ class CSS_And_JS_From_JS_String_Using_AST_Node_Extractor extends Extractor {
             }
 
             if (arr_css.length > 0) {
-
-
-                // Needs to also return the JS, without the CSS.
-
-
-
-
                 const str_css = arr_css.join('\n');
-
-                //console.log('arr_pos_spans_css_js_nodes', arr_pos_spans_css_js_nodes);
-
-                // Then see about removing the inverse of them from the original string.
-
                 const str_js_without_css_assignments = pos_span_string_extractor.extract(js_str, arr_pos_spans_css_js_nodes, {invert: true});
-
-
-                //console.log('str_js_without_css_assignments', str_js_without_css_assignments);
-                //console.log('str_js_without_css_assignments.length', str_js_without_css_assignments.length);
-
-
-                // return an array perhaps?
-                // object with keys may be easier / better / simpler.
-                //  or even a Bundle object?
-
                 const res = {
                     css: str_css,
                     js: str_js_without_css_assignments
                 }
-
-
-
-
-                //console.trace();
-                //throw 'stop';
-
-
-
-
                 complete(res);
             } else {
                 complete();
             }
-
-            
-            // Can then do query to get all .css properties that are string templates.
-            //  is it a property of a Class object?
-
-
-
-
-
-            // Need to get an AST from it....
-            //  Or could simply search (regex?) for .css = `...`?
-
-
-
-
-            // Go through each file? Just the first?
-
-            // Or should the whole bundled (browserified) JS be consulted?
 
             const [stop, pause, resume] = [() => {}, () => {}, () => {}];
             return [stop, pause, resume];

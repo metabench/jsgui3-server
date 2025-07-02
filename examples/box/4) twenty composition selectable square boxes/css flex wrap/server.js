@@ -7,7 +7,7 @@ if (require.main === module) {
     
     const server = new Server({
         Ctrl: Demo_UI,
-        debug: true,
+        //debug: true,
 
 
         //'js_mode': 'debug',

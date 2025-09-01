@@ -22,9 +22,11 @@ const Website = require('./website/website');
 const HTTP_Website_Publisher = require('./publishers/http-website-publisher');
 const Webpage = require('./website/webpage');
 const HTTP_Webpage_Publisher = require('./publishers/http-webpage-publisher');
+const HTTP_Function_Publisher = require('./publishers/http-function-publisher');
 
 const Static_Route_HTTP_Responder = require('./http/responders/static/Static_Route_HTTP_Responder');
 
+const Publishers = require('./publishers/Publishers');
 
 class JSGUI_Single_Process_Server extends Evented_Class {
 	constructor(spec = {
@@ -146,7 +148,7 @@ class JSGUI_Single_Process_Server extends Evented_Class {
 			//   See about making use of relevant shared abstractions.
 
 
-			const ws_app = this.app = new Website(opts_website);
+			const ws_app = this.app = this.website = new Website(opts_website);
 			// Be able to treat Webpage as an app?
 
 			const opts_ws_publisher = {
@@ -156,6 +158,7 @@ class JSGUI_Single_Process_Server extends Evented_Class {
 				opts_ws_publisher.disk_path_client_js = disk_path_client_js;
 			}
 			const ws_publisher = new HTTP_Website_Publisher(opts_ws_publisher);
+			this._ws_publisher = ws_publisher;
 			ws_publisher.on('ready', () => {
 				console.log('ws publisher is ready');
 				const ws_resource = new Website_Resource({
@@ -172,11 +175,27 @@ class JSGUI_Single_Process_Server extends Evented_Class {
 		
 		Object.defineProperty(this, 'router', { get: () => server_router })
 	}
+
+	publish(name, fn) {
+		// Get the function publisher.
+		//   Possibly ensure it exists.
+		//const fn_publisher = this.function_publisher;
+		//fn_publisher.add(name, fn);
+		const fpub = new HTTP_Function_Publisher({name, fn});
+
+		this.function_publishers = this.function_publishers || [];
+		this.function_publishers.push(fpub);
+
+		this.server_router.set_route('/api/' + name, fpub, fpub.handle_http);
+	}
+
+
 	get resource_names() {
 		return this.resource_pool.resource_names;
 	}
 	'start' (port, callback, fnProcessRequest) {
 		if (tof(port) !== 'number') {
+			console.log('Invalid port:', port);
 			console.trace();
 			throw 'stop';
 		}
@@ -279,6 +298,7 @@ JSGUI_Single_Process_Server.Resource = Resource;
 JSGUI_Single_Process_Server.Page_Context = Server_Page_Context;
 JSGUI_Single_Process_Server.Server_Page_Context = Server_Page_Context;
 JSGUI_Single_Process_Server.Website_Resource = Website_Resource;
+JSGUI_Single_Process_Server.Publishers = Publishers;
 module.exports = JSGUI_Single_Process_Server;
 
 

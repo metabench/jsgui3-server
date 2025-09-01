@@ -3,11 +3,11 @@
   "main": "module.js",
   "license": "MIT",
   "dependencies": {
-    "@babel/core": "^7.28.0",
-    "@babel/generator": "^7.28.0",
-    "@babel/parser": "^7.28.0",
+    "@babel/core": "^7.28.3",
+    "@babel/generator": "^7.28.3",
+    "@babel/parser": "^7.28.3",
     "cookies": "^0.9.1",
-    "esbuild": "^0.25.5",
+    "esbuild": "^0.25.9",
     "fnl": "^0.0.36",
     "fnlfs": "^0.0.33",
     "jsgui3-client": "^0.0.119",
@@ -38,5 +38,5 @@
     "type": "git",
     "url": "https://github.com/metabench/jsgui3-server.git"
   },
-  "version": "0.0.130"
+  "version": "0.0.131"
 }

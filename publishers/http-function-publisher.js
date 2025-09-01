@@ -40,6 +40,7 @@ class Function_Publisher extends HTTP_Publisher {
             fn = spec;
         } else {
             fn = spec.fn;
+            this.name = spec.name;
             if (spec.schema) {
                 this.schema = spec.schema;
             } else {
@@ -50,6 +51,7 @@ class Function_Publisher extends HTTP_Publisher {
         //let fn = spec;
         //console.log('Function_Publisher constructor fn', fn);
         //console.log('Function_Publisher constructor fn', fn.toString());
+        // But will need to route to the function publisher.
 
         this.handle_http = (req, res) => {
             // need to handle observable http request.
@@ -64,8 +66,8 @@ class Function_Publisher extends HTTP_Publisher {
 
             const {method, headers} = req;
 
-            console.log('Function Publisher handle_http method', method);
-            console.log('headers', headers);
+            //console.log('Function Publisher handle_http method', method);
+            //console.log('headers', headers);
 
             // Need to get the incoming parameters.
             // Need to use formidable or whatever else...?
@@ -88,12 +90,21 @@ class Function_Publisher extends HTTP_Publisher {
 
             req.on('end', () => {
                 const buf_input = Buffer.concat(chunks);
-                console.log('buf_input', buf_input);
+                //console.log('buf_input', buf_input);
 
                 // then interpret it according to the content_type
                 let obj_input;
+                //console.log('content_type', content_type);
+                if (!content_type) {
+                    console.log('buf_input.length', buf_input.length);
+                    if (buf_input.length === 0) {
 
-                if (content_type.startsWith('text/plain')) {
+                    } else {
+                        console.trace();
+                        throw 'NYI';
+                    }
+                } else {
+                    if (content_type.startsWith('text/plain')) {
                     obj_input = buf_input.toString();
 
                 } else {
@@ -106,6 +117,9 @@ class Function_Publisher extends HTTP_Publisher {
                     }
                     // decode / parse JSON.
                 }
+                }
+
+                
 
 
                 const output_all = (call_res) => {
@@ -129,6 +143,7 @@ class Function_Publisher extends HTTP_Publisher {
 
                 const fn_res = fn(obj_input);
                 const tfr = tf(fn_res);
+                //console.log('fn_res', fn_res);
                 
                 //console.log('tfr', tfr);
 
@@ -143,6 +158,20 @@ class Function_Publisher extends HTTP_Publisher {
                     }, err => {
 
                     });
+
+
+                } else if (tfr === 's') {
+                    // Just write it as a string for the moment I think?
+                    //   Or always encode as JSON?
+
+                    // text/plain;charset=UTF-8
+
+                    res.writeHead(200, {
+                        'Content-Type': 'text/plain;charset=UTF-8'//,
+                        //'Transfer-Encoding': 'chunked',
+                        //'Trailer': 'Content-MD5'
+                    });
+                    res.end(fn_res);
 
 
                 } else {
@@ -170,10 +199,6 @@ class Function_Publisher extends HTTP_Publisher {
                 // may get some polymorphism out of the mime types.
                 //  text/plain;charset=UTF-8
                 //    turn it to a string.
-
-
-
-
 
 
 

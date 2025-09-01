@@ -1,8 +1,6 @@
 const jsgui = require('./client');
-
-const {Demo_UI} = jsgui.controls;
 const Server = require('../../../server');
-
+const {Demo_UI} = jsgui.controls;
 
 // what would be the (best?) way to include the whole thing in one JS file?
 //  Maybe don't try that right now.

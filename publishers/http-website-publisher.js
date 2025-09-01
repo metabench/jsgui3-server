@@ -207,9 +207,11 @@ class HTTP_Website_Publisher extends HTTP_Webpageorsite_Publisher {
 
         // Will probably insert new bundling code here - but refer to advanced classes that handle the details.
 
+        /*
         console.log('\n\nskipping __old__setup_website_publishing');
         console.trace();
         console.log('\n\n');
+        */
 
 
         const __old__setup_website_publishing = (website) => {
@@ -491,10 +493,11 @@ class HTTP_Website_Publisher extends HTTP_Webpageorsite_Publisher {
         if (website) {
 
 
-            console.trace();
+            //console.trace();
 
-            throw 'NYI - HTTP_Website_Publisher needs to publish specified website';
+            //throw 'NYI - HTTP_Website_Publisher needs to publish specified website';
 
+            console.log('Possibly missing website publishing code.')
 
             // Website_Bundle class would help.
 

@@ -21,6 +21,10 @@ if (require.main === module) {
         return new Date().toISOString();
     });
 
+    server.publish('user', () => {
+        return { id: 1, name: 'John Doe' };
+    });
+
     server.start(8088);
     
 }

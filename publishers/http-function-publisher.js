@@ -145,7 +145,7 @@ class Function_Publisher extends HTTP_Publisher {
                 const tfr = tf(fn_res);
                 //console.log('fn_res', fn_res);
                 
-                //console.log('tfr', tfr);
+                //
 
                 if (tfr === 'p') {
                     // promise
@@ -174,8 +174,22 @@ class Function_Publisher extends HTTP_Publisher {
                     res.end(fn_res);
 
 
-                } else {
+                } else if (tfr === 'o') {
+                    // Just write it as a string for the moment I think?
+                    //   Or always encode as JSON?
 
+                    // text/plain;charset=UTF-8
+
+                    res.writeHead(200, {
+                        'Content-Type': 'application/json'//,
+                        //'Transfer-Encoding': 'chunked',
+                        //'Trailer': 'Content-MD5'
+                    });
+                    res.end(JSON.stringify(fn_res));
+
+
+                } else {
+                    console.log('tfr', tfr);
                     console.trace();
                     throw 'NYI';
                 }

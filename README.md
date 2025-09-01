@@ -768,6 +768,33 @@ const server = new Server({
 
 Data models can be shared within a single client instance, enabling synchronized UI controls.
 
+### Publishing functions with `server.publish`
+
+The server can publish plain JavaScript functions as HTTP endpoints. When a function is published, request bodies are parsed and passed to the function, and the function's return value determines the response MIME type. The API base path (for example, `/api`) is prefixed automatically, so only provide the route suffix to `publish()`.
+
+- If the function returns a string, the response is sent as `text/plain; charset=UTF-8`.
+- If the function returns an object (including arrays), it is serialized as JSON with `application/json`.
+- If the function returns a Promise, it is awaited and then handled by the two rules above.
+
+Input payload handling:
+- `Content-Type: application/json` bodies are parsed to an object and passed as the single argument.
+- `Content-Type: text/plain` bodies are passed as a UTF-8 string.
+
+Minimal example:
+
+```javascript
+// Inside your server bootstrap (after constructing Server)
+server.on('ready', () => {
+  // Returns text/plain at GET/POST /api/hello
+  server.publish('hello', name => `Hello ${name || 'world'}`);
+
+  // Returns application/json at GET/POST /api/sum
+  server.publish('sum', ({ a, b }) => ({ sum: a + b }));
+});
+```
+
+This behavior is implemented by the function publisher, which inspects the function result type to choose the correct headers and serialization.
+
 ## CSS Architecture and Styling
 
 ### CSS Definition Patterns

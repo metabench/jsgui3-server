@@ -174,7 +174,7 @@ class Function_Publisher extends HTTP_Publisher {
                     res.end(fn_res);
 
 
-                } else if (tfr === 'o') {
+                } else if (tfr === 'o' || tfr === 'a') {
                     // Just write it as a string for the moment I think?
                     //   Or always encode as JSON?
 

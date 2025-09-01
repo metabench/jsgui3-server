@@ -25,6 +25,13 @@ if (require.main === module) {
         return { id: 1, name: 'John Doe' };
     });
 
+    server.publish('users', () => {
+        return [
+            { id: 1, name: 'John Doe' },
+            { id: 2, name: 'Jane Doe' }
+        ];
+    });
+
     server.start(8088);
     
 }

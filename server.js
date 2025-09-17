@@ -249,7 +249,10 @@ class JSGUI_Single_Process_Server extends Evented_Class {
 									https_server.listen(port, ipv4_address, () => {
 										console.log('* Server running at https://' + ipv4_address + ':' + port + '/');
 										num_to_start--;
-										if (num_to_start === 0 && callback) callback(null, true);
+										if (num_to_start === 0) {
+											console.log('Server ready');
+											if (callback) callback(null, true);
+										}
 									});
 								} catch (err) {
 									console.log('https_server err', err);
@@ -276,7 +279,10 @@ class JSGUI_Single_Process_Server extends Evented_Class {
 									http_server.listen(port, ipv4_address, () => {
 										console.log('* Server running at http://' + ipv4_address + ':' + port + '/');
 										num_to_start--;
-										if (num_to_start === 0 && callback) callback(null, true);
+										if (num_to_start === 0) {
+											console.log('Server ready');
+											if (callback) callback(null, true);
+										}
 									});
 								} catch (err) {
 									console.log('http_server err', err);

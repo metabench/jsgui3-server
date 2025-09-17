@@ -684,7 +684,22 @@ const deep_iterate_babel_await_expression_node = (babel_node, depth, path, commo
 
 };
 
+
+const deep_iterate_babel_spread_element_node = (babel_node, depth, path, common, callback) => {
+    // value.raw is basically it.
+
+    const {argument} = babel_node;
+    let sibling_number = 0;
+
+    if (argument) deep_iterate_babel_node_$INTERNAL(argument, depth + 1, path + sibling_number++ + '/', common, callback);
+    
+
+};
 // deep_iterate_babel_do_while_statement_node
+
+// deep_iterate_babel_spread_element_node
+
+
 
 
 const deep_iterate_babel_do_while_statement_node = (babel_node, depth, path, common, callback) => {
@@ -697,6 +712,20 @@ const deep_iterate_babel_do_while_statement_node = (babel_node, depth, path, com
 
     deep_iterate_babel_node_$INTERNAL(body, depth + 1, path + sibling_number++ + '/', common, callback);
     deep_iterate_babel_node_$INTERNAL(test, depth + 1, path + sibling_number++ + '/', common, callback);
+};
+
+// deep_iterate_babel_optional_member_expression_node
+
+const deep_iterate_babel_optional_member_expression_node = (babel_node, depth, path, common, callback) => {
+    // 
+
+    const {object, property} = babel_node;
+
+    
+    let sibling_number = 0;
+
+    deep_iterate_babel_node_$INTERNAL(object, depth + 1, path + sibling_number++ + '/', common, callback);
+    deep_iterate_babel_node_$INTERNAL(property, depth + 1, path + sibling_number++ + '/', common, callback);
 };
 
 
@@ -831,6 +860,14 @@ const deep_iterate_babel_node_$INTERNAL = (babel_node, depth, path, common, call
 
                 // ForOfStatement
 
+                // OptionalMemberExpression
+
+                // SpreadElement
+
+            } else if (type === 'SpreadElement') {
+                return deep_iterate_babel_spread_element_node(babel_node, depth, path, common, callback);
+            } else if (type === 'OptionalMemberExpression') {
+                return deep_iterate_babel_optional_member_expression_node(babel_node, depth, path, common, callback);
             } else if (type === 'DoWhileStatement') {
                 return deep_iterate_babel_do_while_statement_node(babel_node, depth, path, common, callback);
             } else if (type === 'BigIntLiteral') {

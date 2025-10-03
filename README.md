@@ -1,6 +1,66 @@
 # Jsgui3 Server
 
-JSGUI3 Server is a comprehensive Node.js-based application server designed to serve modern JavaScript GUI applications to web clients. It provides a complete runtime environment for delivering dynamic, component-based user interfaces with integrated data binding, event handling, and real-time synchronization.
+JSGUI3 Server is a Node.js-based application server for serving modern JavaScript GUI applications to web clients. It provides a complete runtime environment for delivering dynamic, component-based user interfaces with integrated data binding, event handling, and automatic CSS/JS bundling.
+
+## Quick Start
+
+### Simplest Possible Server
+
+```javascript
+// server.js
+const Server = require('jsgui3-server');
+const { MyControl } = require('./client').controls;
+
+Server.serve(MyControl);
+// Server runs at http://localhost:8080
+```
+
+### With Port Configuration
+
+```javascript
+Server.serve(MyControl, { port: 3000 });
+```
+
+### Single Page with Metadata
+
+```javascript
+Server.serve({
+    page: {
+        content: MyControl,
+        title: 'My Awesome App',
+        description: 'A jsgui3 application'
+    },
+    port: 3000
+});
+```
+
+### Multiple Pages
+
+```javascript
+Server.serve({
+    pages: {
+        '/': { content: HomeControl, title: 'Home' },
+        '/about': { content: AboutControl, title: 'About' },
+        '/contact': { content: ContactControl, title: 'Contact' }
+    },
+    port: 3000
+});
+```
+
+### With API Endpoints
+
+```javascript
+Server.serve({
+    page: { content: DashboardControl, title: 'Dashboard' },
+    api: {
+        'metrics': () => ({ users: 1234, revenue: 56789 }),
+        'data': async ({ range }) => await fetchAnalytics(range)
+    },
+    port: 3000
+});
+```
+
+> **Note:** The new `Server.serve()` API is the recommended approach for most use cases. See [Simple Server API Design](docs/simple-server-api-design.md) for complete documentation and advanced features.
 
 ## Architecture Overview
 
@@ -10,6 +70,7 @@ The server operates as a bridge between server-side JavaScript applications and 
 - **Data Model Management:** Handles shared data objects and real-time synchronization between multiple UI controls
 - **CSS Bundling:** Dynamically compiles and serves CSS from component definitions
 - **Event Coordination:** Manages client-server event communication and state synchronization
+- **Convention Over Configuration:** Smart defaults with auto-discovery of client files
 
 ## Core Components
 

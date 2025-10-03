@@ -440,6 +440,14 @@ class Website_Resource extends Resource {
     var remoteAddress = req.connection.remoteAddress;
     var router = this.router;
     var res_process = router.process(req, res);
+    var processed_handled = false;
+    if (res_process) {
+      if (typeof res_process === 'object') {
+        processed_handled = !!res_process.handled;
+      } else if (res_process === true) {
+        processed_handled = true;
+      }
+    }
 
     // Likely will need to make this more advanced, possibly to suit a spec.
     //  Website_Resource_Publisher may be the best place to deal with this.
@@ -448,7 +456,7 @@ class Website_Resource extends Resource {
     //  Possibly we need a Control_Publisher?
     //   To publish a Control at an address on the web.
 
-    console.log('Website_Resource !!res_process', !!res_process);
+  console.log('Website_Resource !!res_process', processed_handled);
 
     // Need more HTTP request to response handlers.
     //  Or just HTTP handlers really.
@@ -463,7 +471,7 @@ class Website_Resource extends Resource {
 
 
 
-    if (res_process === false) {
+  if (!processed_handled) {
       if (req.url === "/") {
         // Seems like too much of a special case.
 

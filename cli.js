@@ -72,56 +72,19 @@ function main() {
 
   if (cmd === 'serve') {
     const JSGUI_Server = require('./server');
-    const port = Number.isFinite(args.port) ? args.port : (process.env.PORT ? Number(process.env.PORT) : 8080);
-    const host = args.host || process.env.HOST || null;
-
-    const server = new JSGUI_Server({ name: 'jsgui3 server (cli)' });
-    if (host) server.allowed_addresses = [host];
-
-    const onReady = () => {
-      let printed = false;
-      const printServing = () => {
-        if (printed) return;
-        printed = true;
-        if (host) console.log(`Serving on http://${host}:${port || 0}/`);
-        else console.log(`Serving on port ${port || 0} (all IPv4 interfaces)`);
-      };
-
-      // Invoke start and immediately announce to facilitate smoke tests.
-      let readyPrinted = false;
-      const cb = (err) => {
-        if (err) {
-          console.error('Failed to start server:', err);
-          process.exit(1);
-          return;
-        }
-        printServing();
-        if (!readyPrinted) {
-          console.log('Server ready');
-          readyPrinted = true;
-        }
-        // Keep process alive. Ctrl+C to stop.
-      };
-
-      server.start(port, cb);
-      printServing();
-      setTimeout(() => {
-        if (!readyPrinted) {
-          console.log('Server ready');
-          readyPrinted = true;
-        }
-      }, 3000).unref?.();
+    const port = Number.isFinite(args.port) ? args.port : undefined;
+    const host = args.host || undefined;
+    const options = {
+      name: 'jsgui3 server (cli)',
+      port,
+      host,
+      root: args.root || process.cwd()
     };
 
-    // Start when ready, but also fall back after a short timeout
-    let started = false;
-    const kickoff = () => { if (!started) { started = true; onReady(); } };
-    if (typeof server.on === 'function' && typeof server.on === 'function') {
-      server.on('ready', kickoff);
-      setTimeout(kickoff, 2000).unref?.();
-    } else {
-      kickoff();
-    }
+    JSGUI_Server.serve(options).catch(err => {
+      console.error('Failed to start server:', err);
+      process.exit(1);
+    });
     return;
   }
 

@@ -16,7 +16,9 @@ jsgui.controls.Active_HTML_Document = require('./controls/Active_HTML_Document')
 
 //const Resource_Publisher = require('./publishing/http-resource-publisher');
 //jsgui.Resource_Publisher = Resource_Publisher;
-jsgui.Server = require('./server');
+const Server = require('./server');
+jsgui.Server = Server;
+jsgui.serve = Server.serve;
 jsgui.fs2 = require('./fs2');
 //jsgui.Resource = Resource;
 //console.log('pre scs');

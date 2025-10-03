@@ -7,14 +7,15 @@
     "@babel/generator": "^7.28.3",
     "@babel/parser": "^7.28.4",
     "cookies": "^0.9.1",
-    "esbuild": "^0.25.9",
+    "esbuild": "^0.25.10",
     "fnl": "^0.0.36",
     "fnlfs": "^0.0.33",
     "jsgui3-client": "^0.0.120",
-    "jsgui3-html": "^0.0.166",
+    "jsgui3-html": "^0.0.168",
     "jsgui3-webpage": "^0.0.8",
     "jsgui3-website": "^0.0.8",
     "lang-tools": "^0.0.36",
+    "mocha": "^11.7.4",
     "multiparty": "^4.2.3",
     "ncp": "^2.0.0",
     "obext": "^0.0.31",
@@ -38,11 +39,10 @@
     "type": "git",
     "url": "https://github.com/metabench/jsgui3-server.git"
   },
-  "version": "0.0.134"
-  ,
+  "version": "0.0.135",
   "scripts": {
     "cli": "node cli.js",
     "serve": "node cli.js serve",
-    "test": "node ./tests/cli.test.js"
+    "test": "mocha tests/**/*.test.js"
   }
 }

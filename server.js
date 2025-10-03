@@ -2,6 +2,7 @@ const jsgui = require('jsgui3-html'),
 	http = require('http'),
 	https = require('https'),
     {prop, read_only} = require('obext'),
+    fs = require('fs'),
 	Resource = jsgui.Resource,
 	Server_Resource_Pool = require('./resources/server-resource-pool'),
 	Router = jsgui.Router,
@@ -33,6 +34,7 @@ class JSGUI_Single_Process_Server extends Evented_Class {
 		website: true
 	}, __type_name) {
 		super();
+		this.http_servers = [];
 		let disk_path_client_js;
 		if (spec.disk_path_client_js) {
 			disk_path_client_js = spec.disk_path_client_js;
@@ -203,6 +205,7 @@ class JSGUI_Single_Process_Server extends Evented_Class {
 		if (!rp) {
 			throw 'stop';
 		}
+		this.raise('starting');
 		rp.start(err => {
 			if (err) {
 				throw err;
@@ -230,12 +233,67 @@ class JSGUI_Single_Process_Server extends Evented_Class {
 							callback('No allowed network interfaces found.');
 							return;
 						}
+						const respond_not_found = (res) => {
+							if (!res.headersSent) {
+								const body = 'Not Found';
+								res.statusCode = 404;
+								res.setHeader('Content-Type', 'text/plain; charset=utf-8');
+								res.setHeader('Content-Length', Buffer.byteLength(body));
+								res.end(body);
+							} else if (!res.writableEnded) {
+								res.end();
+							}
+						};
+
+						const respond_error = (res, err) => {
+							console.error('router error:', err);
+							if (!res.headersSent) {
+								const body = 'Internal Server Error';
+								res.statusCode = 500;
+								res.setHeader('Content-Type', 'text/plain; charset=utf-8');
+								res.setHeader('Content-Length', Buffer.byteLength(body));
+								res.end(body);
+							} else if (!res.writableEnded) {
+								res.end();
+							}
+						};
+
+						const process_request = (req, res) => {
+							let outcome;
+							try {
+								outcome = server_router.process(req, res);
+							} catch (err) {
+								respond_error(res, err);
+								return;
+							}
+							if (!outcome) {
+								if (!res.writableEnded) {
+									respond_not_found(res);
+								}
+								return;
+							}
+							if (typeof outcome === 'object') {
+								if (outcome.status === 'error') {
+									if (!res.writableEnded) {
+										respond_error(res, outcome.error);
+									}
+								} else if (outcome.handled !== true && outcome.status === 'not-found') {
+									if (!res.writableEnded) {
+										respond_not_found(res);
+									}
+								}
+							} else if (outcome === false && !res.writableEnded) {
+								respond_not_found(res);
+							}
+						};
+
 						if (this.https_options) {
 							each(arr_ipv4_addresses, (ipv4_address) => {
 								try {
 									var https_server = https.createServer(this.https_options, function(req, res) {
-										var server_routing_res = server_router.process(req, res);
+										process_request(req, res);
 									});
+									this.http_servers.push(https_server);
 									https_server.on('error', (err) => {
 										if (err.code === 'EACCES') {
 											console.error('Permission denied:', err.message);
@@ -251,6 +309,7 @@ class JSGUI_Single_Process_Server extends Evented_Class {
 										num_to_start--;
 										if (num_to_start === 0) {
 											console.log('Server ready');
+											this.raise('ready');
 											if (callback) callback(null, true);
 										}
 									});
@@ -261,11 +320,12 @@ class JSGUI_Single_Process_Server extends Evented_Class {
 								}
 							});
 						} else {
-							each(arr_ipv4_addresses, (ipv4_address) => {
+						each(arr_ipv4_addresses, (ipv4_address) => {
 								try {
-									var http_server = http.createServer(function(req, res) {
-										var server_routing_res = server_router.process(req, res);
-									});
+								var http_server = http.createServer(function(req, res) {
+									process_request(req, res);
+								});
+									this.http_servers.push(http_server);
 									http_server.on('error', (err) => {
 										if (err.code === 'EACCES') {
 											console.error('Permission denied:', err.message);
@@ -281,6 +341,7 @@ class JSGUI_Single_Process_Server extends Evented_Class {
 										num_to_start--;
 										if (num_to_start === 0) {
 											console.log('Server ready');
+											this.raise('ready');
 											if (callback) callback(null, true);
 										}
 									});
@@ -296,6 +357,23 @@ class JSGUI_Single_Process_Server extends Evented_Class {
 			}
 		});
 	}
+
+	close(callback) {
+		let count = this.http_servers.length;
+		if (count === 0) {
+			if (callback) process.nextTick(callback);
+			return;
+		}
+		this.http_servers.forEach(server => {
+			server.close(() => {
+				count--;
+				if (count === 0) {
+					this.http_servers = [];
+					if (callback) callback();
+				}
+			});
+		});
+	}
 }
 
 JSGUI_Single_Process_Server.jsgui = jsgui;
@@ -305,6 +383,8 @@ JSGUI_Single_Process_Server.Page_Context = Server_Page_Context;
 JSGUI_Single_Process_Server.Server_Page_Context = Server_Page_Context;
 JSGUI_Single_Process_Server.Website_Resource = Website_Resource;
 JSGUI_Single_Process_Server.Publishers = Publishers;
+JSGUI_Single_Process_Server.serve = require('./serve-factory')(JSGUI_Single_Process_Server);
+
 module.exports = JSGUI_Single_Process_Server;
 
 

@@ -1,12 +1,4 @@
-const {
-  qIdentity,
-  qNormalize,
-  qMul,
-  qFromAxisAngle,
-  qFromVectors,
-  mat3FromQuat,
-  mat3Transpose
-} = require('./math');
+const { mat3FromQuat, mat3Transpose } = require('./math');
 const {
   RenderingPipeline,
   TransformStage,
@@ -17,6 +9,8 @@ const {
   ComposeStage,
   HUDStage
 } = require('./RenderingPipeline');
+const ArcballDragBehaviour = require('./arcball-drag-behaviour');
+const DragController = require('./drag-controller');
 
 // Approximate simplified continent outlines (lat, lon in degrees)
 const CONTINENT_OUTLINES = {
@@ -72,17 +66,28 @@ class EarthGlobeRenderer {
     this.ctx = canvas.getContext('2d');
     this.opts = JSON.parse(JSON.stringify(DEFAULT_OPTIONS));
     this.setOptions(opts);
-    this.q = qIdentity();
-  this.R = mat3FromQuat(this.q);
-  this.Rt = mat3Transpose(this.R);
+    
+    // Initialize arcball drag behavior
+    this.drag_behaviour = new ArcballDragBehaviour({
+      inertia_friction: this.opts.inertiaFriction,
+      inertia_min_speed: this.opts.inertiaMinSpeed,
+      on_rotation_change: (q, R, Rt) => {
+        this.q = q;
+        this.R = R;
+        this.Rt = Rt;
+      }
+    });
+    
+    // Access quaternion and matrices from behavior
+    this.q = this.drag_behaviour.q;
+    this.R = this.drag_behaviour.R;
+    this.Rt = this.drag_behaviour.Rt;
+    
     this.sun = this._normVec([1,0,0.25]);
     this.pipelineEnabled = true;
   this._fps = 0;
   this._fpsFrames = 0;
   this._fpsLastUpdate = performance.now();
-  this._axis = [0,1,0];
-  this._omega = 0;
-  this._v0 = [0,0,1];
     this.tex = { albedo:null, water:null, ice:null };
     this._samp = { r:0,g:0,b:0 };
     this._initLUTs();
@@ -99,7 +104,23 @@ class EarthGlobeRenderer {
         new HUDStage(this)
       ]
     );
-    this._attachPointerHandlers();
+    
+    // Initialize drag controller
+    this.drag_controller = new DragController(
+      this.canvas,
+      this.drag_behaviour,
+      {
+        padding: this.opts.padding,
+        on_interactive_frame: () => this.render(true),
+        on_drag_end: () => {
+          // Delay final high-quality render to allow inertia to start
+          setTimeout(() => {
+            if (!this.drag_behaviour.omega) this.render(false);
+          }, 120);
+        }
+      }
+    );
+    
     this.resize();
     this.render(false);
   }
@@ -201,99 +222,6 @@ class EarthGlobeRenderer {
       this.resize();
       this.pipeline.run({ interactive });
     }
-  }
-
-  // -------------- Interaction (arcball + inertia) --------------
-  _attachPointerHandlers() {
-    const el = this.canvas;
-    if (getComputedStyle(el).touchAction !== 'none') el.style.touchAction='none';
-    const onDown = (ev) => {
-      this._dragging = true;
-      this._v0 = this._screenToArcball(ev.clientX, ev.clientY);
-      this._omega = 0;
-      this._lastTime = performance.now();
-      try { el.setPointerCapture(ev.pointerId); } catch {}
-    };
-    const onMove = (ev) => {
-      if (!this._dragging) return;
-      const v1 = this._screenToArcball(ev.clientX, ev.clientY);
-      const dq = qFromVectors(this._v0, v1);
-      this.q = qNormalize(qMul(dq, this.q));
-      this._v0 = v1;
-      const now = performance.now();
-      const dt = Math.max(1, now - this._lastTime) / 1000;
-      this._lastTime = now;
-      let angle = 2 * Math.acos(Math.max(-1, Math.min(1, dq[3])));
-      if (angle > Math.PI) angle = 2 * Math.PI - angle;
-      const s = Math.sqrt(1 - dq[3] * dq[3]);
-      if (s < 1e-6) {
-        this._axis[0] = 0; this._axis[1] = 1; this._axis[2] = 0;
-      } else {
-        this._axis[0] = dq[0] / s;
-        this._axis[1] = dq[1] / s;
-        this._axis[2] = dq[2] / s;
-      }
-      this._omega = angle / dt;
-      this._updateRot();
-      this._requestInteractiveFrame();
-    };
-    const onUp = (ev) => {
-      this._dragging = false;
-      try { el.releasePointerCapture(ev.pointerId); } catch {}
-      this._startInertia();
-      setTimeout(() => { if (!this._omega) this.render(false); }, 120);
-    };
-    el.addEventListener('pointerdown', onDown);
-    el.addEventListener('pointermove', onMove);
-    try { el.addEventListener('pointerrawupdate', onMove); } catch {}
-    el.addEventListener('pointerup', onUp);
-    el.addEventListener('pointercancel', onUp);
-    this._ptr={onDown,onMove,onUp};
-  }
-  _startInertia() {
-    if (this._omega <= this.opts.inertiaMinSpeed) return;
-    const friction = this.opts.inertiaFriction; let last=performance.now();
-    const step = (now) => {
-      const dt = Math.max(1, now - last) / 1000;
-      last = now;
-      this._omega *= Math.exp(-friction * dt);
-      if (this._omega <= this.opts.inertiaMinSpeed) {
-        this._omega = 0; this._raf = 0; return;
-      }
-      const dq = qFromAxisAngle(
-        this._axis[0],
-        this._axis[1],
-        this._axis[2],
-        this._omega * dt
-      );
-      this.q = qNormalize(qMul(dq, this.q));
-      this._updateRot();
-      this._requestInteractiveFrame();
-      this._raf = requestAnimationFrame(step);
-    };
-    if (this._raf) cancelAnimationFrame(this._raf); this._raf=requestAnimationFrame(step);
-  }
-  _requestInteractiveFrame() {
-    if (this._pendingInteractive) return;
-    this._pendingInteractive = true;
-    requestAnimationFrame(() => {
-      this._pendingInteractive = false;
-      this.render(true);
-    });
-  }
-
-  _screenToArcball(clientX, clientY) {
-    const rect = this.canvas.getBoundingClientRect();
-    const cx = rect.left + rect.width / 2;
-    const cy = rect.top + rect.height / 2;
-    const pad = this.opts.padding;
-    const r = Math.max(1, Math.min(rect.width, rect.height) / 2 - pad);
-    const x = (clientX - cx) / r;
-    const y = (cy - clientY) / r;
-    const d2 = x * x + y * y;
-    if (d2 <= 1) return [x, y, Math.sqrt(1 - d2)];
-    const inv = 1 / Math.sqrt(d2);
-    return [x * inv, y * inv, 0];
   }
 
   // -------------- LUTs & shading utilities --------------
@@ -398,10 +326,6 @@ class EarthGlobeRenderer {
     return img;
   }
 
-  _updateRot() {
-    this.R = mat3FromQuat(this.q);
-    this.Rt = mat3Transpose(this.R);
-  }
   _normVec(v) {
     const n = Math.hypot(v[0], v[1], v[2]) || 1;
     return [v[0]/n, v[1]/n, v[2]/n];

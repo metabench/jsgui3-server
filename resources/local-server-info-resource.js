@@ -81,7 +81,7 @@ class Local_Server_Info extends Resource {
                         callback(null, true);
                     }
 					
-                } else if (o_status == 'on') {
+                } else if (this.status === 'on') {
                     callback(null, true);
                 }
 			}

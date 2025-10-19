@@ -228,6 +228,8 @@ class JSGUI_Single_Process_Server extends Evented_Class {
 						if (this.allowed_addresses && this.allowed_addresses.length) {
 							arr_ipv4_addresses = arr_ipv4_addresses.filter(a => this.allowed_addresses.indexOf(a) > -1);
 						}
+						arr_ipv4_addresses = [...new Set(arr_ipv4_addresses)];
+						console.log('IPv4 addresses to bind:', arr_ipv4_addresses);
 						let num_to_start = arr_ipv4_addresses.length;
 						if (num_to_start === 0) {
 							callback('No allowed network interfaces found.');
@@ -297,6 +299,8 @@ class JSGUI_Single_Process_Server extends Evented_Class {
 									https_server.on('error', (err) => {
 										if (err.code === 'EACCES') {
 											console.error('Permission denied:', err.message);
+										} else if (err.code === 'EADDRINUSE') {
+											console.error(`Address ${ipv4_address}:${port} already in use; skipping.`);
 										} else {
 											console.error('https_server error:', err);
 										}
@@ -329,6 +333,8 @@ class JSGUI_Single_Process_Server extends Evented_Class {
 									http_server.on('error', (err) => {
 										if (err.code === 'EACCES') {
 											console.error('Permission denied:', err.message);
+										} else if (err.code === 'EADDRINUSE') {
+											console.error(`Address ${ipv4_address}:${port} already in use; skipping.`);
 										} else {
 											console.error('http_server error:', err);
 										}

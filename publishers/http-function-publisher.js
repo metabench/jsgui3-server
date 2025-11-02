@@ -110,7 +110,12 @@ class Function_Publisher extends HTTP_Publisher {
                 } else {
 
                     if (content_type === 'application/json') {
-                        obj_input = JSON.parse(buf_input.toString());
+                        const inputStr = buf_input.toString();
+                        if (inputStr.trim() === '') {
+                            obj_input = null;
+                        } else {
+                            obj_input = JSON.parse(inputStr);
+                        }
                     } else {
                         console.trace();
                         throw 'NYI';
@@ -141,57 +146,73 @@ class Function_Publisher extends HTTP_Publisher {
                 // And the function to call may be async.
                 //  Can test to see if we get a promise (or observable) back from it.
 
-                const fn_res = fn(obj_input);
-                const tfr = tf(fn_res);
-                //console.log('fn_res', fn_res);
-                
-                //
+                try {
+                    const fn_res = fn(obj_input);
+                    const tfr = tf(fn_res);
+                    //console.log('fn_res', fn_res);
 
-                if (tfr === 'p') {
-                    // promise
-                    console.log('need to await promise resolution');
+                    //
 
-                    fn_res.then(call_res => {
-                        console.log('fn_res then happened, call_res', call_res);
-                        output_all(call_res);
+                    if (tfr === 'p') {
+                        // promise
+                        console.log('need to await promise resolution');
 
-                    }, err => {
+                        fn_res.then(call_res => {
+                            console.log('fn_res then happened, call_res', call_res);
+                            output_all(call_res);
 
-                    });
-
-
-                } else if (tfr === 's') {
-                    // Just write it as a string for the moment I think?
-                    //   Or always encode as JSON?
-
-                    // text/plain;charset=UTF-8
-
-                    res.writeHead(200, {
-                        'Content-Type': 'text/plain;charset=UTF-8'//,
-                        //'Transfer-Encoding': 'chunked',
-                        //'Trailer': 'Content-MD5'
-                    });
-                    res.end(fn_res);
+                        }, err => {
+                            console.error('Function execution error:', err);
+                            if (!res.headersSent) {
+                                res.writeHead(500, {
+                                    'Content-Type': 'application/json'
+                                });
+                                res.end(JSON.stringify({ error: err.message }));
+                            }
+                        });
 
 
-                } else if (tfr === 'o' || tfr === 'a') {
-                    // Just write it as a string for the moment I think?
-                    //   Or always encode as JSON?
+                    } else if (tfr === 's') {
+                        // Just write it as a string for the moment I think?
+                        //   Or always encode as JSON?
 
-                    // text/plain;charset=UTF-8
+                        // text/plain;charset=UTF-8
 
-                    res.writeHead(200, {
-                        'Content-Type': 'application/json'//,
-                        //'Transfer-Encoding': 'chunked',
-                        //'Trailer': 'Content-MD5'
-                    });
-                    res.end(JSON.stringify(fn_res));
+                        res.writeHead(200, {
+                            'Content-Type': 'text/plain;charset=UTF-8'//,
+                            //'Transfer-Encoding': 'chunked',
+                            //'Trailer': 'Content-MD5'
+                        });
+                        res.end(fn_res);
 
 
-                } else {
-                    console.log('tfr', tfr);
-                    console.trace();
-                    throw 'NYI';
+                    } else if (tfr === 'o' || tfr === 'a') {
+                        // Just write it as a string for the moment I think?
+                        //   Or always encode as JSON?
+
+                        // text/plain;charset=UTF-8
+
+                        res.writeHead(200, {
+                            'Content-Type': 'application/json'//,
+                            //'Transfer-Encoding': 'chunked',
+                            //'Trailer': 'Content-MD5'
+                        });
+                        res.end(JSON.stringify(fn_res));
+
+
+                    } else {
+                        console.log('tfr', tfr);
+                        console.trace();
+                        throw 'NYI';
+                    }
+                } catch (err) {
+                    console.error('Function execution error:', err);
+                    if (!res.headersSent) {
+                        res.writeHead(500, {
+                            'Content-Type': 'application/json'
+                        });
+                        res.end(JSON.stringify({ error: err.message }));
+                    }
                 }
 
 

@@ -144,6 +144,9 @@ module.exports = (Server) => {
         };
         if (typeof serve_options.ctrl === 'function') {
             server_spec.Ctrl = serve_options.ctrl;
+        } else if (serve_options.api && typeof serve_options.api === 'object') {
+            // API-only server: explicitly disable website setup
+            server_spec.website = false;
         }
         if (root_client_path) {
             server_spec.src_path_client_js = root_client_path;
@@ -153,7 +156,7 @@ module.exports = (Server) => {
         if (host) {
             server_instance.allowed_addresses = Array.isArray(host) ? host : [host];
         }
-    
+
         const settle = (resolver, value) => {
             if (callback) {
                 try {
@@ -164,9 +167,9 @@ module.exports = (Server) => {
             }
             return resolver(value);
         };
-    
+
         let has_started = false;
-    
+
         const extra_page_promises = additional_pages.map(([route, cfg]) => prepare_webpage_route(server_instance, route, cfg, {
             caller_dir,
             debug: debug_enabled
@@ -177,41 +180,65 @@ module.exports = (Server) => {
                 debug: debug_enabled
             }));
         }
-    
+
         if (serve_options.api && typeof serve_options.api === 'object') {
+            console.log('🔍 DEBUG: Setting up API routes');
             for (const [name, handler] of Object.entries(serve_options.api)) {
                 if (typeof handler === 'function') {
+                    console.log(`🔍 DEBUG: Publishing API route: ${name}`);
                     server_instance.publish(name, handler);
                 }
             }
+            console.log('🔍 DEBUG: API routes setup complete');
         }
-    
+
         return new Promise((resolve, reject) => {
             const start_server = () => {
                 if (has_started) return;
                 has_started = true;
+                console.log('🔍 DEBUG: Calling server_instance.start()');
                 server_instance.start(port, (err) => {
-                    if (err) return settle(reject, err);
+                    if (err) {
+                        console.log('🔍 DEBUG: server_instance.start() failed:', err);
+                        return settle(reject, err);
+                    }
+                    console.log('🔍 DEBUG: server_instance.start() succeeded');
                     const message = host ? `Serving on http://${Array.isArray(host) ? host[0] : host}:${port || 0}/` : `Serving on port ${port || 0} (all IPv4 interfaces)`;
                     console.log(message);
                     console.log('Server ready');
                     settle(resolve, server_instance);
                 });
             };
-    
+
+            console.log('🔍 DEBUG: Setting up ready event listener');
             server_instance.on('ready', () => {
+                console.log('🔍 DEBUG: Ready event fired');
                 Promise.allSettled(extra_page_promises).then(results => {
                     const rejected_entry = results.find(result => result.status === 'rejected');
                     if (rejected_entry) {
+                        console.log('🔍 DEBUG: Extra page promise rejected:', rejected_entry.reason);
                         return settle(reject, rejected_entry.reason);
                     }
+                    console.log('🔍 DEBUG: All extra page promises resolved, calling start_server()');
                     start_server();
-                }).catch(err => settle(reject, err));
+                }).catch(err => {
+                    console.log('🔍 DEBUG: Extra page promises error:', err);
+                    settle(reject, err);
+                });
             });
-    
+
+            // For API-only servers, trigger ready immediately after API setup
+            if (serve_options.api && typeof serve_options.api === 'object' && !serve_options.ctrl) {
+                console.log('🔍 DEBUG: API-only server detected, triggering ready event');
+                server_instance.raise('ready');
+            }
+
+            console.log('🔍 DEBUG: Setting up fallback timeout');
             setTimeout(() => {
                 // Fallback in case ready event never fires (should not happen, but guard just in case)
+                console.log('🔍 DEBUG: Fallback timeout triggered, has_started:', has_started);
                 if (!has_started) {
+                    console.log('🔍 DEBUG: Calling start_server() from fallback');
                     start_server();
                 }
             }, 2000).unref?.();

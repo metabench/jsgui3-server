@@ -1,5 +1,24 @@
 # Guide to Agentic Workflows by Grok
 
+## When to Read
+
+This comprehensive guide covers principles and patterns for autonomous AI task execution. Read this when:
+- You're developing or working with AI agents that need to execute complex, multi-step tasks
+- You want to understand systematic approaches to autonomous problem-solving
+- You're designing frameworks for AI task execution and workflow management
+- You need guidance on error handling, quality assurance, and continuous improvement in AI systems
+- You're interested in advanced patterns for coordinating multiple AI agents or complex projects
+
+**Note:** This is a specialized guide for AI agent development. For JSGUI3 Server documentation, see [README.md](../README.md) or [docs/comprehensive-documentation.md](docs/comprehensive-documentation.md).
+
+**Split Recommendation:** This document (2070 lines) is very large and covers multiple complex topics. Consider splitting into focused sections:
+- Part I-II: Foundations and Context Gathering
+- Part III-IV: Planning and Execution
+- Part V-VII: Tools, Quality Assurance, and Communication
+- Part VIII-XII: Error Handling, Advanced Patterns, and Future Directions
+
+# Guide to Agentic Workflows by Grok
+
 *A Comprehensive Framework for Autonomous AI Task Execution*
 
 ---

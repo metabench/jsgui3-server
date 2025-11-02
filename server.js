@@ -85,7 +85,7 @@ class JSGUI_Single_Process_Server extends Evented_Class {
 		const opts_webpage = {
 			'name': this.name || 'Website'
 		};
-		
+
 		if (Ctrl) {
 
 
@@ -102,7 +102,7 @@ class JSGUI_Single_Process_Server extends Evented_Class {
 
 			if (disk_path_client_js) opts_wp_publisher.src_path_client_js = disk_path_client_js;
 
-			
+
 
 			// HTTP_Webpage_Publisher probably needs to build the JavaScript. Possibly other assets too.
 			const wp_publisher = new HTTP_Webpage_Publisher(opts_wp_publisher);
@@ -125,7 +125,8 @@ class JSGUI_Single_Process_Server extends Evented_Class {
 
 
 					}
-	
+
+
 					//console.trace();
 					//throw 'stop';
 
@@ -145,6 +146,12 @@ class JSGUI_Single_Process_Server extends Evented_Class {
 
 
 		} else {
+			// Check if this is an API-only server (no website needed)
+			if (spec.website === false) {
+				// API-only server: emit ready immediately after router setup
+				this.raise('ready');
+				return;
+			}
 
 			// Ahhh the web page publisher may be used instead of the website publisher.
 			//   See about making use of relevant shared abstractions.
@@ -172,7 +179,6 @@ class JSGUI_Single_Process_Server extends Evented_Class {
 				this.raise('ready');
 			});
 		}
-
 
 		
 		Object.defineProperty(this, 'router', { get: () => server_router })

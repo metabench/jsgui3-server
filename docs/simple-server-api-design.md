@@ -1,5 +1,18 @@
 # Simple Server API Design
 
+## When to Read
+
+This document explains the design principles and implementation of the simplified JSGUI3 Server API. Read this when:
+- You want to understand the evolution from complex to simple server APIs
+- You're designing new server frameworks or APIs
+- You need to implement the Server.serve() method or similar simplified interfaces
+- You're interested in progressive disclosure and API design patterns
+- You want to see examples of reducing boilerplate code in framework development
+
+**Note:** For actual usage of the JSGUI3 Server API, see [README.md](../README.md). For comprehensive technical documentation, see [docs/comprehensive-documentation.md](docs/comprehensive-documentation.md).
+
+# Simple Server API Design
+
 **Goal:** Make jsgui3-server trivially easy to use for simple cases while preserving full power for complex scenarios.
 
 ## Design Philosophy

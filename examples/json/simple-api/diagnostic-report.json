@@ -1,0 +1,73 @@
+{
+  "timestamp": "2025-11-02T03:33:18.682Z",
+  "tests": [
+    {
+      "name": "Module Loading - Server",
+      "status": "passed",
+      "timestamp": "2025-11-02T03:33:19.335Z"
+    },
+    {
+      "name": "Module Loading - Server.serve",
+      "status": "passed",
+      "timestamp": "2025-11-02T03:33:19.336Z"
+    },
+    {
+      "name": "Module Loading - serve-factory",
+      "status": "passed",
+      "timestamp": "2025-11-02T03:33:19.336Z"
+    },
+    {
+      "name": "Server Construction - Instance Creation",
+      "status": "passed",
+      "timestamp": "2025-11-02T03:33:19.342Z"
+    },
+    {
+      "name": "Server Construction - Resource Pool",
+      "status": "passed",
+      "timestamp": "2025-11-02T03:33:19.343Z"
+    },
+    {
+      "name": "Server Construction - Router",
+      "status": "passed",
+      "timestamp": "2025-11-02T03:33:19.343Z"
+    },
+    {
+      "name": "Server Construction - Publish Method",
+      "status": "passed",
+      "timestamp": "2025-11-02T03:33:19.343Z"
+    },
+    {
+      "name": "API Setup - Publishing Endpoints",
+      "status": "passed",
+      "timestamp": "2025-11-02T03:33:19.346Z"
+    },
+    {
+      "name": "API Setup - Router Access",
+      "status": "passed",
+      "timestamp": "2025-11-02T03:33:19.346Z"
+    },
+    {
+      "name": "HTTP Serving - Server Start",
+      "status": "passed",
+      "timestamp": "2025-11-02T03:33:19.370Z"
+    },
+    {
+      "name": "HTTP Serving - API Response",
+      "status": "passed",
+      "timestamp": "2025-11-02T03:33:20.396Z"
+    },
+    {
+      "name": "End-to-End - Server Startup",
+      "status": "failed",
+      "timestamp": "2025-11-02T03:33:35.422Z",
+      "error": "Server startup timeout"
+    }
+  ],
+  "summary": {
+    "total": 12,
+    "passed": 11,
+    "failed": 1,
+    "errors": [],
+    "successRate": "91.7%"
+  }
+}

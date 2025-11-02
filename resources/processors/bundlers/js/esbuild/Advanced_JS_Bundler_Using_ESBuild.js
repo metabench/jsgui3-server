@@ -78,30 +78,22 @@ class Advanced_JS_Bundler_Using_ESBuild extends Bundler_Using_ESBuild {
                             const {css, js} = res_extract_css_and_js_from_js;
 
                             if (this.debug) {
-
-                                // sourcemap: 'inline'
-
-                                // Don't minify the js.
-
-                                // Make res bundle items that include the CSS and the non-minified JS.
-
-                                // Including the source map would be better still.
+                                // Generate source maps for CSS-free JS
+                                const css_free_bundle_result = await non_minifying_bundler.bundle_js_string(js);
+                                const css_free_bundle_item = css_free_bundle_result[0]._arr[0];
 
                                 const res_bundle = new Bundle();
-                                // Add the non-minified JS (as a bundle item object)
-
                                 const o_js_bundle_item = {
                                     type: 'JavaScript',
-                                    extension: 'JS',
-                                    text: js
+                                    extension: 'js',
+                                    text: css_free_bundle_item.text
                                 }
-                                res_bundle.add(o_js_bundle_item);
+                                res_bundle.push(o_js_bundle_item);
                                 const o_css_bundle_item = {
                                     type: 'CSS',
                                     extension: 'css',
                                     text: css
                                 }
-
                                 res_bundle.push(o_css_bundle_item);
                                 next(res_bundle);
                                 complete(res_bundle);
@@ -112,125 +104,30 @@ class Advanced_JS_Bundler_Using_ESBuild extends Bundler_Using_ESBuild {
 
 
 
-
                             } else {
-
-
-                                const minified_js = await minifying_js_single_file_bundler.bundle(js);
+                                // Generate source maps for CSS-free JS and minify
+                                const css_free_bundle_result = await non_minifying_bundler.bundle_js_string(js);
+                                const css_free_bundle_item = css_free_bundle_result[0]._arr[0];
+                                const minified_js = await minifying_js_single_file_bundler.bundle(css_free_bundle_item.text);
 
                                 //console.log('minified_js', minified_js);
                                 //console.log('minified_js.length', minified_js.length);
 
                                 // it's an array....
 
-                                if (is_array(minified_js)) {
-
-                                    if (minified_js.length === 1) {
-
-
-                                        // Should put it all in a single res bundle though....
-                                        //   Though merging / concating bundles will be fine too.
-
-
-
-                                        const minified_js_bundle_collection = minified_js[0];
-
-                                        
-
-                                        const o_css_bundle_item = {
-                                            type: 'CSS',
-                                            extension: 'css',
-                                            text: css
-                                        }
-
-                                        minified_js_bundle_collection.push(o_css_bundle_item);
-
-
-                                        // Maybe will provide the class / class instance that processes CSS or SASS/SCSS / whatever else.
-
-
-
-                                        // Could add the extracted CSS here.
-
-
-
-                                        next(minified_js_bundle_collection);
-
-                                        // But create a CSS bundle item...
-
-
-
-
-
-                                        // And also the CSS...
-
-
-
-
-
-                                        complete(minified_js_bundle_collection);
-
-
-
-                                        const unneeded_looking_into_the_js_bundle = () => {
-                                            if (minified_js_bundle_collection._arr) {
-
-                                                if (minified_js_bundle_collection._arr.length === 1) {
-
-                                                    const minified_js_bundle_item = minified_js_bundle_collection._arr[0];
-                                                    console.log('minified_js_bundle_item', minified_js_bundle_item);
-
-
-                                                    if (minified_js_bundle_item.type === 'JavaScript') {
-
-                                                        //const str_minified_js = minified_js_bundle_item.text;
-
-                                                        //const res = 
-
-
-
-
-
-                                                    } else {
-
-                                                        console.trace();
-                                                        throw 'NYI';
-
-                                                    }
-
-
-                                                    // Could even check it's js here...?
-
-
-                                                    console.trace();
-                                                    throw 'NYI';
-
-
-                                                } else {
-                                                    console.trace();
-                                                    throw 'NYI';
-                                                }
-
-                                            } else {
-
-                                                console.trace();
-                                                throw 'NYI';
-
-                                            }
-
-                                        }
-
-                                        
-
-                                    } else {
-                                        console.trace();
-                                        throw 'stop';
+                                if (is_array(minified_js) && minified_js.length === 1) {
+                                    const minified_bundle = minified_js[0];
+                                    const o_css_bundle_item = {
+                                        type: 'CSS',
+                                        extension: 'css',
+                                        text: css
                                     }
-
+                                    minified_bundle.push(o_css_bundle_item);
+                                    next(minified_bundle);
+                                    complete(minified_bundle);
                                 } else {
-
                                     console.trace();
-                                    throw 'stop';
+                                    throw 'Unexpected minified JS structure';
                                 }
 
 
@@ -240,12 +137,8 @@ class Advanced_JS_Bundler_Using_ESBuild extends Bundler_Using_ESBuild {
                             
 
 
-
-
                             
-
-
-
+                            
                             //console.trace();
                             //throw 'stop';
 
@@ -259,9 +152,7 @@ class Advanced_JS_Bundler_Using_ESBuild extends Bundler_Using_ESBuild {
 
 
 
-
                             // Maybe that will be a Ready_To_Serve_Static_Bundle
-
 
 
 
@@ -286,17 +177,6 @@ class Advanced_JS_Bundler_Using_ESBuild extends Bundler_Using_ESBuild {
                             // Or basically just initialise everything on the client page.
 
                             // Will have moderately to very structure of classes, very specific in terms of what they do and how they do it.
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -372,7 +252,6 @@ class Advanced_JS_Bundler_Using_ESBuild extends Bundler_Using_ESBuild {
 
             
 
-
         });
         return res_obs;
 
@@ -382,8 +261,10 @@ class Advanced_JS_Bundler_Using_ESBuild extends Bundler_Using_ESBuild {
 
     }
 
+
     
 
 }
+
 
 module.exports = Advanced_JS_Bundler_Using_ESBuild;

@@ -42,6 +42,44 @@ class Core_JS_Non_Minifying_Bundler_Using_ESBuild extends Bundler_Using_ESBuild 
 
 
 
+    bundle_js_string(js_string) {
+        const res_obs = obs(async(next, complete, error) => {
+            const o_build = {
+                stdin: {
+                    contents: js_string,
+                    resolveDir: process.cwd()
+                },
+                bundle: true,
+                treeShaking: true,
+                write: false,
+                // Remove outdir since we're keeping in memory
+            }
+
+            if (this.debug) {
+                o_build.sourcemap = 'inline';
+            }
+
+            let result = await esbuild.build(o_build);
+
+            if (result.outputFiles.length === 1) {
+                const output_file = result.outputFiles[0];
+                const res_bundle = new Bundle();
+                const o_bundle_item = {
+                    type: 'JavaScript',
+                    extension: 'js',
+                    text: output_file.text
+                }
+                res_bundle.push(o_bundle_item);
+                next(res_bundle);
+                complete();
+            } else {
+                console.trace();
+                throw 'NYI';
+            }
+        });
+        return res_obs;
+    }
+
     bundle(js_file_path) {
 
 
@@ -57,7 +95,7 @@ class Core_JS_Non_Minifying_Bundler_Using_ESBuild extends Bundler_Using_ESBuild 
 
                 //format: 'iife',
                 bundle: true,
-                
+
                 // Possibly no minification here....
                 // Want to use non-minified or only partially minified version to separate the JS and the CSS.
 
@@ -65,7 +103,7 @@ class Core_JS_Non_Minifying_Bundler_Using_ESBuild extends Bundler_Using_ESBuild 
 
                 //sourcemap: 'external',
                 write: false,
-                outdir: 'out',
+                // Remove outdir since we're keeping in memory
             }
 
             if (this.debug) {

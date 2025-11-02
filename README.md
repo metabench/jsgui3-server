@@ -1,5 +1,17 @@
 # Jsgui3 Server
 
+## When to Read
+
+This is the primary entry point for understanding the JSGUI3 Server project. Read this document first when:
+- You're new to the project and need an overview
+- You want to understand the architecture and core concepts
+- You're looking for quick start guides and basic usage examples
+- You need to understand the project's capabilities and limitations
+
+**Note:** For detailed API documentation, see [docs/comprehensive-documentation.md](docs/comprehensive-documentation.md). For advanced server API design, see [docs/simple-server-api-design.md](docs/simple-server-api-design.md).
+
+# Jsgui3 Server
+
 JSGUI3 Server is a Node.js-based application server for serving modern JavaScript GUI applications to web clients. It provides a complete runtime environment for delivering dynamic, component-based user interfaces with integrated data binding, event handling, and automatic CSS/JS bundling.
 
 ## Quick Start

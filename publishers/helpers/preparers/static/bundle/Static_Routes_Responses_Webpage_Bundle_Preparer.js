@@ -17,12 +17,17 @@ class Static_Routes_Responses_Webpage_Bundle_Preparer {
 
         //if (spec.debug !== undefined) this.debug = spec.debug;
 
+        // Store bundler configuration to pass to compression assigner
+        this.bundler_config = spec.bundler_config || {};
+
         this.routes_assigner = new Single_Control_Webpage_Server_Static_Routes_Assigner();
 
         // And the uncompressed response buffer(s) assigner....?
 
         this.uncompressed_response_buffers_assigner = new Single_Control_Webpage_Server_Static_Uncompressed_Response_Buffers_Assigner();
-        this.compressed_response_buffers_assigner = new Single_Control_Webpage_Server_Static_Compressed_Response_Buffers_Assigner();
+        this.compressed_response_buffers_assigner = new Single_Control_Webpage_Server_Static_Compressed_Response_Buffers_Assigner({
+            compression: this.bundler_config.compression
+        });
         this.headers_assigner = new Single_Control_Webpage_Server_Static_Headers_Assigner();
 
 

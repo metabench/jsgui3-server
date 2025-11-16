@@ -43,6 +43,16 @@ class Single_Control_Webpage_Server_Static_Compressed_Response_Buffers_Assigner 
 
     constructor(spec = {}) {
         super(spec);
+
+        // Store compression configuration
+        this.compression_config = spec.compression || {};
+        this.compression_stats = {
+            total_items: 0,
+            gzip_compressed: 0,
+            brotli_compressed: 0,
+            gzip_savings: 0,
+            brotli_savings: 0
+        };
     }
 
     // assign to bundle....
@@ -54,6 +64,18 @@ class Single_Control_Webpage_Server_Static_Compressed_Response_Buffers_Assigner 
     // These assign functions should (all probably) be async
 
     async assign(arr_bundled_items) {
+        // Get compression configuration with defaults
+        const enabled = this.compression_config.enabled !== false; // Default: true
+        const algorithms = this.compression_config.algorithms || ['gzip', 'br'];
+        const gzipLevel = this.compression_config.gzip?.level || 6;
+        const brotliQuality = this.compression_config.brotli?.quality || 6;
+        const threshold = this.compression_config.threshold || 1024;
+
+        if (!enabled) {
+            console.log('Compression disabled, skipping compression assignment');
+            return;
+        }
+
         // go through them....
 
         // Maybe check that the correct items are in the bundle.
@@ -84,26 +106,57 @@ class Single_Control_Webpage_Server_Static_Compressed_Response_Buffers_Assigner 
                 // // response_buffers.identity I think....
 
                 if (item.text) {
+                    const originalSize = item.response_buffers.identity.length;
+                    this.compression_stats.total_items++;
+
+                    // Skip compression if below threshold
+                    if (originalSize < threshold) {
+                        console.log(`Skipping compression for ${item.type} (${originalSize} bytes < ${threshold} threshold)`);
+                        continue;
+                    }
 
                     // Async compression definitely seems much better here.
-                    const buf_gzipped = await gzip_compress(item.response_buffers.identity);
-                    item.response_buffers.gzip = buf_gzipped;
+                    if (algorithms.includes('gzip')) {
+                        const buf_gzipped = await gzip_compress(item.response_buffers.identity, { level: gzipLevel });
+                        item.response_buffers.gzip = buf_gzipped;
+                        const compressedSize = buf_gzipped.length;
+                        const savings = originalSize - compressedSize;
+                        this.compression_stats.gzip_compressed++;
+                        this.compression_stats.gzip_savings += savings;
+                        console.log(`Gzip compressed ${item.type}: ${originalSize} → ${compressedSize} bytes (${Math.round(savings/originalSize*100)}% savings)`);
+                    }
 
-                    const buf_br = await br_compress(item.response_buffers.identity, {
-                        params: {
-                            //[zlib.constants.BROTLI_PARAM_MODE]: zlib.constants.BROTLI_MODE_TEXT,
-                            [zlib.constants.BROTLI_PARAM_QUALITY]: 10,
-                            [zlib.constants.BROTLI_PARAM_SIZE_HINT]: item.response_buffers.identity.length,
-                          }
-                    });
+                    if (algorithms.includes('br')) {
+                        const buf_br = await br_compress(item.response_buffers.identity, {
+                            params: {
+                                //[zlib.constants.BROTLI_PARAM_MODE]: zlib.constants.BROTLI_MODE_TEXT,
+                                [zlib.constants.BROTLI_PARAM_QUALITY]: brotliQuality,
+                                [zlib.constants.BROTLI_PARAM_SIZE_HINT]: item.response_buffers.identity.length,
+                              }
+                        });
 
-                    item.response_buffers.br = buf_br;
+                        item.response_buffers.br = buf_br;
+                        const compressedSize = buf_br.length;
+                        const savings = originalSize - compressedSize;
+                        this.compression_stats.brotli_compressed++;
+                        this.compression_stats.brotli_savings += savings;
+                        console.log(`Brotli compressed ${item.type}: ${originalSize} → ${compressedSize} bytes (${Math.round(savings/originalSize*100)}% savings)`);
+                    }
                 } else {
 
                 }
                 //console.trace();
                 //throw 'stop';
             }
+
+            // Log compression statistics
+            console.log('Compression Statistics:', {
+                total_items: this.compression_stats.total_items,
+                gzip_compressed: this.compression_stats.gzip_compressed,
+                brotli_compressed: this.compression_stats.brotli_compressed,
+                total_gzip_savings: `${Math.round(this.compression_stats.gzip_savings/1024)}KB`,
+                total_brotli_savings: `${Math.round(this.compression_stats.brotli_savings/1024)}KB`
+            });
 
         } else {
             console.trace();

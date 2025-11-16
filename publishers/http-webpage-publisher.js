@@ -23,7 +23,54 @@ class HTTP_Webpage_Publisher extends HTTP_Webpageorsite_Publisher {
                 return webpage;
             }
         });
-        this.static_routes_responses_webpage_bundle_preparer = new Static_Routes_Responses_Webpage_Bundle_Preparer();
+
+        // Store bundler configuration for passing to preparers
+        this.bundler_config = spec.bundler || {};
+
+        // Add input validation for bundler configuration
+        if (spec.bundler !== undefined && typeof spec.bundler !== 'object') {
+            throw new Error('bundler must be an object');
+        }
+
+        // Add input validation for compression settings
+        if (this.bundler_config.compression) {
+            const compression = this.bundler_config.compression;
+            if (compression.enabled !== undefined && typeof compression.enabled !== 'boolean') {
+                throw new Error('bundler.compression.enabled must be a boolean');
+            }
+            if (compression.algorithms && !Array.isArray(compression.algorithms)) {
+                throw new Error('bundler.compression.algorithms must be an array');
+            }
+            if (compression.algorithms) {
+                const validAlgorithms = ['gzip', 'br'];
+                for (const alg of compression.algorithms) {
+                    if (!validAlgorithms.includes(alg)) {
+                        throw new Error(`Invalid compression algorithm: ${alg}. Must be one of: ${validAlgorithms.join(', ')}`);
+                    }
+                }
+            }
+            if (compression.threshold !== undefined && (typeof compression.threshold !== 'number' || compression.threshold < 0)) {
+                throw new Error('bundler.compression.threshold must be a non-negative number');
+            }
+        }
+
+        // Add input validation for minification settings
+        if (this.bundler_config.minify) {
+            const minify = this.bundler_config.minify;
+            if (minify.level !== undefined && typeof minify.level !== 'string') {
+                throw new Error('bundler.minify.level must be a string');
+            }
+            if (minify.level !== undefined) {
+                const validLevels = ['conservative', 'normal', 'aggressive'];
+                if (!validLevels.includes(minify.level)) {
+                    throw new Error(`Invalid minification level: ${minify.level}. Must be one of: ${validLevels.join(', ')}`);
+                }
+            }
+        }
+
+        this.static_routes_responses_webpage_bundle_preparer = new Static_Routes_Responses_Webpage_Bundle_Preparer({
+            bundler_config: this.bundler_config
+        });
         (async() => {
             const res_get_ready = await this.get_ready();
             this.raise('ready', res_get_ready);

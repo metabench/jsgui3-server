@@ -14,11 +14,13 @@ const Bundler_Using_ESBuild = require('./Bundler_Using_ESBuild');
 
 
 class Core_JS_Non_Minifying_Bundler_Using_ESBuild extends Bundler_Using_ESBuild {
-    constructor(spec) {
+    constructor(spec = {}) {
         super(spec);
 
         if (spec.debug !== undefined) this.debug = spec.debug;
 
+        // Store sourcemap configuration
+        this.sourcemap_config = spec.sourcemaps || {};
 
     }
 
@@ -55,8 +57,10 @@ class Core_JS_Non_Minifying_Bundler_Using_ESBuild extends Bundler_Using_ESBuild 
                 // Remove outdir since we're keeping in memory
             }
 
-            if (this.debug) {
-                o_build.sourcemap = 'inline';
+            // Configure sourcemaps based on configuration
+            const sourcemapsEnabled = this.sourcemap_config.enabled !== false; // Default: true in debug, false in production
+            if (sourcemapsEnabled && (this.debug || this.sourcemap_config.includeInProduction)) {
+                o_build.sourcemap = this.sourcemap_config.format || 'inline';
             }
 
             let result = await esbuild.build(o_build);
@@ -85,6 +89,11 @@ class Core_JS_Non_Minifying_Bundler_Using_ESBuild extends Bundler_Using_ESBuild 
 
         const res_obs = obs(async(next, complete, error) => {
 
+            // Validate input
+            if (typeof js_file_path !== 'string' || js_file_path.trim() === '') {
+                throw new Error('bundle() expects a valid file path string');
+            }
+
             //console.log('Core_JS_Bundler_Using_ESBuild bundle js_file_path:', js_file_path);
 
             // Looks like we need better linking build options....
@@ -106,8 +115,10 @@ class Core_JS_Non_Minifying_Bundler_Using_ESBuild extends Bundler_Using_ESBuild 
                 // Remove outdir since we're keeping in memory
             }
 
-            if (this.debug) {
-                o_build.sourcemap = 'inline';
+            // Configure sourcemaps based on configuration
+            const sourcemapsEnabled = this.sourcemap_config.enabled !== false; // Default: true in debug, false in production
+            if (sourcemapsEnabled && (this.debug || this.sourcemap_config.includeInProduction)) {
+                o_build.sourcemap = this.sourcemap_config.format || 'inline';
             }
 
 

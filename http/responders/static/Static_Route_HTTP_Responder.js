@@ -84,8 +84,7 @@ class Static_Route_HTTP_Responder extends HTTP_Responder {
         // Then write the (hopefully compressed) response bodies...
 
         if (supported_encodings.br === true) {
-            
-            res.write(response_buffers.br);
+
             res.write(response_buffers.br);
         } else if (supported_encodings.gzip === true) {
             //console.log('should write gzipped buffer...');

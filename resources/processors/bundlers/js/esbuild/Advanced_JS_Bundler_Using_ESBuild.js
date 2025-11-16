@@ -18,16 +18,20 @@ const CSS_And_JS_From_JS_String_Extractor = require('../../../extractors/js/css_
 
 
 class Advanced_JS_Bundler_Using_ESBuild extends Bundler_Using_ESBuild {
-    constructor(spec) {
+    constructor(spec = {}) {
         super(spec);
 
         if (spec.debug !== undefined) this.debug = spec.debug;
+
+        // Store bundler configuration
+        this.bundler_config = spec.bundler || {};
 
         //this.css_extractor = new CSS_Extractor();
 
 
         this.non_minifying_bundler = new Core_JS_Non_Minifying_Bundler_Using_ESBuild({
-            debug: this.debug
+            debug: this.debug,
+            sourcemaps: this.bundler_config.sourcemaps
         });
 
 
@@ -35,12 +39,19 @@ class Advanced_JS_Bundler_Using_ESBuild extends Bundler_Using_ESBuild {
 
 
         // Probably don't use that minifying bundler in debug mode.
-        this.minifying_js_single_file_bundler = new Core_JS_Single_File_Minifying_Bundler_Using_ESBuild();
+        this.minifying_js_single_file_bundler = new Core_JS_Single_File_Minifying_Bundler_Using_ESBuild({
+            minify: this.bundler_config.minify
+        });
 
     }
 
     bundle(js_file_path) {
         const {non_minifying_bundler, css_and_js_from_js_string_extractor, minifying_js_single_file_bundler} = this;
+
+        // Validate input
+        if (typeof js_file_path !== 'string' || js_file_path.trim() === '') {
+            throw new Error('bundle() expects a valid file path string');
+        }
 
         // Maybe this should get them positioned absolutely when removed from the grid?
         //   But then what about the space they leave?
@@ -48,7 +59,7 @@ class Advanced_JS_Bundler_Using_ESBuild extends Bundler_Using_ESBuild {
         // This is just a simple principle demo though.
         //   Maybe want a simple and explicit option to change behaviour like I specify.
 
-        
+
 
         const res_obs = obs(async(next, complete, error) => {
 

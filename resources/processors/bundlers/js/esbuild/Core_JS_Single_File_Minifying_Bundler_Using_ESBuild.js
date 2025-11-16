@@ -16,8 +16,11 @@ const Bundler_Using_ESBuild = require('./Bundler_Using_ESBuild');
 
 
 class Core_JS_Single_File_Minifying_Bundler_Using_ESBuild extends Bundler_Using_ESBuild {
-    constructor(spec) {
+    constructor(spec = {}) {
         super(spec);
+
+        // Store minification configuration
+        this.minify_config = spec.minify || this.get_default_minify_config();
     }
 
     // And the options....
@@ -30,9 +33,34 @@ class Core_JS_Single_File_Minifying_Bundler_Using_ESBuild extends Bundler_Using_
     // Core_JS_Non_Minifying_Bundler_Using_ESBuild for example....
 
     // Really specific class names for specific functionality to call reqlly quickly and interchange really quickly.
-    
+
     // Probably use the non-minifying bundler, and then use a minifier afterwards.
     // And here the minifier is ESBuild, as is the bundler.
+
+    get_minify_options() {
+        const level = this.minify_config.level || 'normal';
+        const enabled = this.minify_config.enabled !== false; // Default: true
+
+        if (!enabled) {
+            return false; // Disable minification
+        }
+
+        const baseOptions = {
+            conservative: { mangle: false, compress: { sequences: false } },
+            normal: { mangle: true, compress: true },
+            aggressive: { mangle: true, compress: { drop_console: true, drop_debugger: true } }
+        };
+
+        const options = { ...baseOptions[level], ...this.minify_config.options };
+        return options;
+    }
+
+    get_default_minify_config() {
+        return {
+            enabled: true,
+            level: 'normal'
+        };
+    }
 
 
 
@@ -43,6 +71,10 @@ class Core_JS_Single_File_Minifying_Bundler_Using_ESBuild extends Bundler_Using_
     bundle(str_js) {
 
 
+            // Validate input
+            if (typeof str_js !== 'string') {
+                throw new Error('bundle() expects a string parameter');
+            }
         const res_obs = obs(async(next, complete, error) => {
 
 
@@ -60,7 +92,7 @@ class Core_JS_Single_File_Minifying_Bundler_Using_ESBuild extends Bundler_Using_
                     //sourcefile: 'imaginary-file.js',
                     //loader: 'ts',
                 },
-                //bundle: true,
+                bundle: true,
                 
                 // Possibly no minification here....
                 // Want to use non-minified or only partially minified version to separate the JS and the CSS.
@@ -71,7 +103,7 @@ class Core_JS_Single_File_Minifying_Bundler_Using_ESBuild extends Bundler_Using_
 
                 //sourcemap: 'external',
                 write: false,
-                outdir: 'out',
+                // Remove outdir since we're keeping in memory
             })
             //console.log('result.outputFiles:\n\n');
             for (let out of result.outputFiles) {

@@ -1,0 +1,542 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1400 2100" width="1400" height="2100">
+  <defs>
+    <!-- Industrial Luxury Obsidian Gradients -->
+    <linearGradient id="obsidianBg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#050508"/>
+      <stop offset="25%" style="stop-color:#0a0d14"/>
+      <stop offset="50%" style="stop-color:#0f1420"/>
+      <stop offset="75%" style="stop-color:#0a0d14"/>
+      <stop offset="100%" style="stop-color:#050508"/>
+    </linearGradient>
+    
+    <linearGradient id="goldTitle" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#8b7500"/>
+      <stop offset="30%" style="stop-color:#ffd700"/>
+      <stop offset="50%" style="stop-color:#fffacd"/>
+      <stop offset="70%" style="stop-color:#ffd700"/>
+      <stop offset="100%" style="stop-color:#8b7500"/>
+    </linearGradient>
+    
+    <linearGradient id="cardGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#1a1f2e"/>
+      <stop offset="50%" style="stop-color:#141824"/>
+      <stop offset="100%" style="stop-color:#0f1420"/>
+    </linearGradient>
+    
+    <linearGradient id="headerGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#0f1420"/>
+      <stop offset="50%" style="stop-color:#1a1f2e"/>
+      <stop offset="100%" style="stop-color:#0f1420"/>
+    </linearGradient>
+    
+    <linearGradient id="goldAccent" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:transparent"/>
+      <stop offset="20%" style="stop-color:#8b7500"/>
+      <stop offset="50%" style="stop-color:#c9a227"/>
+      <stop offset="80%" style="stop-color:#8b7500"/>
+      <stop offset="100%" style="stop-color:transparent"/>
+    </linearGradient>
+    
+    <linearGradient id="goldButton" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#c9a227"/>
+      <stop offset="100%" style="stop-color:#b8960f"/>
+    </linearGradient>
+    
+    <!-- Filters for glow effects -->
+    <filter id="goldGlow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="3" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+    
+    <filter id="softShadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="4" stdDeviation="10" flood-color="#000000" flood-opacity="0.5"/>
+    </filter>
+    
+    <!-- Pattern for subtle grid -->
+    <pattern id="gridPattern" width="80" height="80" patternUnits="userSpaceOnUse">
+      <path d="M 80 0 L 0 0 0 80" fill="none" stroke="rgba(201,162,39,0.03)" stroke-width="1"/>
+    </pattern>
+    
+    <!-- Diagonal hatch pattern -->
+    <pattern id="hatchPattern" width="16" height="16" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
+      <line x1="0" y1="0" x2="0" y2="16" stroke="rgba(201,162,39,0.02)" stroke-width="1"/>
+    </pattern>
+  </defs>
+  
+  <!-- ═══════════════════════════════════════════════════════════════════════════════
+       BACKGROUND LAYERS
+       ═══════════════════════════════════════════════════════════════════════════════ -->
+  <rect width="1400" height="2100" fill="url(#obsidianBg)"/>
+  <rect width="1400" height="2100" fill="url(#gridPattern)"/>
+  <rect width="1400" height="2100" fill="url(#hatchPattern)"/>
+  
+  <!-- Corner flourishes -->
+  <ellipse cx="0" cy="0" rx="150" ry="150" fill="radial-gradient(ellipse at 0% 0%, #8b7500 0%, transparent 70%)" opacity="0.25"/>
+  <ellipse cx="1400" cy="0" rx="150" ry="150" fill="radial-gradient(ellipse at 100% 0%, #8b7500 0%, transparent 70%)" opacity="0.25"/>
+  <ellipse cx="0" cy="2100" rx="150" ry="150" fill="radial-gradient(ellipse at 0% 100%, #8b7500 0%, transparent 70%)" opacity="0.25"/>
+  <ellipse cx="1400" cy="2100" rx="150" ry="150" fill="radial-gradient(ellipse at 100% 100%, #8b7500 0%, transparent 70%)" opacity="0.25"/>
+  
+  <!-- ═══════════════════════════════════════════════════════════════════════════════
+       HERO SECTION
+       ═══════════════════════════════════════════════════════════════════════════════ -->
+  
+  <!-- Hero glow -->
+  <ellipse cx="700" cy="100" rx="400" ry="120" fill="rgba(201,162,39,0.12)"/>
+  
+  <!-- Diamond icon -->
+  <text x="700" y="70" text-anchor="middle" font-size="40" fill="#c9a227" filter="url(#goldGlow)">◆</text>
+  
+  <!-- Main title -->
+  <text x="700" y="130" text-anchor="middle" font-family="Georgia, 'Playfair Display', serif" font-size="48" font-weight="700" fill="url(#goldTitle)" filter="url(#goldGlow)">
+    JSGUI3 Server vs Express
+  </text>
+  
+  <!-- Subtitle -->
+  <text x="700" y="165" text-anchor="middle" font-family="Inter, system-ui, sans-serif" font-size="14" fill="#94a3b8" letter-spacing="3">
+    FULL-STACK FRAMEWORK VS MINIMAL HTTP LIBRARY
+  </text>
+  
+  <!-- Decorative line under title -->
+  <line x1="200" y1="195" x2="1200" y2="195" stroke="url(#goldAccent)" stroke-width="1" opacity="0.6"/>
+  
+  <!-- ═══════════════════════════════════════════════════════════════════════════════
+       STAT CARDS
+       ═══════════════════════════════════════════════════════════════════════════════ -->
+  <g transform="translate(60, 230)">
+    <!-- JSGUI3 Stat Card -->
+    <g filter="url(#softShadow)">
+      <rect x="0" y="0" width="280" height="100" rx="10" fill="url(#cardGradient)" stroke="#334155"/>
+      <rect x="0" y="0" width="280" height="3" rx="2" fill="#50c878"/>
+      <text x="140" y="50" text-anchor="middle" font-family="Georgia, serif" font-size="28" font-weight="700" fill="#50c878">Full-Stack</text>
+      <text x="140" y="75" text-anchor="middle" font-family="Inter, sans-serif" font-size="11" fill="#64748b" text-transform="uppercase" letter-spacing="1">JSGUI3 PHILOSOPHY</text>
+    </g>
+    
+    <!-- Express Stat Card -->
+    <g transform="translate(320, 0)" filter="url(#softShadow)">
+      <rect x="0" y="0" width="280" height="100" rx="10" fill="url(#cardGradient)" stroke="#334155"/>
+      <rect x="0" y="0" width="280" height="3" rx="2" fill="#64748b"/>
+      <text x="140" y="50" text-anchor="middle" font-family="Georgia, serif" font-size="28" font-weight="700" fill="#94a3b8">Minimal</text>
+      <text x="140" y="75" text-anchor="middle" font-family="Inter, sans-serif" font-size="11" fill="#64748b" text-transform="uppercase" letter-spacing="1">EXPRESS PHILOSOPHY</text>
+    </g>
+    
+    <!-- Built-in Features Card -->
+    <g transform="translate(640, 0)" filter="url(#softShadow)">
+      <rect x="0" y="0" width="280" height="100" rx="10" fill="url(#cardGradient)" stroke="#334155"/>
+      <rect x="0" y="0" width="280" height="3" rx="2" fill="#da70d6"/>
+      <text x="140" y="50" text-anchor="middle" font-family="Georgia, serif" font-size="28" font-weight="700" fill="#da70d6">Batteries</text>
+      <text x="140" y="75" text-anchor="middle" font-family="Inter, sans-serif" font-size="11" fill="#64748b" text-transform="uppercase" letter-spacing="1">JSGUI3 INCLUDED</text>
+    </g>
+    
+    <!-- Express Ecosystem Card -->
+    <g transform="translate(960, 0)" filter="url(#softShadow)">
+      <rect x="0" y="0" width="280" height="100" rx="10" fill="url(#cardGradient)" stroke="#334155"/>
+      <rect x="0" y="0" width="280" height="3" rx="2" fill="#ffc87c"/>
+      <text x="140" y="50" text-anchor="middle" font-family="Georgia, serif" font-size="28" font-weight="700" fill="#ffc87c">50K+</text>
+      <text x="140" y="75" text-anchor="middle" font-family="Inter, sans-serif" font-size="11" fill="#64748b" text-transform="uppercase" letter-spacing="1">EXPRESS MIDDLEWARE</text>
+    </g>
+  </g>
+  
+  <!-- ═══════════════════════════════════════════════════════════════════════════════
+       MAIN COMPARISON PANEL
+       ═══════════════════════════════════════════════════════════════════════════════ -->
+  <g transform="translate(60, 370)" filter="url(#softShadow)">
+    <!-- Panel background -->
+    <rect x="0" y="0" width="1280" height="1650" rx="16" fill="url(#cardGradient)" stroke="#334155" stroke-width="2"/>
+    
+    <!-- Panel gold border accent -->
+    <rect x="2" y="2" width="1276" height="1646" rx="14" fill="none" stroke="url(#goldAccent)" stroke-width="1" opacity="0.4"/>
+    
+    <!-- Panel header -->
+    <rect x="0" y="0" width="1280" height="60" rx="16" fill="url(#headerGradient)"/>
+    <rect x="0" y="56" width="1280" height="4" fill="#0f1420"/>
+    <line x1="0" y1="60" x2="1280" y2="60" stroke="url(#goldAccent)" stroke-width="1" opacity="0.6"/>
+    
+    <!-- Header title -->
+    <text x="40" y="38" font-family="Georgia, serif" font-size="18" font-weight="600" fill="#c9a227">◆</text>
+    <text x="70" y="38" font-family="Georgia, serif" font-size="18" font-weight="600" fill="#c9a227">Feature Comparison Matrix</text>
+    <text x="60" y="38" font-family="Georgia, serif" font-size="10" fill="#c9a227" opacity="0.6">◆</text>
+    <text x="340" y="38" font-family="Georgia, serif" font-size="10" fill="#c9a227" opacity="0.6">◆</text>
+    
+    <!-- Column headers -->
+    <rect x="0" y="60" width="1280" height="50" fill="#0a0d14"/>
+    <line x1="0" y1="110" x2="1280" y2="110" stroke="#334155"/>
+    
+    <text x="200" y="92" text-anchor="middle" font-family="Inter, sans-serif" font-size="11" font-weight="600" fill="#c9a227" letter-spacing="1">FEATURE CATEGORY</text>
+    <text x="540" y="92" text-anchor="middle" font-family="Inter, sans-serif" font-size="11" font-weight="600" fill="#c9a227" letter-spacing="1">JSGUI3 SERVER</text>
+    <text x="940" y="92" text-anchor="middle" font-family="Inter, sans-serif" font-size="11" font-weight="600" fill="#c9a227" letter-spacing="1">EXPRESS.JS</text>
+    
+    <!-- Vertical dividers -->
+    <line x1="380" y1="60" x2="380" y2="1650" stroke="#334155" stroke-dasharray="4,4" opacity="0.5"/>
+    <line x1="740" y1="60" x2="740" y2="1650" stroke="#334155" stroke-dasharray="4,4" opacity="0.5"/>
+    <line x1="1140" y1="60" x2="1140" y2="1650" stroke="#334155" stroke-dasharray="4,4" opacity="0.5"/>
+    
+    <!-- ═══════════════════════════════════════════════════════════════════════════════
+         CORE PHILOSOPHY SECTION
+         ═══════════════════════════════════════════════════════════════════════════════ -->
+    <g transform="translate(0, 130)">
+      <rect x="20" y="0" width="1240" height="30" rx="4" fill="rgba(201,162,39,0.08)"/>
+      <text x="40" y="20" font-family="Georgia, serif" font-size="14" font-weight="600" fill="#c9a227">CORE PHILOSOPHY &amp; DESIGN</text>
+    </g>
+    
+    <!-- Row 1: Design Philosophy -->
+    <g transform="translate(0, 175)">
+      <rect x="0" y="0" width="1280" height="55" fill="transparent"/>
+      <rect x="0" y="54" width="1280" height="1" fill="#334155" opacity="0.3"/>
+      <text x="40" y="25" font-family="Inter, sans-serif" font-size="13" fill="#cbd5e1">Design Philosophy</text>
+      <text x="40" y="42" font-family="Inter, sans-serif" font-size="10" fill="#64748b">Fundamental approach to development</text>
+      
+      <!-- JSGUI3 -->
+      <rect x="400" y="10" width="280" height="35" rx="4" fill="rgba(80,200,120,0.1)" stroke="#2e8b57"/>
+      <text x="540" y="33" text-anchor="middle" font-family="Inter, sans-serif" font-size="12" fill="#50c878">Opinionated Full-Stack Framework</text>
+      
+      <!-- Express -->
+      <rect x="760" y="10" width="360" height="35" rx="4" fill="rgba(148,163,184,0.1)" stroke="#475569"/>
+      <text x="940" y="33" text-anchor="middle" font-family="Inter, sans-serif" font-size="12" fill="#94a3b8">Minimal Unopinionated HTTP Layer</text>
+    </g>
+    
+    <!-- Row 2: Primary Purpose -->
+    <g transform="translate(0, 230)">
+      <rect x="0" y="0" width="1280" height="55" fill="rgba(26,31,46,0.3)"/>
+      <rect x="0" y="54" width="1280" height="1" fill="#334155" opacity="0.3"/>
+      <text x="40" y="25" font-family="Inter, sans-serif" font-size="13" fill="#cbd5e1">Primary Purpose</text>
+      <text x="40" y="42" font-family="Inter, sans-serif" font-size="10" fill="#64748b">What it's designed to do</text>
+      
+      <rect x="400" y="10" width="280" height="35" rx="4" fill="rgba(80,200,120,0.1)" stroke="#2e8b57"/>
+      <text x="540" y="33" text-anchor="middle" font-family="Inter, sans-serif" font-size="12" fill="#50c878">Serve Complete GUI Applications</text>
+      
+      <rect x="760" y="10" width="360" height="35" rx="4" fill="rgba(148,163,184,0.1)" stroke="#475569"/>
+      <text x="940" y="33" text-anchor="middle" font-family="Inter, sans-serif" font-size="12" fill="#94a3b8">Handle HTTP Requests/Responses</text>
+    </g>
+    
+    <!-- Row 3: Learning Curve -->
+    <g transform="translate(0, 285)">
+      <rect x="0" y="0" width="1280" height="55" fill="transparent"/>
+      <rect x="0" y="54" width="1280" height="1" fill="#334155" opacity="0.3"/>
+      <text x="40" y="25" font-family="Inter, sans-serif" font-size="13" fill="#cbd5e1">Learning Curve</text>
+      <text x="40" y="42" font-family="Inter, sans-serif" font-size="10" fill="#64748b">Time to productivity</text>
+      
+      <rect x="400" y="10" width="280" height="35" rx="4" fill="rgba(255,159,0,0.1)" stroke="#cc7000"/>
+      <text x="540" y="33" text-anchor="middle" font-family="Inter, sans-serif" font-size="12" fill="#ffc87c">Steeper (More Concepts)</text>
+      
+      <rect x="760" y="10" width="360" height="35" rx="4" fill="rgba(80,200,120,0.1)" stroke="#2e8b57"/>
+      <text x="940" y="33" text-anchor="middle" font-family="Inter, sans-serif" font-size="12" fill="#50c878">Gentle (Simple API)</text>
+    </g>
+    
+    <!-- Row 4: Architecture -->
+    <g transform="translate(0, 340)">
+      <rect x="0" y="0" width="1280" height="55" fill="rgba(26,31,46,0.3)"/>
+      <rect x="0" y="54" width="1280" height="1" fill="#334155" opacity="0.3"/>
+      <text x="40" y="25" font-family="Inter, sans-serif" font-size="13" fill="#cbd5e1">Architecture Pattern</text>
+      <text x="40" y="42" font-family="Inter, sans-serif" font-size="10" fill="#64748b">Structural organization</text>
+      
+      <rect x="400" y="10" width="280" height="35" rx="4" fill="rgba(80,200,120,0.1)" stroke="#2e8b57"/>
+      <text x="540" y="33" text-anchor="middle" font-family="Inter, sans-serif" font-size="12" fill="#50c878">Publisher + Resource + Control</text>
+      
+      <rect x="760" y="10" width="360" height="35" rx="4" fill="rgba(148,163,184,0.1)" stroke="#475569"/>
+      <text x="940" y="33" text-anchor="middle" font-family="Inter, sans-serif" font-size="12" fill="#94a3b8">Route → Middleware → Handler</text>
+    </g>
+    
+    <!-- ═══════════════════════════════════════════════════════════════════════════════
+         BUILT-IN FEATURES SECTION (JSGUI3 ADVANTAGES)
+         ═══════════════════════════════════════════════════════════════════════════════ -->
+    <g transform="translate(0, 415)">
+      <rect x="20" y="0" width="1240" height="30" rx="4" fill="rgba(80,200,120,0.08)"/>
+      <text x="40" y="20" font-family="Georgia, serif" font-size="14" font-weight="600" fill="#50c878">BUILT-IN FEATURES (JSGUI3 Advantages)</text>
+    </g>
+    
+    <!-- Row 5: UI Components -->
+    <g transform="translate(0, 460)">
+      <rect x="0" y="0" width="1280" height="55" fill="transparent"/>
+      <rect x="0" y="54" width="1280" height="1" fill="#334155" opacity="0.3"/>
+      <text x="40" y="25" font-family="Inter, sans-serif" font-size="13" fill="#cbd5e1">UI Component System</text>
+      <text x="40" y="42" font-family="Inter, sans-serif" font-size="10" fill="#64748b">Windows, Panels, Buttons, etc.</text>
+      
+      <rect x="400" y="10" width="280" height="35" rx="4" fill="rgba(80,200,120,0.1)" stroke="#2e8b57"/>
+      <text x="540" y="33" text-anchor="middle" font-family="Inter, sans-serif" font-size="12" fill="#50c878">✓ Full Control Library</text>
+      
+      <rect x="760" y="10" width="360" height="35" rx="4" fill="rgba(255,107,107,0.1)" stroke="#8b0000"/>
+      <text x="940" y="33" text-anchor="middle" font-family="Inter, sans-serif" font-size="12" fill="#ff6b6b">✗ Not Included</text>
+    </g>
+    
+    <!-- Row 6: JS/CSS Bundling -->
+    <g transform="translate(0, 515)">
+      <rect x="0" y="0" width="1280" height="55" fill="rgba(26,31,46,0.3)"/>
+      <rect x="0" y="54" width="1280" height="1" fill="#334155" opacity="0.3"/>
+      <text x="40" y="25" font-family="Inter, sans-serif" font-size="13" fill="#cbd5e1">JS/CSS Bundling</text>
+      <text x="40" y="42" font-family="Inter, sans-serif" font-size="10" fill="#64748b">Asset compilation with ESBuild</text>
+      
+      <rect x="400" y="10" width="280" height="35" rx="4" fill="rgba(80,200,120,0.1)" stroke="#2e8b57"/>
+      <text x="540" y="33" text-anchor="middle" font-family="Inter, sans-serif" font-size="12" fill="#50c878">✓ Built-in ESBuild</text>
+      
+      <rect x="760" y="10" width="360" height="35" rx="4" fill="rgba(255,107,107,0.1)" stroke="#8b0000"/>
+      <text x="940" y="33" text-anchor="middle" font-family="Inter, sans-serif" font-size="12" fill="#ff6b6b">✗ Requires Webpack/Vite/etc.</text>
+    </g>
+    
+    <!-- Row 7: HTML Generation -->
+    <g transform="translate(0, 570)">
+      <rect x="0" y="0" width="1280" height="55" fill="transparent"/>
+      <rect x="0" y="54" width="1280" height="1" fill="#334155" opacity="0.3"/>
+      <text x="40" y="25" font-family="Inter, sans-serif" font-size="13" fill="#cbd5e1">Server-Side HTML Rendering</text>
+      <text x="40" y="42" font-family="Inter, sans-serif" font-size="10" fill="#64748b">Generate pages from components</text>
+      
+      <rect x="400" y="10" width="280" height="35" rx="4" fill="rgba(80,200,120,0.1)" stroke="#2e8b57"/>
+      <text x="540" y="33" text-anchor="middle" font-family="Inter, sans-serif" font-size="12" fill="#50c878">✓ Active_HTML_Document</text>
+      
+      <rect x="760" y="10" width="360" height="35" rx="4" fill="rgba(255,159,0,0.1)" stroke="#cc7000"/>
+      <text x="940" y="33" text-anchor="middle" font-family="Inter, sans-serif" font-size="12" fill="#ffc87c">~ res.render() + Template Engine</text>
+    </g>
+    
+    <!-- Row 8: Data Binding -->
+    <g transform="translate(0, 625)">
+      <rect x="0" y="0" width="1280" height="55" fill="rgba(26,31,46,0.3)"/>
+      <rect x="0" y="54" width="1280" height="1" fill="#334155" opacity="0.3"/>
+      <text x="40" y="25" font-family="Inter, sans-serif" font-size="13" fill="#cbd5e1">Reactive Data Binding</text>
+      <text x="40" y="42" font-family="Inter, sans-serif" font-size="10" fill="#64748b">Observable Data_Object system</text>
+      
+      <rect x="400" y="10" width="280" height="35" rx="4" fill="rgba(80,200,120,0.1)" stroke="#2e8b57"/>
+      <text x="540" y="33" text-anchor="middle" font-family="Inter, sans-serif" font-size="12" fill="#50c878">✓ field() Observables</text>
+      
+      <rect x="760" y="10" width="360" height="35" rx="4" fill="rgba(255,107,107,0.1)" stroke="#8b0000"/>
+      <text x="940" y="33" text-anchor="middle" font-family="Inter, sans-serif" font-size="12" fill="#ff6b6b">✗ Not Applicable</text>
+    </g>
+    
+    <!-- Row 9: Content Type Publishers -->
+    <g transform="translate(0, 680)">
+      <rect x="0" y="0" width="1280" height="55" fill="transparent"/>
+      <rect x="0" y="54" width="1280" height="1" fill="#334155" opacity="0.3"/>
+      <text x="40" y="25" font-family="Inter, sans-serif" font-size="13" fill="#cbd5e1">Content Type Publishers</text>
+      <text x="40" y="42" font-family="Inter, sans-serif" font-size="10" fill="#64748b">Webpage, CSS, JS, Image, SVG, etc.</text>
+      
+      <rect x="400" y="10" width="280" height="35" rx="4" fill="rgba(80,200,120,0.1)" stroke="#2e8b57"/>
+      <text x="540" y="33" text-anchor="middle" font-family="Inter, sans-serif" font-size="12" fill="#50c878">✓ 14+ Specialized Publishers</text>
+      
+      <rect x="760" y="10" width="360" height="35" rx="4" fill="rgba(255,159,0,0.1)" stroke="#cc7000"/>
+      <text x="940" y="33" text-anchor="middle" font-family="Inter, sans-serif" font-size="12" fill="#ffc87c">~ express.static() Only</text>
+    </g>
+    
+    <!-- Row 10: Function Publishing -->
+    <g transform="translate(0, 735)">
+      <rect x="0" y="0" width="1280" height="55" fill="rgba(26,31,46,0.3)"/>
+      <rect x="0" y="54" width="1280" height="1" fill="#334155" opacity="0.3"/>
+      <text x="40" y="25" font-family="Inter, sans-serif" font-size="13" fill="#cbd5e1">Function → API Endpoint</text>
+      <text x="40" y="42" font-family="Inter, sans-serif" font-size="10" fill="#64748b">Auto JSON serialization</text>
+      
+      <rect x="400" y="10" width="280" height="35" rx="4" fill="rgba(80,200,120,0.1)" stroke="#2e8b57"/>
+      <text x="540" y="33" text-anchor="middle" font-family="Inter, sans-serif" font-size="12" fill="#50c878">✓ server.publish('name', fn)</text>
+      
+      <rect x="760" y="10" width="360" height="35" rx="4" fill="rgba(255,159,0,0.1)" stroke="#cc7000"/>
+      <text x="940" y="33" text-anchor="middle" font-family="Inter, sans-serif" font-size="12" fill="#ffc87c">~ Manual res.json() Required</text>
+    </g>
+    
+    <!-- Row 11: Resource Pool -->
+    <g transform="translate(0, 790)">
+      <rect x="0" y="0" width="1280" height="55" fill="transparent"/>
+      <rect x="0" y="54" width="1280" height="1" fill="#334155" opacity="0.3"/>
+      <text x="40" y="25" font-family="Inter, sans-serif" font-size="13" fill="#cbd5e1">Resource Pool Management</text>
+      <text x="40" y="42" font-family="Inter, sans-serif" font-size="10" fill="#64748b">Lifecycle &amp; access control</text>
+      
+      <rect x="400" y="10" width="280" height="35" rx="4" fill="rgba(80,200,120,0.1)" stroke="#2e8b57"/>
+      <text x="540" y="33" text-anchor="middle" font-family="Inter, sans-serif" font-size="12" fill="#50c878">✓ Server_Resource_Pool</text>
+      
+      <rect x="760" y="10" width="360" height="35" rx="4" fill="rgba(255,107,107,0.1)" stroke="#8b0000"/>
+      <text x="940" y="33" text-anchor="middle" font-family="Inter, sans-serif" font-size="12" fill="#ff6b6b">✗ Manual Implementation</text>
+    </g>
+    
+    <!-- ═══════════════════════════════════════════════════════════════════════════════
+         EXPRESS STRENGTHS SECTION
+         ═══════════════════════════════════════════════════════════════════════════════ -->
+    <g transform="translate(0, 865)">
+      <rect x="20" y="0" width="1240" height="30" rx="4" fill="rgba(148,163,184,0.08)"/>
+      <text x="40" y="20" font-family="Georgia, serif" font-size="14" font-weight="600" fill="#94a3b8">EXPRESS STRENGTHS</text>
+    </g>
+    
+    <!-- Row 12: Ecosystem -->
+    <g transform="translate(0, 910)">
+      <rect x="0" y="0" width="1280" height="55" fill="transparent"/>
+      <rect x="0" y="54" width="1280" height="1" fill="#334155" opacity="0.3"/>
+      <text x="40" y="25" font-family="Inter, sans-serif" font-size="13" fill="#cbd5e1">Middleware Ecosystem</text>
+      <text x="40" y="42" font-family="Inter, sans-serif" font-size="10" fill="#64748b">Third-party packages available</text>
+      
+      <rect x="400" y="10" width="280" height="35" rx="4" fill="rgba(255,159,0,0.1)" stroke="#cc7000"/>
+      <text x="540" y="33" text-anchor="middle" font-family="Inter, sans-serif" font-size="12" fill="#ffc87c">Limited (Built-in focused)</text>
+      
+      <rect x="760" y="10" width="360" height="35" rx="4" fill="rgba(80,200,120,0.1)" stroke="#2e8b57"/>
+      <text x="940" y="33" text-anchor="middle" font-family="Inter, sans-serif" font-size="12" fill="#50c878">✓ 50,000+ npm Middleware</text>
+    </g>
+    
+    <!-- Row 13: Community -->
+    <g transform="translate(0, 965)">
+      <rect x="0" y="0" width="1280" height="55" fill="rgba(26,31,46,0.3)"/>
+      <rect x="0" y="54" width="1280" height="1" fill="#334155" opacity="0.3"/>
+      <text x="40" y="25" font-family="Inter, sans-serif" font-size="13" fill="#cbd5e1">Community Size</text>
+      <text x="40" y="42" font-family="Inter, sans-serif" font-size="10" fill="#64748b">Documentation &amp; support</text>
+      
+      <rect x="400" y="10" width="280" height="35" rx="4" fill="rgba(255,159,0,0.1)" stroke="#cc7000"/>
+      <text x="540" y="33" text-anchor="middle" font-family="Inter, sans-serif" font-size="12" fill="#ffc87c">Niche (Specialized)</text>
+      
+      <rect x="760" y="10" width="360" height="35" rx="4" fill="rgba(80,200,120,0.1)" stroke="#2e8b57"/>
+      <text x="940" y="33" text-anchor="middle" font-family="Inter, sans-serif" font-size="12" fill="#50c878">✓ Massive (Industry Standard)</text>
+    </g>
+    
+    <!-- Row 14: Flexibility -->
+    <g transform="translate(0, 1020)">
+      <rect x="0" y="0" width="1280" height="55" fill="transparent"/>
+      <rect x="0" y="54" width="1280" height="1" fill="#334155" opacity="0.3"/>
+      <text x="40" y="25" font-family="Inter, sans-serif" font-size="13" fill="#cbd5e1">Architecture Flexibility</text>
+      <text x="40" y="42" font-family="Inter, sans-serif" font-size="10" fill="#64748b">Freedom in structuring code</text>
+      
+      <rect x="400" y="10" width="280" height="35" rx="4" fill="rgba(255,159,0,0.1)" stroke="#cc7000"/>
+      <text x="540" y="33" text-anchor="middle" font-family="Inter, sans-serif" font-size="12" fill="#ffc87c">Convention-based Structure</text>
+      
+      <rect x="760" y="10" width="360" height="35" rx="4" fill="rgba(80,200,120,0.1)" stroke="#2e8b57"/>
+      <text x="940" y="33" text-anchor="middle" font-family="Inter, sans-serif" font-size="12" fill="#50c878">✓ Complete Freedom</text>
+    </g>
+    
+    <!-- Row 15: Bundle Size -->
+    <g transform="translate(0, 1075)">
+      <rect x="0" y="0" width="1280" height="55" fill="rgba(26,31,46,0.3)"/>
+      <rect x="0" y="54" width="1280" height="1" fill="#334155" opacity="0.3"/>
+      <text x="40" y="25" font-family="Inter, sans-serif" font-size="13" fill="#cbd5e1">Package Size</text>
+      <text x="40" y="42" font-family="Inter, sans-serif" font-size="10" fill="#64748b">Dependencies footprint</text>
+      
+      <rect x="400" y="10" width="280" height="35" rx="4" fill="rgba(255,159,0,0.1)" stroke="#cc7000"/>
+      <text x="540" y="33" text-anchor="middle" font-family="Inter, sans-serif" font-size="12" fill="#ffc87c">Larger (Full Framework)</text>
+      
+      <rect x="760" y="10" width="360" height="35" rx="4" fill="rgba(80,200,120,0.1)" stroke="#2e8b57"/>
+      <text x="940" y="33" text-anchor="middle" font-family="Inter, sans-serif" font-size="12" fill="#50c878">✓ Tiny (~200KB)</text>
+    </g>
+    
+    <!-- ═══════════════════════════════════════════════════════════════════════════════
+         COMMON GROUND SECTION
+         ═══════════════════════════════════════════════════════════════════════════════ -->
+    <g transform="translate(0, 1150)">
+      <rect x="20" y="0" width="1240" height="30" rx="4" fill="rgba(111,168,220,0.08)"/>
+      <text x="40" y="20" font-family="Georgia, serif" font-size="14" font-weight="600" fill="#6fa8dc">COMMON CAPABILITIES</text>
+    </g>
+    
+    <!-- Row 16: Routing -->
+    <g transform="translate(0, 1195)">
+      <rect x="0" y="0" width="1280" height="55" fill="transparent"/>
+      <rect x="0" y="54" width="1280" height="1" fill="#334155" opacity="0.3"/>
+      <text x="40" y="25" font-family="Inter, sans-serif" font-size="13" fill="#cbd5e1">HTTP Routing</text>
+      <text x="40" y="42" font-family="Inter, sans-serif" font-size="10" fill="#64748b">URL path handling</text>
+      
+      <rect x="400" y="10" width="280" height="35" rx="4" fill="rgba(80,200,120,0.1)" stroke="#2e8b57"/>
+      <text x="540" y="33" text-anchor="middle" font-family="Inter, sans-serif" font-size="12" fill="#50c878">✓ Router + set_route()</text>
+      
+      <rect x="760" y="10" width="360" height="35" rx="4" fill="rgba(80,200,120,0.1)" stroke="#2e8b57"/>
+      <text x="940" y="33" text-anchor="middle" font-family="Inter, sans-serif" font-size="12" fill="#50c878">✓ app.get/post/put/delete()</text>
+    </g>
+    
+    <!-- Row 17: Middleware -->
+    <g transform="translate(0, 1250)">
+      <rect x="0" y="0" width="1280" height="55" fill="rgba(26,31,46,0.3)"/>
+      <rect x="0" y="54" width="1280" height="1" fill="#334155" opacity="0.3"/>
+      <text x="40" y="25" font-family="Inter, sans-serif" font-size="13" fill="#cbd5e1">Request Processing</text>
+      <text x="40" y="42" font-family="Inter, sans-serif" font-size="10" fill="#64748b">Pre/post request handling</text>
+      
+      <rect x="400" y="10" width="280" height="35" rx="4" fill="rgba(80,200,120,0.1)" stroke="#2e8b57"/>
+      <text x="540" y="33" text-anchor="middle" font-family="Inter, sans-serif" font-size="12" fill="#50c878">✓ Router.process()</text>
+      
+      <rect x="760" y="10" width="360" height="35" rx="4" fill="rgba(80,200,120,0.1)" stroke="#2e8b57"/>
+      <text x="940" y="33" text-anchor="middle" font-family="Inter, sans-serif" font-size="12" fill="#50c878">✓ app.use() Middleware</text>
+    </g>
+    
+    <!-- Row 18: Static Files -->
+    <g transform="translate(0, 1305)">
+      <rect x="0" y="0" width="1280" height="55" fill="transparent"/>
+      <rect x="0" y="54" width="1280" height="1" fill="#334155" opacity="0.3"/>
+      <text x="40" y="25" font-family="Inter, sans-serif" font-size="13" fill="#cbd5e1">Static File Serving</text>
+      <text x="40" y="42" font-family="Inter, sans-serif" font-size="10" fill="#64748b">Serve assets from disk</text>
+      
+      <rect x="400" y="10" width="280" height="35" rx="4" fill="rgba(80,200,120,0.1)" stroke="#2e8b57"/>
+      <text x="540" y="33" text-anchor="middle" font-family="Inter, sans-serif" font-size="12" fill="#50c878">✓ Multiple Publishers</text>
+      
+      <rect x="760" y="10" width="360" height="35" rx="4" fill="rgba(80,200,120,0.1)" stroke="#2e8b57"/>
+      <text x="940" y="33" text-anchor="middle" font-family="Inter, sans-serif" font-size="12" fill="#50c878">✓ express.static()</text>
+    </g>
+    
+    <!-- Row 19: HTTPS -->
+    <g transform="translate(0, 1360)">
+      <rect x="0" y="0" width="1280" height="55" fill="rgba(26,31,46,0.3)"/>
+      <rect x="0" y="54" width="1280" height="1" fill="#334155" opacity="0.3"/>
+      <text x="40" y="25" font-family="Inter, sans-serif" font-size="13" fill="#cbd5e1">HTTPS Support</text>
+      <text x="40" y="42" font-family="Inter, sans-serif" font-size="10" fill="#64748b">TLS encryption</text>
+      
+      <rect x="400" y="10" width="280" height="35" rx="4" fill="rgba(80,200,120,0.1)" stroke="#2e8b57"/>
+      <text x="540" y="33" text-anchor="middle" font-family="Inter, sans-serif" font-size="12" fill="#50c878">✓ https_options Config</text>
+      
+      <rect x="760" y="10" width="360" height="35" rx="4" fill="rgba(80,200,120,0.1)" stroke="#2e8b57"/>
+      <text x="940" y="33" text-anchor="middle" font-family="Inter, sans-serif" font-size="12" fill="#50c878">✓ https.createServer()</text>
+    </g>
+    
+    <!-- Row 20: JSON APIs -->
+    <g transform="translate(0, 1415)">
+      <rect x="0" y="0" width="1280" height="55" fill="transparent"/>
+      <rect x="0" y="54" width="1280" height="1" fill="#334155" opacity="0.3"/>
+      <text x="40" y="25" font-family="Inter, sans-serif" font-size="13" fill="#cbd5e1">JSON API Creation</text>
+      <text x="40" y="42" font-family="Inter, sans-serif" font-size="10" fill="#64748b">RESTful endpoints</text>
+      
+      <rect x="400" y="10" width="280" height="35" rx="4" fill="rgba(80,200,120,0.1)" stroke="#2e8b57"/>
+      <text x="540" y="33" text-anchor="middle" font-family="Inter, sans-serif" font-size="12" fill="#50c878">✓ Function Publishers</text>
+      
+      <rect x="760" y="10" width="360" height="35" rx="4" fill="rgba(80,200,120,0.1)" stroke="#2e8b57"/>
+      <text x="940" y="33" text-anchor="middle" font-family="Inter, sans-serif" font-size="12" fill="#50c878">✓ res.json()</text>
+    </g>
+    
+    <!-- Row 21: Error Handling -->
+    <g transform="translate(0, 1470)">
+      <rect x="0" y="0" width="1280" height="55" fill="rgba(26,31,46,0.3)"/>
+      <rect x="0" y="54" width="1280" height="1" fill="#334155" opacity="0.3"/>
+      <text x="40" y="25" font-family="Inter, sans-serif" font-size="13" fill="#cbd5e1">Error Handling</text>
+      <text x="40" y="42" font-family="Inter, sans-serif" font-size="10" fill="#64748b">Graceful error responses</text>
+      
+      <rect x="400" y="10" width="280" height="35" rx="4" fill="rgba(80,200,120,0.1)" stroke="#2e8b57"/>
+      <text x="540" y="33" text-anchor="middle" font-family="Inter, sans-serif" font-size="12" fill="#50c878">✓ Built-in 404/500</text>
+      
+      <rect x="760" y="10" width="360" height="35" rx="4" fill="rgba(80,200,120,0.1)" stroke="#2e8b57"/>
+      <text x="940" y="33" text-anchor="middle" font-family="Inter, sans-serif" font-size="12" fill="#50c878">✓ Error Middleware</text>
+    </g>
+    
+    <!-- ═══════════════════════════════════════════════════════════════════════════════
+         LEGEND
+         ═══════════════════════════════════════════════════════════════════════════════ -->
+    <g transform="translate(0, 1555)">
+      <rect x="20" y="0" width="1240" height="80" rx="8" fill="#0a0d14"/>
+      <text x="640" y="25" text-anchor="middle" font-family="Georgia, serif" font-size="12" fill="#64748b" letter-spacing="2">LEGEND</text>
+      
+      <!-- Strong -->
+      <rect x="120" y="45" width="16" height="16" rx="3" fill="rgba(80,200,120,0.1)" stroke="#2e8b57"/>
+      <text x="145" y="57" font-family="Inter, sans-serif" font-size="11" fill="#50c878">Strong/Native Support</text>
+      
+      <!-- Partial -->
+      <rect x="420" y="45" width="16" height="16" rx="3" fill="rgba(255,159,0,0.1)" stroke="#cc7000"/>
+      <text x="445" y="57" font-family="Inter, sans-serif" font-size="11" fill="#ffc87c">Partial/Basic Support</text>
+      
+      <!-- Not Available -->
+      <rect x="720" y="45" width="16" height="16" rx="3" fill="rgba(255,107,107,0.1)" stroke="#8b0000"/>
+      <text x="745" y="57" font-family="Inter, sans-serif" font-size="11" fill="#ff6b6b">Not Available</text>
+      
+      <!-- Different Approach -->
+      <rect x="1020" y="45" width="16" height="16" rx="3" fill="rgba(148,163,184,0.1)" stroke="#475569"/>
+      <text x="1045" y="57" font-family="Inter, sans-serif" font-size="11" fill="#94a3b8">Different Approach</text>
+    </g>
+  </g>
+  
+  <!-- ═══════════════════════════════════════════════════════════════════════════════
+       FOOTER
+       ═══════════════════════════════════════════════════════════════════════════════ -->
+  <g transform="translate(0, 2040)">
+    <line x1="60" y1="0" x2="1340" y2="0" stroke="#334155"/>
+    <text x="700" y="35" text-anchor="middle" font-family="Inter, sans-serif" font-size="11" fill="#64748b">
+      JSGUI3 Server v0.0.140 | Industrial Luxury Obsidian Theme | Generated November 2025
+    </text>
+    <text x="700" y="52" text-anchor="middle" font-family="Inter, sans-serif" font-size="10" fill="#475569">
+      JSGUI3: Full-stack GUI framework with batteries included • Express: Minimal HTTP foundation to build upon
+    </text>
+  </g>
+</svg>

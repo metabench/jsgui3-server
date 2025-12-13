@@ -216,6 +216,57 @@ input.js:1:0: ERROR: Expected identifier but found "}"
    }
    ```
 
+### Text Content Not Rendering
+
+**Symptoms:**
+- HTML elements appear but are empty
+- Buttons have text but divs, spans, h2 don't
+- Server-side rendered HTML shows empty tags
+
+**Cause:** Using `text` property instead of `.add()` method for HTML elements.
+
+**Solutions:**
+
+1. **Use `.add()` for HTML elements (div, span, h2, etc.):**
+   ```javascript
+   // ❌ WRONG - text won't render
+   const title = new controls.h2({ context, text: 'My Title' });
+   
+   // ❌ WRONG - text property won't render
+   const div = new controls.div({ context });
+   div.text = 'Content';
+   
+   // ✅ CORRECT - use .add() method
+   const title = new controls.h2({ context });
+   title.add('My Title');
+   
+   const div = new controls.div({ context });
+   div.add('Content');
+   ```
+
+2. **Composite controls (Button, Checkbox) DO support text property:**
+   ```javascript
+   // ✅ CORRECT - Button handles text internally
+   const button = new controls.Button({ context, text: 'Click Me' });
+   ```
+
+3. **Test rendering without server:**
+   Create a `check.js` file to verify text renders:
+   ```javascript
+   const jsgui = require('./client');
+   const { MyControl } = jsgui.controls;
+   const Server_Page_Context = require('jsgui3-server/page-context');
+   
+   const context = new Server_Page_Context();
+   const control = new MyControl({ context });
+   const html = control.all_html_render();
+   
+   // Check if expected text is in HTML
+   console.log(html.includes('Expected Text') ? 'PASS' : 'FAIL');
+   ```
+
+**Why this happens:** HTML element controls (`div`, `h2`, `span`) are thin wrappers around DOM elements. Text is a child node, not a property. Composite controls like `Button` have explicit code to handle the `text` property.
+
 ### CSS Not Loading
 
 **Symptoms:**

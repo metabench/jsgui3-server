@@ -30,7 +30,8 @@ class TestRunner {
             'end-to-end.test.js',
             'content-analysis.test.js',
             'performance.test.js',
-            'error-handling.test.js'
+            'error-handling.test.js',
+            'examples-controls.e2e.test.js'
         ];
     }
 

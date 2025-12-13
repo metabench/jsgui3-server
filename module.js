@@ -20,6 +20,13 @@ const Server = require('./server');
 jsgui.Server = Server;
 jsgui.serve = Server.serve;
 jsgui.fs2 = require('./fs2');
+
+// Port utilities for auto-port selection
+const port_utils = require('./port-utils');
+jsgui.port_utils = port_utils;
+jsgui.get_free_port = port_utils.get_free_port;
+jsgui.is_port_available = port_utils.is_port_available;
+
 //jsgui.Resource = Resource;
 //console.log('pre scs');
 //jsgui.Single_Control_Server = require('./single-control-server');

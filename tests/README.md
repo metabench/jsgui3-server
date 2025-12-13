@@ -25,6 +25,7 @@ tests/
 ├── content-analysis.test.js      # Content analysis and verification
 ├── performance.test.js           # Performance benchmarks
 ├── error-handling.test.js        # Error handling and edge cases
+├── examples-controls.e2e.test.js # Example apps regression (controls)
 ├── test-runner.js                # Custom test runner with reporting
 └── README.md                     # This file
 ```
@@ -43,6 +44,11 @@ node tests/test-runner.js --test=bundlers.test.js
 
 # Using mocha directly
 npx mocha tests/bundlers.test.js
+```
+
+### Run Example Apps Regression Suite
+```bash
+npm run test:examples:controls
 ```
 
 ### Run Tests with Options
@@ -117,6 +123,14 @@ Comprehensive error scenario testing:
 - Network and HTTP errors
 - Memory and performance limits
 - Encoding issues
+
+### 7. Examples/Controls E2E Tests (`examples-controls.e2e.test.js`)
+
+Regression coverage for a representative set of `examples/controls/*` apps:
+
+- Boots a server per example control
+- Verifies `/`, `/js/js.js`, and `/css/css.css` routes
+- Ensures HTML rendering works without `Accept-Encoding`
 
 ## Configuration Examples
 

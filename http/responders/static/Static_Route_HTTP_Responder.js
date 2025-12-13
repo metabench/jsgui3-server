@@ -32,7 +32,7 @@ class Static_Route_HTTP_Responder extends HTTP_Responder {
     }
     handle_http(req, res) {
         const r_headers = req.headers;
-        const accept_encoding = r_headers['accept-encoding'];
+        const accept_encoding = r_headers['accept-encoding'] || '';
 
         // Need to call it with the correct context.
         //   Seems like jsgui3-html Router and Routing_Tree need some more fixes.
@@ -51,9 +51,9 @@ class Static_Route_HTTP_Responder extends HTTP_Responder {
 
         const supported_encodings = {};
 
-        if (accept_encoding.includes('gzip')) supported_encodings.gzip = true;
+        if (typeof accept_encoding === 'string' && accept_encoding.includes('gzip')) supported_encodings.gzip = true;
 
-        if (accept_encoding.includes('br')) supported_encodings.br = true;
+        if (typeof accept_encoding === 'string' && accept_encoding.includes('br')) supported_encodings.br = true;
 
         //console.log('supported_encodings', supported_encodings);
 

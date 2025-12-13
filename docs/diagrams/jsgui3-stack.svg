@@ -1,0 +1,568 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 2400" width="100%">
+  <defs>
+    <!-- White Leather Gradients -->
+    <linearGradient id="whiteleather" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#fefefe"/>
+      <stop offset="50%" style="stop-color:#f8f6f3"/>
+      <stop offset="100%" style="stop-color:#f0ece6"/>
+    </linearGradient>
+    
+    <!-- Obsidian Gradients -->
+    <linearGradient id="obsidianDeep" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#161b22"/>
+      <stop offset="100%" style="stop-color:#0d1117"/>
+    </linearGradient>
+    <linearGradient id="obsidianCard" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#21262d"/>
+      <stop offset="100%" style="stop-color:#161b22"/>
+    </linearGradient>
+    <linearGradient id="obsidianElevated" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#30363d"/>
+      <stop offset="100%" style="stop-color:#21262d"/>
+    </linearGradient>
+    
+    <!-- Gold Gradients -->
+    <linearGradient id="goldShine" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#b8960f"/>
+      <stop offset="50%" style="stop-color:#d4af37"/>
+      <stop offset="100%" style="stop-color:#b8960f"/>
+    </linearGradient>
+    <linearGradient id="goldVertical" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#d4af37"/>
+      <stop offset="100%" style="stop-color:#b8960f"/>
+    </linearGradient>
+    
+    <!-- Jewel Colors -->
+    <linearGradient id="sapphire" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#60a5fa"/>
+      <stop offset="100%" style="stop-color:#3b82f6"/>
+    </linearGradient>
+    <linearGradient id="emerald" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#34d399"/>
+      <stop offset="100%" style="stop-color:#10b981"/>
+    </linearGradient>
+    <linearGradient id="ruby" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#f87171"/>
+      <stop offset="100%" style="stop-color:#ef4444"/>
+    </linearGradient>
+    <linearGradient id="amethyst" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#c084fc"/>
+      <stop offset="100%" style="stop-color:#a855f7"/>
+    </linearGradient>
+    
+    <!-- Filters -->
+    <filter id="dropShadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="4" stdDeviation="8" flood-color="#000" flood-opacity="0.25"/>
+    </filter>
+    <filter id="goldGlow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="2" result="blur"/>
+      <feFlood flood-color="#c9a227" flood-opacity="0.3"/>
+      <feComposite in2="blur" operator="in"/>
+      <feMerge>
+        <feMergeNode/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+    <filter id="textGlow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="1" result="blur"/>
+      <feFlood flood-color="#c9a227" flood-opacity="0.5"/>
+      <feComposite in2="blur" operator="in"/>
+      <feMerge>
+        <feMergeNode/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+    
+    <!-- Arrow Marker -->
+    <marker id="arrowGold" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
+      <path d="M0,0 L0,6 L9,3 z" fill="#c9a227"/>
+    </marker>
+    
+    <!-- Clip paths for gold bars -->
+    <clipPath id="clipSection1"><rect x="40" y="130" width="820" height="180" rx="12"/></clipPath>
+    <clipPath id="clipSection2"><rect x="40" y="350" width="820" height="260" rx="12"/></clipPath>
+    <clipPath id="clipSection3"><rect x="40" y="650" width="820" height="200" rx="12"/></clipPath>
+    <clipPath id="clipSection4"><rect x="40" y="890" width="820" height="380" rx="12"/></clipPath>
+    <clipPath id="clipSection5"><rect x="40" y="1310" width="820" height="200" rx="12"/></clipPath>
+    <clipPath id="clipSection6"><rect x="40" y="1550" width="820" height="100" rx="12"/></clipPath>
+    <clipPath id="clipSection7"><rect x="40" y="1680" width="820" height="240" rx="12"/></clipPath>
+    <clipPath id="clipSection8"><rect x="40" y="1950" width="820" height="260" rx="12"/></clipPath>
+  </defs>
+
+  <!-- Background -->
+  <rect width="100%" height="100%" fill="url(#whiteleather)"/>
+  
+  <!-- Gold edge accents -->
+  <rect x="0" y="0" width="3" height="100%" fill="url(#goldVertical)"/>
+  <rect x="897" y="0" width="3" height="100%" fill="url(#goldVertical)"/>
+
+  <!-- TITLE -->
+  <text x="450" y="55" text-anchor="middle" font-family="Georgia, serif" font-size="36" font-weight="bold" fill="#0d1117" filter="url(#textGlow)">jsgui3 Stack Architecture</text>
+  <text x="450" y="85" text-anchor="middle" font-family="Inter, sans-serif" font-size="14" fill="#6e7681" letter-spacing="3">ISOMORPHIC JAVASCRIPT UI FRAMEWORK</text>
+  
+  <!-- Gold decorative line -->
+  <line x1="200" y1="105" x2="700" y2="105" stroke="url(#goldShine)" stroke-width="2"/>
+  <circle cx="200" cy="105" r="3" fill="#c9a227"/>
+  <circle cx="450" cy="105" r="4" fill="#d4af37"/>
+  <circle cx="700" cy="105" r="3" fill="#c9a227"/>
+
+  <!-- SECTION 1: APPLICATION LAYER -->
+  <rect x="40" y="130" width="820" height="180" rx="12" fill="url(#obsidianCard)" filter="url(#dropShadow)"/>
+  <g clip-path="url(#clipSection1)">
+    <rect x="40" y="130" width="820" height="3" fill="url(#goldShine)"/>
+  </g>
+  
+  <text x="70" y="162" font-family="Georgia, serif" font-size="18" font-weight="bold" fill="#f0f6fc">Application Layer</text>
+  <text x="250" y="162" font-family="Inter, sans-serif" font-size="11" fill="#6e7681">Your custom controls, pages, and business logic</text>
+  
+  <!-- App boxes -->
+  <g transform="translate(60, 180)">
+    <rect width="180" height="105" rx="8" fill="url(#sapphire)"/>
+    <text x="90" y="30" text-anchor="middle" font-family="Georgia, serif" font-size="13" font-weight="bold" fill="#fff">Custom Controls</text>
+    <text x="90" y="50" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="10" fill="#e0f2fe">extends Control</text>
+    <rect x="15" y="62" width="150" height="28" rx="4" fill="#1e40af" opacity="0.6"/>
+    <text x="90" y="81" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="9" fill="#bfdbfe">MyButton, DataGrid...</text>
+  </g>
+  
+  <g transform="translate(260, 180)">
+    <rect width="180" height="105" rx="8" fill="url(#emerald)"/>
+    <text x="90" y="30" text-anchor="middle" font-family="Georgia, serif" font-size="13" font-weight="bold" fill="#fff">Page Definitions</text>
+    <text x="90" y="50" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="10" fill="#d1fae5">Page_Context routes</text>
+    <rect x="15" y="62" width="150" height="28" rx="4" fill="#065f46" opacity="0.6"/>
+    <text x="90" y="81" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="9" fill="#a7f3d0">/home, /users/:id</text>
+  </g>
+  
+  <g transform="translate(460, 180)">
+    <rect width="180" height="105" rx="8" fill="url(#amethyst)"/>
+    <text x="90" y="30" text-anchor="middle" font-family="Georgia, serif" font-size="13" font-weight="bold" fill="#fff">Business Logic</text>
+    <text x="90" y="50" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="10" fill="#f3e8ff">Services &amp; Models</text>
+    <rect x="15" y="62" width="150" height="28" rx="4" fill="#581c87" opacity="0.6"/>
+    <text x="90" y="81" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="9" fill="#e9d5ff">API calls, validation</text>
+  </g>
+  
+  <g transform="translate(660, 180)">
+    <rect width="180" height="105" rx="8" fill="url(#ruby)"/>
+    <text x="90" y="30" text-anchor="middle" font-family="Georgia, serif" font-size="13" font-weight="bold" fill="#fff">Configuration</text>
+    <text x="90" y="50" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="10" fill="#fee2e2">App settings</text>
+    <rect x="15" y="62" width="150" height="28" rx="4" fill="#991b1b" opacity="0.6"/>
+    <text x="90" y="81" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="9" fill="#fecaca">routes, themes, i18n</text>
+  </g>
+
+  <!-- Arrow to Section 2 -->
+  <line x1="450" y1="310" x2="450" y2="340" stroke="#c9a227" stroke-width="2" marker-end="url(#arrowGold)"/>
+
+  <!-- SECTION 2: jsgui3-server -->
+  <rect x="40" y="350" width="820" height="260" rx="12" fill="url(#obsidianCard)" filter="url(#dropShadow)"/>
+  <g clip-path="url(#clipSection2)">
+    <rect x="40" y="350" width="820" height="3" fill="url(#goldShine)"/>
+  </g>
+  
+  <text x="70" y="382" font-family="Georgia, serif" font-size="18" font-weight="bold" fill="#f0f6fc">jsgui3-server</text>
+  <rect x="195" y="368" width="55" height="18" rx="9" fill="#c9a227"/>
+  <text x="222" y="381" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="9" font-weight="bold" fill="#0d1117">v0.0.140</text>
+  <text x="270" y="382" font-family="Inter, sans-serif" font-size="11" fill="#6e7681">Node.js server runtime with ESBuild bundling</text>
+  
+  <!-- Server core -->
+  <g transform="translate(60, 400)">
+    <rect width="250" height="185" rx="8" fill="url(#obsidianElevated)"/>
+    <text x="125" y="25" text-anchor="middle" font-family="Georgia, serif" font-size="13" font-weight="bold" fill="#c9a227">Server Core</text>
+    
+    <rect x="15" y="40" width="220" height="38" rx="6" fill="#1e3a5f"/>
+    <text x="125" y="65" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="11" fill="#60a5fa">Express HTTP Server</text>
+    
+    <rect x="15" y="88" width="220" height="38" rx="6" fill="#1e3a5f"/>
+    <text x="125" y="113" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="11" fill="#60a5fa">SSR Rendering Engine</text>
+    
+    <rect x="15" y="136" width="220" height="38" rx="6" fill="#1e3a5f"/>
+    <text x="125" y="161" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="11" fill="#60a5fa">ESBuild Bundler</text>
+  </g>
+  
+  <!-- Publishers -->
+  <g transform="translate(330, 400)">
+    <rect width="510" height="185" rx="8" fill="url(#obsidianElevated)"/>
+    <text x="255" y="25" text-anchor="middle" font-family="Georgia, serif" font-size="13" font-weight="bold" fill="#c9a227">Publishers (Output Strategies)</text>
+    
+    <rect x="15" y="40" width="150" height="58" rx="6" fill="url(#sapphire)"/>
+    <text x="90" y="62" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="10" font-weight="bold" fill="#fff">devserver</text>
+    <text x="90" y="80" text-anchor="middle" font-family="Inter, sans-serif" font-size="9" fill="#bfdbfe">Live reload HMR</text>
+    
+    <rect x="175" y="40" width="150" height="58" rx="6" fill="url(#emerald)"/>
+    <text x="250" y="62" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="10" font-weight="bold" fill="#fff">build</text>
+    <text x="250" y="80" text-anchor="middle" font-family="Inter, sans-serif" font-size="9" fill="#d1fae5">Production bundles</text>
+    
+    <rect x="335" y="40" width="160" height="58" rx="6" fill="url(#amethyst)"/>
+    <text x="415" y="62" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="10" font-weight="bold" fill="#fff">staticize</text>
+    <text x="415" y="80" text-anchor="middle" font-family="Inter, sans-serif" font-size="9" fill="#f3e8ff">SSG pre-render</text>
+    
+    <rect x="15" y="108" width="150" height="58" rx="6" fill="url(#ruby)"/>
+    <text x="90" y="130" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="10" font-weight="bold" fill="#fff">electron</text>
+    <text x="90" y="148" text-anchor="middle" font-family="Inter, sans-serif" font-size="9" fill="#fee2e2">Desktop apps</text>
+    
+    <rect x="175" y="108" width="150" height="58" rx="6" fill="#4a5568"/>
+    <text x="250" y="130" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="10" font-weight="bold" fill="#fff">custom</text>
+    <text x="250" y="148" text-anchor="middle" font-family="Inter, sans-serif" font-size="9" fill="#cbd5e0">Your publisher</text>
+    
+    <text x="415" y="140" text-anchor="middle" font-family="Inter, sans-serif" font-size="9" fill="#6e7681" font-style="italic">+ extensible...</text>
+  </g>
+
+  <!-- Arrow to Section 3 -->
+  <line x1="450" y1="610" x2="450" y2="640" stroke="#c9a227" stroke-width="2" marker-end="url(#arrowGold)"/>
+
+  <!-- SECTION 3: jsgui3-client -->
+  <rect x="40" y="650" width="820" height="200" rx="12" fill="url(#obsidianCard)" filter="url(#dropShadow)"/>
+  <g clip-path="url(#clipSection3)">
+    <rect x="40" y="650" width="820" height="3" fill="url(#goldShine)"/>
+  </g>
+  
+  <text x="70" y="682" font-family="Georgia, serif" font-size="18" font-weight="bold" fill="#f0f6fc">jsgui3-client</text>
+  <rect x="188" y="668" width="55" height="18" rx="9" fill="#c9a227"/>
+  <text x="215" y="681" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="9" font-weight="bold" fill="#0d1117">v0.0.121</text>
+  <text x="265" y="682" font-family="Inter, sans-serif" font-size="11" fill="#6e7681">Browser runtime — DOM binding, events, client-side rendering</text>
+  
+  <!-- Client modules -->
+  <g transform="translate(60, 700)">
+    <rect width="185" height="125" rx="8" fill="url(#obsidianElevated)"/>
+    <rect width="185" height="28" rx="8" fill="url(#sapphire)"/>
+    <text x="92" y="19" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="10" font-weight="bold" fill="#fff">Client_Page_Context</text>
+    <text x="92" y="52" text-anchor="middle" font-family="Inter, sans-serif" font-size="10" fill="#8b949e">Browser-side page</text>
+    <text x="92" y="68" text-anchor="middle" font-family="Inter, sans-serif" font-size="10" fill="#8b949e">management &amp; routing</text>
+    <rect x="20" y="82" width="145" height="28" rx="4" fill="#1e3a5f"/>
+    <text x="92" y="101" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="8" fill="#60a5fa">extends Page_Context</text>
+  </g>
+  
+  <g transform="translate(260, 700)">
+    <rect width="185" height="125" rx="8" fill="url(#obsidianElevated)"/>
+    <rect width="185" height="28" rx="8" fill="url(#emerald)"/>
+    <text x="92" y="19" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="10" font-weight="bold" fill="#fff">HTTP Methods</text>
+    <text x="92" y="52" text-anchor="middle" font-family="Inter, sans-serif" font-size="10" fill="#8b949e">Fetch wrapper with</text>
+    <text x="92" y="68" text-anchor="middle" font-family="Inter, sans-serif" font-size="10" fill="#8b949e">JSON handling</text>
+    <rect x="15" y="82" width="75" height="28" rx="4" fill="#065f46"/>
+    <text x="52" y="101" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="9" fill="#34d399">GET</text>
+    <rect x="95" y="82" width="75" height="28" rx="4" fill="#065f46"/>
+    <text x="132" y="101" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="9" fill="#34d399">POST</text>
+  </g>
+  
+  <g transform="translate(460, 700)">
+    <rect width="185" height="125" rx="8" fill="url(#obsidianElevated)"/>
+    <rect width="185" height="28" rx="8" fill="url(#amethyst)"/>
+    <text x="92" y="19" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="10" font-weight="bold" fill="#fff">DOM Operations</text>
+    <text x="92" y="52" text-anchor="middle" font-family="Inter, sans-serif" font-size="10" fill="#8b949e">Activate, bind,</text>
+    <text x="92" y="68" text-anchor="middle" font-family="Inter, sans-serif" font-size="10" fill="#8b949e">event attachment</text>
+    <rect x="15" y="82" width="155" height="28" rx="4" fill="#581c87"/>
+    <text x="92" y="101" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="9" fill="#c084fc">ctrl.activate()</text>
+  </g>
+  
+  <g transform="translate(660, 700)">
+    <rect width="185" height="125" rx="8" fill="url(#obsidianElevated)"/>
+    <rect width="185" height="28" rx="8" fill="url(#ruby)"/>
+    <text x="92" y="19" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="10" font-weight="bold" fill="#fff">Resource Loading</text>
+    <text x="92" y="52" text-anchor="middle" font-family="Inter, sans-serif" font-size="10" fill="#8b949e">Dynamic script/CSS</text>
+    <text x="92" y="68" text-anchor="middle" font-family="Inter, sans-serif" font-size="10" fill="#8b949e">injection</text>
+    <rect x="15" y="82" width="155" height="28" rx="4" fill="#991b1b"/>
+    <text x="92" y="101" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="9" fill="#f87171">load_script()</text>
+  </g>
+
+  <!-- Arrow to Section 4 -->
+  <line x1="450" y1="850" x2="450" y2="880" stroke="#c9a227" stroke-width="2" marker-end="url(#arrowGold)"/>
+
+  <!-- SECTION 4: jsgui3-html (THE CORE) -->
+  <rect x="40" y="890" width="820" height="380" rx="12" fill="url(#obsidianDeep)" filter="url(#dropShadow)"/>
+  <rect x="40" y="890" width="820" height="380" rx="12" fill="none" stroke="#c9a227" stroke-width="2"/>
+  <g clip-path="url(#clipSection4)">
+    <rect x="40" y="890" width="820" height="5" fill="url(#goldShine)"/>
+    <rect x="40" y="1265" width="820" height="5" fill="url(#goldShine)"/>
+  </g>
+  
+  <text x="450" y="925" text-anchor="middle" font-family="Georgia, serif" font-size="22" font-weight="bold" fill="#c9a227" filter="url(#goldGlow)">jsgui3-html</text>
+  <text x="450" y="948" text-anchor="middle" font-family="Georgia, serif" font-size="13" fill="#d4af37">★ THE CORE ★</text>
+  <rect x="385" y="955" width="55" height="18" rx="9" fill="#c9a227"/>
+  <text x="412" y="968" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="9" font-weight="bold" fill="#0d1117">v0.0.170</text>
+  <text x="450" y="995" text-anchor="middle" font-family="Inter, sans-serif" font-size="11" fill="#8b949e">Isomorphic Control class, Page_Context, component model, MVVM patterns</text>
+  
+  <!-- Core Classes -->
+  <g transform="translate(60, 1015)">
+    <rect width="245" height="100" rx="8" fill="url(#goldShine)" filter="url(#goldGlow)"/>
+    <rect x="3" y="3" width="239" height="94" rx="6" fill="url(#obsidianCard)"/>
+    <text x="122" y="28" text-anchor="middle" font-family="Georgia, serif" font-size="15" font-weight="bold" fill="#c9a227">Control</text>
+    <text x="122" y="48" text-anchor="middle" font-family="Inter, sans-serif" font-size="10" fill="#8b949e">Base class for all UI components</text>
+    <text x="122" y="68" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="9" fill="#6e7681">add(), _build(), render_html()</text>
+    <text x="122" y="85" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="9" fill="#6e7681">activate(), context, dom</text>
+  </g>
+  
+  <g transform="translate(325, 1015)">
+    <rect width="245" height="100" rx="8" fill="url(#goldShine)" filter="url(#goldGlow)"/>
+    <rect x="3" y="3" width="239" height="94" rx="6" fill="url(#obsidianCard)"/>
+    <text x="122" y="28" text-anchor="middle" font-family="Georgia, serif" font-size="15" font-weight="bold" fill="#c9a227">Page_Context</text>
+    <text x="122" y="48" text-anchor="middle" font-family="Inter, sans-serif" font-size="10" fill="#8b949e">Request handling &amp; routing</text>
+    <text x="122" y="68" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="9" fill="#6e7681">routes, params, middleware</text>
+    <text x="122" y="85" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="9" fill="#6e7681">SSR + client rehydration</text>
+  </g>
+  
+  <g transform="translate(590, 1015)">
+    <rect width="245" height="100" rx="8" fill="url(#goldShine)" filter="url(#goldGlow)"/>
+    <rect x="3" y="3" width="239" height="94" rx="6" fill="url(#obsidianCard)"/>
+    <text x="122" y="28" text-anchor="middle" font-family="Georgia, serif" font-size="15" font-weight="bold" fill="#c9a227">MVVM Bindings</text>
+    <text x="122" y="48" text-anchor="middle" font-family="Inter, sans-serif" font-size="10" fill="#8b949e">Reactive data binding</text>
+    <text x="122" y="68" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="9" fill="#6e7681">bound(), .b(), mv_value</text>
+    <text x="122" y="85" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="9" fill="#6e7681">two-way sync model↔view</text>
+  </g>
+  
+  <!-- Pattern boxes -->
+  <g transform="translate(60, 1135)">
+    <rect width="380" height="110" rx="8" fill="url(#obsidianElevated)"/>
+    <text x="190" y="25" text-anchor="middle" font-family="Georgia, serif" font-size="12" font-weight="bold" fill="#f0f6fc">Control Lifecycle</text>
+    
+    <rect x="20" y="42" width="72" height="26" rx="4" fill="url(#sapphire)"/>
+    <text x="56" y="60" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="9" fill="#fff">constructor</text>
+    <text x="102" y="58" fill="#c9a227" font-size="14">→</text>
+    
+    <rect x="115" y="42" width="55" height="26" rx="4" fill="url(#emerald)"/>
+    <text x="142" y="60" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="9" fill="#fff">_build</text>
+    <text x="180" y="58" fill="#c9a227" font-size="14">→</text>
+    
+    <rect x="195" y="42" width="55" height="26" rx="4" fill="url(#amethyst)"/>
+    <text x="222" y="60" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="9" fill="#fff">render</text>
+    <text x="260" y="58" fill="#c9a227" font-size="14">→</text>
+    
+    <rect x="275" y="42" width="72" height="26" rx="4" fill="url(#ruby)"/>
+    <text x="311" y="60" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="9" fill="#fff">activate</text>
+    
+    <text x="190" y="88" text-anchor="middle" font-family="Inter, sans-serif" font-size="9" fill="#6e7681">Server: constructor → _build → render_html</text>
+    <text x="190" y="102" text-anchor="middle" font-family="Inter, sans-serif" font-size="9" fill="#6e7681">Client: activate() binds to existing DOM</text>
+  </g>
+  
+  <g transform="translate(460, 1135)">
+    <rect width="380" height="110" rx="8" fill="url(#obsidianElevated)"/>
+    <text x="190" y="25" text-anchor="middle" font-family="Georgia, serif" font-size="12" font-weight="bold" fill="#f0f6fc">Key Exports</text>
+    
+    <text x="30" y="52" font-family="JetBrains Mono, monospace" font-size="10" fill="#60a5fa">• Control</text>
+    <text x="30" y="70" font-family="JetBrains Mono, monospace" font-size="10" fill="#60a5fa">• Page_Context</text>
+    <text x="30" y="88" font-family="JetBrains Mono, monospace" font-size="10" fill="#60a5fa">• jsgui</text>
+    
+    <text x="145" y="52" font-family="JetBrains Mono, monospace" font-size="10" fill="#34d399">• ctrl()</text>
+    <text x="145" y="70" font-family="JetBrains Mono, monospace" font-size="10" fill="#34d399">• html_ctrl()</text>
+    <text x="145" y="88" font-family="JetBrains Mono, monospace" font-size="10" fill="#34d399">• html_fragment</text>
+    
+    <text x="275" y="52" font-family="JetBrains Mono, monospace" font-size="10" fill="#c084fc">• Selection</text>
+    <text x="275" y="70" font-family="JetBrains Mono, monospace" font-size="10" fill="#c084fc">• Collection</text>
+    <text x="275" y="88" font-family="JetBrains Mono, monospace" font-size="10" fill="#c084fc">• utils</text>
+  </g>
+
+  <!-- Arrow to Section 5 -->
+  <line x1="450" y1="1270" x2="450" y2="1300" stroke="#c9a227" stroke-width="2" marker-end="url(#arrowGold)"/>
+
+  <!-- SECTION 5: FOUNDATION PACKAGES -->
+  <rect x="40" y="1310" width="820" height="200" rx="12" fill="url(#obsidianCard)" filter="url(#dropShadow)"/>
+  <g clip-path="url(#clipSection5)">
+    <rect x="40" y="1310" width="820" height="3" fill="url(#goldShine)"/>
+  </g>
+  
+  <text x="70" y="1342" font-family="Georgia, serif" font-size="18" font-weight="bold" fill="#f0f6fc">Foundation Packages</text>
+  <text x="280" y="1342" font-family="Inter, sans-serif" font-size="11" fill="#6e7681">Low-level utilities powering the stack</text>
+  
+  <!-- Package boxes -->
+  <g transform="translate(60, 1360)">
+    <rect width="150" height="125" rx="8" fill="url(#obsidianElevated)"/>
+    <rect width="150" height="26" rx="8" fill="url(#sapphire)"/>
+    <text x="75" y="17" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="10" font-weight="bold" fill="#fff">lang-tools</text>
+    <rect x="100" y="5" width="42" height="15" rx="7" fill="#1e3a5f"/>
+    <text x="121" y="15" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="8" fill="#60a5fa">v0.0.41</text>
+    <text x="75" y="48" text-anchor="middle" font-family="Inter, sans-serif" font-size="9" fill="#8b949e">Type checking</text>
+    <text x="75" y="63" text-anchor="middle" font-family="Inter, sans-serif" font-size="9" fill="#8b949e">Object utilities</text>
+    <text x="75" y="78" text-anchor="middle" font-family="Inter, sans-serif" font-size="9" fill="#8b949e">Evented base</text>
+    <rect x="15" y="92" width="120" height="22" rx="4" fill="#1e3a5f"/>
+    <text x="75" y="107" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="8" fill="#60a5fa">tof(), fp(), each()</text>
+  </g>
+  
+  <g transform="translate(225, 1360)">
+    <rect width="150" height="125" rx="8" fill="url(#obsidianElevated)"/>
+    <rect width="150" height="26" rx="8" fill="url(#emerald)"/>
+    <text x="75" y="17" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="10" font-weight="bold" fill="#fff">obext</text>
+    <rect x="100" y="5" width="42" height="15" rx="7" fill="#065f46"/>
+    <text x="121" y="15" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="8" fill="#34d399">v0.0.31</text>
+    <text x="75" y="48" text-anchor="middle" font-family="Inter, sans-serif" font-size="9" fill="#8b949e">Observable</text>
+    <text x="75" y="63" text-anchor="middle" font-family="Inter, sans-serif" font-size="9" fill="#8b949e">extensions</text>
+    <text x="75" y="78" text-anchor="middle" font-family="Inter, sans-serif" font-size="9" fill="#8b949e">Reactive signals</text>
+    <rect x="15" y="92" width="120" height="22" rx="4" fill="#065f46"/>
+    <text x="75" y="107" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="8" fill="#34d399">observe(), emit()</text>
+  </g>
+  
+  <g transform="translate(390, 1360)">
+    <rect width="150" height="125" rx="8" fill="url(#obsidianElevated)"/>
+    <rect width="150" height="26" rx="8" fill="url(#amethyst)"/>
+    <text x="75" y="17" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="10" font-weight="bold" fill="#fff">jsgui3-gfx-core</text>
+    <rect x="95" y="5" width="48" height="15" rx="7" fill="#581c87"/>
+    <text x="119" y="15" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="8" fill="#c084fc">v0.0.24</text>
+    <text x="75" y="48" text-anchor="middle" font-family="Inter, sans-serif" font-size="9" fill="#8b949e">Canvas/WebGL</text>
+    <text x="75" y="63" text-anchor="middle" font-family="Inter, sans-serif" font-size="9" fill="#8b949e">primitives</text>
+    <text x="75" y="78" text-anchor="middle" font-family="Inter, sans-serif" font-size="9" fill="#8b949e">Drawing utils</text>
+    <rect x="15" y="92" width="120" height="22" rx="4" fill="#581c87"/>
+    <text x="75" y="107" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="8" fill="#c084fc">Point, Rect, Color</text>
+  </g>
+  
+  <g transform="translate(555, 1360)">
+    <rect width="150" height="125" rx="8" fill="url(#obsidianElevated)"/>
+    <rect width="150" height="26" rx="8" fill="url(#ruby)"/>
+    <text x="75" y="17" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="10" font-weight="bold" fill="#fff">fnl</text>
+    <rect x="100" y="5" width="42" height="15" rx="7" fill="#991b1b"/>
+    <text x="121" y="15" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="8" fill="#f87171">v0.0.37</text>
+    <text x="75" y="48" text-anchor="middle" font-family="Inter, sans-serif" font-size="9" fill="#8b949e">Functional</text>
+    <text x="75" y="63" text-anchor="middle" font-family="Inter, sans-serif" font-size="9" fill="#8b949e">utilities</text>
+    <text x="75" y="78" text-anchor="middle" font-family="Inter, sans-serif" font-size="9" fill="#8b949e">Composition</text>
+    <rect x="15" y="92" width="120" height="22" rx="4" fill="#991b1b"/>
+    <text x="75" y="107" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="8" fill="#f87171">pipe(), compose()</text>
+  </g>
+  
+  <g transform="translate(720, 1360)">
+    <rect width="120" height="125" rx="8" fill="url(#obsidianElevated)"/>
+    <rect width="120" height="26" rx="8" fill="#4a5568"/>
+    <text x="60" y="17" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="10" font-weight="bold" fill="#fff">fnlfs</text>
+    <text x="60" y="48" text-anchor="middle" font-family="Inter, sans-serif" font-size="9" fill="#8b949e">Async file</text>
+    <text x="60" y="63" text-anchor="middle" font-family="Inter, sans-serif" font-size="9" fill="#8b949e">operations</text>
+    <text x="60" y="78" text-anchor="middle" font-family="Inter, sans-serif" font-size="9" fill="#8b949e">Node.js fs</text>
+    <rect x="10" y="92" width="100" height="22" rx="4" fill="#4a5568"/>
+    <text x="60" y="107" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="8" fill="#a0aec0">read(), write()</text>
+  </g>
+
+  <!-- Arrow to Section 6 -->
+  <line x1="450" y1="1510" x2="450" y2="1540" stroke="#c9a227" stroke-width="2" marker-end="url(#arrowGold)"/>
+
+  <!-- SECTION 6: NODE.JS RUNTIME -->
+  <rect x="40" y="1550" width="820" height="100" rx="12" fill="#161b22" filter="url(#dropShadow)"/>
+  <g clip-path="url(#clipSection6)">
+    <rect x="40" y="1550" width="820" height="3" fill="url(#goldShine)"/>
+  </g>
+  
+  <circle cx="115" cy="1600" r="28" fill="#3c873a"/>
+  <text x="115" y="1607" text-anchor="middle" font-family="Georgia, serif" font-size="16" font-weight="bold" fill="#fff">N</text>
+  
+  <text x="170" y="1588" font-family="Georgia, serif" font-size="18" font-weight="bold" fill="#f0f6fc">Node.js Runtime</text>
+  <text x="340" y="1588" font-family="Inter, sans-serif" font-size="11" fill="#6e7681">v15+ required  |  ES Modules  |  V8 Engine</text>
+  <text x="170" y="1615" font-family="Inter, sans-serif" font-size="10" fill="#8b949e">The foundation upon which the entire jsgui3 stack executes. Provides async I/O,</text>
+  <text x="170" y="1632" font-family="Inter, sans-serif" font-size="10" fill="#8b949e">module resolution, and the JavaScript runtime for both server and build tools.</text>
+
+  <!-- SECTION 7: ISOMORPHIC DATA FLOW -->
+  <rect x="40" y="1680" width="820" height="240" rx="12" fill="url(#obsidianCard)" filter="url(#dropShadow)"/>
+  <rect x="40" y="1680" width="820" height="240" rx="12" fill="none" stroke="#c9a227" stroke-width="1"/>
+  <g clip-path="url(#clipSection7)">
+    <rect x="40" y="1680" width="820" height="3" fill="url(#goldShine)"/>
+  </g>
+  
+  <text x="450" y="1712" text-anchor="middle" font-family="Georgia, serif" font-size="18" font-weight="bold" fill="#c9a227" filter="url(#textGlow)">Isomorphic Data Flow</text>
+  <text x="450" y="1735" text-anchor="middle" font-family="Inter, sans-serif" font-size="11" fill="#6e7681">The same Control code renders on server AND activates on client</text>
+  
+  <!-- Flow diagram -->
+  <g transform="translate(60, 1755)">
+    <rect width="200" height="145" rx="8" fill="url(#obsidianElevated)"/>
+    <rect width="200" height="28" rx="8" fill="url(#sapphire)"/>
+    <text x="100" y="19" text-anchor="middle" font-family="Georgia, serif" font-size="11" font-weight="bold" fill="#fff">SERVER</text>
+    
+    <rect x="15" y="38" width="170" height="26" rx="4" fill="#1e3a5f"/>
+    <text x="100" y="56" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="9" fill="#60a5fa">1. constructor(spec)</text>
+    
+    <rect x="15" y="70" width="170" height="26" rx="4" fill="#1e3a5f"/>
+    <text x="100" y="88" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="9" fill="#60a5fa">2. _build()</text>
+    
+    <rect x="15" y="102" width="170" height="26" rx="4" fill="#1e3a5f"/>
+    <text x="100" y="120" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="9" fill="#60a5fa">3. render_html()</text>
+    
+    <text x="100" y="140" text-anchor="middle" font-family="Inter, sans-serif" font-size="9" fill="#6e7681">→ HTML string sent</text>
+  </g>
+  
+  <path d="M 270 1835 L 330 1835" stroke="#c9a227" stroke-width="2" marker-end="url(#arrowGold)"/>
+  
+  <g transform="translate(340, 1755)">
+    <rect width="120" height="145" rx="8" fill="url(#obsidianElevated)"/>
+    <rect width="120" height="28" rx="8" fill="#4a5568"/>
+    <text x="60" y="19" text-anchor="middle" font-family="Georgia, serif" font-size="11" font-weight="bold" fill="#fff">NETWORK</text>
+    <text x="60" y="58" text-anchor="middle" font-family="Inter, sans-serif" font-size="10" fill="#8b949e">HTTP</text>
+    <text x="60" y="78" text-anchor="middle" font-family="Inter, sans-serif" font-size="10" fill="#8b949e">Response</text>
+    <text x="60" y="98" text-anchor="middle" font-family="Inter, sans-serif" font-size="10" fill="#8b949e">+</text>
+    <text x="60" y="118" text-anchor="middle" font-family="Inter, sans-serif" font-size="10" fill="#8b949e">JS Bundle</text>
+  </g>
+  
+  <path d="M 470 1835 L 530 1835" stroke="#c9a227" stroke-width="2" marker-end="url(#arrowGold)"/>
+  
+  <g transform="translate(540, 1755)">
+    <rect width="200" height="145" rx="8" fill="url(#obsidianElevated)"/>
+    <rect width="200" height="28" rx="8" fill="url(#emerald)"/>
+    <text x="100" y="19" text-anchor="middle" font-family="Georgia, serif" font-size="11" font-weight="bold" fill="#fff">CLIENT</text>
+    
+    <rect x="15" y="38" width="170" height="26" rx="4" fill="#065f46"/>
+    <text x="100" y="56" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="9" fill="#34d399">1. Parse HTML (browser)</text>
+    
+    <rect x="15" y="70" width="170" height="26" rx="4" fill="#065f46"/>
+    <text x="100" y="88" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="9" fill="#34d399">2. Load JS bundle</text>
+    
+    <rect x="15" y="102" width="170" height="26" rx="4" fill="#065f46"/>
+    <text x="100" y="120" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="9" fill="#34d399">3. ctrl.activate()</text>
+    
+    <text x="100" y="140" text-anchor="middle" font-family="Inter, sans-serif" font-size="9" fill="#6e7681">→ Interactive!</text>
+  </g>
+  
+  <rect x="760" y="1810" width="90" height="55" rx="6" fill="url(#goldShine)"/>
+  <text x="805" y="1832" text-anchor="middle" font-family="Georgia, serif" font-size="11" font-weight="bold" fill="#0d1117">Same</text>
+  <text x="805" y="1852" text-anchor="middle" font-family="Georgia, serif" font-size="11" font-weight="bold" fill="#0d1117">Code!</text>
+
+  <!-- SECTION 8: KEY CONVENTIONS -->
+  <rect x="40" y="1950" width="820" height="260" rx="12" fill="url(#obsidianCard)" filter="url(#dropShadow)"/>
+  <g clip-path="url(#clipSection8)">
+    <rect x="40" y="1950" width="820" height="3" fill="url(#goldShine)"/>
+  </g>
+  
+  <text x="70" y="1982" font-family="Georgia, serif" font-size="18" font-weight="bold" fill="#f0f6fc">Key Conventions</text>
+  <text x="245" y="1982" font-family="Inter, sans-serif" font-size="11" fill="#6e7681">Essential patterns for working with jsgui3</text>
+  
+  <!-- Convention cards -->
+  <g transform="translate(60, 2000)">
+    <rect width="380" height="92" rx="8" fill="url(#obsidianElevated)"/>
+    <rect width="380" height="26" rx="8" fill="url(#sapphire)"/>
+    <text x="15" y="17" font-family="Georgia, serif" font-size="11" font-weight="bold" fill="#fff">Context Threading</text>
+    <text x="15" y="46" font-family="Inter, sans-serif" font-size="10" fill="#8b949e">Every Control receives</text>
+    <text x="130" y="46" font-family="JetBrains Mono, monospace" font-size="10" fill="#60a5fa">{ context: this.context }</text>
+    <text x="15" y="64" font-family="Inter, sans-serif" font-size="10" fill="#8b949e">Enables resource sharing across the component tree</text>
+    <text x="15" y="82" font-family="JetBrains Mono, monospace" font-size="9" fill="#6e7681">this.context.page | this.context.app | this.context.config</text>
+  </g>
+  
+  <g transform="translate(460, 2000)">
+    <rect width="380" height="92" rx="8" fill="url(#obsidianElevated)"/>
+    <rect width="380" height="26" rx="8" fill="url(#emerald)"/>
+    <text x="15" y="17" font-family="Georgia, serif" font-size="11" font-weight="bold" fill="#fff">Underscore Prefix Convention</text>
+    <text x="15" y="46" font-family="JetBrains Mono, monospace" font-size="10" fill="#34d399">_build()</text>
+    <text x="75" y="46" font-family="Inter, sans-serif" font-size="10" fill="#8b949e">→ Protected (override in subclasses)</text>
+    <text x="15" y="64" font-family="JetBrains Mono, monospace" font-size="10" fill="#34d399">__internal()</text>
+    <text x="95" y="64" font-family="Inter, sans-serif" font-size="10" fill="#8b949e">→ Private (framework internal)</text>
+    <text x="15" y="82" font-family="Inter, sans-serif" font-size="9" fill="#6e7681">No prefix = public API</text>
+  </g>
+  
+  <g transform="translate(60, 2102)">
+    <rect width="380" height="92" rx="8" fill="url(#obsidianElevated)"/>
+    <rect width="380" height="26" rx="8" fill="url(#amethyst)"/>
+    <text x="15" y="17" font-family="Georgia, serif" font-size="11" font-weight="bold" fill="#fff">Spec Object Pattern</text>
+    <text x="15" y="44" font-family="JetBrains Mono, monospace" font-size="9" fill="#c084fc">new MyControl({ context, text: 'Hello', onClick: fn })</text>
+    <text x="15" y="62" font-family="Inter, sans-serif" font-size="10" fill="#8b949e">All configuration via single spec object</text>
+    <text x="15" y="82" font-family="Inter, sans-serif" font-size="9" fill="#6e7681">Destructure in constructor: const { context, text } = spec;</text>
+  </g>
+  
+  <g transform="translate(460, 2102)">
+    <rect width="380" height="92" rx="8" fill="url(#obsidianElevated)"/>
+    <rect width="380" height="26" rx="8" fill="url(#ruby)"/>
+    <text x="15" y="17" font-family="Georgia, serif" font-size="11" font-weight="bold" fill="#fff">HTML Generation</text>
+    <text x="15" y="44" font-family="JetBrains Mono, monospace" font-size="9" fill="#f87171">ctrl.render_html()</text>
+    <text x="130" y="44" font-family="Inter, sans-serif" font-size="10" fill="#8b949e">→ Returns HTML string</text>
+    <text x="15" y="62" font-family="JetBrains Mono, monospace" font-size="9" fill="#f87171">html_fragment`&lt;div&gt;${child}&lt;/div&gt;`</text>
+    <text x="15" y="82" font-family="Inter, sans-serif" font-size="9" fill="#6e7681">Template literals for safe HTML composition</text>
+  </g>
+
+  <!-- FOOTER -->
+  <line x1="200" y1="2240" x2="700" y2="2240" stroke="url(#goldShine)" stroke-width="2"/>
+  <circle cx="200" cy="2240" r="3" fill="#c9a227"/>
+  <circle cx="450" cy="2240" r="4" fill="#d4af37"/>
+  <circle cx="700" cy="2240" r="3" fill="#c9a227"/>
+  
+  <text x="450" y="2270" text-anchor="middle" font-family="Georgia, serif" font-size="14" fill="#0d1117">jsgui3 — Isomorphic JavaScript UI Framework</text>
+  <text x="450" y="2295" text-anchor="middle" font-family="Inter, sans-serif" font-size="11" fill="#6e7681">Server-side rendering • Client-side activation • Same codebase</text>
+  <text x="450" y="2330" text-anchor="middle" font-family="Inter, sans-serif" font-size="10" fill="#8b949e">npm: jsgui3-server | jsgui3-client | jsgui3-html | lang-tools</text>
+  <text x="450" y="2365" text-anchor="middle" font-family="Georgia, serif" font-size="12" fill="#c9a227" filter="url(#textGlow)">★</text>
+
+</svg>

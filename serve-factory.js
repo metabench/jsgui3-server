@@ -9,6 +9,7 @@ const lib_path = require('path');
 const Webpage = require('./website/webpage');
 const HTTP_Webpage_Publisher = require('./publishers/http-webpage-publisher');
 const Static_Route_HTTP_Responder = require('./http/responders/static/Static_Route_HTTP_Responder');
+const { get_port_or_free } = require('./port-utils');
 
 
 const prepare_webpage_route = (server, route, page_options = {}, defaults = {}) => {
@@ -130,8 +131,10 @@ module.exports = (Server) => {
             throw new Error('`pages` option requires at least one control constructor.');
         }
     
-        const port = Number.isFinite(serve_options.port) ? Number(serve_options.port) : (process.env.PORT ? Number(process.env.PORT) : 8080);
-        if (!Number.isFinite(port)) {
+        const port = Number.isFinite(serve_options.port) ? Number(serve_options.port) : (serve_options.port === 'auto' ? 0 : (process.env.PORT ? Number(process.env.PORT) : 8080));
+        const auto_port = serve_options.autoPort !== false && (port === 0 || serve_options.port === 'auto' || serve_options.autoPort === true);
+        
+        if (!Number.isFinite(port) && serve_options.port !== 'auto') {
             throw new Error('Invalid port specified for Server.serve');
         }
     
@@ -193,17 +196,36 @@ module.exports = (Server) => {
         }
 
         return new Promise((resolve, reject) => {
-            const start_server = () => {
+            const start_server = async () => {
                 if (has_started) return;
                 has_started = true;
+                
+                // Determine the actual port to use
+                let actual_port = port;
+                if (auto_port) {
+                    try {
+                        const check_host = host || '127.0.0.1';
+                        actual_port = await get_port_or_free(port, Array.isArray(check_host) ? check_host[0] : check_host);
+                        if (actual_port !== port && port !== 0) {
+                            console.log(`Port ${port} was in use, using port ${actual_port} instead`);
+                        }
+                    } catch (err) {
+                        console.error('Failed to find free port:', err);
+                        return settle(reject, err);
+                    }
+                }
+                
+                // Store the actual port on the server instance for reference
+                server_instance.port = actual_port;
+                
                 console.log('🔍 DEBUG: Calling server_instance.start()');
-                server_instance.start(port, (err) => {
+                server_instance.start(actual_port, (err) => {
                     if (err) {
                         console.log('🔍 DEBUG: server_instance.start() failed:', err);
                         return settle(reject, err);
                     }
                     console.log('🔍 DEBUG: server_instance.start() succeeded');
-                    const message = host ? `Serving on http://${Array.isArray(host) ? host[0] : host}:${port || 0}/` : `Serving on port ${port || 0} (all IPv4 interfaces)`;
+                    const message = host ? `Serving on http://${Array.isArray(host) ? host[0] : host}:${actual_port}/` : `Serving on port ${actual_port} (all IPv4 interfaces)`;
                     console.log(message);
                     console.log('Server ready');
                     settle(resolve, server_instance);

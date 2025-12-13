@@ -155,6 +155,24 @@ const button = new controls.Button({
 });
 ```
 
+> **⚠️ Important: Text Content Patterns**
+>
+> Different controls handle text content differently:
+>
+> **Composite controls** (Button, Checkbox, etc.) accept `text` in spec:
+> ```javascript
+> const button = new controls.Button({ context, text: 'Click Me' });  // ✅ Works
+> ```
+>
+> **HTML element controls** (div, span, h2, etc.) require `.add()` method:
+> ```javascript
+> const title = new controls.h2({ context });
+> title.add('My Heading');  // ✅ Correct
+> // title.text = 'My Heading';  // ❌ Won't render
+> ```
+>
+> See [Text Content](#text-content-in-controls) section for details.
+
 #### Text_Input
 
 **Purpose:** Text input field control.
@@ -407,6 +425,115 @@ if (this.body.has_class('active')) {
     // Handle active state
 }
 ```
+
+## Text Content in Controls
+
+### The `.add()` Method (For HTML Elements)
+
+For basic HTML element controls (`div`, `span`, `h2`, `p`, etc.), use the `.add()` method to add text content:
+
+```javascript
+// ✅ Correct: Use .add() for HTML elements
+const title = new controls.h2({ context });
+title.add('My Page Title');
+container.add(title);
+
+const paragraph = new controls.div({ context, 'class': 'content' });
+paragraph.add('This is the text content.');
+container.add(paragraph);
+
+const label = new controls.span({ context });
+label.add('Label: ');
+container.add(label);
+```
+
+### The `text` Property (For Composite Controls)
+
+Some composite controls like `Button`, `Checkbox`, and custom controls explicitly handle the `text` property:
+
+```javascript
+// ✅ Correct: Button handles text property
+const button = new controls.Button({
+    context,
+    text: 'Submit Form'
+});
+
+// ✅ Checkbox uses label.text
+const checkbox = new controls.Checkbox({
+    context,
+    label: { text: 'Accept terms' }
+});
+```
+
+### Common Mistake: Text Not Rendering
+
+```javascript
+// ❌ WRONG: text property won't render for div/h2/span
+const title = new controls.h2({
+    context,
+    text: 'This will NOT appear'  // Won't render!
+});
+
+// ❌ WRONG: .text assignment won't render
+const div = new controls.div({ context });
+div.text = 'This also won\'t appear';  // Won't render!
+
+// ✅ CORRECT: Use .add() method
+const title = new controls.h2({ context });
+title.add('This WILL appear');  // ✅ Renders correctly
+```
+
+### Why This Pattern Exists
+
+JSGUI3 follows the DOM model where text is a child node, not a property. The `.add()` method creates a `Text_Node` child that renders properly both server-side and client-side.
+
+Composite controls like `Button` have a `compose_button()` method that internally calls `this.add(this.text)`, which is why they work differently.
+
+### Setting Element IDs
+
+To set an element's ID attribute for client-side access:
+
+```javascript
+// ✅ Correct: Use dom.attributes.id
+const status_div = new controls.div({ context });
+status_div.dom.attributes.id = 'status-display';
+status_div.add('Ready');
+container.add(status_div);
+
+// In activate(), access via getElementById:
+activate() {
+    if (!this.__active) {
+        super.activate();
+        const status = document.getElementById('status-display');
+        status.textContent = 'Active';  // Update via DOM
+    }
+}
+```
+
+### Control Naming Conventions
+
+JSGUI3 controls follow specific naming patterns:
+
+| Type | Naming | Examples |
+|------|--------|----------|
+| HTML elements | lowercase | `controls.div`, `controls.span`, `controls.h2`, `controls.button` (native) |
+| Composite controls | PascalCase | `controls.Button`, `controls.Window`, `controls.Checkbox`, `controls.Panel` |
+| Custom controls | PascalCase | `controls.My_Custom_Control`, `controls.Dashboard` |
+
+```javascript
+// HTML elements (lowercase)
+const div = new controls.div({ context });
+const span = new controls.span({ context });
+const h1 = new controls.h1({ context });
+
+// Composite controls (PascalCase)
+const button = new controls.Button({ context, text: 'Click' });
+const window = new controls.Window({ context, title: 'My Window' });
+const checkbox = new controls.Checkbox({ context });
+```
+
+> **Note:** `controls.button` (lowercase) creates a native `<button>` element without Button class features.
+> `controls.Button` (PascalCase) creates the full Button control with text handling and styling.
 
 ### CSS Extraction and Bundling
 

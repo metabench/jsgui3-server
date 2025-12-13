@@ -99,6 +99,122 @@ server.use(middleware: Function): void
 **Parameters:**
 - `middleware` (Function): Express-style middleware function
 
+## Port Utilities
+
+The `port-utils` module provides automatic port selection to avoid conflicts.
+
+### get_free_port(options)
+
+Find a free port on the system.
+
+**Signature:**
+```javascript
+get_free_port(options?: PortOptions): Promise<number>
+```
+
+**Parameters:**
+- `options.host` (string, optional): Host to check (default: '127.0.0.1')
+- `options.startPort` (number, optional): Starting port to try (default: 0 = OS chooses)
+- `options.endPort` (number, optional): Maximum port to try (default: 65535)
+
+**Returns:** Promise resolving to an available port number
+
+**Example:**
+```javascript
+const { get_free_port } = require('jsgui3-server');
+
+const port = await get_free_port();
+console.log(`Using port: ${port}`);
+
+// Or with options
+const port = await get_free_port({ startPort: 8080 });
+```
+
+### is_port_available(port, host)
+
+Check if a specific port is available.
+
+**Signature:**
+```javascript
+is_port_available(port: number, host?: string): Promise<boolean>
+```
+
+**Parameters:**
+- `port` (number): Port to check
+- `host` (string, optional): Host to check (default: '127.0.0.1')
+
+**Returns:** Promise resolving to `true` if available, `false` if in use
+
+**Example:**
+```javascript
+const { is_port_available } = require('jsgui3-server');
+
+if (await is_port_available(8080)) {
+    console.log('Port 8080 is free');
+}
+```
+
+### get_free_ports(count, options)
+
+Find multiple free ports.
+
+**Signature:**
+```javascript
+get_free_ports(count: number, options?: PortOptions): Promise<number[]>
+```
+
+**Parameters:**
+- `count` (number): Number of ports to find
+- `options` (PortOptions, optional): Same as `get_free_port`
+
+**Returns:** Promise resolving to array of available port numbers
+
+### get_port_or_free(preferred_port, host)
+
+Get a specific port if available, otherwise find a free one.
+
+**Signature:**
+```javascript
+get_port_or_free(preferred_port: number, host?: string): Promise<number>
+```
+
+**Parameters:**
+- `preferred_port` (number): Preferred port (0 = auto-select)
+- `host` (string, optional): Host to check (default: '127.0.0.1')
+
+**Returns:** Promise resolving to the preferred port if available, or a free port
+
+**Example:**
+```javascript
+const { get_port_or_free } = require('jsgui3-server');
+
+// Try 8080, fall back to any free port
+const port = await get_port_or_free(8080);
+```
+
+### Auto-Port in Server.serve()
+
+The `Server.serve()` API supports automatic port selection:
+
+```javascript
+const Server = require('jsgui3-server');
+
+// Auto-select a free port
+Server.serve({
+    Ctrl: MyControl,
+    port: 'auto'  // or port: 0
+}).then(server => {
+    console.log(`Running on port ${server.port}`);
+});
+
+// Or use autoPort option
+Server.serve({
+    Ctrl: MyControl,
+    autoPort: true,
+    port: 8080  // Will fall back to free port if 8080 is in use
+});
+```
+
 ## Control Classes
 
 ### Active_HTML_Document

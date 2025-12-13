@@ -100,6 +100,82 @@ const publisher = new HTTP_Function_Publisher({
 - Support for common image formats (JPEG, PNG, SVG, etc.)
 - Efficient streaming for large files
 
+### HTTP_Observable_Publisher
+
+**Purpose:** Streams observable data to clients using Server-Sent Events (SSE).
+
+**Key Features:**
+- Real-time streaming of observable events
+- SSE protocol support (`text/event-stream`)
+- Chunked transfer encoding for long-running connections
+- Integration with `fnl` observables
+
+**Usage:**
+```javascript
+const { observable } = require('fnl');
+const Observable_Publisher = require('jsgui3-server/publishers/http-observable-publisher');
+
+// Create a hot observable that emits continuously
+let tick_count = 0;
+const tick_stream = observable((next, complete, error) => {
+    const interval = setInterval(() => {
+        tick_count++;
+        next({
+            tick: tick_count,
+            timestamp: Date.now(),
+            message: `Server tick #${tick_count}`
+        });
+    }, 1000);
+    
+    // Return cleanup function
+    return [() => clearInterval(interval)];
+});
+
+// Create the SSE publisher
+const publisher = new Observable_Publisher({
+    obs: tick_stream
+});
+
+// Register with server router
+server.server_router.set_route('/api/stream', publisher, publisher.handle_http);
+```
+
+**Client-Side Consumption:**
+```javascript
+// In browser, use EventSource API
+const eventSource = new EventSource('/api/stream');
+
+eventSource.onmessage = (event) => {
+    if (event.data === 'OK') {
+        console.log('SSE handshake complete');
+        return;
+    }
+    const data = JSON.parse(event.data);
+    console.log('Received:', data);
+};
+
+eventSource.onerror = () => {
+    eventSource.close();
+};
+```
+
+**SSE Protocol:**
+The publisher sends events in SSE format:
+```
+HTTP/1.1 200 OK
+Content-Type: text/event-stream
+Transfer-Encoding: chunked
+
+OK
+event: message
+data:{"tick":1,"timestamp":1234567890,"message":"Server tick #1"}
+
+event: message
+data:{"tick":2,"timestamp":1234567891,"message":"Server tick #2"}
+```
+
+**See Also:** [Observable SSE Demo](../examples/controls/15)%20window,%20observable%20SSE/) for a complete working example.
+
 ## Publisher Architecture
 
 ### Base Publisher Class

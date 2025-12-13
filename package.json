@@ -7,18 +7,18 @@
     "@babel/generator": "^7.28.5",
     "@babel/parser": "^7.28.5",
     "cookies": "^0.9.1",
-    "esbuild": "^0.25.12",
+    "esbuild": "^0.27.1",
     "fnl": "^0.0.37",
     "fnlfs": "^0.0.34",
-    "jsgui3-client": "^0.0.120",
-    "jsgui3-html": "^0.0.170",
+    "jsgui3-client": "^0.0.122",
+    "jsgui3-html": "^0.0.172",
     "jsgui3-webpage": "^0.0.8",
     "jsgui3-website": "^0.0.8",
-    "lang-tools": "^0.0.41",
+    "lang-tools": "^0.0.43",
     "mocha": "^11.7.4",
     "multiparty": "^4.2.3",
     "ncp": "^2.0.0",
-    "obext": "^0.0.31",
+    "obext": "^0.0.33",
     "rimraf": "^6.1.0",
     "stream-to-array": "^2.3.0",
     "url-parse": "^1.5.10"
@@ -39,7 +39,7 @@
     "type": "git",
     "url": "https://github.com/metabench/jsgui3-server.git"
   },
-  "version": "0.0.140",
+  "version": "0.0.141",
   "scripts": {
     "cli": "node cli.js",
     "serve": "node cli.js serve",
@@ -53,6 +53,7 @@
     "test:content": "node tests/test-runner.js --test=content-analysis.test.js",
     "test:performance": "node tests/test-runner.js --test=performance.test.js",
     "test:errors": "node tests/test-runner.js --test=error-handling.test.js",
+    "test:examples:controls": "node tests/test-runner.js --test=examples-controls.e2e.test.js",
     "test:debug": "node tests/test-runner.js --debug",
     "test:verbose": "node tests/test-runner.js --verbose"
   }

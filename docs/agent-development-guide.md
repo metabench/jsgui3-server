@@ -106,6 +106,20 @@ jsgui3-server/
 - [x] Data binding with observable models
 - [x] CSS as static properties
 
+#### Port Utilities (NEW)
+- [x] `get_free_port()` - Find available port
+- [x] `is_port_available()` - Check if port is free
+- [x] `get_free_ports()` - Find multiple ports
+- [x] `get_port_or_free()` - Prefer port or find free
+- [x] `port: 'auto'` option in Server.serve()
+- [x] Documented in api-reference.md
+
+#### Observable Publisher (Documented)
+- [x] HTTP_Observable_Publisher for SSE streaming
+- [x] Integration with `fnl` observables
+- [x] Working example in `examples/controls/15) window, observable SSE/`
+- [x] Documented in publishers-guide.md
+
 ### 🚧 In Progress / Partially Complete
 
 #### Website Publisher
@@ -192,6 +206,7 @@ jsgui3-server/
    - Emit single clear "Server ready" message
    - Ensure all publishers are ready before signaling
    - Update CLI to wait for proper ready signal
+   - **Note**: Currently emits "ready" twice, causing port conflicts in tests
 
 4. **Default Holding Page**
    - Serve simple HTML when no content configured
@@ -199,22 +214,28 @@ jsgui3-server/
    - Allow configuration override
 
 ### Medium Priority
-5. **File Manager Interface**
+5. **Observable API Integration**
+   - Detect observable returns in HTTP_Function_Publisher
+   - Auto-switch to SSE transport for observable endpoints
+   - Add client-side `context.subscribe()` for consuming streams
+   - Document observable publishing patterns
+
+6. **File Manager Interface**
    - Create admin UI for browsing/serving directories
    - Integrate with file system resource
    - Add upload/download capabilities
 
-6. **CSS Bundling Cleanup**
+7. **CSS Bundling Cleanup**
    - Remove legacy bundle paths
    - Consolidate CSS extraction logic
    - Ensure reliable CSS bundling
 
-7. **Configuration File Support**
+8. **Configuration File Support**
    - Add `jsgui.config.js` support
    - Implement `--config` CLI option
    - Document configuration patterns
 
-8. **Graceful Shutdown**
+9. **Graceful Shutdown**
    - Handle SIGINT/SIGTERM signals
    - Clean up resources properly
    - Print shutdown confirmation
@@ -231,6 +252,45 @@ jsgui3-server/
     - Add structured logging output
 
 ## Development Patterns
+
+### Observable Pattern (Core to jsgui3-server)
+
+The `fnl` module provides observables used throughout for async operations with intermediate results:
+
+```javascript
+const {obs} = require('fnl');
+
+// Creating an observable
+const my_async_operation = obs((next, complete, error) => {
+    // Emit progress/intermediate values
+    next({ stage: 'parsing', progress: 25 });
+    next({ stage: 'bundling', progress: 75 });
+    
+    // Complete with final result (acts like promise resolution)
+    complete({ bundle: compiled_code });
+    
+    // Or error (acts like promise rejection)
+    // error(new Error('compilation failed'));
+    
+    // Return cleanup functions (optional)
+    return [() => cleanup_resources()];
+});
+
+// Consuming an observable
+my_async_operation.on('next', data => console.log('Progress:', data));
+my_async_operation.on('complete', result => console.log('Done:', result));
+my_async_operation.on('error', err => console.error('Failed:', err));
+```
+
+**Key locations using observables:**
+- `publishers/http-observable-publisher.js` — SSE streaming to clients
+- `resources/processors/bundlers/*.js` — All bundling operations
+- `publishers/http-website-publisher.js` — Website build pipeline
+
+**Observable vs Promise:**
+- Use **observable** when operation has meaningful intermediate states (bundling progress, streaming data)
+- Use **promise** for simple async one-shot operations
+- The `http-function-publisher.js` already detects promises; extend to detect observables
 
 ### Control Creation Pattern
 ```javascript
@@ -262,6 +322,41 @@ class MyControl extends Active_HTML_Document {
 }
 
 MyControl.css = `/* CSS styles */`;
+```
+
+### ⚠️ Critical Pattern: Text Content in Controls
+
+**This is a common pitfall!** HTML element controls and composite controls handle text differently:
+
+```javascript
+// ❌ WRONG: text property/assignment doesn't work for HTML elements
+const title = new controls.h2({ context, text: 'My Title' });  // Won't render!
+const div = new controls.div({ context });
+div.text = 'Content';  // Won't render!
+
+// ✅ CORRECT: Use .add() for HTML elements (div, span, h2, etc.)
+const title = new controls.h2({ context });
+title.add('My Title');  // ✅ Renders correctly
+
+const div = new controls.div({ context });
+div.add('Content');  // ✅ Renders correctly
+
+// ✅ Composite controls (Button, Checkbox) DO support text property
+const button = new controls.Button({ context, text: 'Click Me' });  // ✅ Works
+```
+
+**Why?** HTML elements are thin wrappers where text is a child node. Composite controls like `Button` have internal `compose_button()` that calls `this.add(this.text)`.
+
+**Control Naming:**
+| Type | Naming | Examples |
+|------|--------|----------|
+| HTML elements | lowercase | `controls.div`, `controls.span`, `controls.h2` |
+| Composite controls | PascalCase | `controls.Button`, `controls.Window`, `controls.Checkbox` |
+
+**Setting Element IDs:**
+```javascript
+const div = new controls.div({ context });
+div.dom.attributes.id = 'my-id';  // ✅ Correct way to set ID
 ```
 
 ### Publisher Creation Pattern
@@ -321,9 +416,18 @@ class CustomResource extends Resource {
 
 ### Architecture Insights
 - **Event-Driven Design**: Heavy use of Evented_Class and observable patterns
+- **Observable-First Async**: `fnl` observables used for all multi-stage operations (bundling, compilation)
 - **Resource Pool Pattern**: Centralized resource management
 - **Publisher Abstraction**: Clean separation of content types
 - **Context System**: Runtime environment management
+- **SSE Infrastructure**: `HTTP_Observable_Publisher` already implements Server-Sent Events for streaming
+
+### Observable Pattern (Strategic Differentiator)
+The `obs()` factory from `fnl` is used throughout for operations with intermediate results:
+- Bundlers emit progress updates during compilation
+- Website publisher streams build status
+- Can be exposed at API level for real-time client updates
+- `HTTP_Observable_Publisher` already handles SSE transport
 
 ### Complexity Areas
 - **Bundling System**: Multi-stage CSS/JS processing

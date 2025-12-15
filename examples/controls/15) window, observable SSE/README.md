@@ -61,13 +61,25 @@ HTTP/1.1 200 OK
 Content-Type: text/event-stream
 Transfer-Encoding: chunked
 
-event: message
+data: OK
+
 data: {"progress": 10, "stage": "Loading..."}
 
-event: message
 data: {"progress": 20, "stage": "Processing..."}
 
 ...
+```
+
+## Optional Pause/Resume/Stop Control
+
+`HTTP_Observable_Publisher` also supports controlling the published observable:
+
+```javascript
+await fetch('/api/tick-stream', {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({ action: 'pause' })   // 'resume' | 'stop' | 'status'
+});
 ```
 
 ## Observable Pattern Benefits

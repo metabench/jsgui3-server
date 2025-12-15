@@ -109,6 +109,8 @@ const publisher = new HTTP_Function_Publisher({
 - SSE protocol support (`text/event-stream`)
 - Chunked transfer encoding for long-running connections
 - Integration with `fnl` observables
+- Connection cleanup on client disconnect
+- Optional `pause()`, `resume()`, `stop()` controls
 
 **Usage:**
 ```javascript
@@ -138,6 +140,21 @@ const publisher = new Observable_Publisher({
 
 // Register with server router
 server.server_router.set_route('/api/stream', publisher, publisher.handle_http);
+
+// Optional: control the stream from server-side code
+publisher.pause();
+publisher.resume();
+publisher.stop();
+```
+
+**Optional Control (HTTP):**
+```javascript
+// From browser or any HTTP client:
+await fetch('/api/stream', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ action: 'pause' })   // 'resume' | 'stop' | 'status'
+});
 ```
 
 **Client-Side Consumption:**
@@ -166,12 +183,11 @@ HTTP/1.1 200 OK
 Content-Type: text/event-stream
 Transfer-Encoding: chunked
 
-OK
-event: message
-data:{"tick":1,"timestamp":1234567890,"message":"Server tick #1"}
+data: OK
 
-event: message
-data:{"tick":2,"timestamp":1234567891,"message":"Server tick #2"}
+data: {"tick":1,"timestamp":1234567890,"message":"Server tick #1"}
+
+data: {"tick":2,"timestamp":1234567891,"message":"Server tick #2"}
 ```
 
 **See Also:** [Observable SSE Demo](../examples/controls/15)%20window,%20observable%20SSE/) for a complete working example.

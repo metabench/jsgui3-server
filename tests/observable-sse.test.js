@@ -10,7 +10,7 @@ const path = require('path');
 const { get_free_port } = require('../port-utils');
 
 describe('Observable SSE Demo E2E Tests', function() {
-    this.timeout(30000); // Allow time for server startup and SSE streaming
+    this.timeout(90000); // Allow time for bundling + server startup + SSE streaming
 
     let server_process;
     let server_port;
@@ -142,7 +142,7 @@ describe('Observable SSE Demo E2E Tests', function() {
             let output = '';
             const timeout = setTimeout(() => {
                 reject(new Error('Server startup timeout'));
-            }, 15000);
+            }, 45000);
 
             server_process.stdout.on('data', (data) => {
                 output += data.toString();

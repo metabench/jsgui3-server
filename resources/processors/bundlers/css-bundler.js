@@ -1,18 +1,16 @@
 const Bundler = require('./bundler');
 //const Bundle = require('./bundle');
-const {obs, prom_or_cb} = require('fnl');
-const {tof, each} = require('jsgui3-html');
-const fnlfs = require('fnlfs');
+const {obs} = require('fnl');
 //const browserify = require('browserify');
 //const babel = require('@babel/core');
-const stream_to_array = require('stream-to-array');
-const util = require('util');
-const Stream = require('stream');
 // Will put the JS together. Maybe images?
 const fs = require('fs');
 const path = require('path');
 
-const JS_AST_Node = require('../../jsbuilder/JS_AST/JS_AST_Node');
+const CSS_And_JS_From_JS_String_Extractor = require('../extractors/js/css_and_js/CSS_And_JS_From_JS_String_Extractor');
+const {compile_styles} = require('./style-bundler');
+
+const css_and_js_from_js_string_extractor = new CSS_And_JS_From_JS_String_Extractor();
 
 // Will put the JS together. Maybe images?
 //  Get everything ready to serve.
@@ -66,158 +64,15 @@ const bundle_css_from_js_str = (js_str, options = {}) => {
 
 
     return obs((next, complete, error) => {
-
-        //console.log('js_str.length', js_str.length);
-
-        // Returning a Bundle object when done could be best...?
-
-        const spec = {
-            source: js_str
-        };
-
-        // This part is kind-of slow.
-
-        console.log('pre create js ast node');
-        const js_ast_node = JS_AST_Node.from_spec(spec);
-        console.log('post create js ast node');
-
-        // Maybe a faster / different JS parser.
-        //  Or do it using regex / specialised algorithm of some sort.
-
-
-
-
-        //console.log('!!js_ast_node', !!js_ast_node);
-
-        //console.log('Object.keys(js_ast_node)', Object.keys(js_ast_node));
-
-        // count all
-
-        //console.log('js_ast_node.query("count all")', js_ast_node.query("count all"));
-
-        //console.log('js_ast_node.query.count.all.exe()', js_ast_node.query.count.all.exe());
-
-        // A filter iterate query....? filter_deep_iterate could work.
-        //  but we are looking specifically for 'ClassName.css'
-        //   .css property assignments.
-
-        const ae_nodes = [];
-
-
-        // Just assigning a template literal to .css?
-        const css_ae_nodes = [];
-
-        // How about removing those parts from the JS AST?
-
-
-
-        js_ast_node.deep_iterate(node => {
-
-            // Maybe this part is slow? Don't think so though.
-
-            //console.log('node', node);
-            //console.log('Object.keys(node)', Object.keys(node));
-            //console.log('node.type_signature', node.type_signature);
-            //console.log('node.signature', node.signature);
-            //console.log('node.type', node.type);
-            //console.log('node.abbreviated_type', node.abbreviated_type);
-
-            if (node.type === 'AssignmentExpression') {
-                //return true;
-                ae_nodes.push(node);
-                //console.log('node.source', node.source);
-                
-                //console.log('Object.keys(node)', Object.keys(node));
-
-                //console.log('node.child_nodes.length', node.child_nodes.length);
-
-                const [node_assigned_to, node_assigned] = node.child_nodes;
-                //console.log('node_assigned_to.source', node_assigned_to.source);
-                //console.log('node_assigned_to.type', node_assigned_to.type);
-                //console.log('node_assigned.type', node_assigned.type);
-
-                if (node_assigned.type === 'TemplateLiteral') {
-
-                    if (node_assigned_to.type === 'MemberExpression') {
-
-                        //console.log('node_assigned_to', node_assigned_to);
-
-                        // the last ID being .css?
-                        const last_me_child = node_assigned_to.child_nodes[node_assigned_to.child_nodes.length - 1];
-                        //console.log('last_me_child', last_me_child);
-                        //console.log('last_me_child.source', last_me_child.source);
-
-                        if (last_me_child.source === 'css') {
-                            css_ae_nodes.push(node);
-                        }
-
-
-
-                        // does it end '.css'?
-                        //  break it down further?
-
-                    }
-
-                    ///console.log('node.source', node.source);
-                    //throw 'stop';
-
-                }
-
-                //console.log('');
-                // look at the left part...
-            }
-
-            //throw 'stop';
-        });
-        //console.log('ae_nodes', ae_nodes);
-        //console.log('ae_nodes.length', ae_nodes.length);
-        //console.log('css_ae_nodes.length', css_ae_nodes.length);
-
-        const arr_css = [];
-
-        if (css_ae_nodes.length > 0) {
-            //console.log('css_ae_nodes', css_ae_nodes);
-
-            each(css_ae_nodes, css_ae_node => {
-                //console.log('css_ae_node.source', css_ae_node.source);
-                const tl = css_ae_node.child_nodes[1].child_nodes[0];
-                //console.log('tl', tl);
-                //console.log('tl.source', tl.source);
-                arr_css.push(tl.source);
-
-
-            })
-        }
-
-        if (arr_css.length > 0) {
-            const str_css = arr_css.join('\n');
-
-            complete(str_css);
-        } else {
-            complete();
-        }
-
-        
-        // Can then do query to get all .css properties that are string templates.
-        //  is it a property of a Class object?
-
-
-
-
-
-        // Need to get an AST from it....
-        //  Or could simply search (regex?) for .css = `...`?
-
-
-
-
-        // Go through each file? Just the first?
-
-        // Or should the whole bundled (browserified) JS be consulted?
+        (async () => {
+            const res_extract_styles = await css_and_js_from_js_string_extractor.extract(js_str);
+            const {css = '', scss = '', sass = '', style_segments = []} = res_extract_styles || {};
+            const style_bundle = compile_styles({css, scss, sass, style_segments}, options.style || {});
+            complete(style_bundle.css || '');
+        })().catch(error);
 
         const [stop, pause, resume] = [() => {}, () => {}, () => {}];
         return [stop, pause, resume];
-
     });
 
 }

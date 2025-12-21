@@ -1,0 +1,131 @@
+{
+  "generated_at": "2025-12-19T19:05:37.894Z",
+  "examples": [
+    {
+      "dir_name": "1) window",
+      "ctrl_name": "Demo_UI",
+      "checks": [
+        {
+          "id": "window_count",
+          "description": "Window control count",
+          "expected": 1,
+          "actual": 1,
+          "pass": true
+        },
+        {
+          "id": "window_title_text",
+          "description": "Window title text present",
+          "expected": true,
+          "actual": true,
+          "pass": true
+        },
+        {
+          "id": "window_button_count",
+          "description": "Window button count",
+          "expected": 3,
+          "actual": 3,
+          "pass": true
+        }
+      ],
+      "summary": {
+        "total": 3,
+        "passed": 3,
+        "failed": 0
+      }
+    },
+    {
+      "dir_name": "4) window, tabbed panel",
+      "ctrl_name": "Demo_UI",
+      "checks": [
+        {
+          "id": "tab_label_count",
+          "description": "Tab label count",
+          "expected": 2,
+          "actual": 2,
+          "pass": true
+        },
+        {
+          "id": "tab_label_one",
+          "description": "Tab 1 label text present",
+          "expected": true,
+          "actual": true,
+          "pass": true
+        },
+        {
+          "id": "tab_label_two",
+          "description": "Tab 2 label text present",
+          "expected": true,
+          "actual": true,
+          "pass": true
+        },
+        {
+          "id": "tab_input_checked",
+          "description": "Default checked tab input count",
+          "expected": 1,
+          "actual": 1,
+          "pass": true
+        }
+      ],
+      "summary": {
+        "total": 4,
+        "passed": 4,
+        "failed": 0
+      }
+    },
+    {
+      "dir_name": "8) window, checkbox/a)",
+      "ctrl_name": "Demo_UI",
+      "checks": [
+        {
+          "id": "checkbox_input_count",
+          "description": "Checkbox input count",
+          "expected": 1,
+          "actual": 1,
+          "pass": true
+        },
+        {
+          "id": "checkbox_label_text",
+          "description": "Checkbox label text present",
+          "expected": true,
+          "actual": true,
+          "pass": true
+        }
+      ],
+      "summary": {
+        "total": 2,
+        "passed": 2,
+        "failed": 0
+      }
+    },
+    {
+      "dir_name": "9) window, date picker",
+      "ctrl_name": "Demo_UI",
+      "checks": [
+        {
+          "id": "date_picker_present",
+          "description": "Date picker container present",
+          "expected": 1,
+          "actual": 1,
+          "pass": true
+        },
+        {
+          "id": "date_input_count",
+          "description": "Date input type count",
+          "expected": 1,
+          "actual": 1,
+          "pass": true
+        }
+      ],
+      "summary": {
+        "total": 2,
+        "passed": 2,
+        "failed": 0
+      }
+    }
+  ],
+  "summary": {
+    "total": 11,
+    "passed": 11,
+    "failed": 0
+  }
+}

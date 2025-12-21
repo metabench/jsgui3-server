@@ -209,6 +209,41 @@ Configuration values are resolved in this order (later sources override earlier 
   });
   ```
 
+#### `style`
+- **Type:** `object`
+- **Description:** Style pipeline options for CSS/SCSS/Sass extraction and compilation.
+- **Default:** `{}` (inherits debug behavior for sourcemaps)
+- **Example:**
+  ```javascript
+  Server.serve({
+      ctrl: MyControl,
+      debug: true,
+      style: {
+          sourcemaps: {
+              enabled: true,
+              inline: true,
+              include_sources: true
+          },
+          load_paths: ['styles', 'controls'],
+          output_style: 'expanded',
+          quiet_dependencies: true,
+          compile_css_with_sass: true
+      }
+  });
+  ```
+
+**Style options:**
+- `sourcemaps.enabled` (`boolean`): Enable CSS sourcemaps. Defaults to `true` when `debug` is enabled.
+- `sourcemaps.inline` (`boolean`): Inline sourcemaps into compiled CSS (default `true`).
+- `sourcemaps.include_sources` (`boolean`): Embed sources content in the sourcemap (default `true`).
+- `load_paths` (`string[]`): Sass load paths for `@use`/`@import`.
+- `output_style` (`string`): Sass output style (e.g., `expanded`, `compressed`).
+- `quiet_dependencies` (`boolean`): Suppress dependency warnings during Sass compilation.
+- `compile_css_with_sass` (`boolean`): Compile `.css` blocks through Sass when mixing with SCSS (default `true`).
+- `scss_sources` / `sass_sources` (`string[]`): Extra Sass/SCSS sources appended during compilation.
+
+Inline CSS sourcemaps are emitted only when a single compilation pass is possible. Mixed `.sass` plus `.scss`/`.css` inputs skip inline maps to avoid inaccurate mappings.
+
 ## Environment Variables
 
 ### PORT

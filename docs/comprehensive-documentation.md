@@ -288,6 +288,25 @@ controls.MyControl = MyControl;
 module.exports = jsgui;
 ```
 
+    SCSS/SASS: You can also set `MyControl.scss` or `MyControl.sass` using template literals. These are compiled to CSS during bundling and removed from the JS output, just like `.css`. CSS and SCSS blocks can be mixed in a control; the bundler preserves their order during compilation. If you mix indented `.sass` with `.scss`/`.css`, each block is compiled independently to preserve order. Inline CSS sourcemaps are emitted only when a single compilation pass is used; mixed syntax skips inline maps to keep them accurate.
+
+    To enable inline CSS sourcemaps for Sass/SCSS outputs, pass a `style` configuration:
+
+    ```javascript
+    Server.serve({
+        ctrl: MyControl,
+        src_path_client_js: require.resolve('./client.js'),
+        debug: true,
+        style: {
+            sourcemaps: {
+                enabled: true,
+                inline: true,
+                include_sources: true
+            }
+        }
+    });
+    ```
+
 2. Create server:
 
 ```javascript

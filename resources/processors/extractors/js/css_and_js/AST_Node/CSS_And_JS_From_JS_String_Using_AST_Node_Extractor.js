@@ -3,8 +3,7 @@
 // Extract the CSS and JS from JS, using AST_Node.
 //   AST_Node is part of jsgui3-server, possibly too slow though.
 
-const {obs, prom_or_cb} = require('fnl');
-const {tof, each} = require('jsgui3-html');
+const {obs} = require('fnl');
 
 
 const JS_AST_Node = require('../../../../../jsbuilder/JS_AST/JS_AST_Node');
@@ -52,23 +51,17 @@ class CSS_And_JS_From_JS_String_Using_AST_Node_Extractor extends Extractor {
             // This part is kind-of slow.
 
             //console.log('pre create js ast node');
-            console.log('Separating CSS and JS');
+            console.log('Separating styles and JS');
             const js_ast_node = JS_AST_Node.from_spec(spec);
             //console.log('post create js ast node');
             
             //const ae_nodes = [];
 
-            const arr_pos_spans_css_js_nodes = [];  // will remove them from the JS that's built / published.
-
-
-
-
-            // Just assigning a template literal to .css?
-            const css_ae_nodes = [];
-
-            // How about removing those parts from the JS AST?
-
-            
+            const arr_pos_spans_style_js_nodes = [];  // will remove them from the JS that's built / published.
+            const arr_css = [];
+            const arr_scss = [];
+            const arr_sass = [];
+            const arr_style_segments = [];
 
             js_ast_node.deep_iterate(node => {
 
@@ -103,19 +96,28 @@ class CSS_And_JS_From_JS_String_Using_AST_Node_Extractor extends Extractor {
 
                             //console.log('node_assigned_to', node_assigned_to);
 
-                            // the last ID being .css?
+                            // the last ID being .css / .scss / .sass?
                             const last_me_child = node_assigned_to.child_nodes[node_assigned_to.child_nodes.length - 1];
                             //console.log('last_me_child', last_me_child);
                             //console.log('last_me_child.source', last_me_child.source);
 
-                            if (last_me_child.source === 'css') {
-                                css_ae_nodes.push(node);
+                            if (last_me_child.source === 'css' || last_me_child.source === 'scss' || last_me_child.source === 'sass') {
+                                const tl_node = node_assigned.child_nodes[0];
+                                const tl_source = tl_node ? tl_node.source : '';
 
-                                //console.log('[start, end]', [start, end]);
-                                //console.log('node.source:\n' + node.source + '\n');
+                                const style_type = last_me_child.source;
+                                if (style_type === 'css') arr_css.push(tl_source);
+                                if (style_type === 'scss') arr_scss.push(tl_source);
+                                if (style_type === 'sass') arr_sass.push(tl_source);
 
-                                arr_pos_spans_css_js_nodes.push([start, end]);
+                                arr_style_segments.push({
+                                    type: style_type,
+                                    source: tl_source,
+                                    start,
+                                    end
+                                });
 
+                                arr_pos_spans_style_js_nodes.push([start, end]);
                             }
 
                             // does it end '.css'?
@@ -137,39 +139,33 @@ class CSS_And_JS_From_JS_String_Using_AST_Node_Extractor extends Extractor {
             //console.log('ae_nodes', ae_nodes);
             //console.log('ae_nodes.length', ae_nodes.length);
             //console.log('css_ae_nodes.length', css_ae_nodes.length);
-            console.log('arr_pos_spans_css_js_nodes.length', arr_pos_spans_css_js_nodes.length);
+            console.log('arr_pos_spans_style_js_nodes.length', arr_pos_spans_style_js_nodes.length);
 
-            const arr_css = [];
+            const str_css = arr_css.join('\n');
+            const str_scss = arr_scss.join('\n');
+            const str_sass = arr_sass.join('\n');
 
-            if (css_ae_nodes.length > 0) {
-                //console.log('css_ae_nodes', css_ae_nodes);
-
-                each(css_ae_nodes, css_ae_node => {
-                    //console.log('css_ae_node.source', css_ae_node.source);
-
-
-                    const tl = css_ae_node.child_nodes[1].child_nodes[0];
-
-
-                    //console.log('tl', tl);
-                    //console.log('tl.source', tl.source);
-                    arr_css.push(tl.source);
-
-
-                })
+            if (arr_pos_spans_style_js_nodes.length > 1) {
+                arr_pos_spans_style_js_nodes.sort((a, b) => a[0] - b[0]);
             }
 
-            if (arr_css.length > 0) {
-                const str_css = arr_css.join('\n');
-                const str_js_without_css_assignments = pos_span_string_extractor.extract(js_str, arr_pos_spans_css_js_nodes, {invert: true});
-                const res = {
-                    css: str_css,
-                    js: str_js_without_css_assignments
-                }
-                complete(res);
-            } else {
-                complete();
+            let style_segments = arr_style_segments;
+            if (style_segments.length > 1) {
+                style_segments.sort((a, b) => a.start - b.start);
             }
+            style_segments = style_segments.map(({type, source}) => ({type, source}));
+
+            const str_js_without_style_assignments = arr_pos_spans_style_js_nodes.length > 0
+                ? pos_span_string_extractor.extract(js_str, arr_pos_spans_style_js_nodes, {invert: true})
+                : js_str;
+
+            complete({
+                css: str_css,
+                scss: str_scss,
+                sass: str_sass,
+                style_segments,
+                js: str_js_without_style_assignments
+            });
 
             const [stop, pause, resume] = [() => {}, () => {}, () => {}];
             return [stop, pause, resume];

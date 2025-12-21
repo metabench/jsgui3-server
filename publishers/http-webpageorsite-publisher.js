@@ -98,6 +98,7 @@ class HTTP_Webpageorsite_Publisher extends HTTP_Publisher {
         super(spec);
 
         if (spec.debug !== undefined) this.debug = spec.debug;
+        this.style_config = spec.style || {};
 
         // But then some properties to do with the js client(s?) file path.
 
@@ -127,7 +128,8 @@ class HTTP_Webpageorsite_Publisher extends HTTP_Publisher {
         // Maybe need a get_ready (async or obs) function....
 
         this.js_bundler = new JS_Bundler({
-            'debug': this.debug || false
+            'debug': this.debug || false,
+            'style': this.style_config
         });
 
 

@@ -17,18 +17,23 @@ this.timeout(30000); // Increase timeout for bundling operations
     beforeEach(async function() {
         // Create a temporary test JS file
         testJsContent = `
-            // Test JavaScript with CSS
-            const css = \`
+            class Test_Class {
+                constructor() {}
+            }
+
+            Test_Class.css = \`
                 .test-class {
                     color: red;
                     font-size: 14px;
                 }
             \`;
 
-            // Add CSS to document
-            const style = document.createElement('style');
-            style.textContent = css;
-            document.head.appendChild(style);
+            Test_Class.scss = \`
+                $accent-color: #33aacc;
+                .sass-class {
+                    color: $accent-color;
+                }
+            \`;
 
             // Test function
             function testFunction() {
@@ -37,7 +42,7 @@ this.timeout(30000); // Increase timeout for bundling operations
             }
 
             // Export for testing
-            module.exports = { testFunction };
+            module.exports = { testFunction, Test_Class };
         `;
 
         testJsFile = path.join(__dirname, 'temp_test.js');
@@ -245,9 +250,13 @@ this.timeout(30000); // Increase timeout for bundling operations
             // Verify CSS was extracted
             assert(cssItem.text.includes('.test-class'), 'CSS should contain the test class');
             assert(cssItem.text.includes('color: red'), 'CSS should contain the color property');
+            assert(cssItem.text.includes('.sass-class'), 'CSS should contain the SCSS class');
+            assert(cssItem.text.includes('#33aacc'), 'CSS should contain compiled SCSS color value');
 
             // Verify JS no longer contains CSS
             assert(!jsItem.text.includes('.test-class'), 'JS should not contain CSS after extraction');
+            assert(!jsItem.text.includes('.sass-class'), 'JS should not contain SCSS after extraction');
+            assert(!jsItem.text.includes('$accent-color'), 'JS should not contain SCSS variables');
             assert(jsItem.text.includes('testFunction'), 'JS should still contain the test function');
         });
 

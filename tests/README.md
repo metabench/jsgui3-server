@@ -26,6 +26,8 @@ tests/
 ├── performance.test.js           # Performance benchmarks
 ├── error-handling.test.js        # Error handling and edge cases
 ├── examples-controls.e2e.test.js # Example apps regression (controls)
+├── sass-controls.e2e.test.js     # Sass/CSS controls E2E coverage
+├── window-examples.puppeteer.test.js # Puppeteer interaction tests (window examples)
 ├── test-runner.js                # Custom test runner with reporting
 └── README.md                     # This file
 ```
@@ -49,6 +51,11 @@ npx mocha tests/bundlers.test.js
 ### Run Example Apps Regression Suite
 ```bash
 npm run test:examples:controls
+```
+
+### Run Puppeteer Window Example Tests
+```bash
+npm run test:puppeteer:windows
 ```
 
 ### Run Tests with Options
@@ -132,6 +139,26 @@ Regression coverage for a representative set of `examples/controls/*` apps:
 - Verifies `/`, `/js/js.js`, and `/css/css.css` routes
 - Ensures HTML rendering works without `Accept-Encoding`
 
+### 8. Puppeteer Window Example Tests (`window-examples.puppeteer.test.js`)
+
+Browser-level interaction checks for selected window examples:
+
+- Minimize/restore window state (class toggling)
+- Tabbed panel tab switching visibility
+- Checkbox label toggling checked state
+- Date picker month header rendering
+
+### 9. Sass/CSS Controls E2E Tests (`sass-controls.e2e.test.js`)
+
+Server-level integration tests for controls that define `.scss` or `.sass` styles:
+
+- Verifies CSS + SCSS mixing order in bundled CSS output
+- Confirms indented Sass compiles and is removed from JS bundles
+- Checks inline CSS sourcemaps include original Sass/SCSS sources
+- Ensures mixed CSS + Sass output preserves order without emitting inaccurate sourcemaps
+
+Note: These tests are skipped if the `sass` dependency is not installed.
+
 ## Configuration Examples
 
 ### Basic Minification
@@ -211,6 +238,7 @@ Total Test Suites: 8
 - Mocha test framework (included in package.json)
 - ESBuild (included in package.json)
 - zlib (built-in Node.js module)
+- Puppeteer (dev dependency; set `PUPPETEER_EXECUTABLE_PATH` to a local Chrome/Chromium if downloads are disabled)
 
 ## Troubleshooting
 

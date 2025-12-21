@@ -49,6 +49,8 @@ class JSGUI_Single_Process_Server extends Evented_Class {
 			this.debug = spec.debug;
 		}
 
+		const style_config = spec.style;
+
 		// or src_path_client_js as well...
 
 		Object.defineProperty(this, 'disk_path_client_js', {get: () => disk_path_client_js, set: (value) => disk_path_client_js = value});
@@ -101,6 +103,7 @@ class JSGUI_Single_Process_Server extends Evented_Class {
 			}
 
 			if (disk_path_client_js) opts_wp_publisher.src_path_client_js = disk_path_client_js;
+			if (style_config !== undefined) opts_wp_publisher.style = style_config;
 
 
 
@@ -165,6 +168,9 @@ class JSGUI_Single_Process_Server extends Evented_Class {
 			};
 			if (disk_path_client_js) {
 				opts_ws_publisher.disk_path_client_js = disk_path_client_js;
+			}
+			if (style_config !== undefined) {
+				opts_ws_publisher.style = style_config;
 			}
 			const ws_publisher = new HTTP_Website_Publisher(opts_ws_publisher);
 			this._ws_publisher = ws_publisher;

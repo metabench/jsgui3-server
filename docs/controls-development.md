@@ -92,6 +92,27 @@ controls.My_Custom_Control = My_Custom_Control;
 module.exports = jsgui;
 ```
 
+Note: You can also define `My_Custom_Control.scss` or `My_Custom_Control.sass` using template literals. These are compiled to CSS during bundling and removed from the JS output, just like `.css`. CSS and SCSS blocks can be mixed in a control; the bundler preserves their order during compilation. If you mix indented `.sass` with `.scss`/`.css`, each block is compiled independently to preserve order. Inline CSS sourcemaps are emitted only when a single compilation pass is used; mixed syntax skips inline maps to keep them accurate.
+
+To enable inline CSS sourcemaps for Sass/SCSS outputs, pass a `style` configuration when serving:
+
+```javascript
+Server.serve({
+    ctrl: My_Custom_Control,
+    src_path_client_js: require.resolve('./client.js'),
+    debug: true,
+    style: {
+        sourcemaps: {
+            enabled: true,
+            inline: true,
+            include_sources: true
+        }
+    }
+});
+```
+
+E2E coverage for Sass/CSS controls (including sourcemaps) lives in `tests/sass-controls.e2e.test.js`.
+
 #### Control (Base)
 
 **Purpose:** The fundamental building block for all UI components.
@@ -126,6 +147,13 @@ const window = new controls.Window({
 window.inner.add(childControl);
 this.body.add(window);
 ```
+
+Lab results (from `lab/results/window_examples_dom_audit.md`, generated 2025-12-19):
+
+- Window example renders one window, a title bar, and three control buttons.
+- Tabbed panel example renders two tabs with a default checked input.
+- Checkbox example renders one checkbox input with the expected label.
+- Date picker example renders a native date input on the server.
 
 #### Panel
 

@@ -28,6 +28,7 @@ var path = require('path'),
 	fs2 = require('../fs2');
 
 const fnl = require('fnl');
+const {compile_styles} = require('./processors/bundlers/style-bundler');
 
 var stringify = jsgui.stringify,
 	each = jsgui.each,
@@ -55,22 +56,25 @@ const prom_or_cb = fnl.prom_or_cb;
 // and a map of all css text?
 
 const compile_controls_css = controls => {
-	// go through all the controls, look for the .css property (on the class)
+	// go through all the controls, look for the .css/.scss/.sass property (on the class)
 
-	//let res = '';
 	const arr_css = [];
-
+	const arr_scss = [];
+	const arr_sass = [];
 
 	each(controls, Ctrl => {
-
-		const {css} = Ctrl;
+		const {css, scss, sass} = Ctrl;
 		if (css) arr_css.push(css);
-
-
+		if (scss) arr_scss.push(scss);
+		if (sass) arr_sass.push(sass);
 	});
-	const str_css = arr_css.join('\n');
-	return str_css;
 
+	const style_bundle = compile_styles({
+		css: arr_css,
+		scss: arr_scss,
+		sass: arr_sass
+	});
+	return style_bundle.css || '';
 }
 
 

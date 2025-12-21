@@ -194,7 +194,9 @@ describe('Error Handling Tests', function() {
 
                 // Create JS with malformed CSS
                 const malformedCssContent = `
-                    const css = \`
+                    class Test_Class {}
+
+                    Test_Class.css = \`
                         .test-class {
                             color: red;
                             /* Missing closing brace

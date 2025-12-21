@@ -77,6 +77,10 @@ const Resource_Processor = require('./website-resource-processor');
 const process_js = require('./process-js');
 const {analyse_js_doc_formatting, extract_client_js} = process_js;
 
+const CSS_And_JS_From_JS_String_Extractor = require('./processors/extractors/js/css_and_js/CSS_And_JS_From_JS_String_Extractor');
+const {compile_styles} = require('./processors/bundlers/style-bundler');
+const css_and_js_from_js_string_extractor = new CSS_And_JS_From_JS_String_Extractor();
+
 
 
 
@@ -660,60 +664,16 @@ class Site_JavaScript_Resource_Processor extends Resource_Processor {
 					} 
 					*/
 
-					const filter_js_extract_control_css = (str_js_code) => {
-						// res = [css, js_no_css]
-						// Split the js lines.
-
-						const s_js = str_js_code.split('\n');
-						let within_class_css = false;
-						const control_css_lines = [];
-						const js_non_css_lines = [];
-						// and the non-css lines.
-						// And need to look for its stop.
-						// And leave the first and last line out of the css.
-						each(s_js, js_line => {
-							let placed_js_line = false;
-							const pos_class_css_begin = js_line.indexOf('.css = `');
-							// if its 0
-
-							if (pos_class_css_begin > -1) {
-								//console.log('js_line', js_line);
-								within_class_css = true;
-							}
-							// Put empty lines (back) into the js array?
-
-							if (within_class_css) {
-								//console.log('js_line', js_line);
-
-								const pos_control_css_end = js_line.indexOf('`;');
-								//console.log('pos_control_css_end', pos_control_css_end);
-								if (pos_control_css_end > -1) {
-									within_class_css = false;
-								} else {
-									if (pos_class_css_begin > -1) {
-
-									} else {
-										control_css_lines.push(js_line);
-									}
-									
-								}
-							} else {
-								js_non_css_lines.push(js_line);
-								placed_js_line = true;
-							}
-
-							if (!placed_js_line) {
-								js_non_css_lines.push('');
-							}
-							//let is_control_css_start = js_line.indexOf()
-
-							if (control_css_lines.length > 200) throw 'stop';
-
-						})
-						return [control_css_lines.join('\n'), js_non_css_lines.join('\n')];
-					}
-
-					let [str_css, str_js_no_css] = filter_js_extract_control_css(str_js_code);
+					const res_extract_styles = await css_and_js_from_js_string_extractor.extract(str_js_code);
+					let {
+						css = '',
+						scss = '',
+						sass = '',
+						style_segments = [],
+						js: str_js_no_css = str_js_code
+					} = res_extract_styles || {};
+					const style_bundle = compile_styles({css, scss, sass, style_segments}, options.style || {});
+					let str_css = style_bundle.css || '';
 
 					// Add the sourcemaps back? Its working.
 

@@ -204,6 +204,7 @@ input.js:1:0: ERROR: Expected identifier but found "}"
    }
    `;
    ```
+   You can also use `MyControl.scss` or `MyControl.sass` with template literals; these compile to CSS during bundling (ensure the `sass` dependency is installed). To see inline CSS sourcemaps in devtools, enable `style.sourcemaps` (or run with `debug: true`).
 
 3. **Check activation:**
    ```javascript

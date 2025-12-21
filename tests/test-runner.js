@@ -31,7 +31,9 @@ class TestRunner {
             'content-analysis.test.js',
             'performance.test.js',
             'error-handling.test.js',
-            'examples-controls.e2e.test.js'
+            'examples-controls.e2e.test.js',
+            'sass-controls.e2e.test.js',
+            'window-examples.puppeteer.test.js'
         ];
     }
 

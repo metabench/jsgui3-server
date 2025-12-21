@@ -46,8 +46,7 @@ describe('Content Analysis Tests', function() {
                 }
             }
 
-            // Some CSS embedded in JS
-            const css = \`
+            TestClass.css = \`
                 .test-class {
                     background-color: #ffffff;
                     border: 1px solid #cccccc;
@@ -59,10 +58,12 @@ describe('Content Analysis Tests', function() {
                 }
             \`;
 
-            // Add CSS to document
-            const style = document.createElement('style');
-            style.textContent = css;
-            document.head.appendChild(style);
+            TestClass.scss = \`
+                $accent-color: #33aacc;
+                .sass-class {
+                    color: $accent-color;
+                }
+            \`;
 
             // Export
             module.exports = { testFunction, testObject, TestClass };

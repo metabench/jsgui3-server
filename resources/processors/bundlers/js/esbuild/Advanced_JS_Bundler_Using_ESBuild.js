@@ -15,6 +15,7 @@ const Core_JS_Single_File_Minifying_Bundler_Using_ESBuild = require('./Core_JS_S
 const Bundle = require('../../bundle');
 
 const CSS_And_JS_From_JS_String_Extractor = require('../../../extractors/js/css_and_js/CSS_And_JS_From_JS_String_Extractor');
+const {compile_styles} = require('../../style-bundler');
 
 
 class Advanced_JS_Bundler_Using_ESBuild extends Bundler_Using_ESBuild {
@@ -25,6 +26,8 @@ class Advanced_JS_Bundler_Using_ESBuild extends Bundler_Using_ESBuild {
 
         // Store bundler configuration
         this.bundler_config = spec.bundler || {};
+        const style_config = spec.style || this.bundler_config.style || {};
+        this.style_config = Object.assign({debug: this.debug === true}, style_config);
 
         //this.css_extractor = new CSS_Extractor();
 
@@ -46,7 +49,7 @@ class Advanced_JS_Bundler_Using_ESBuild extends Bundler_Using_ESBuild {
     }
 
     bundle(js_file_path) {
-        const {non_minifying_bundler, css_and_js_from_js_string_extractor, minifying_js_single_file_bundler} = this;
+        const {non_minifying_bundler, css_and_js_from_js_string_extractor, minifying_js_single_file_bundler, style_config} = this;
 
         // Validate input
         if (typeof js_file_path !== 'string' || js_file_path.trim() === '') {
@@ -85,8 +88,17 @@ class Advanced_JS_Bundler_Using_ESBuild extends Bundler_Using_ESBuild {
                             const {text} = bundle_item;
                             // Then use the css and js from js extractor.
 
-                            const res_extract_css_and_js_from_js = await css_and_js_from_js_string_extractor.extract(text);
-                            const {css, js} = res_extract_css_and_js_from_js;
+                            const res_extract_styles_and_js = await css_and_js_from_js_string_extractor.extract(text);
+                            const {
+                                css = '',
+                                scss = '',
+                                sass = '',
+                                style_segments = [],
+                                js = text
+                            } = res_extract_styles_and_js || {};
+
+                            const style_bundle = compile_styles({css, scss, sass, style_segments}, style_config);
+                            const compiled_css = style_bundle.css || '';
 
                             if (this.debug) {
                                 // Generate source maps for CSS-free JS
@@ -103,7 +115,7 @@ class Advanced_JS_Bundler_Using_ESBuild extends Bundler_Using_ESBuild {
                                 const o_css_bundle_item = {
                                     type: 'CSS',
                                     extension: 'css',
-                                    text: css
+                                    text: compiled_css
                                 }
                                 res_bundle.push(o_css_bundle_item);
                                 next(res_bundle);
@@ -131,7 +143,7 @@ class Advanced_JS_Bundler_Using_ESBuild extends Bundler_Using_ESBuild {
                                     const o_css_bundle_item = {
                                         type: 'CSS',
                                         extension: 'css',
-                                        text: css
+                                        text: compiled_css
                                     }
                                     minified_bundle.push(o_css_bundle_item);
                                     next(minified_bundle);

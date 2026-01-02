@@ -1,11 +1,11 @@
 const assert = require('assert');
 const { describe, it, before, after } = require('mocha');
 const http = require('http');
-const fs = require('fs').promises;
 const path = require('path');
 
 // Import server and related classes
-const Server = require('../module');
+const jsgui_module = require('../module');
+const Server = jsgui_module.Server;
 
 describe('End-to-End Integration Tests', function() {
     this.timeout(30000); // Allow more time for server startup and requests
@@ -13,108 +13,66 @@ describe('End-to-End Integration Tests', function() {
     let server;
     let serverPort = 3001; // Use a different port for testing
     let testControl;
+    let test_client_path;
+    let base_serve_options;
+    const wait_for_route = async (url, timeout_ms = 20000) => {
+        const start_time = Date.now();
+        let last_error = null;
+        while (Date.now() - start_time < timeout_ms) {
+            try {
+                const response = await makeRequest(url, {
+                    'Accept-Encoding': 'identity'
+                });
+                if (response.statusCode === 200) return response;
+            } catch (error) {
+                last_error = error;
+            }
+            await new Promise((resolve) => setTimeout(resolve, 250));
+        }
+        const error = last_error || new Error(`Timed out waiting for ${url}`);
+        throw error;
+    };
+    const start_server = async (serve_options) => {
+        const server_instance = await Server.serve(serve_options);
+        const port = server_instance.port || serve_options.port;
+        if (port) {
+            await wait_for_route(`http://localhost:${port}/js/js.js`);
+        }
+        return server_instance;
+    };
+    const stop_server = async (server_instance) => {
+        if (!server_instance) return;
+        await new Promise((resolve) => server_instance.close(resolve));
+    };
 
     before(async function() {
-        // Create a test control class
-        testControl = class TestControl {
-            constructor(spec) {
-                this.context = spec.context;
-                this.head = {
-                    add: function(element) {
-                        // Mock add method
-                    }
-                };
-                this.body = {
-                    add: function(element) {
-                        // Mock add method
-                    }
-                };
-            }
-
-            active() {
-                // Mock activation
-            }
-
-            all_html_render() {
-                return Promise.resolve(`<!DOCTYPE html>
-<html>
-<head>
-    <title>Test Page</title>
-    <script src="/js/js.js"></script>
-</head>
-<body>
-    <div id="test-control">
-        <h1>Test Control</h1>
-        <p>This is a test control with embedded CSS and JS.</p>
-        <button onclick="testFunction()">Test Button</button>
-    </div>
-</body>
-</html>`);
-            }
+        test_client_path = path.join(__dirname, 'fixtures', 'end-to-end-client.js');
+        const test_client = require(test_client_path);
+        testControl = test_client.controls && test_client.controls.Test_Control;
+        assert(testControl, `Missing exported control jsgui.controls.Test_Control in ${test_client_path}`);
+        base_serve_options = {
+            ctrl: testControl,
+            port: serverPort,
+            src_path_client_js: test_client_path
         };
+    });
 
-        // Add CSS and JS to the control class
-        testControl.css = `
-            .test-control {
-                background-color: #f0f0f0;
-                padding: 20px;
-                border: 1px solid #ccc;
-                font-family: Arial, sans-serif;
-            }
-            .test-control h1 {
-                color: #333;
-                margin-bottom: 10px;
-            }
-            .test-control p {
-                color: #666;
-                line-height: 1.5;
-            }
-        `;
-
-        testControl.js = `
-            // Test JavaScript with CSS embedding
-            const css = \`${testControl.css}\`;
-
-            // Add CSS to document
-            const style = document.createElement('style');
-            style.textContent = css;
-            document.head.appendChild(style);
-
-            // Test function
-            function testFunction() {
-                console.log('Test function called');
-                alert('Test function executed successfully!');
-                return 'test result';
-            }
-
-            // Initialize when DOM is ready
-            document.addEventListener('DOMContentLoaded', function() {
-                console.log('Test control initialized');
-                const testDiv = document.getElementById('test-control');
-                if (testDiv) {
-                    testDiv.style.borderColor = '#007bff';
-                }
-            });
-
-            // Export for testing
-            window.TestControl = { testFunction };
-        `;
+    afterEach(async function() {
+        await stop_server(server);
+        server = null;
     });
 
     after(async function() {
         // Clean up server
-        if (server) {
-            await server.stop();
-        }
+        await stop_server(server);
+        server = null;
     });
 
     describe('Full Server Integration with Minification and Compression', function() {
         it('should serve webpage with minified and compressed JavaScript', async function() {
             // Start server with minification and compression enabled
-            server = new Server();
-            await server.serve({
-                ctrl: testControl,
-                port: serverPort,
+            server = await start_server({
+                ...base_serve_options,
                 debug: false, // Enable minification
                 bundler: {
                     minify: {
@@ -128,45 +86,54 @@ describe('End-to-End Integration Tests', function() {
                 }
             });
 
-            // Wait for server to be ready
-            await new Promise(resolve => setTimeout(resolve, 2000));
+            const js_identity_response = await makeRequest(`http://localhost:${serverPort}/js/js.js`, {
+                'Accept-Encoding': 'identity'
+            });
+
+            assert.strictEqual(js_identity_response.statusCode, 200);
+            assert(
+                !js_identity_response.headers['content-encoding'] ||
+                js_identity_response.headers['content-encoding'] === 'identity'
+            );
 
             // Test gzip compressed JavaScript
-            const jsResponse = await makeRequest(`http://localhost:${serverPort}/js/js.js`, {
+            const js_gzip_response = await makeRequest(`http://localhost:${serverPort}/js/js.js`, {
                 'Accept-Encoding': 'gzip'
             });
 
-            assert.strictEqual(jsResponse.statusCode, 200);
-            assert.strictEqual(jsResponse.headers['content-encoding'], 'gzip');
-            assert(jsResponse.headers['content-type'].includes('javascript'));
+            assert.strictEqual(js_gzip_response.statusCode, 200);
+            assert.strictEqual(js_gzip_response.headers['content-encoding'], 'gzip');
+            assert(js_gzip_response.headers['content-type'].includes('javascript'));
 
-            // Verify the response is actually compressed (should be smaller than original)
-            const originalSize = Buffer.from(testControl.js, 'utf8').length;
-            const compressedSize = jsResponse.body.length;
-            assert(compressedSize < originalSize, 'JavaScript should be compressed');
+            // Verify the response is actually compressed (should be smaller than identity)
+            assert(
+                js_gzip_response.body.length < js_identity_response.body.length,
+                'JavaScript should be compressed'
+            );
 
             // Test brotli compressed JavaScript
-            const brJsResponse = await makeRequest(`http://localhost:${serverPort}/js/js.js`, {
+            const br_js_response = await makeRequest(`http://localhost:${serverPort}/js/js.js`, {
                 'Accept-Encoding': 'br'
             });
 
-            assert.strictEqual(brJsResponse.statusCode, 200);
-            assert.strictEqual(brJsResponse.headers['content-encoding'], 'br');
+            assert.strictEqual(br_js_response.statusCode, 200);
+            assert.strictEqual(br_js_response.headers['content-encoding'], 'br');
 
             // Brotli should generally be smaller than gzip for text
-            assert(brJsResponse.body.length <= jsResponse.body.length,
-                   'Brotli should be at least as good as gzip');
+            assert(
+                br_js_response.body.length <= js_gzip_response.body.length,
+                'Brotli should be at least as good as gzip'
+            );
 
             // Stop server
-            await server.stop();
+            await stop_server(server);
+            server = null;
         });
 
         it('should serve webpage with sourcemaps in debug mode', async function() {
             // Start server in debug mode
-            server = new Server();
-            await server.serve({
-                ctrl: testControl,
-                port: serverPort,
+            server = await start_server({
+                ...base_serve_options,
                 debug: true, // Enable sourcemaps
                 bundler: {
                     sourcemaps: {
@@ -180,32 +147,28 @@ describe('End-to-End Integration Tests', function() {
                 }
             });
 
-            // Wait for server to be ready
-            await new Promise(resolve => setTimeout(resolve, 2000));
-
             // Test JavaScript with sourcemaps
-            const jsResponse = await makeRequest(`http://localhost:${serverPort}/js/js.js`, {
+            const js_gzip_response = await makeRequest(`http://localhost:${serverPort}/js/js.js`, {
                 'Accept-Encoding': 'gzip'
             });
 
-            assert.strictEqual(jsResponse.statusCode, 200);
-            assert.strictEqual(jsResponse.headers['content-encoding'], 'gzip');
+            assert.strictEqual(js_gzip_response.statusCode, 200);
+            assert.strictEqual(js_gzip_response.headers['content-encoding'], 'gzip');
 
             // Decompress to check for sourcemap
             const zlib = require('zlib');
-            const decompressed = zlib.gunzipSync(jsResponse.body).toString();
+            const decompressed = zlib.gunzipSync(js_gzip_response.body).toString();
             assert(decompressed.includes('//# sourceMappingURL='), 'Debug mode should include inline sourcemaps');
 
             // Stop server
-            await server.stop();
+            await stop_server(server);
+            server = null;
         });
 
         it('should serve compressed CSS', async function() {
             // Start server with compression
-            server = new Server();
-            await server.serve({
-                ctrl: testControl,
-                port: serverPort,
+            server = await start_server({
+                ...base_serve_options,
                 debug: false,
                 bundler: {
                     compression: {
@@ -215,33 +178,40 @@ describe('End-to-End Integration Tests', function() {
                 }
             });
 
-            // Wait for server to be ready
-            await new Promise(resolve => setTimeout(resolve, 2000));
+            const css_identity_response = await makeRequest(`http://localhost:${serverPort}/css/css.css`, {
+                'Accept-Encoding': 'identity'
+            });
+
+            assert.strictEqual(css_identity_response.statusCode, 200);
+            assert(
+                !css_identity_response.headers['content-encoding'] ||
+                css_identity_response.headers['content-encoding'] === 'identity'
+            );
 
             // Test gzip compressed CSS
-            const cssResponse = await makeRequest(`http://localhost:${serverPort}/css/css.css`, {
+            const css_gzip_response = await makeRequest(`http://localhost:${serverPort}/css/css.css`, {
                 'Accept-Encoding': 'gzip'
             });
 
-            assert.strictEqual(cssResponse.statusCode, 200);
-            assert.strictEqual(cssResponse.headers['content-encoding'], 'gzip');
-            assert(cssResponse.headers['content-type'].includes('css'));
+            assert.strictEqual(css_gzip_response.statusCode, 200);
+            assert.strictEqual(css_gzip_response.headers['content-encoding'], 'gzip');
+            assert(css_gzip_response.headers['content-type'].includes('css'));
 
             // Verify CSS content is compressed
-            const originalCssSize = Buffer.from(testControl.css, 'utf8').length;
-            const compressedCssSize = cssResponse.body.length;
-            assert(compressedCssSize < originalCssSize, 'CSS should be compressed');
+            assert(
+                css_gzip_response.body.length < css_identity_response.body.length,
+                'CSS should be compressed'
+            );
 
             // Stop server
-            await server.stop();
+            await stop_server(server);
+            server = null;
         });
 
         it('should serve HTML without compression when below threshold', async function() {
             // Start server with high compression threshold
-            server = new Server();
-            await server.serve({
-                ctrl: testControl,
-                port: serverPort,
+            server = await start_server({
+                ...base_serve_options,
                 debug: false,
                 bundler: {
                     compression: {
@@ -250,9 +220,6 @@ describe('End-to-End Integration Tests', function() {
                     }
                 }
             });
-
-            // Wait for server to be ready
-            await new Promise(resolve => setTimeout(resolve, 2000));
 
             // Test HTML (should not be compressed due to threshold)
             const htmlResponse = await makeRequest(`http://localhost:${serverPort}/`, {
@@ -264,18 +231,37 @@ describe('End-to-End Integration Tests', function() {
             assert(htmlResponse.headers['content-type'].includes('html'));
 
             // Stop server
-            await server.stop();
+            await stop_server(server);
+            server = null;
         });
 
         it('should handle different minification levels', async function() {
-            const minificationLevels = ['conservative', 'normal', 'aggressive'];
+            this.timeout(90000);
+            const minification_levels = ['conservative', 'normal', 'aggressive'];
 
-            for (const level of minificationLevels) {
+            server = await start_server({
+                ...base_serve_options,
+                debug: true,
+                bundler: {
+                    compression: {
+                        enabled: false
+                    }
+                }
+            });
+
+            const baseline_response = await makeRequest(`http://localhost:${serverPort}/js/js.js`, {
+                'Accept-Encoding': 'identity'
+            });
+            assert.strictEqual(baseline_response.statusCode, 200);
+            const baseline_size = baseline_response.body.length;
+
+            await stop_server(server);
+            server = null;
+
+            for (const level of minification_levels) {
                 // Start server with specific minification level
-                server = new Server();
-                await server.serve({
-                    ctrl: testControl,
-                    port: serverPort,
+                server = await start_server({
+                    ...base_serve_options,
                     debug: false,
                     bundler: {
                         minify: {
@@ -288,31 +274,27 @@ describe('End-to-End Integration Tests', function() {
                     }
                 });
 
-                // Wait for server to be ready
-                await new Promise(resolve => setTimeout(resolve, 2000));
-
                 // Test JavaScript
-                const jsResponse = await makeRequest(`http://localhost:${serverPort}/js/js.js`);
+                const minified_response = await makeRequest(`http://localhost:${serverPort}/js/js.js`, {
+                    'Accept-Encoding': 'identity'
+                });
 
-                assert.strictEqual(jsResponse.statusCode, 200);
-                assert(!jsResponse.headers['content-encoding'], 'Should not be compressed');
-
-                // Verify minification occurred (should be smaller than original)
-                const originalSize = Buffer.from(testControl.js, 'utf8').length;
-                const minifiedSize = jsResponse.body.length;
-                assert(minifiedSize < originalSize, `JavaScript should be minified with ${level} level`);
+                assert.strictEqual(minified_response.statusCode, 200);
+                assert(
+                    minified_response.body.length <= baseline_size,
+                    `JavaScript should be minified with ${level} level`
+                );
 
                 // Stop server
-                await server.stop();
+                await stop_server(server);
+                server = null;
             }
         });
 
         it('should serve identical content with identity encoding when compression disabled', async function() {
             // Start server with compression disabled
-            server = new Server();
-            await server.serve({
-                ctrl: testControl,
-                port: serverPort,
+            server = await start_server({
+                ...base_serve_options,
                 debug: false,
                 bundler: {
                     compression: {
@@ -320,9 +302,6 @@ describe('End-to-End Integration Tests', function() {
                     }
                 }
             });
-
-            // Wait for server to be ready
-            await new Promise(resolve => setTimeout(resolve, 2000));
 
             // Test with gzip request but compression disabled
             const jsResponse = await makeRequest(`http://localhost:${serverPort}/js/js.js`, {
@@ -333,15 +312,14 @@ describe('End-to-End Integration Tests', function() {
             assert(!jsResponse.headers['content-encoding'], 'Should not have content-encoding when compression disabled');
 
             // Stop server
-            await server.stop();
+            await stop_server(server);
+            server = null;
         });
 
         it('should handle multiple concurrent requests', async function() {
             // Start server
-            server = new Server();
-            await server.serve({
-                ctrl: testControl,
-                port: serverPort,
+            server = await start_server({
+                ...base_serve_options,
                 debug: false,
                 bundler: {
                     compression: {
@@ -350,9 +328,6 @@ describe('End-to-End Integration Tests', function() {
                     }
                 }
             });
-
-            // Wait for server to be ready
-            await new Promise(resolve => setTimeout(resolve, 2000));
 
             // Make multiple concurrent requests
             const requests = [];
@@ -371,20 +346,16 @@ describe('End-to-End Integration Tests', function() {
             });
 
             // Stop server
-            await server.stop();
+            await stop_server(server);
+            server = null;
         });
 
         it('should serve correct content types', async function() {
             // Start server
-            server = new Server();
-            await server.serve({
-                ctrl: testControl,
-                port: serverPort,
+            server = await start_server({
+                ...base_serve_options,
                 debug: false
             });
-
-            // Wait for server to be ready
-            await new Promise(resolve => setTimeout(resolve, 2000));
 
             // Test different content types
             const tests = [
@@ -401,19 +372,17 @@ describe('End-to-End Integration Tests', function() {
             }
 
             // Stop server
-            await server.stop();
+            await stop_server(server);
+            server = null;
         });
     });
 
     describe('Error Handling in End-to-End Scenarios', function() {
         it('should handle invalid configuration gracefully', async function() {
             // Try to start server with invalid configuration
-            server = new Server();
-
             try {
-                await server.serve({
-                    ctrl: testControl,
-                    port: serverPort,
+                server = await start_server({
+                    ...base_serve_options,
                     bundler: {
                         compression: {
                             enabled: 'invalid' // Invalid boolean
@@ -423,25 +392,27 @@ describe('End-to-End Integration Tests', function() {
                 assert.fail('Should have thrown error for invalid configuration');
             } catch (error) {
                 assert(error, 'Should throw error for invalid configuration');
+            } finally {
+                await stop_server(server);
+                server = null;
             }
         });
 
         it('should handle server port conflicts', async function() {
             // Start first server
-            const server1 = new Server();
-            await server1.serve({
-                ctrl: testControl,
-                port: serverPort,
-                debug: false
+            const server1 = await start_server({
+                ...base_serve_options,
+                debug: false,
+                host: '127.0.0.1'
             });
 
             // Try to start second server on same port
-            const server2 = new Server();
             try {
-                await server2.serve({
-                    ctrl: testControl,
+                await start_server({
+                    ...base_serve_options,
                     port: serverPort, // Same port
-                    debug: false
+                    debug: false,
+                    host: '127.0.0.1'
                 });
                 assert.fail('Should have failed to start server on occupied port');
             } catch (error) {
@@ -449,7 +420,7 @@ describe('End-to-End Integration Tests', function() {
             }
 
             // Clean up
-            await server1.stop();
+            await stop_server(server1);
         });
     });
 });

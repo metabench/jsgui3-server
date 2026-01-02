@@ -55,9 +55,14 @@ class Static_Route_HTTP_Responder extends HTTP_Responder {
 
         if (typeof accept_encoding === 'string' && accept_encoding.includes('br')) supported_encodings.br = true;
 
+        const has_br = response_buffers && response_buffers.br;
+        const has_gzip = response_buffers && response_buffers.gzip;
+        const use_br = supported_encodings.br === true && has_br;
+        const use_gzip = supported_encodings.gzip === true && has_gzip;
+
         //console.log('supported_encodings', supported_encodings);
 
-        if (supported_encodings.br === true) {
+        if (use_br) {
             
             for (const key in response_headers.br) {
                 const value = response_headers.br[key];
@@ -65,7 +70,7 @@ class Static_Route_HTTP_Responder extends HTTP_Responder {
                 res.setHeader(key, value);
             }
 
-        } else if (supported_encodings.gzip === true) {
+        } else if (use_gzip) {
             //console.log('should write headers for gzipped buffer...');
 
             for (const key in response_headers.gzip) {
@@ -83,10 +88,10 @@ class Static_Route_HTTP_Responder extends HTTP_Responder {
 
         // Then write the (hopefully compressed) response bodies...
 
-        if (supported_encodings.br === true) {
+        if (use_br) {
 
             res.write(response_buffers.br);
-        } else if (supported_encodings.gzip === true) {
+        } else if (use_gzip) {
             //console.log('should write gzipped buffer...');
             res.write(response_buffers.gzip);
         } else {

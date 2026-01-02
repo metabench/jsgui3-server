@@ -50,6 +50,7 @@ class JSGUI_Single_Process_Server extends Evented_Class {
 		}
 
 		const style_config = spec.style;
+		const bundler_config = spec.bundler;
 
 		// or src_path_client_js as well...
 
@@ -97,6 +98,7 @@ class JSGUI_Single_Process_Server extends Evented_Class {
 				'webpage': wp_app
 
 			};
+			if (bundler_config !== undefined) opts_wp_publisher.bundler = bundler_config;
 
 			if (this.debug) {
 				opts_wp_publisher.debug = this.debug;
@@ -168,6 +170,9 @@ class JSGUI_Single_Process_Server extends Evented_Class {
 			};
 			if (disk_path_client_js) {
 				opts_ws_publisher.disk_path_client_js = disk_path_client_js;
+			}
+			if (bundler_config !== undefined) {
+				opts_ws_publisher.bundler = bundler_config;
 			}
 			if (style_config !== undefined) {
 				opts_ws_publisher.style = style_config;
@@ -243,10 +248,27 @@ class JSGUI_Single_Process_Server extends Evented_Class {
 						arr_ipv4_addresses = [...new Set(arr_ipv4_addresses)];
 						console.log('IPv4 addresses to bind:', arr_ipv4_addresses);
 						let num_to_start = arr_ipv4_addresses.length;
+						let started_count = 0;
+						let last_error = null;
+						let ready_raised = false;
 						if (num_to_start === 0) {
 							callback('No allowed network interfaces found.');
 							return;
 						}
+						const finalize_start = (err) => {
+							if (num_to_start !== 0) return;
+							if (started_count > 0) {
+								if (!ready_raised) {
+									console.log('Server ready');
+									this.raise('ready');
+									ready_raised = true;
+								}
+								if (callback) callback(null, true);
+								return;
+							}
+							const final_error = err || last_error || new Error('No servers started.');
+							if (callback) callback(final_error);
+						};
 						const respond_not_found = (res) => {
 							if (!res.headersSent) {
 								const body = 'Not Found';
@@ -309,6 +331,7 @@ class JSGUI_Single_Process_Server extends Evented_Class {
 									});
 									this.http_servers.push(https_server);
 									https_server.on('error', (err) => {
+										last_error = err;
 										if (err.code === 'EACCES') {
 											console.error('Permission denied:', err.message);
 										} else if (err.code === 'EADDRINUSE') {
@@ -317,22 +340,19 @@ class JSGUI_Single_Process_Server extends Evented_Class {
 											console.error('https_server error:', err);
 										}
 										num_to_start--;
-										if (num_to_start === 0 && callback) callback(null, true);
+										finalize_start(err);
 									});
 									https_server.timeout = 10800000;
 									https_server.listen(port, ipv4_address, () => {
 										console.log('* Server running at https://' + ipv4_address + ':' + port + '/');
+										started_count++;
 										num_to_start--;
-										if (num_to_start === 0) {
-											console.log('Server ready');
-											this.raise('ready');
-											if (callback) callback(null, true);
-										}
+										finalize_start(null);
 									});
 								} catch (err) {
 									console.log('https_server err', err);
 									num_to_start--;
-									if (num_to_start === 0 && callback) callback(null, true);
+									finalize_start(err);
 								}
 							});
 						} else {
@@ -343,6 +363,7 @@ class JSGUI_Single_Process_Server extends Evented_Class {
 								});
 									this.http_servers.push(http_server);
 									http_server.on('error', (err) => {
+										last_error = err;
 										if (err.code === 'EACCES') {
 											console.error('Permission denied:', err.message);
 										} else if (err.code === 'EADDRINUSE') {
@@ -351,22 +372,19 @@ class JSGUI_Single_Process_Server extends Evented_Class {
 											console.error('http_server error:', err);
 										}
 										num_to_start--;
-										if (num_to_start === 0 && callback) callback(null, true);
+										finalize_start(err);
 									});
 									http_server.timeout = 10800000;
 									http_server.listen(port, ipv4_address, () => {
 										console.log('* Server running at http://' + ipv4_address + ':' + port + '/');
+										started_count++;
 										num_to_start--;
-										if (num_to_start === 0) {
-											console.log('Server ready');
-											this.raise('ready');
-											if (callback) callback(null, true);
-										}
+										finalize_start(null);
 									});
 								} catch (err) {
 									console.log('http_server err', err);
 									num_to_start--;
-									if (num_to_start === 0 && callback) callback(null, true);
+									finalize_start(err);
 								}
 							});
 						}

@@ -1,0 +1,10 @@
+{
+  "initial": {
+    "selected_title": "Selectable Card",
+    "selected_mixins_text": "Mixins: selectable"
+  },
+  "resizable": {
+    "selected_title": "Resizable Card",
+    "selected_mixins_text": "Mixins: resizable, selectable"
+  }
+}

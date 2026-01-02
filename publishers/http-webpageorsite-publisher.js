@@ -99,6 +99,7 @@ class HTTP_Webpageorsite_Publisher extends HTTP_Publisher {
 
         if (spec.debug !== undefined) this.debug = spec.debug;
         this.style_config = spec.style || {};
+        this.bundler_config = spec.bundler || {};
 
         // But then some properties to do with the js client(s?) file path.
 
@@ -129,7 +130,8 @@ class HTTP_Webpageorsite_Publisher extends HTTP_Publisher {
 
         this.js_bundler = new JS_Bundler({
             'debug': this.debug || false,
-            'style': this.style_config
+            'style': this.style_config,
+            'bundler': this.bundler_config
         });
 
 

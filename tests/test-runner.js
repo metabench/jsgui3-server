@@ -33,6 +33,7 @@ class TestRunner {
             'error-handling.test.js',
             'examples-controls.e2e.test.js',
             'sass-controls.e2e.test.js',
+            'jsgui3-html-examples.puppeteer.test.js',
             'window-examples.puppeteer.test.js'
         ];
     }

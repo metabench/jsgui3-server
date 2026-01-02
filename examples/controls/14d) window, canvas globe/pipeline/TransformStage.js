@@ -4,7 +4,7 @@ class TransformStage extends BaseStage {
   /** @param {RenderState} rs */
   execute(rs) {
     const r = this.r;
-    r._updateRot();
+    r._update_rot();
 
     const rect = r.canvas.getBoundingClientRect();
     const width = rect.width || r.canvas.width / r.opts.dpr;
@@ -13,8 +13,8 @@ class TransformStage extends BaseStage {
     rs.height = height;
 
     const pad = r.opts.padding;
-    const minSide = Math.min(width, height);
-    rs.radius = Math.max(1, minSide / 2 - pad);
+    const min_side = Math.min(width, height);
+    rs.radius = Math.max(1, min_side / 2 - pad);
   rs.cx = width * 0.5;
   rs.cy = height * 0.5;
   }

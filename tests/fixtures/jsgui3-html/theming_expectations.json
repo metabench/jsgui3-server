@@ -1,0 +1,10 @@
+{
+  "initial": {
+    "theme_label": "Copper Studio",
+    "accent_value": "#d05f3b"
+  },
+  "tide": {
+    "theme_label": "Tide Atlas",
+    "accent_value": "#2b6cb0"
+  }
+}

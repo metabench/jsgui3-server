@@ -1,0 +1,151 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="1000" viewBox="0 0 1600 1000" role="img" aria-label="JSGUI3-HTML improvement ideas diagram">
+  <defs>
+    <linearGradient id="bg_grad" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#0a0b0e" />
+      <stop offset="45%" stop-color="#101419" />
+      <stop offset="100%" stop-color="#141a20" />
+    </linearGradient>
+    <radialGradient id="highlight_grad" cx="70%" cy="20%" r="60%">
+      <stop offset="0%" stop-color="#2a2f36" stop-opacity="0.7" />
+      <stop offset="70%" stop-color="#0a0b0e" stop-opacity="0" />
+    </radialGradient>
+    <linearGradient id="gold_grad" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#8f7a3c" />
+      <stop offset="50%" stop-color="#d2b86a" />
+      <stop offset="100%" stop-color="#8f7a3c" />
+    </linearGradient>
+    <linearGradient id="steel_grad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#1b2127" />
+      <stop offset="100%" stop-color="#11151a" />
+    </linearGradient>
+    <pattern id="grid_pattern" width="40" height="40" patternUnits="userSpaceOnUse">
+      <path d="M 40 0 L 0 0 0 40" fill="none" stroke="#1a2026" stroke-width="1" />
+    </pattern>
+    <filter id="soft_glow" x="-50%" y="-50%" width="200%" height="200%">
+      <feDropShadow dx="0" dy="0" stdDeviation="6" flood-color="#c9b26b" flood-opacity="0.4" />
+    </filter>
+    <filter id="panel_shadow" x="-50%" y="-50%" width="200%" height="200%">
+      <feDropShadow dx="0" dy="4" stdDeviation="10" flood-color="#000000" flood-opacity="0.6" />
+    </filter>
+  </defs>
+
+  <rect width="1600" height="1000" fill="url(#bg_grad)" />
+  <rect width="1600" height="1000" fill="url(#grid_pattern)" opacity="0.35" />
+  <rect width="1600" height="1000" fill="url(#highlight_grad)" />
+
+  <!-- Obsidian shards -->
+  <polygon points="120,80 360,40 420,140 180,210" fill="#0e1217" opacity="0.9" />
+  <polygon points="1320,90 1540,60 1580,200 1360,240" fill="#0e1217" opacity="0.85" />
+  <polygon points="420,820 640,760 720,900 480,950" fill="#0d1116" opacity="0.9" />
+  <polygon points="1080,760 1360,700 1460,860 1160,930" fill="#0d1116" opacity="0.85" />
+
+  <!-- Decorative gold rails -->
+  <path d="M 80 120 L 1520 120" stroke="url(#gold_grad)" stroke-width="2" opacity="0.7" />
+  <path d="M 80 900 L 1520 900" stroke="url(#gold_grad)" stroke-width="2" opacity="0.6" />
+  <path d="M 140 150 L 140 870" stroke="#3a3220" stroke-width="1" opacity="0.5" />
+  <path d="M 1460 150 L 1460 870" stroke="#3a3220" stroke-width="1" opacity="0.5" />
+
+  <!-- Title -->
+  <text x="120" y="95" fill="#e5d6a2" font-size="36" font-family="Trebuchet MS, Arial, sans-serif" letter-spacing="2">
+    JSGUI3-HTML IMPROVEMENT MAP
+  </text>
+  <text x="120" y="125" fill="#9aa1a8" font-size="16" font-family="Trebuchet MS, Arial, sans-serif" letter-spacing="1">
+    Industrial Luxury Obsidian theme | Control Expansion + Feature Depth
+  </text>
+
+  <!-- Central crest -->
+  <circle cx="800" cy="500" r="120" fill="url(#steel_grad)" stroke="url(#gold_grad)" stroke-width="3" filter="url(#soft_glow)" />
+  <circle cx="800" cy="500" r="90" fill="#0f141a" stroke="#2c3138" stroke-width="2" />
+  <text x="800" y="485" fill="#e5d6a2" font-size="22" font-family="Trebuchet MS, Arial, sans-serif" text-anchor="middle">
+    CONTROL SYSTEMS
+  </text>
+  <text x="800" y="515" fill="#9aa1a8" font-size="14" font-family="Trebuchet MS, Arial, sans-serif" text-anchor="middle">
+    themes | behavior | data
+  </text>
+
+  <!-- Panels -->
+  <g filter="url(#panel_shadow)">
+    <rect x="120" y="180" width="560" height="220" rx="18" fill="#11161c" stroke="#2c333b" stroke-width="2" />
+    <rect x="920" y="180" width="560" height="220" rx="18" fill="#11161c" stroke="#2c333b" stroke-width="2" />
+    <rect x="120" y="430" width="560" height="220" rx="18" fill="#11161c" stroke="#2c333b" stroke-width="2" />
+    <rect x="920" y="430" width="560" height="220" rx="18" fill="#11161c" stroke="#2c333b" stroke-width="2" />
+    <rect x="120" y="680" width="560" height="200" rx="18" fill="#11161c" stroke="#2c333b" stroke-width="2" />
+    <rect x="920" y="680" width="560" height="200" rx="18" fill="#11161c" stroke="#2c333b" stroke-width="2" />
+  </g>
+
+  <!-- Panel headings -->
+  <text x="160" y="220" fill="#e5d6a2" font-size="20" font-family="Trebuchet MS, Arial, sans-serif" letter-spacing="1">
+    CORE CONTROL EXPANSION
+  </text>
+  <text x="960" y="220" fill="#e5d6a2" font-size="20" font-family="Trebuchet MS, Arial, sans-serif" letter-spacing="1">
+    FORM AND EDITOR DEPTH
+  </text>
+  <text x="160" y="470" fill="#e5d6a2" font-size="20" font-family="Trebuchet MS, Arial, sans-serif" letter-spacing="1">
+    DATA AND COLLECTION
+  </text>
+  <text x="960" y="470" fill="#e5d6a2" font-size="20" font-family="Trebuchet MS, Arial, sans-serif" letter-spacing="1">
+    LAYOUT AND NAVIGATION
+  </text>
+  <text x="160" y="720" fill="#e5d6a2" font-size="20" font-family="Trebuchet MS, Arial, sans-serif" letter-spacing="1">
+    ACCESSIBILITY AND THEME
+  </text>
+  <text x="960" y="720" fill="#e5d6a2" font-size="20" font-family="Trebuchet MS, Arial, sans-serif" letter-spacing="1">
+    INFRA AND DX
+  </text>
+
+  <!-- Panel bullets -->
+  <g fill="#c3c8ce" font-size="14" font-family="Trebuchet MS, Arial, sans-serif">
+    <text x="160" y="252">- textarea, number, range, progress, meter</text>
+    <text x="160" y="274">- switch, badge, tooltip, toast, breadcrumb</text>
+    <text x="160" y="296">- chip input, pagination, notification banner</text>
+    <text x="160" y="318">- standard icon buttons and input masks</text>
+
+    <text x="960" y="252">- form container + validation hooks</text>
+    <text x="960" y="274">- field error display and status badges</text>
+    <text x="960" y="296">- object editor schema rendering</text>
+    <text x="960" y="318">- rich text toolbar + paste sanitization</text>
+
+    <text x="160" y="502">- data table with sort, filter, paginate</text>
+    <text x="160" y="524">- virtual list/grid for large data</text>
+    <text x="160" y="546">- tree-table hybrid + lazy load</text>
+    <text x="160" y="568">- reconnect modern data grid module</text>
+
+    <text x="960" y="502">- split panes + resizable layout</text>
+    <text x="960" y="524">- accordion, drawer, wizard stepper</text>
+    <text x="960" y="546">- tab variants + overflow handling</text>
+    <text x="960" y="568">- window snap, dock, z-order</text>
+
+    <text x="160" y="752">- ARIA roles and focus management</text>
+    <text x="160" y="774">- keyboard navigation standards</text>
+    <text x="160" y="796">- theming tokens + CSS variables</text>
+    <text x="160" y="818">- high contrast + reduced motion</text>
+
+    <text x="960" y="752">- normalize duplicate control names</text>
+    <text x="960" y="774">- stable public API surface</text>
+    <text x="960" y="796">- test harnesses + visual regressions</text>
+    <text x="960" y="818">- structured docs and sample gallery</text>
+  </g>
+
+  <!-- Connectors -->
+  <g stroke="#3b3f46" stroke-width="1" opacity="0.7">
+    <line x1="680" y1="290" x2="720" y2="410" />
+    <line x1="920" y1="290" x2="880" y2="410" />
+    <line x1="680" y1="540" x2="720" y2="540" />
+    <line x1="920" y1="540" x2="880" y2="540" />
+    <line x1="680" y1="790" x2="720" y2="600" />
+    <line x1="920" y1="790" x2="880" y2="600" />
+  </g>
+
+  <!-- Gold accents -->
+  <g stroke="url(#gold_grad)" stroke-width="2" opacity="0.8">
+    <line x1="120" y1="410" x2="680" y2="410" />
+    <line x1="920" y1="410" x2="1480" y2="410" />
+    <line x1="120" y1="660" x2="680" y2="660" />
+    <line x1="920" y1="660" x2="1480" y2="660" />
+  </g>
+
+  <!-- Footer note -->
+  <text x="120" y="950" fill="#7f8790" font-size="13" font-family="Trebuchet MS, Arial, sans-serif">
+    Diagram companion to docs/jsgui3-html-improvement-ideas.md
+  </text>
+</svg>

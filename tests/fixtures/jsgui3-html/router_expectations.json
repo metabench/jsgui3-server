@@ -1,0 +1,10 @@
+{
+  "initial": {
+    "route_title": "Overview",
+    "route_hint": "Hash route: #overview"
+  },
+  "metrics": {
+    "route_title": "Metrics",
+    "route_hint": "Hash route: #metrics"
+  }
+}

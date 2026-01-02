@@ -1,0 +1,15 @@
+{
+  "initial": {
+    "detail_title": "Aurora Vale",
+    "detail_role": "Role: Navigator",
+    "nav_text": "Item 1 of 4"
+  },
+  "after_next": {
+    "detail_title": "Beacon Lee",
+    "nav_text": "Item 2 of 4"
+  },
+  "last_item": {
+    "detail_title": "Delta Hart",
+    "nav_text": "Item 4 of 4"
+  }
+}

@@ -1,0 +1,31 @@
+{
+  "initial": {
+    "display_text": "Count: 0",
+    "status_text": "Status: negative or zero and even",
+    "display_classes": ["negative", "even"]
+  },
+  "after_increment": {
+    "display_text": "Count: 1",
+    "status_text": "Status: positive and odd",
+    "display_classes": ["positive", "odd"]
+  },
+  "after_second_increment": {
+    "display_text": "Count: 2",
+    "status_text": "Status: positive and even",
+    "display_classes": ["positive", "even"]
+  },
+  "after_step_increment": {
+    "display_text": "Count: 5",
+    "status_text": "Status: positive and odd",
+    "display_classes": ["positive", "odd"]
+  },
+  "after_reset": {
+    "display_text": "Count: 0",
+    "status_text": "Status: negative or zero and even",
+    "display_classes": ["negative", "even"]
+  },
+  "invalid_step": {
+    "step_error": "Step must be between 1 and 10.",
+    "disabled_class": "is-disabled"
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "initial": {
+    "range_text": "Showing 1-4 of 10",
+    "page_text": "Page 1 of 3",
+    "first_name": "Ada Lovelace",
+    "row_count": 4
+  },
+  "search": {
+    "query": "engineer",
+    "range_text": "Showing 1-1 of 1",
+    "page_text": "Page 1 of 1",
+    "first_name": "Ada Lovelace",
+    "row_count": 1
+  },
+  "reset": {
+    "range_text": "Showing 1-4 of 10",
+    "page_text": "Page 1 of 3"
+  },
+  "sort_score": {
+    "first_name": "Mary Jackson"
+  },
+  "page_2": {
+    "page_text": "Page 2 of 3",
+    "first_name": "Katherine Johnson"
+  }
+}

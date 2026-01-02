@@ -27,6 +27,7 @@ tests/
 ├── error-handling.test.js        # Error handling and edge cases
 ├── examples-controls.e2e.test.js # Example apps regression (controls)
 ├── sass-controls.e2e.test.js     # Sass/CSS controls E2E coverage
+├── jsgui3-html-examples.puppeteer.test.js # Puppeteer interaction tests (jsgui3-html examples)
 ├── window-examples.puppeteer.test.js # Puppeteer interaction tests (window examples)
 ├── test-runner.js                # Custom test runner with reporting
 └── README.md                     # This file
@@ -158,6 +159,12 @@ Server-level integration tests for controls that define `.scss` or `.sass` style
 - Ensures mixed CSS + Sass output preserves order without emitting inaccurate sourcemaps
 
 Note: These tests are skipped if the `sass` dependency is not installed.
+
+### 10. JSGUI3-HTML Example Puppeteer Tests (`jsgui3-html-examples.puppeteer.test.js`)
+
+Browser-level interaction checks for jsgui3-html examples:
+
+- MVVM counter interactions, bindings, and validation state
 
 ## Configuration Examples
 

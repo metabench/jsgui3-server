@@ -161,6 +161,11 @@ class EarthGlobeRenderer {
     ]);
   }
 
+  _update_rot() {
+    this.R = mat3FromQuat(this.q);
+    this.Rt = mat3Transpose(this.R);
+  }
+
   _buildContinents() {
     const arr = [];
     for (const name of Object.keys(CONTINENT_OUTLINES)) {

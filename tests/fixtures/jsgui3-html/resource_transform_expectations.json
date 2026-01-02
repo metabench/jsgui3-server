@@ -1,0 +1,11 @@
+{
+  "initial": {
+    "status_text": "Idle: ready to transform.",
+    "summary_text": "No transform yet."
+  },
+  "after_run": {
+    "status_text": "Transform complete.",
+    "summary_text": "4 records | 62.25 total hours | Avg 15.6 hrs",
+    "first_line": "Compass - Katherine Johnson | 22.75h"
+  }
+}

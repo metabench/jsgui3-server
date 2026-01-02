@@ -40,6 +40,7 @@ const prepare_webpage_route = (server, route, page_options = {}, defaults = {}) 
 			if (guessed_client_path) publisher_options.src_path_client_js = guessed_client_path;
 			if (truthy(defaults.debug)) publisher_options.debug = true;
 			if (defaults.style !== undefined) publisher_options.style = defaults.style;
+			if (defaults.bundler !== undefined) publisher_options.bundler = defaults.bundler;
 
 			const webpage_publisher = new HTTP_Webpage_Publisher(publisher_options);
 			webpage_publisher.on('ready', (bundle) => {
@@ -142,6 +143,7 @@ module.exports = (Server) => {
         const host = serve_options.host || process.env.HOST || null;
         const debug_enabled = serve_options.debug !== undefined ? truthy(serve_options.debug) : truthy(process.env.JSGUI_DEBUG);
         const style_config = serve_options.style;
+        const bundler_config = serve_options.bundler;
     
         const server_spec = {
             name: serve_options.name || 'jsgui3 server',
@@ -149,6 +151,9 @@ module.exports = (Server) => {
         };
         if (style_config !== undefined) {
             server_spec.style = style_config;
+        }
+        if (bundler_config !== undefined) {
+            server_spec.bundler = bundler_config;
         }
         if (typeof serve_options.ctrl === 'function') {
             server_spec.Ctrl = serve_options.ctrl;
@@ -181,13 +186,15 @@ module.exports = (Server) => {
         const extra_page_promises = additional_pages.map(([route, cfg]) => prepare_webpage_route(server_instance, route, cfg, {
             caller_dir,
             debug: debug_enabled,
-            style: style_config
+            style: style_config,
+            bundler: bundler_config
         }));
         if (serve_options.page_config && serve_options.page_route && serve_options.page_route !== '/') {
             extra_page_promises.unshift(prepare_webpage_route(server_instance, serve_options.page_route, serve_options.page_config, {
                 caller_dir,
                 debug: debug_enabled,
-                style: style_config
+                style: style_config,
+                bundler: bundler_config
             }));
         }
 

@@ -27,7 +27,13 @@ const examples = [
     { dir_name: '8) window, checkbox/a)', ctrl_name: 'Demo_UI', expected_window_count: 1 },
     { dir_name: '9) window, date picker', ctrl_name: 'Demo_UI', expected_window_count: 1 },
     { dir_name: '12) window, Select_Options control', ctrl_name: 'Demo_UI', expected_window_count: 1 },
-    { dir_name: '13) window, Dropdown_Menu control', ctrl_name: 'Demo_UI', expected_window_count: 1 }
+    { dir_name: '13) window, Dropdown_Menu control', ctrl_name: 'Demo_UI', expected_window_count: 1 },
+    {
+        dir_name: '14d) window, canvas globe',
+        ctrl_name: 'Demo_UI',
+        expected_window_count: 1,
+        expected_canvas_id: 'globeCanvas'
+    }
 ];
 
 function make_request(url, { headers = {} } = {}) {
@@ -141,6 +147,12 @@ describe('Examples/Controls E2E Regression Tests', function() {
                     example.expected_window_count,
                     `Expected ${example.expected_window_count} windows, got ${window_count}`
                 );
+                if (example.expected_canvas_id) {
+                    assert(
+                        html_response.body.includes(`id="${example.expected_canvas_id}"`),
+                        `Expected canvas id "${example.expected_canvas_id}" in HTML`
+                    );
+                }
 
                 const js_response = await make_request(`${base_url}/js/js.js`);
                 assert.strictEqual(js_response.status_code, 200);

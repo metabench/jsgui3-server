@@ -1,0 +1,15 @@
+{
+  "initial": {
+    "display_text": "Count: 2",
+    "status_text": "Signal status is steady.",
+    "summary_line": "Binders: 1 | Computed: 2 | Watchers: 2"
+  },
+  "after_increment": {
+    "display_text": "Count: 3",
+    "log_entry": "1. count 2 -> 3"
+  },
+  "after_enable": {
+    "debug_status": "Debugger active",
+    "log_entry": "2. debugger enabled"
+  }
+}

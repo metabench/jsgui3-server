@@ -1,0 +1,27 @@
+{
+  "initial": {
+    "full_name_error": "Full name is required.",
+    "email_error": "Email is required.",
+    "password_error": "Password is required.",
+    "confirm_password_error": "Confirm your password.",
+    "status_text": "Fix validation errors."
+  },
+  "invalid_email": {
+    "email": "bad@",
+    "error": "Email must be valid."
+  },
+  "valid": {
+    "full_name": "ada lovelace",
+    "display_name": "Ada Lovelace",
+    "email": "Ada@Example.com",
+    "email_preview": "ada@example.com",
+    "website": "https://example.com",
+    "password": "Secret123",
+    "confirm_password": "Secret123",
+    "status_text": "Ready to submit.",
+    "summary_text": "Profile: Ada Lovelace (ada@example.com)"
+  },
+  "submit": {
+    "feedback": "Submitted profile details."
+  }
+}

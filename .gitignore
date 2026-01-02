@@ -66,3 +66,4 @@ package-lock.json
 
 build_test*
 out_test*
+tests/screenshots/

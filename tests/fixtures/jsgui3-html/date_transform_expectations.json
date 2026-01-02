@@ -1,0 +1,26 @@
+{
+  "default": {
+    "iso_value": "2024-06-15",
+    "local_display": "06/15/2024",
+    "format_text": "Format: MM/DD/YYYY",
+    "range_message": "Date is within range."
+  },
+  "locale_gb": {
+    "locale": "en-GB",
+    "format_text": "Format: DD/MM/YYYY",
+    "local_display": "15/06/2024",
+    "valid_input": "16/06/2024",
+    "iso_value": "2024-06-16",
+    "invalid_input": "99/99/2024",
+    "error": "Invalid date for format DD/MM/YYYY."
+  },
+  "locale_us": {
+    "locale": "en-US",
+    "format_text": "Format: MM/DD/YYYY",
+    "local_display": "06/16/2024"
+  },
+  "out_of_range": {
+    "iso_value": "2026-01-01",
+    "range_message": "Date must be between 01/01/2024 and 12/31/2024."
+  }
+}

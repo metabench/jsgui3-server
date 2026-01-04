@@ -71,6 +71,41 @@ node tests/test-runner.js --verbose
 node tests/test-runner.js --test=end-to-end.test.js --debug
 ```
 
+## Recommended Testing Workflow
+
+1. Run a focused suite first (fast feedback).
+2. Run the example regression suite next (HTML/CSS/JS smoke checks).
+3. Run Puppeteer interaction tests last (heavier, requires a browser).
+4. Run the full suite only when changes are broad or before release.
+
+Suggested sequence:
+```bash
+node tests/test-runner.js --test=bundlers.test.js
+npm run test:examples:controls
+npm run test:puppeteer:windows
+npm test
+```
+
+## Patterns That Work
+
+- Use per-test temporary client files and delete them in `finally`.
+- Always close servers in `finally` to avoid port leaks.
+- Prefer `get_free_port` over hard-coded ports.
+- Keep style config explicit in tests that validate sourcemaps.
+- Inject Sass overrides via `style.scss_sources` when testing themes.
+
+## Antipatterns To Avoid
+
+- Copying `node_modules` between Windows and WSL or across OSes.
+- Leaving servers running after a failed test (leaks ports and state).
+- Tests that rely on global bundler state or implicit ordering.
+- Hard-coded ports or shared temp file names across tests.
+
+## Common Failure Signatures
+
+- `waiting for wp_publisher ready` + test timeout usually means the JS/CSS bundler failed before the server emitted `ready`. Check for esbuild or Sass errors earlier in the log.
+- `You installed esbuild for another platform` indicates a native esbuild binary mismatch (see troubleshooting docs).
+
 ## Test Coverage
 
 ### 1. Component Isolation Tests (`bundlers.test.js`, `assigners.test.js`, `publishers.test.js`)
@@ -157,6 +192,7 @@ Server-level integration tests for controls that define `.scss` or `.sass` style
 - Confirms indented Sass compiles and is removed from JS bundles
 - Checks inline CSS sourcemaps include original Sass/SCSS sources
 - Ensures mixed CSS + Sass output preserves order without emitting inaccurate sourcemaps
+- Confirms server `scss_sources` overrides are applied during compilation
 
 Note: These tests are skipped if the `sass` dependency is not installed.
 

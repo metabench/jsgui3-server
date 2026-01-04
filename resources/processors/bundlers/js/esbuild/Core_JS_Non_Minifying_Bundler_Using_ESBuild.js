@@ -46,39 +46,42 @@ class Core_JS_Non_Minifying_Bundler_Using_ESBuild extends Bundler_Using_ESBuild 
 
     bundle_js_string(js_string) {
         const res_obs = obs(async(next, complete, error) => {
-            const o_build = {
-                stdin: {
-                    contents: js_string,
-                    resolveDir: process.cwd()
-                },
-                bundle: true,
-                treeShaking: true,
-                write: false,
-                // Remove outdir since we're keeping in memory
-            }
+            try {
+                const o_build = {
+                    stdin: {
+                        contents: js_string,
+                        resolveDir: process.cwd()
+                    },
+                    bundle: true,
+                    treeShaking: true,
+                    write: false
+                };
 
-            // Configure sourcemaps based on configuration
-            const sourcemapsEnabled = this.sourcemap_config.enabled !== false; // Default: true in debug, false in production
-            if (sourcemapsEnabled && (this.debug || this.sourcemap_config.includeInProduction)) {
-                o_build.sourcemap = this.sourcemap_config.format || 'inline';
-            }
-
-            let result = await esbuild.build(o_build);
-
-            if (result.outputFiles.length === 1) {
-                const output_file = result.outputFiles[0];
-                const res_bundle = new Bundle();
-                const o_bundle_item = {
-                    type: 'JavaScript',
-                    extension: 'js',
-                    text: output_file.text
+                // Configure sourcemaps based on configuration
+                const sourcemapsEnabled = this.sourcemap_config.enabled !== false;
+                if (sourcemapsEnabled && (this.debug || this.sourcemap_config.includeInProduction)) {
+                    o_build.sourcemap = this.sourcemap_config.format || 'inline';
                 }
-                res_bundle.push(o_bundle_item);
-                next(res_bundle);
-                complete();
-            } else {
-                console.trace();
-                throw 'NYI';
+
+                const result = await esbuild.build(o_build);
+
+                if (result.outputFiles.length === 1) {
+                    const output_file = result.outputFiles[0];
+                    const res_bundle = new Bundle();
+                    const o_bundle_item = {
+                        type: 'JavaScript',
+                        extension: 'js',
+                        text: output_file.text
+                    };
+                    res_bundle.push(o_bundle_item);
+                    next(res_bundle);
+                    complete(res_bundle);
+                } else {
+                    console.trace();
+                    throw 'NYI';
+                }
+            } catch (err) {
+                if (typeof error === 'function') error(err);
             }
         });
         return res_obs;
@@ -88,42 +91,26 @@ class Core_JS_Non_Minifying_Bundler_Using_ESBuild extends Bundler_Using_ESBuild 
 
 
         const res_obs = obs(async(next, complete, error) => {
+            try {
+                // Validate input
+                if (typeof js_file_path !== 'string' || js_file_path.trim() === '') {
+                    throw new Error('bundle() expects a valid file path string');
+                }
 
-            // Validate input
-            if (typeof js_file_path !== 'string' || js_file_path.trim() === '') {
-                throw new Error('bundle() expects a valid file path string');
-            }
+                const o_build = {
+                    entryPoints: [js_file_path],
+                    bundle: true,
+                    treeShaking: true,
+                    write: false
+                };
 
-            //console.log('Core_JS_Bundler_Using_ESBuild bundle js_file_path:', js_file_path);
+                // Configure sourcemaps based on configuration
+                const sourcemapsEnabled = this.sourcemap_config.enabled !== false;
+                if (sourcemapsEnabled && (this.debug || this.sourcemap_config.includeInProduction)) {
+                    o_build.sourcemap = this.sourcemap_config.format || 'inline';
+                }
 
-            // Looks like we need better linking build options....
-
-            const o_build = {
-                entryPoints: [js_file_path],
-
-
-                //format: 'iife',
-                bundle: true,
-
-                // Possibly no minification here....
-                // Want to use non-minified or only partially minified version to separate the JS and the CSS.
-
-                treeShaking: true,
-
-                //sourcemap: 'external',
-                write: false,
-                // Remove outdir since we're keeping in memory
-            }
-
-            // Configure sourcemaps based on configuration
-            const sourcemapsEnabled = this.sourcemap_config.enabled !== false; // Default: true in debug, false in production
-            if (sourcemapsEnabled && (this.debug || this.sourcemap_config.includeInProduction)) {
-                o_build.sourcemap = this.sourcemap_config.format || 'inline';
-            }
-
-
-
-            let result = await esbuild.build(o_build);
+                const result = await esbuild.build(o_build);
             //console.log('result.outputFiles:\n\n');
             //for (let out of result.outputFiles) {
                 //console.log('out.path, out.contents, out.hash, out.text', out.path, out.contents, out.hash, out.text)
@@ -132,7 +119,7 @@ class Core_JS_Non_Minifying_Bundler_Using_ESBuild extends Bundler_Using_ESBuild 
             //console.log('result.outputFiles.length', result.outputFiles.length);
 
 
-            if (result.outputFiles.length === 1) {
+                if (result.outputFiles.length === 1) {
 
                 const output_file = result.outputFiles[0];
 
@@ -169,10 +156,10 @@ class Core_JS_Non_Minifying_Bundler_Using_ESBuild extends Bundler_Using_ESBuild 
                     text: output_file.text
                 }
 
-                res_bundle.push(o_bundle_item);
+                    res_bundle.push(o_bundle_item);
 
-                next(res_bundle);
-                complete();
+                    next(res_bundle);
+                    complete(res_bundle);
 
 
 
@@ -206,12 +193,12 @@ class Core_JS_Non_Minifying_Bundler_Using_ESBuild extends Bundler_Using_ESBuild 
                 //console.trace();
                 //throw 'NYI';
 
-            } else {
-
-
-                console.trace();
-                throw 'NYI';
-
+                } else {
+                    console.trace();
+                    throw 'NYI';
+                }
+            } catch (err) {
+                if (typeof error === 'function') error(err);
             }
 
 

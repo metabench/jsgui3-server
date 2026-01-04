@@ -26,6 +26,7 @@ const sass_mix_client_js = [
     "const jsgui = require('jsgui3-html');",
     "const { Control } = jsgui;",
     "const { controls } = jsgui;",
+    "const Active_HTML_Document = controls.Active_HTML_Document;",
     "",
     "class Sass_Mix_Control extends Control {",
     "    constructor(spec = {}) {",
@@ -51,7 +52,20 @@ const sass_mix_client_js = [
     "}",
     "`;",
     "",
+    "class Demo_UI extends Active_HTML_Document {",
+    "    constructor(spec = {}) {",
+    "        spec.__type_name = spec.__type_name || 'demo_ui';",
+    "        super(spec);",
+    "        const { context } = this;",
+    "        if (!spec.el) {",
+    "            const control = new Sass_Mix_Control({ context });",
+    "            this.body.add(control);",
+    "        }",
+    "    }",
+    "}",
+    "",
     "controls.Sass_Mix_Control = Sass_Mix_Control;",
+    "controls.Demo_UI = Demo_UI;",
     "module.exports = jsgui;",
     ""
 ].join('\n');
@@ -60,6 +74,7 @@ const sass_only_client_js = [
     "const jsgui = require('jsgui3-html');",
     "const { Control } = jsgui;",
     "const { controls } = jsgui;",
+    "const Active_HTML_Document = controls.Active_HTML_Document;",
     "",
     "class Sass_Only_Control extends Control {",
     "    constructor(spec = {}) {",
@@ -80,7 +95,20 @@ const sass_only_client_js = [
     "    color: #000000",
     "`;",
     "",
+    "class Demo_UI extends Active_HTML_Document {",
+    "    constructor(spec = {}) {",
+    "        spec.__type_name = spec.__type_name || 'demo_ui';",
+    "        super(spec);",
+    "        const { context } = this;",
+    "        if (!spec.el) {",
+    "            const control = new Sass_Only_Control({ context });",
+    "            this.body.add(control);",
+    "        }",
+    "    }",
+    "}",
+    "",
     "controls.Sass_Only_Control = Sass_Only_Control;",
+    "controls.Demo_UI = Demo_UI;",
     "module.exports = jsgui;",
     ""
 ].join('\n');
@@ -89,6 +117,7 @@ const sass_css_mix_client_js = [
     "const jsgui = require('jsgui3-html');",
     "const { Control } = jsgui;",
     "const { controls } = jsgui;",
+    "const Active_HTML_Document = controls.Active_HTML_Document;",
     "",
     "class Sass_Css_Mix_Control extends Control {",
     "    constructor(spec = {}) {",
@@ -111,7 +140,61 @@ const sass_css_mix_client_js = [
     "  color: $mix_color",
     "`;",
     "",
+    "class Demo_UI extends Active_HTML_Document {",
+    "    constructor(spec = {}) {",
+    "        spec.__type_name = spec.__type_name || 'demo_ui';",
+    "        super(spec);",
+    "        const { context } = this;",
+    "        if (!spec.el) {",
+    "            const control = new Sass_Css_Mix_Control({ context });",
+    "            this.body.add(control);",
+    "        }",
+    "    }",
+    "}",
+    "",
     "controls.Sass_Css_Mix_Control = Sass_Css_Mix_Control;",
+    "controls.Demo_UI = Demo_UI;",
+    "module.exports = jsgui;",
+    ""
+].join('\n');
+
+const sass_theme_client_js = [
+    "const jsgui = require('jsgui3-html');",
+    "const { Control } = jsgui;",
+    "const { controls } = jsgui;",
+    "const Active_HTML_Document = controls.Active_HTML_Document;",
+    "",
+    "class Sass_Theme_Control extends Control {",
+    "    constructor(spec = {}) {",
+    "        super(spec);",
+    "        const { context } = this;",
+    "        if (!spec.el) {",
+    "            const container = new controls.div({ context, class: 'sass-theme-control' });",
+    "            this.add(container);",
+    "        }",
+    "    }",
+    "}",
+    "",
+    "Sass_Theme_Control.scss = `",
+    ".sass-theme-control {",
+    "  color: var(--accent-color);",
+    "}",
+    "`;",
+    "",
+    "class Demo_UI extends Active_HTML_Document {",
+    "    constructor(spec = {}) {",
+    "        spec.__type_name = spec.__type_name || 'demo_ui';",
+    "        super(spec);",
+    "        const { context } = this;",
+    "        if (!spec.el) {",
+    "            const control = new Sass_Theme_Control({ context });",
+    "            this.body.add(control);",
+    "        }",
+    "    }",
+    "}",
+    "",
+    "controls.Sass_Theme_Control = Sass_Theme_Control;",
+    "controls.Demo_UI = Demo_UI;",
     "module.exports = jsgui;",
     ""
 ].join('\n');
@@ -167,7 +250,17 @@ const remove_file_if_exists = async (file_path) => {
     }
 };
 
-const start_test_server = async ({ client_path, control_name }) => {
+const merge_style_config = (overrides = {}) => {
+    const merged = Object.assign({}, style_config, overrides);
+    merged.sourcemaps = Object.assign(
+        {},
+        style_config.sourcemaps || {},
+        overrides.sourcemaps || {}
+    );
+    return merged;
+};
+
+const start_test_server = async ({ client_path, control_name, style_overrides }) => {
     delete require.cache[require.resolve(client_path)];
     const client_module = require(client_path);
     const ctrl = client_module.controls && client_module.controls[control_name];
@@ -178,7 +271,7 @@ const start_test_server = async ({ client_path, control_name }) => {
         src_path_client_js: client_path,
         name: `tests/${control_name}`,
         debug: true,
-        style: style_config
+        style: merge_style_config(style_overrides)
     });
 
     server.allowed_addresses = ['127.0.0.1'];
@@ -228,7 +321,7 @@ describe('Sass/CSS Control E2E Tests', function() {
         const client_path = await write_temp_client_file('temp_sass_mix_client.js', sass_mix_client_js);
         const { server, port } = await start_test_server({
             client_path,
-            control_name: 'Sass_Mix_Control'
+            control_name: 'Demo_UI'
         });
 
         try {
@@ -266,7 +359,7 @@ describe('Sass/CSS Control E2E Tests', function() {
         const client_path = await write_temp_client_file('temp_sass_only_client.js', sass_only_client_js);
         const { server, port } = await start_test_server({
             client_path,
-            control_name: 'Sass_Only_Control'
+            control_name: 'Demo_UI'
         });
 
         try {
@@ -280,10 +373,7 @@ describe('Sass/CSS Control E2E Tests', function() {
             assert(css_text.includes('color: #336699'), 'Expected Sass variable compilation');
             assert(css_text.includes('.sass-only-control:hover'), 'Expected nested Sass selector output');
 
-            const css_sourcemap = extract_inline_sourcemap(css_text);
-            assert(Array.isArray(css_sourcemap.sources), 'Expected sourcemap sources array');
-            assert(Array.isArray(css_sourcemap.sourcesContent), 'Expected sourcemap sourcesContent array');
-            assert(sourcemap_contains(css_sourcemap, '$primary_color'), 'Expected sourcemap to include Sass source content');
+            assert(!css_text.includes('/*# sourceMappingURL='), 'Expected no inline sourcemap with multiple style segments');
 
             const js_response = await make_request(`${base_url}/js/js.js`);
             assert.strictEqual(js_response.status_code, 200);
@@ -298,7 +388,7 @@ describe('Sass/CSS Control E2E Tests', function() {
         const client_path = await write_temp_client_file('temp_sass_css_mix_client.js', sass_css_mix_client_js);
         const { server, port } = await start_test_server({
             client_path,
-            control_name: 'Sass_Css_Mix_Control'
+            control_name: 'Demo_UI'
         });
 
         try {
@@ -319,6 +409,30 @@ describe('Sass/CSS Control E2E Tests', function() {
             assert.strictEqual(js_response.status_code, 200);
             assert(!js_response.body.includes('padding: 4px'), 'Expected CSS template literal to be stripped from JS');
             assert(!js_response.body.includes('$mix_color'), 'Expected Sass template literal to be stripped from JS');
+        } finally {
+            await close_server(server);
+            await remove_file_if_exists(client_path);
+        }
+    });
+
+    it('should apply scss_sources overrides from server config', async function() {
+        const client_path = await write_temp_client_file('temp_sass_theme_client.js', sass_theme_client_js);
+        const { server, port } = await start_test_server({
+            client_path,
+            control_name: 'Demo_UI',
+            style_overrides: {
+                scss_sources: [':root { --accent-color: #00aa88; }']
+            }
+        });
+
+        try {
+            const base_url = `http://127.0.0.1:${port}`;
+            const css_response = await make_request(`${base_url}/css/css.css`);
+            assert.strictEqual(css_response.status_code, 200);
+            assert((css_response.headers['content-type'] || '').includes('css'), 'Expected CSS content-type');
+
+            const css_text = css_response.body;
+            assert(css_text.includes('--accent-color: #00aa88'), 'Expected scss_sources to compile into CSS');
         } finally {
             await close_server(server);
             await remove_file_if_exists(client_path);

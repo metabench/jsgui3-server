@@ -8,6 +8,11 @@ const Core_JS_Non_Minifying_Bundler_Using_ESBuild = require('../resources/proces
 const Core_JS_Single_File_Minifying_Bundler_Using_ESBuild = require('../resources/processors/bundlers/js/esbuild/Core_JS_Single_File_Minifying_Bundler_Using_ESBuild');
 const Advanced_JS_Bundler_Using_ESBuild = require('../resources/processors/bundlers/js/esbuild/Advanced_JS_Bundler_Using_ESBuild');
 
+const await_observable = observable => new Promise((resolve, reject) => {
+    observable.on('error', reject);
+    observable.on('complete', resolve);
+});
+
 describe('Bundler Component Isolation Tests', function() {
 this.timeout(30000); // Increase timeout for bundling operations
 
@@ -112,9 +117,10 @@ this.timeout(30000); // Increase timeout for bundling operations
             const bundler = new Core_JS_Non_Minifying_Bundler_Using_ESBuild();
 
             const jsString = `
-                function directTest() {
+                globalThis.directTest = function directTest() {
                     return 'direct result';
-                }
+                };
+                console.log(globalThis.directTest());
                 console.log('Direct bundle test');
             `;
 
@@ -125,10 +131,10 @@ this.timeout(30000); // Increase timeout for bundling operations
             const bundleItem = bundle._arr[0];
 
             assert.strictEqual(bundleItem.type, 'JavaScript');
-            assert(bundleItem.text.includes('directTest'), 'Should contain the direct test function');
+            assert(bundleItem.text.includes('direct result'), 'Should contain the direct result string');
             assert(bundleItem.text.includes('Direct bundle test'), 'Should contain the test log');
             // Verify the function is actually executable
-            const testFunction = new Function(bundleItem.text + '; return directTest;')();
+            const testFunction = new Function(bundleItem.text + '; return globalThis.directTest;')();
             assert.strictEqual(testFunction(), 'direct result', 'Bundled function should be executable');
         });
     });
@@ -317,7 +323,7 @@ this.timeout(30000); // Increase timeout for bundling operations
             `;
 
             try {
-                await bundler.bundle_js_string(invalidJs);
+                await await_observable(bundler.bundle_js_string(invalidJs));
                 assert.fail('Should have thrown an error for invalid JavaScript');
             } catch (error) {
                 assert(error, 'Should throw an error for invalid JavaScript');
@@ -328,7 +334,7 @@ this.timeout(30000); // Increase timeout for bundling operations
             const bundler = new Core_JS_Non_Minifying_Bundler_Using_ESBuild();
 
             try {
-                await bundler.bundle('/non/existent/file.js');
+                await await_observable(bundler.bundle('/non/existent/file.js'));
                 assert.fail('Should have thrown an error for non-existent file');
             } catch (error) {
                 assert(error, 'Should throw an error for non-existent file');

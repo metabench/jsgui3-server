@@ -62,6 +62,52 @@ class Core_JS_Single_File_Minifying_Bundler_Using_ESBuild extends Bundler_Using_
         };
     }
 
+    apply_minify_options(o_build) {
+        const enabled = this.minify_config.enabled !== false;
+        if (!enabled) {
+            o_build.minify = false;
+            return;
+        }
+
+        const level = this.minify_config.level || 'normal';
+        const level_overrides = {
+            conservative: {
+                minifyIdentifiers: false,
+                minifyWhitespace: false,
+                minifySyntax: false
+            },
+            aggressive: {
+                drop: ['console', 'debugger']
+            }
+        };
+
+        o_build.minify = true;
+        if (level_overrides[level]) {
+            Object.assign(o_build, level_overrides[level]);
+        }
+
+        const minify_options = this.get_minify_options();
+        if (minify_options && typeof minify_options === 'object') {
+            if (minify_options.mangle === false) {
+                o_build.minifyIdentifiers = false;
+            }
+            if (minify_options.compress === false) {
+                o_build.minifySyntax = false;
+                o_build.minifyWhitespace = false;
+            } else if (minify_options.compress && typeof minify_options.compress === 'object') {
+                if (minify_options.compress.sequences === false) {
+                    o_build.minifySyntax = false;
+                }
+                const drop = [];
+                if (minify_options.compress.drop_console) drop.push('console');
+                if (minify_options.compress.drop_debugger) drop.push('debugger');
+                if (drop.length) {
+                    o_build.drop = Array.from(new Set([...(o_build.drop || []), ...drop]));
+                }
+            }
+        }
+    }
+
 
 
 
@@ -76,39 +122,22 @@ class Core_JS_Single_File_Minifying_Bundler_Using_ESBuild extends Bundler_Using_
                 throw new Error('bundle() expects a string parameter');
             }
         const res_obs = obs(async(next, complete, error) => {
+            try {
+                const o_build = {
+                    stdin: {
+                        contents: str_js
+                    },
+                    bundle: true,
+                    treeShaking: true,
+                    write: false
+                };
 
+                this.apply_minify_options(o_build);
 
-
-            //console.log('Core_JS_Bundler_Using_ESBuild bundle js_file_path:', js_file_path);
-
-            // Looks like we need better linking build options....
-
-            let result = await esbuild.build({
-                stdin: {
-                    contents: str_js,
-
-                    // These are all optional:
-                    //resolveDir: './src',
-                    //sourcefile: 'imaginary-file.js',
-                    //loader: 'ts',
-                },
-                bundle: true,
-                
-                // Possibly no minification here....
-                // Want to use non-minified or only partially minified version to separate the JS and the CSS.
-
-                treeShaking: true,
-                minify: true,
-                //format: 'iife',
-
-                //sourcemap: 'external',
-                write: false,
-                // Remove outdir since we're keeping in memory
-            })
-            //console.log('result.outputFiles:\n\n');
-            for (let out of result.outputFiles) {
-                //console.log('out.path, out.contents, out.hash, out.text', out.path, out.contents, out.hash, out.text)
-            }
+                const result = await esbuild.build(o_build);
+                for (let out of result.outputFiles) {
+                    //console.log('out.path, out.contents, out.hash, out.text', out.path, out.contents, out.hash, out.text)
+                }
 
             //console.log('result.outputFiles.length', result.outputFiles.length);
 
@@ -116,7 +145,7 @@ class Core_JS_Single_File_Minifying_Bundler_Using_ESBuild extends Bundler_Using_
             //throw 'stop';
 
 
-            if (result.outputFiles.length === 1) {
+                if (result.outputFiles.length === 1) {
 
                 const output_file = result.outputFiles[0];
 
@@ -155,10 +184,10 @@ class Core_JS_Single_File_Minifying_Bundler_Using_ESBuild extends Bundler_Using_
                     text: output_file.text
                 }
 
-                res_bundle.push(o_bundle_item);
+                    res_bundle.push(o_bundle_item);
 
-                next(res_bundle);
-                complete();
+                    next(res_bundle);
+                    complete(res_bundle);
 
 
 
@@ -192,12 +221,12 @@ class Core_JS_Single_File_Minifying_Bundler_Using_ESBuild extends Bundler_Using_
                 //console.trace();
                 //throw 'NYI';
 
-            } else {
-
-
-                console.trace();
-                throw 'NYI';
-
+                } else {
+                    console.trace();
+                    throw 'NYI';
+                }
+            } catch (err) {
+                if (typeof error === 'function') error(err);
             }
 
 

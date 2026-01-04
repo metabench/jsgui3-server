@@ -33,7 +33,9 @@ const examples = [
         ctrl_name: 'Demo_UI',
         expected_window_count: 1,
         expected_canvas_id: 'globeCanvas'
-    }
+    },
+    { dir_name: '16) window, form container', ctrl_name: 'Demo_UI', expected_window_count: 1 },
+    { dir_name: '17) window, mvvm binding', ctrl_name: 'Demo_UI', expected_window_count: 1 }
 ];
 
 function make_request(url, { headers = {} } = {}) {

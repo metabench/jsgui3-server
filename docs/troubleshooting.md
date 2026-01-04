@@ -747,4 +747,44 @@ This minimal setup helps isolate whether the issue is with your specific code or
 
 ---
 
+## Bundling and Test Failures
+
+### `waiting for wp_publisher ready` or Publisher Ready Timeout
+
+**Symptoms:**
+- Tests hang while starting servers
+- Logs show `waiting for wp_publisher ready`
+- Tests time out without a clear stack trace
+
+**Likely cause:** the JS/CSS bundler failed before emitting `ready`.
+
+**What to check:**
+1. Look earlier in the log for bundler errors (esbuild, Sass, file resolution).
+2. Confirm `sass` is installed if you are running Sass tests.
+3. Validate the client entry path passed to `src_path_client_js`.
+
+### esbuild platform mismatch (Windows vs WSL)
+
+**Symptoms:**
+- Error: `You installed esbuild for another platform than the one you're currently using`
+
+**Cause:** `node_modules` was installed on a different OS and reused in this environment.
+
+**Fix:**
+1. Remove the existing `node_modules` from the current workspace.
+2. Reinstall dependencies in the current environment:
+   ```bash
+   npm install
+   ```
+3. If you prefer to keep the lockfile untouched, use:
+   ```bash
+   npm ci
+   ```
+4. As a fast workaround, you can try:
+   ```bash
+   npm rebuild esbuild
+   ```
+
+---
+
 Remember: Most issues can be resolved by carefully checking the console output, verifying file paths, and ensuring proper control lifecycle management. Start with the basics and work systematically through the possible causes.

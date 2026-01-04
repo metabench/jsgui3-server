@@ -181,7 +181,7 @@ class Demo_UI extends Active_HTML_Document {
                 pos: [5, 5]
             });
             window.size = [480, 400];
-            const canvas = new controls.canvas({
+            const canvas = new controls.Canvas({
                 context
             });
             canvas.dom.attributes.id = 'globeCanvas'

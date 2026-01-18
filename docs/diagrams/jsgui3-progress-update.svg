@@ -1,0 +1,181 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1800" height="1200" viewBox="0 0 1800 1200">
+  <defs>
+    <linearGradient id="bgGradient" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#f6f1ea"/>
+      <stop offset="100%" stop-color="#e9eef5"/>
+    </linearGradient>
+    <linearGradient id="panelHeader" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#0f172a"/>
+      <stop offset="100%" stop-color="#1e293b"/>
+    </linearGradient>
+    <marker id="arrow" markerWidth="10" markerHeight="8" refX="9" refY="4" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L10,4 L0,8 z" fill="#1e293b"/>
+    </marker>
+    <style>
+      .title { font-family: "Trebuchet MS", Arial, sans-serif; font-size: 30px; font-weight: 700; fill: #0f172a; }
+      .subtitle { font-family: "Trebuchet MS", Arial, sans-serif; font-size: 16px; fill: #475569; }
+      .section-title { font-family: "Trebuchet MS", Arial, sans-serif; font-size: 18px; font-weight: 700; fill: #0f172a; }
+      .panel { fill: #ffffff; stroke: #1f2937; stroke-width: 1.2; }
+      .panel-header { fill: url(#panelHeader); }
+      .panel-header-text { font-family: "Trebuchet MS", Arial, sans-serif; font-size: 14px; font-weight: 700; fill: #f8fafc; }
+      .text { font-family: "Trebuchet MS", Arial, sans-serif; font-size: 13px; fill: #111827; }
+      .small { font-family: "Trebuchet MS", Arial, sans-serif; font-size: 11px; fill: #374151; }
+      .mono { font-family: "Courier New", monospace; font-size: 11px; fill: #111827; }
+      .accent { fill: #0ea5e9; }
+      .accent-warn { fill: #f59e0b; }
+      .accent-success { fill: #22c55e; }
+      .stroke-dash { stroke: #1e293b; stroke-width: 1; stroke-dasharray: 6 4; }
+      .legend-label { font-family: "Trebuchet MS", Arial, sans-serif; font-size: 12px; font-weight: 700; fill: #0f172a; }
+    </style>
+  </defs>
+
+  <rect x="0" y="0" width="1800" height="1200" fill="url(#bgGradient)"/>
+
+  <text x="50" y="60" class="title">JSGUI3 Progress and Next Improvements</text>
+  <text x="50" y="90" class="subtitle">Snapshot: recent work in jsgui3-server, jsgui3-client, jsgui3-html, plus focused next steps</text>
+
+  <text x="60" y="140" class="section-title">Recent Progress</text>
+  <text x="980" y="140" class="section-title">Suggested Improvements</text>
+
+  <!-- Recent Progress Panels -->
+  <rect x="60" y="160" width="820" height="150" rx="10" class="panel"/>
+  <rect x="60" y="160" width="820" height="28" rx="10" class="panel-header"/>
+  <text x="78" y="179" class="panel-header-text">Window Reliability and Examples</text>
+  <circle cx="90" cy="215" r="6" class="accent"/>
+  <text x="110" y="218" class="text">Canvas window examples fixed by exporting Canvas and updating controls usage.</text>
+  <circle cx="90" cy="240" r="6" class="accent-success"/>
+  <text x="110" y="244" class="text">Puppeteer stories: minimize, maximize, drag, resize, focus, tab switch.</text>
+  <circle cx="90" cy="265" r="6" class="accent-success"/>
+  <text x="110" y="268" class="text">Screenshots captured for windows user stories in automated runs.</text>
+
+  <rect x="60" y="330" width="820" height="150" rx="10" class="panel"/>
+  <rect x="60" y="330" width="820" height="28" rx="10" class="panel-header"/>
+  <text x="78" y="349" class="panel-header-text">Form and MVVM Patterns</text>
+  <circle cx="90" cy="385" r="6" class="accent"/>
+  <text x="110" y="388" class="text">New Form_Container + Alert_Banner example shows validation flow.</text>
+  <circle cx="90" cy="410" r="6" class="accent"/>
+  <text x="110" y="413" class="text">MVVM binding example: data model -&gt; view model -&gt; control updates.</text>
+  <circle cx="90" cy="435" r="6" class="accent-success"/>
+  <text x="110" y="438" class="text">Progress bar, range input, badges wired through computed bindings.</text>
+
+  <rect x="60" y="500" width="820" height="150" rx="10" class="panel"/>
+  <rect x="60" y="500" width="820" height="28" rx="10" class="panel-header"/>
+  <text x="78" y="519" class="panel-header-text">Sass Integration and Docs</text>
+  <circle cx="90" cy="555" r="6" class="accent"/>
+  <text x="110" y="558" class="text">Multi-file Sass patterns book drafted for control and project theming.</text>
+  <circle cx="90" cy="580" r="6" class="accent-success"/>
+  <text x="110" y="583" class="text">scss_sources override flow tested with CSS injection expectations.</text>
+  <circle cx="90" cy="605" r="6" class="accent-success"/>
+  <text x="110" y="608" class="text">Troubleshooting notes added for bundler and publisher readiness.</text>
+
+  <!-- Suggested Improvements Panels -->
+  <rect x="980" y="160" width="760" height="180" rx="10" class="panel"/>
+  <rect x="980" y="160" width="760" height="28" rx="10" class="panel-header"/>
+  <text x="998" y="179" class="panel-header-text">Window Management and UX</text>
+  <text x="1008" y="215" class="text">- Snap, dock, and restore layouts across multi-window sessions.</text>
+  <text x="1008" y="240" class="text">- Keyboard shortcuts for focus, minimize, maximize, close.</text>
+  <text x="1008" y="265" class="text">- Window manager state serialization and replay on reload.</text>
+  <text x="1008" y="290" class="text">- Drag and resize constraints with visible affordances.</text>
+
+  <rect x="980" y="360" width="760" height="180" rx="10" class="panel"/>
+  <rect x="980" y="360" width="760" height="28" rx="10" class="panel-header"/>
+  <text x="998" y="379" class="panel-header-text">Theming and Styling System</text>
+  <text x="1008" y="415" class="text">- Token-driven theme layer with CSS variables and Sass bridges.</text>
+  <text x="1008" y="440" class="text">- Control-local Sass co-located with JS controls, built in bundler.</text>
+  <text x="1008" y="465" class="text">- Project overrides via scss_sources and shared theme packs.</text>
+  <text x="1008" y="490" class="text">- Layered output: base -&gt; components -&gt; utilities.</text>
+
+  <rect x="980" y="560" width="760" height="180" rx="10" class="panel"/>
+  <rect x="980" y="560" width="760" height="28" rx="10" class="panel-header"/>
+  <text x="998" y="579" class="panel-header-text">Data, MVVM, and Tooling</text>
+  <text x="1008" y="615" class="text">- Data grid, virtual list, and tree-table with performant bindings.</text>
+  <text x="1008" y="640" class="text">- MVVM helpers: bind_field, computed shorthand, watch utilities.</text>
+  <text x="1008" y="665" class="text">- Debug overlays for model updates and binding dependencies.</text>
+  <text x="1008" y="690" class="text">- Test fixtures for binding flows and form validation coverage.</text>
+
+  <rect x="980" y="760" width="760" height="120" rx="10" class="panel"/>
+  <rect x="980" y="760" width="760" height="28" rx="10" class="panel-header"/>
+  <text x="998" y="779" class="panel-header-text">Accessibility and QA</text>
+  <text x="1008" y="815" class="text">- ARIA standardization, focus rings, and keyboard navigation.</text>
+  <text x="1008" y="840" class="text">- Visual regression suite with per-story screenshots.</text>
+
+  <!-- Detailed Panels -->
+  <rect x="60" y="860" width="820" height="300" rx="12" class="panel"/>
+  <rect x="60" y="860" width="820" height="30" rx="12" class="panel-header"/>
+  <text x="78" y="879" class="panel-header-text">Detailed Pipeline: Build, Bundle, and Serve</text>
+
+  <rect x="90" y="920" width="190" height="60" rx="8" fill="#e2e8f0" stroke="#1e293b"/>
+  <text x="105" y="946" class="mono">client.js</text>
+  <text x="105" y="964" class="small">controls + CSS</text>
+
+  <rect x="310" y="920" width="200" height="60" rx="8" fill="#e2e8f0" stroke="#1e293b"/>
+  <text x="325" y="946" class="mono">JS bundler</text>
+  <text x="325" y="964" class="small">esbuild + errors</text>
+
+  <rect x="540" y="920" width="190" height="60" rx="8" fill="#e2e8f0" stroke="#1e293b"/>
+  <text x="555" y="946" class="mono">CSS extract</text>
+  <text x="555" y="964" class="small">scss_sources</text>
+
+  <rect x="90" y="1010" width="190" height="60" rx="8" fill="#e2e8f0" stroke="#1e293b"/>
+  <text x="105" y="1036" class="mono">HTML render</text>
+  <text x="105" y="1054" class="small">Active_HTML_Document</text>
+
+  <rect x="310" y="1010" width="200" height="60" rx="8" fill="#e2e8f0" stroke="#1e293b"/>
+  <text x="325" y="1036" class="mono">Static routes</text>
+  <text x="325" y="1054" class="small">/js/js.js /css/css.css</text>
+
+  <rect x="540" y="1010" width="190" height="60" rx="8" fill="#e2e8f0" stroke="#1e293b"/>
+  <text x="555" y="1036" class="mono">Compression</text>
+  <text x="555" y="1054" class="small">gzip + brotli</text>
+
+  <line x1="280" y1="950" x2="310" y2="950" stroke="#1e293b" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <line x1="510" y1="950" x2="540" y2="950" stroke="#1e293b" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <line x1="280" y1="1040" x2="310" y2="1040" stroke="#1e293b" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <line x1="510" y1="1040" x2="540" y2="1040" stroke="#1e293b" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <line x1="185" y1="980" x2="185" y2="1010" stroke="#1e293b" stroke-width="1.2" marker-end="url(#arrow)"/>
+
+  <text x="90" y="1110" class="small">Notes: bundler now guards errors, emits complete() on failure, and maps minify levels.</text>
+  <text x="90" y="1130" class="small">Static publisher injects CSS/JS links during server render.</text>
+
+  <rect x="980" y="860" width="760" height="300" rx="12" class="panel"/>
+  <rect x="980" y="860" width="760" height="30" rx="12" class="panel-header"/>
+  <text x="998" y="879" class="panel-header-text">Detailed Window Test Matrix</text>
+
+  <text x="1005" y="915" class="legend-label">Story</text>
+  <text x="1305" y="915" class="legend-label">Coverage</text>
+  <text x="1605" y="915" class="legend-label">Status</text>
+
+  <line x1="995" y1="920" x2="1710" y2="920" class="stroke-dash"/>
+
+  <text x="1005" y="945" class="small">Minimize / Restore</text>
+  <text x="1305" y="945" class="small">Class toggle + screenshot</text>
+  <text x="1605" y="945" class="small">Pass</text>
+
+  <text x="1005" y="970" class="small">Maximize / Unmaximize</text>
+  <text x="1305" y="970" class="small">Bounds + screenshot</text>
+  <text x="1605" y="970" class="small">Pass</text>
+
+  <text x="1005" y="995" class="small">Drag Title Bar</text>
+  <text x="1305" y="995" class="small">BCR delta check</text>
+  <text x="1605" y="995" class="small">Pass</text>
+
+  <text x="1005" y="1020" class="small">Resize Handle</text>
+  <text x="1305" y="1020" class="small">Width/height grow</text>
+  <text x="1605" y="1020" class="small">Pass</text>
+
+  <text x="1005" y="1045" class="small">Focus + Z-Index</text>
+  <text x="1305" y="1045" class="small">Two windows, click</text>
+  <text x="1605" y="1045" class="small">Pass</text>
+
+  <text x="1005" y="1070" class="small">Tabbed Panel Switch</text>
+  <text x="1305" y="1070" class="small">Display toggles</text>
+  <text x="1605" y="1070" class="small">Pass</text>
+
+  <text x="1005" y="1095" class="small">Checkbox + Date Input</text>
+  <text x="1305" y="1095" class="small">Label + native input</text>
+  <text x="1605" y="1095" class="small">Pass</text>
+
+  <text x="1005" y="1125" class="small">Next: dock, snap, restore state</text>
+  <text x="1305" y="1125" class="small">Add stories + screenshots</text>
+  <text x="1605" y="1125" class="small">Planned</text>
+</svg>

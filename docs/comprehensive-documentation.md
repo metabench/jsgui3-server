@@ -28,21 +28,23 @@ The server acts as a bridge between server-side JavaScript applications and brow
 ## Table of Contents
 
 1. [Quick Start](#quick-start)
-2. [Architecture Overview](#architecture-overview)
-3. [Core Components](#core-components)
-4. [Installation and Setup](#installation-and-setup)
-5. [Configuration](#configuration)
-6. [API Reference](#api-reference)
-7. [Examples](#examples)
-8. [Development](#development)
-9. [Troubleshooting](#troubleshooting)
-10. [Deployment & Production](#deployment--production)
-11. [Contributing](#contributing)
-12. [Code Style Guidelines](#code-style-guidelines)
-13. [License](#license)
-14. [Changelog](#changelog)
-15. [Support](#support)
-16. [Roadmap](#roadmap)
+2. [AI Agent Fast Start](#ai-agent-fast-start)
+3. [Architecture Overview](#architecture-overview)
+4. [Core Components](#core-components)
+5. [Installation and Setup](#installation-and-setup)
+6. [Configuration](#configuration)
+7. [API Reference](#api-reference)
+8. [Examples](#examples)
+9. [Development](#development)
+10. [Troubleshooting](#troubleshooting)
+11. [Deployment & Production](#deployment--production)
+12. [Contributing](#contributing)
+13. [Code Style Guidelines](#code-style-guidelines)
+14. [License](#license)
+15. [Changelog](#changelog)
+16. [Support](#support)
+17. [Roadmap](#roadmap)
+18. [MVVM and Full-Stack Controls](#mvvm-and-full-stack-controls)
 
 ## Quick Start
 
@@ -108,6 +110,29 @@ Server.serve({
     port: 3000
 });
 ```
+
+## AI Agent Fast Start
+
+This section is a short, task-oriented runway for AI agents that need to act quickly with minimal overhead.
+
+**Start here:**
+1. Identify the target subsystem: examples, bundlers, publishers, or controls.
+2. Jump to the focused guide: `docs/books/jsgui3-mvvm-fullstack/README.md`.
+3. Make the smallest change that can pass a targeted test.
+4. Run the narrow test file first, then widen if needed.
+
+**Minimal commands:**
+```bash
+rg -n "needle" path/
+rg --files path/
+node tests/test-runner.js --test=examples-controls.e2e.test.js
+node tests/test-runner.js --test=window-examples.puppeteer.test.js
+```
+
+**Known fast checks:**
+- Render server-side quickly with `Server_Static_Page_Context`.
+- Confirm a control is exported under `jsgui.controls`.
+- Ensure composition happens only when `!spec.el`.
 
 ## Architecture Overview
 
@@ -215,6 +240,92 @@ JSGUI3 provides a rich set of UI controls:
 - **Date_Picker**: Date selection control
 - **Month_View**: Calendar display
 - **Menu**: Dropdown menu control
+
+## MVVM and Full-Stack Controls
+
+For a complete, step-by-step walkthrough of MVVM binding and full-stack control usage, use:
+`docs/books/jsgui3-mvvm-fullstack/README.md`
+
+### Minimal Full-Stack Control Example
+
+```javascript
+const jsgui = require('jsgui3-client');
+const { controls } = jsgui;
+const Active_HTML_Document = require('jsgui3-server/controls/Active_HTML_Document');
+
+class Demo_UI extends Active_HTML_Document {
+    constructor(spec = {}) {
+        spec.__type_name = spec.__type_name || 'demo_ui';
+        super(spec);
+        const { context } = this;
+        if (!spec.el) {
+            const window_ctrl = new controls.Window({
+                context,
+                title: 'Hello JSGUI3'
+            });
+            this.body.add(window_ctrl);
+        }
+    }
+}
+
+controls.Demo_UI = Demo_UI;
+module.exports = jsgui;
+```
+
+```javascript
+const Server = require('jsgui3-server');
+const { Demo_UI } = require('./client').controls;
+
+Server.serve({
+    ctrl: Demo_UI,
+    src_path_client_js: require.resolve('./client.js'),
+    port: 3000
+});
+```
+
+### MVVM Binding Skeleton
+
+```javascript
+const jsgui = require('jsgui3-client');
+const { controls, Control } = jsgui;
+
+const set_model_value = (model, name, value) => {
+    if (!model) return;
+    if (typeof model.set === 'function') {
+        model.set(name, value);
+    } else {
+        model[name] = value;
+    }
+};
+
+class Profile_Panel extends Control {
+    constructor(spec = {}) {
+        spec.__type_name = spec.__type_name || 'profile_panel';
+        super(spec);
+        if (!spec.el) {
+            const { context } = this;
+            const name_input = new controls.Text_Input({ context });
+            this.add(name_input);
+            this.name_input = name_input;
+        }
+        this.setup_bindings();
+    }
+
+    setup_bindings() {
+        const data_model = this.data && this.data.model;
+        if (!data_model || !this.name_input) return;
+        this.watch(data_model, 'full_name', value => {
+            this.name_input.set_value(value || '');
+        });
+        this.name_input.on('input', () => {
+            set_model_value(data_model, 'full_name', this.name_input.get_value());
+        });
+    }
+}
+
+controls.Profile_Panel = Profile_Panel;
+module.exports = jsgui;
+```
 
 ## Installation and Setup
 

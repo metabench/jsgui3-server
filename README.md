@@ -72,6 +72,22 @@ Server.serve({
 });
 ```
 
+### Real-time SSE Streams
+
+```javascript
+const { observable } = require('fnl');
+// Create an infinite stream that ticks every second
+const obs = observable(next => {
+    setInterval(() => next({ tick: Date.now() }), 1000);
+});
+
+// Start server and publish stream
+const server = await Server.serve(MyControl);
+server.publish_observable('/api/stream', obs);
+// Server publishes SSE stream at http://localhost:3000/api/stream
+// Client connects via EventSource or Remote_Observable
+```
+
 > **Note:** The new `Server.serve()` API is the recommended approach for most use cases. See [Simple Server API Design](docs/simple-server-api-design.md) for complete documentation and advanced features.
 
 ## Architecture Overview

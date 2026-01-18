@@ -1,9 +1,9 @@
 
 
 
-const {each, Router, tof} = require('jsgui3-html');
+const { each, Router, tof } = require('jsgui3-html');
 const HTTP_Publisher = require('./http-publisher');
-const {obs} = require('fnl');
+const { obs } = require('fnl');
 
 // The Webpage bundler should be able to come up with the compiled JS and CSS, maybe even a favicon.
 
@@ -109,19 +109,19 @@ class HTTP_Webpageorsite_Publisher extends HTTP_Publisher {
         // js_client_file_path ??? client_js_file_path???
 
         let src_path_client_js;
-		if (spec.disk_path_client_js) {
-			src_path_client_js = spec.disk_path_client_js;
-		} else if (spec.src_path_client_js) {
-			src_path_client_js = spec.src_path_client_js;
-		} else if (spec.source_path_client_js) {
-			src_path_client_js = spec.source_path_client_js;
-		};
+        if (spec.disk_path_client_js) {
+            src_path_client_js = spec.disk_path_client_js;
+        } else if (spec.src_path_client_js) {
+            src_path_client_js = spec.src_path_client_js;
+        } else if (spec.source_path_client_js) {
+            src_path_client_js = spec.source_path_client_js;
+        };
 
-		// or src_path_client_js as well...
+        // or src_path_client_js as well...
 
-		Object.defineProperty(this, 'disk_path_client_js', {get: () => src_path_client_js, set: (value) => src_path_client_js = value});
-		Object.defineProperty(this, 'src_path_client_js', {get: () => src_path_client_js, set: (value) => src_path_client_js = value});
-		Object.defineProperty(this, 'source_path_client_js', {get: () => src_path_client_js, set: (value) => src_path_client_js = value});
+        Object.defineProperty(this, 'disk_path_client_js', { get: () => src_path_client_js, set: (value) => src_path_client_js = value });
+        Object.defineProperty(this, 'src_path_client_js', { get: () => src_path_client_js, set: (value) => src_path_client_js = value });
+        Object.defineProperty(this, 'source_path_client_js', { get: () => src_path_client_js, set: (value) => src_path_client_js = value });
 
 
         // But then need to have some things that get it ready on this level...
@@ -139,7 +139,7 @@ class HTTP_Webpageorsite_Publisher extends HTTP_Publisher {
 
     async get_ready() {
 
-        const {js_bundler} = this;
+        const { js_bundler } = this;
         //await super.get_ready(); // Does not have one
 
         // Then bundle (extract (process) everything in and referenced by the JS file (s) into a bundle object)
@@ -158,19 +158,32 @@ class HTTP_Webpageorsite_Publisher extends HTTP_Publisher {
         // Single js client for whole website??? Could work, not so sure.
         //   Appropriate defalt setting (using v explicit classes) will help it to work.
 
+        const { src_path_client_js } = this;
 
+        console.log('[HTTP_Webpageorsite_Publisher] get_ready called, src_path_client_js:', src_path_client_js);
 
-        const {src_path_client_js} = this;
-
-        //console.log('src_path_client_js', src_path_client_js);
-
+        // Skip bundling if no client.js path is provided
+        // This allows Server.serve() to work with SSR-only controls
+        if (!src_path_client_js) {
+            console.log('[HTTP_Webpageorsite_Publisher] No src_path_client_js provided - skipping JS bundling');
+            // Return an empty bundle with minimal CSS and JS
+            const empty_bundle = new Bundle();
+            empty_bundle.push({
+                type: 'CSS',
+                extension: 'css',
+                text: '/* No client CSS */'
+            });
+            empty_bundle.push({
+                type: 'JavaScript',
+                extension: 'js',
+                text: '/* No client JS - SSR only */'
+            });
+            return empty_bundle;
+        }
 
         // The js_bundler may need to operate in 'debug' mode.
-
         const js_bundler_res = await js_bundler.bundle(src_path_client_js);
         // Should also get the CSS from it....
-
-
 
         //console.log('js_bundler_res', js_bundler_res);
 
@@ -182,7 +195,7 @@ class HTTP_Webpageorsite_Publisher extends HTTP_Publisher {
 
             const css_item = bundle._arr.find((item) => item.type === 'CSS');
             const js_item = bundle._arr.find((item) => item.type === 'JavaScript');
-            
+
             if (css_item && js_item) {
 
                 return bundle;
@@ -261,7 +274,7 @@ class HTTP_Webpageorsite_Publisher extends HTTP_Publisher {
                 // This part here is just getting ready to publish.
 
 
-            
+
 
 
 
@@ -312,7 +325,7 @@ class HTTP_Webpageorsite_Publisher extends HTTP_Publisher {
             console.trace();
             throw 'stop';
 
-            
+
 
         } else {
             console.log('js_bundler_res', js_bundler_res);
@@ -330,7 +343,7 @@ class HTTP_Webpageorsite_Publisher extends HTTP_Publisher {
 
 
 
-        
+
 
 
 

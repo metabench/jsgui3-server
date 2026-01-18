@@ -33,6 +33,89 @@ This document is specifically for AI agents working on the JSGUI3 Server codebas
 4. **Test thoroughly** and document any issues found
 5. **Update documentation** including this guide
 
+## Quick Start for AI Agents (Low Thinking Time)
+
+Use this section when you need to act fast with minimal deliberation. It is a short, repeatable workflow designed to reduce cognitive overhead.
+
+### Fast Lane Checklist (5 Minutes)
+1. **Read the task** and extract the target file, example, or subsystem.
+2. **Locate the target** with `rg` or `rg --files`.
+3. **Open the closest reference doc** from the map below.
+4. **Make a minimal, reversible change** that addresses the task.
+5. **Run the narrowest test** that validates the change.
+6. **Log any gaps** in "Known Issues" below if you find a blocker.
+
+### Quick Doc Map
+- **Repo overview**: `README.md`
+- **Testing workflow**: `tests/README.md`
+- **Bundling & assets**: `docs/bundling-system-deep-dive.md`
+- **Server publishing**: `docs/publishers-guide.md`
+- **Troubleshooting**: `docs/troubleshooting.md`
+- **MVVM + full-stack controls**: `docs/books/jsgui3-mvvm-fullstack/README.md`
+- **Agent workflow depth**: `docs/GUIDE_TO_AGENTIC_WORKFLOWS_BY_GROK.md`
+
+### Common Task Playbooks
+
+#### 1) Fix an Example or Control
+**Goal**: Example renders correctly with expected controls.
+1. Open `examples/.../client.js` and check for `Active_HTML_Document`.
+2. Ensure composition is inside `if (!spec.el)`.
+3. Confirm the control is exported: `controls.Demo_UI = Demo_UI`.
+4. Run the focused test: `node tests/test-runner.js --test=examples-controls.e2e.test.js`.
+5. If the error is render-time, reproduce with `Server_Static_Page_Context`.
+
+**Quick probe**:
+```js
+const Server_Static_Page_Context = require('./static-page-context');
+const jsgui = require('./examples/controls/1) window/client.js');
+const Ctrl = jsgui.controls.Demo_UI;
+const ctrl = new Ctrl({ context: new Server_Static_Page_Context() });
+const html = ctrl.all_html_render();
+```
+
+#### 2) Investigate a Bundling Failure
+**Goal**: Bundler completes and emits JS/CSS routes.
+1. Find bundler class in `resources/processors/bundlers`.
+2. Verify `complete(...)` is called on success and error paths.
+3. Run: `node tests/test-runner.js --test=bundlers.test.js`.
+4. If compression fails, check `docs/troubleshooting.md`.
+
+#### 3) Add or Extend Tests
+**Goal**: Increase coverage without breaking existing flows.
+1. Add new tests under `tests/` with smallest scope.
+2. Use snake_case names and minimal fixtures.
+3. Run only the new test: `node tests/test-runner.js --test=your-test-file.test.js`.
+4. Update `tests/README.md` if workflow changes.
+
+#### 4) Update or Add Documentation
+**Goal**: Keep agents and developers aligned on current behavior.
+1. Add short, high-signal sections (avoid large rewrites).
+2. Include commands and file paths.
+3. For broken behavior, add a "Known Issues" entry here.
+
+#### 5) MVVM Binding and Full-Stack Control Usage
+**Goal**: Wire data models to controls and serve them end to end.
+1. Build controls under `client.js` using `Active_HTML_Document`.
+2. Compose controls only when `!spec.el`.
+3. Use `this.data.model` and `this.view.data.model` plus `watch` and `computed`.
+4. Render server-side with `Server_Static_Page_Context` for quick validation.
+5. Serve with `Server.serve` and run `examples-controls.e2e.test.js`.
+
+### Rapid Triage Checklist (When Tests Fail)
+1. Identify whether the failure is **render**, **bundle**, **runtime**, or **assertion**.
+2. If render: instantiate with `Server_Static_Page_Context`.
+3. If bundle: inspect esbuild logs and `resources/processors/bundlers/...`.
+4. If runtime: open the example in a browser or puppeteer.
+5. If assertion: validate expected output and update fixtures.
+
+### Suggested Minimal Command Set
+```bash
+rg -n "needle" path/
+rg --files path/
+node tests/test-runner.js --test=examples-controls.e2e.test.js
+node tests/test-runner.js --test=window-examples.puppeteer.test.js
+```
+
 ## Codebase Structure Overview
 
 ### Core Architecture

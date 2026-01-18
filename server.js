@@ -1,8 +1,8 @@
 const jsgui = require('jsgui3-html'),
 	http = require('http'),
 	https = require('https'),
-    {prop, read_only} = require('obext'),
-    fs = require('fs'),
+	{ prop, read_only } = require('obext'),
+	fs = require('fs'),
 	Resource = jsgui.Resource,
 	Server_Resource_Pool = require('./resources/server-resource-pool'),
 	Router = jsgui.Router,
@@ -15,7 +15,7 @@ const jsgui = require('jsgui3-html'),
 		tof
 	} = jsgui;
 
-	
+
 const lib_path = require('path');
 const Web_Admin_Page_Control = require('./controls/page/admin');
 const Web_Admin_Panel_Control = require('./controls/panel/admin');
@@ -24,6 +24,7 @@ const HTTP_Website_Publisher = require('./publishers/http-website-publisher');
 const Webpage = require('./website/webpage');
 const HTTP_Webpage_Publisher = require('./publishers/http-webpage-publisher');
 const HTTP_Function_Publisher = require('./publishers/http-function-publisher');
+const HTTP_Observable_Publisher = require('./publishers/http-observable-publisher');
 
 const Static_Route_HTTP_Responder = require('./http/responders/static/Static_Route_HTTP_Responder');
 
@@ -54,14 +55,14 @@ class JSGUI_Single_Process_Server extends Evented_Class {
 
 		// or src_path_client_js as well...
 
-		Object.defineProperty(this, 'disk_path_client_js', {get: () => disk_path_client_js, set: (value) => disk_path_client_js = value});
-		Object.defineProperty(this, 'src_path_client_js', {get: () => disk_path_client_js, set: (value) => disk_path_client_js = value});
-		Object.defineProperty(this, 'source_path_client_js', {get: () => disk_path_client_js, set: (value) => disk_path_client_js = value});
+		Object.defineProperty(this, 'disk_path_client_js', { get: () => disk_path_client_js, set: (value) => disk_path_client_js = value });
+		Object.defineProperty(this, 'src_path_client_js', { get: () => disk_path_client_js, set: (value) => disk_path_client_js = value });
+		Object.defineProperty(this, 'source_path_client_js', { get: () => disk_path_client_js, set: (value) => disk_path_client_js = value });
 
 		let Ctrl = spec.Ctrl || undefined
-		Object.defineProperty(this, 'Ctrl', {get: () => Ctrl, set: value => Ctrl = value})
+		Object.defineProperty(this, 'Ctrl', { get: () => Ctrl, set: value => Ctrl = value })
 		let name = spec.name || undefined;
-		Object.defineProperty(this, 'name', {get: () => name, set: value => name = value})
+		Object.defineProperty(this, 'name', { get: () => name, set: value => name = value })
 		this.__type_name = __type_name || 'server';
 		const resource_pool = this.resource_pool = new Server_Resource_Pool({
 			'access': {
@@ -92,7 +93,7 @@ class JSGUI_Single_Process_Server extends Evented_Class {
 		if (Ctrl) {
 
 
-			const wp_app = new Webpage({content: Ctrl});
+			const wp_app = new Webpage({ content: Ctrl });
 
 			const opts_wp_publisher = {
 				'webpage': wp_app
@@ -122,7 +123,7 @@ class JSGUI_Single_Process_Server extends Evented_Class {
 
 					for (const bundle_item of wp_ready_res._arr) {
 						//console.log('Object.keys(bundle_item)', Object.keys(bundle_item));
-						const {type, extension, text, route, response_buffers, response_headers} = bundle_item;
+						const { type, extension, text, route, response_buffers, response_headers } = bundle_item;
 						const bundle_item_http_responder = new Static_Route_HTTP_Responder(bundle_item);
 
 
@@ -191,7 +192,7 @@ class JSGUI_Single_Process_Server extends Evented_Class {
 			});
 		}
 
-		
+
 		Object.defineProperty(this, 'router', { get: () => server_router })
 	}
 
@@ -200,7 +201,7 @@ class JSGUI_Single_Process_Server extends Evented_Class {
 		//   Possibly ensure it exists.
 		//const fn_publisher = this.function_publisher;
 		//fn_publisher.add(name, fn);
-		const fpub = new HTTP_Function_Publisher({name, fn});
+		const fpub = new HTTP_Function_Publisher({ name, fn });
 
 		this.function_publishers = this.function_publishers || [];
 		this.function_publishers.push(fpub);
@@ -208,11 +209,24 @@ class JSGUI_Single_Process_Server extends Evented_Class {
 		this.server_router.set_route('/api/' + name, fpub, fpub.handle_http);
 	}
 
+	publish_observable(route, obs, options = {}) {
+		const publisher = new HTTP_Observable_Publisher({
+			obs,
+			...options
+		});
+		this.server_router.set_route(route, publisher, publisher.handle_http);
+		return publisher;
+	}
+
+	publishObservable(route, obs, options) {
+		return this.publish_observable(route, obs, options);
+	}
+
 
 	get resource_names() {
 		return this.resource_pool.resource_names;
 	}
-	'start' (port, callback, fnProcessRequest) {
+	'start'(port, callback, fnProcessRequest) {
 		if (tof(port) !== 'number') {
 			console.log('Invalid port:', port);
 			console.trace();
@@ -233,7 +247,7 @@ class JSGUI_Single_Process_Server extends Evented_Class {
 					if (err) {
 						callback(err);
 					} else {
-						 // NEW: Filter addresses by allowed_addresses if specified.
+						// NEW: Filter addresses by allowed_addresses if specified.
 						let arr_ipv4_addresses = [];
 						each(net, (arr_addresses, name) => {
 							each(arr_addresses, (obj_address) => {
@@ -326,7 +340,7 @@ class JSGUI_Single_Process_Server extends Evented_Class {
 						if (this.https_options) {
 							each(arr_ipv4_addresses, (ipv4_address) => {
 								try {
-									var https_server = https.createServer(this.https_options, function(req, res) {
+									var https_server = https.createServer(this.https_options, function (req, res) {
 										process_request(req, res);
 									});
 									this.http_servers.push(https_server);
@@ -356,11 +370,11 @@ class JSGUI_Single_Process_Server extends Evented_Class {
 								}
 							});
 						} else {
-						each(arr_ipv4_addresses, (ipv4_address) => {
+							each(arr_ipv4_addresses, (ipv4_address) => {
 								try {
-								var http_server = http.createServer(function(req, res) {
-									process_request(req, res);
-								});
+									var http_server = http.createServer(function (req, res) {
+										process_request(req, res);
+									});
 									this.http_servers.push(http_server);
 									http_server.on('error', (err) => {
 										last_error = err;
@@ -441,64 +455,64 @@ if (require.main === module) {
 	}
 	current();
 
-} else {}
+} else { }
 
 // 
 
 const summary = {
-    "classes": [
-        "JSGUI_Single_Process_Server",
-        "Server_Resource_Pool",
-        "Router",
-        "Website_Resource",
-        "Server_Page_Context",
-        "Web_Admin_Page_Control",
-        "Web_Admin_Panel_Control",
-        "Website",
-        "HTTP_Website_Publisher",
-        "Webpage"
-    ],
-    "methods": {
-        "JSGUI_Single_Process_Server": [
-            "constructor",
-            "start",
-            "stop"
-        ],
-        "Server_Resource_Pool": [
-            "constructor"
-        ],
-        "Router": [
-            "constructor",
-            "set_route",
-            "unset_route"
-        ],
-        "Website_Resource": [
-            "constructor",
-            "process"
-        ],
-        "Server_Page_Context": [
-            "constructor",
-            "respond_string"
-        ],
-        "Web_Admin_Page_Control": [
-            "constructor"
-        ],
-        "Web_Admin_Panel_Control": [
-            "constructor"
-        ],
-        "Website": [
-            "constructor",
-            "add_page",
-            "add_page_resource",
-            "add_page_resource_from_webpage"
-        ],
-        "HTTP_Website_Publisher": [
-            "constructor"
-        ],
-        "Webpage": [
-            "constructor"
-        ]
-    }
+	"classes": [
+		"JSGUI_Single_Process_Server",
+		"Server_Resource_Pool",
+		"Router",
+		"Website_Resource",
+		"Server_Page_Context",
+		"Web_Admin_Page_Control",
+		"Web_Admin_Panel_Control",
+		"Website",
+		"HTTP_Website_Publisher",
+		"Webpage"
+	],
+	"methods": {
+		"JSGUI_Single_Process_Server": [
+			"constructor",
+			"start",
+			"stop"
+		],
+		"Server_Resource_Pool": [
+			"constructor"
+		],
+		"Router": [
+			"constructor",
+			"set_route",
+			"unset_route"
+		],
+		"Website_Resource": [
+			"constructor",
+			"process"
+		],
+		"Server_Page_Context": [
+			"constructor",
+			"respond_string"
+		],
+		"Web_Admin_Page_Control": [
+			"constructor"
+		],
+		"Web_Admin_Panel_Control": [
+			"constructor"
+		],
+		"Website": [
+			"constructor",
+			"add_page",
+			"add_page_resource",
+			"add_page_resource_from_webpage"
+		],
+		"HTTP_Website_Publisher": [
+			"constructor"
+		],
+		"Webpage": [
+			"constructor"
+		]
+	}
 }
 
 JSGUI_Single_Process_Server.summary = summary;

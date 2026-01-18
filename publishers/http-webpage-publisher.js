@@ -5,7 +5,7 @@ const HTTP_Publisher = require('./http-publisher');
 const Server_Static_Page_Context = require('../static-page-context');
 
 const HTTP_Webpageorsite_Publisher = require('./http-webpageorsite-publisher');
-const {obs} = require('fnl');
+const { obs } = require('fnl');
 
 const Static_Routes_Responses_Webpage_Bundle_Preparer = require('./helpers/preparers/static/bundle/Static_Routes_Responses_Webpage_Bundle_Preparer');
 
@@ -71,7 +71,7 @@ class HTTP_Webpage_Publisher extends HTTP_Webpageorsite_Publisher {
         this.static_routes_responses_webpage_bundle_preparer = new Static_Routes_Responses_Webpage_Bundle_Preparer({
             bundler_config: this.bundler_config
         });
-        (async() => {
+        (async () => {
             const res_get_ready = await this.get_ready();
             this.raise('ready', res_get_ready);
 
@@ -82,7 +82,7 @@ class HTTP_Webpage_Publisher extends HTTP_Webpageorsite_Publisher {
     async get_ready() {
         //await super.get_ready();
 
-        const {static_routes_responses_webpage_bundle_preparer} = this;
+        const { static_routes_responses_webpage_bundle_preparer } = this;
 
 
         // Its a bundle....
@@ -91,7 +91,7 @@ class HTTP_Webpage_Publisher extends HTTP_Webpageorsite_Publisher {
 
         const render_webpage = async () => {
 
-            const {webpage} = this;
+            const { webpage } = this;
             const Ctrl = webpage.content;
 
             // In business activating it with the page context.
@@ -112,25 +112,48 @@ class HTTP_Webpage_Publisher extends HTTP_Webpageorsite_Publisher {
                 ctrl_css_link.dom.attributes.rel = 'stylesheet';
                 ctrl_css_link.dom.attributes.href = '/css/css.css';
                 ctrl.head.add(ctrl_css_link);
-                
+
                 const ctrl_js_script_link = new jsgui_client.controls.script({
                     context: static_page_context
                 });
 
                 ctrl_js_script_link.dom.attributes.src = '/js/js.js';
                 ctrl.body.add(ctrl_js_script_link);
-                
+
                 ctrl.active();
                 const html = await ctrl.all_html_render();
                 return html;
             } else {
+                // Control is not a document - wrap it in an Active_HTML_Document
+                const Active_HTML_Document = require('../controls/Active_HTML_Document');
 
-                // C reate doc and put control inside that?
+                const doc = new Active_HTML_Document({
+                    context: static_page_context
+                });
 
-                console.trace();
-                throw 'NYI';
+                // Add CSS link to head
+                const ctrl_css_link = new jsgui_client.controls.link({
+                    context: static_page_context
+                });
+                ctrl_css_link.dom.attributes.rel = 'stylesheet';
+                ctrl_css_link.dom.attributes.href = '/css/css.css';
+                doc.head.add(ctrl_css_link);
+
+                // Add the control to body
+                doc.body.add(ctrl);
+
+                // Add JS script link to body
+                const ctrl_js_script_link = new jsgui_client.controls.script({
+                    context: static_page_context
+                });
+                ctrl_js_script_link.dom.attributes.src = '/js/js.js';
+                doc.body.add(ctrl_js_script_link);
+
+                doc.active();
+                const html = await doc.all_html_render();
+                return html;
             }
-            
+
         }
 
         // Maybe a Webpage_Rendering_Preparer could do this even?
@@ -157,7 +180,7 @@ class HTTP_Webpage_Publisher extends HTTP_Webpageorsite_Publisher {
         // Then publish it to the router...?
         //   server.serve_prepared_static_routes_bundle ?????
         return webpage_or_website_res_get_ready;
-        
+
     }
 
 
@@ -165,17 +188,17 @@ class HTTP_Webpage_Publisher extends HTTP_Webpageorsite_Publisher {
         console.log('HTTP_Webpage_Publisher handle_http');
         console.log('req.url', req.url);
 
-        const {webpage} = this;
-        
+        const { webpage } = this;
+
         const Ctrl = webpage.content;
         const ctrl = new Ctrl();
-        
+
         res.writeHead(200, {
             'Content-Type': 'text/html'
-          });
+        });
 
         res.end(ctrl.all_html_render());
-        
+
     }
 }
 

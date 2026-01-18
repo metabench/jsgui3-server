@@ -72,9 +72,19 @@ class HTTP_Webpage_Publisher extends HTTP_Webpageorsite_Publisher {
             bundler_config: this.bundler_config
         });
         (async () => {
-            const res_get_ready = await this.get_ready();
-            this.raise('ready', res_get_ready);
-
+            try {
+                const res_get_ready = await this.get_ready();
+                this.raise('ready', res_get_ready);
+            } catch (e) {
+                console.error('HTTP_Webpage_Publisher error: Failed to get ready (bundling or preparation failed).');
+                console.error(e);
+                // Can't just ignore it if it means the server won't handle requests correctly, 
+                // but at least it won't crash the whole process.
+                // We might want to emit an error event.
+                this.raise('error', e);
+                // Also raise 'ready' so the pool/server can continue starting up other things
+                this.raise('ready', {});
+            }
         })();
 
     }

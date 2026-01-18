@@ -27,6 +27,9 @@ class Observable_Publisher extends HTTP_Publisher {
         this.type = 'observable';
         this.obs = obs;
 
+        // Expose schema if provided (either in spec or on the observable itself)
+        this.schema = spec.schema || obs.schema || null;
+
         this.keep_alive_interval_ms = (spec && spec.keep_alive_interval_ms !== undefined)
             ? spec.keep_alive_interval_ms
             : default_keep_alive_interval_ms;
@@ -299,6 +302,11 @@ class Observable_Publisher extends HTTP_Publisher {
 
         if (this.is_paused) {
             this._write_sse(res, `event: paused\ndata: ${this._stringify_sse_data({ status: 'paused' })}\n\n`);
+        }
+
+        // Send schema if available
+        if (this.schema) {
+            this._write_sse(res, `event: schema\ndata: ${this._stringify_sse_data(this.schema)}\n\n`);
         }
 
         let removed = false;

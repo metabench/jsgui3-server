@@ -162,6 +162,24 @@ class HTTP_Webpageorsite_Publisher extends HTTP_Publisher {
 
         console.log('[HTTP_Webpageorsite_Publisher] get_ready called, src_path_client_js:', src_path_client_js);
 
+        // Defensive programming: Handle missing client JS path
+        if (!src_path_client_js) {
+            console.warn('[HTTP_Webpageorsite_Publisher] No src_path_client_js provided. Returning empty bundle.');
+            const bundle = new Bundle();
+            // Could add empty CSS/JS placeholders if needed to prevent errors downstream
+            bundle.push({
+                type: 'CSS',
+                extension: 'css',
+                text: '/* No client CSS - Server Start Mode */'
+            });
+            bundle.push({
+                type: 'JavaScript',
+                extension: 'js',
+                text: '/* No client JS - Server Start Mode */'
+            });
+            return bundle;
+        }
+
         // Skip bundling if no client.js path is provided
         // This allows Server.serve() to work with SSR-only controls
         if (!src_path_client_js) {

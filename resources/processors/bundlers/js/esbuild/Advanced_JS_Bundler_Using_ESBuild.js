@@ -66,6 +66,7 @@ class Advanced_JS_Bundler_Using_ESBuild extends Bundler_Using_ESBuild {
 
         const res_obs = obs(async(next, complete, error) => {
 
+            try {
             //console.log('Advanced_JS_Bundler_Using_ESBuild bundle js_file_path:', js_file_path);
 
             const res_nmb = await non_minifying_bundler.bundle(js_file_path);
@@ -240,6 +241,27 @@ class Advanced_JS_Bundler_Using_ESBuild extends Bundler_Using_ESBuild {
 
             // Need to use a non minifying bundler (first).
 
+
+            } catch (bundleError) {
+                // Defensive programming: Log error but don't crash the server
+                console.error('[Advanced_JS_Bundler_Using_ESBuild] Bundling failed:', bundleError.message || bundleError);
+                console.error('[Advanced_JS_Bundler_Using_ESBuild] Returning empty bundle to allow server startup.');
+                
+                // Return an empty bundle so the server can continue
+                const fallback_bundle = new Bundle();
+                fallback_bundle.push({
+                    type: 'JavaScript',
+                    extension: 'js',
+                    text: '/* Bundling failed - see server logs */'
+                });
+                fallback_bundle.push({
+                    type: 'CSS',
+                    extension: 'css',
+                    text: '/* Bundling failed - see server logs */'
+                });
+                next(fallback_bundle);
+                complete(fallback_bundle);
+            }
 
             const _old_code = async() => {
 

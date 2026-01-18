@@ -75,6 +75,63 @@ class JSGUI_Single_Process_Server extends Evented_Class {
 		});
 		resource_pool.add(server_router);
 		this.https_options = spec.https_options || undefined;
+
+		// Admin Module Setup
+		// Admin Module Setup
+		const Admin_Module = require('./admin-ui/server');
+		this.admin = new Admin_Module(this);
+		this.admin.attach_to_router(server_router);
+
+		// Register Admin Page Route
+		let Admin_Page_Control;
+		try {
+			console.log('DEBUG: Attempting to load Admin_Page_Control...');
+			Admin_Page_Control = require('./admin-ui/client').controls.Admin_Page;
+			console.log('DEBUG: Admin_Page_Control type:', typeof Admin_Page_Control);
+		} catch (e) {
+			console.warn('DEBUG: Failed to load Admin_Page_Control', e);
+		}
+
+		if (Admin_Page_Control) {
+			console.log('DEBUG: Creating Admin Webpage...');
+			const admin_app = new Webpage({
+				content: Admin_Page_Control,
+				title: 'jsgui3 Admin'
+			});
+
+			const HTTP_Webpage_Publisher = require('./publishers/http-webpage-publisher');
+			console.log('DEBUG: Creating Admin Publisher...');
+			const admin_publisher = new HTTP_Webpage_Publisher({
+				name: 'Admin_Publisher',
+				webpage: admin_app,
+				//src_path_client_js: require('path').join(__dirname, 'admin-ui/client.js')
+			});
+			// Fix for Resource_Pool.add(undefined) error
+			admin_publisher.name = 'Admin_Publisher';
+
+			admin_publisher.on('ready', (res_ready) => {
+				if (res_ready._arr) {
+					for (const bundle_item of res_ready._arr) {
+						const { route } = bundle_item;
+						const Static_Route_HTTP_Responder = require('./http/responders/static/Static_Route_HTTP_Responder');
+						const responder = new Static_Route_HTTP_Responder(bundle_item);
+						server_router.set_route(route, responder, responder.handle_http);
+					}
+				}
+			});
+
+			server_router.set_route('/admin', admin_publisher, admin_publisher.handle_http);
+			console.log('DEBUG: Adding admin_publisher to pool:', !!admin_publisher);
+			if (admin_publisher) {
+				resource_pool.add(admin_publisher);
+			} else {
+				console.error('DEBUG: admin_publisher is undefined!');
+			}
+		} else {
+			console.warn('Skipping /admin route registration due to missing control.');
+		}
+
+
 		if (spec.routes) {
 			throw 'NYI - will use Website class rather than Website_Resource here'
 			each(spec.routes, (app_spec, route) => {
@@ -145,8 +202,12 @@ class JSGUI_Single_Process_Server extends Evented_Class {
 					'name': 'Website_Resource - Single Webpage',
 					'webpage': wp_app
 				});
-				resource_pool.add(ws_resource);
-
+				console.log('DEBUG: Adding ws_resource to pool:', !!ws_resource);
+				if (ws_resource) {
+					resource_pool.add(ws_resource);
+				} else {
+					console.error('DEBUG: ws_resource is undefined!');
+				}
 				this.raise('ready');
 			});
 
@@ -227,6 +288,14 @@ class JSGUI_Single_Process_Server extends Evented_Class {
 		return this.resource_pool.resource_names;
 	}
 	'start'(port, callback, fnProcessRequest) {
+		// Guard against double-start which causes EADDRINUSE
+		if (this._started) {
+			console.warn('Server.start() called but server already started. Ignoring duplicate call.');
+			if (callback) callback(null, true);
+			return;
+		}
+		this._started = true;
+
 		if (tof(port) !== 'number') {
 			console.log('Invalid port:', port);
 			console.trace();
@@ -274,7 +343,7 @@ class JSGUI_Single_Process_Server extends Evented_Class {
 							if (started_count > 0) {
 								if (!ready_raised) {
 									console.log('Server ready');
-									this.raise('ready');
+									this.raise('listening'); // Changed from 'ready' to avoid double-fire
 									ready_raised = true;
 								}
 								if (callback) callback(null, true);

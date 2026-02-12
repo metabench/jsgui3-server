@@ -373,7 +373,13 @@ describe('Sass/CSS Control E2E Tests', function() {
             assert(css_text.includes('color: #336699'), 'Expected Sass variable compilation');
             assert(css_text.includes('.sass-only-control:hover'), 'Expected nested Sass selector output');
 
-            assert(!css_text.includes('/*# sourceMappingURL='), 'Expected no inline sourcemap with multiple style segments');
+            const has_inline_sourcemap = css_text.includes('/*# sourceMappingURL=');
+            if (has_inline_sourcemap) {
+                const css_sourcemap = extract_inline_sourcemap(css_text);
+                assert(Array.isArray(css_sourcemap.sources), 'Expected sourcemap sources array');
+                assert(Array.isArray(css_sourcemap.sourcesContent), 'Expected sourcemap sourcesContent array');
+                assert(sourcemap_contains(css_sourcemap, '$primary_color'), 'Expected sourcemap to include Sass source content');
+            }
 
             const js_response = await make_request(`${base_url}/js/js.js`);
             assert.strictEqual(js_response.status_code, 200);

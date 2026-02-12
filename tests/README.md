@@ -21,14 +21,25 @@ tests/
 ├── assigners.test.js             # Component isolation tests for assigners
 ├── publishers.test.js            # Component isolation tests for publishers
 ├── configuration-validation.test.js  # Configuration validation tests
+├── admin-ui-render.test.js       # Admin page render regression test
+├── serve.test.js                 # Server.serve core behavior tests
+├── serve-resources.test.js       # Server.serve + resource integration tests
+├── process-resource.test.js      # Process_Resource lifecycle and restart tests
+├── remote-process-resource.test.js # Remote_Process_Resource polling/recovery tests
+├── server-resource-pool.test.js  # Resource pool lifecycle and event forwarding tests
+├── http-sse-publisher.test.js    # HTTP_SSE_Publisher protocol/lifecycle tests
 ├── end-to-end.test.js            # Full integration tests
 ├── content-analysis.test.js      # Content analysis and verification
 ├── performance.test.js           # Performance benchmarks
 ├── error-handling.test.js        # Error handling and edge cases
+├── control-optimizer-cache-behavior.test.js # Optimizer cache enable/disable behavior
 ├── examples-controls.e2e.test.js # Example apps regression (controls)
 ├── sass-controls.e2e.test.js     # Sass/CSS controls E2E coverage
 ├── jsgui3-html-examples.puppeteer.test.js # Puppeteer interaction tests (jsgui3-html examples)
+├── bundling-default-control-elimination.puppeteer.test.js # Puppeteer: default control elimination bundle checks
 ├── window-examples.puppeteer.test.js # Puppeteer interaction tests (window examples)
+├── window-resource-integration.puppeteer.test.js # Browser E2E: controls + resource APIs + SSE
+├── helpers/puppeteer-e2e-harness.js # Shared Puppeteer story runner + probes
 ├── test-runner.js                # Custom test runner with reporting
 └── README.md                     # This file
 ```
@@ -45,6 +56,9 @@ npm test
 # Using the custom test runner
 node tests/test-runner.js --test=bundlers.test.js
 
+# Optimizer cache behavior
+node tests/test-runner.js --test=control-optimizer-cache-behavior.test.js
+
 # Using mocha directly
 npx mocha tests/bundlers.test.js
 ```
@@ -57,6 +71,16 @@ npm run test:examples:controls
 ### Run Puppeteer Window Example Tests
 ```bash
 npm run test:puppeteer:windows
+```
+
+### Run Puppeteer Bundling Elimination Tests
+```bash
+npm run test:puppeteer:bundling
+```
+
+### Run Puppeteer Resource Integration Tests
+```bash
+npm run test:puppeteer:resources
 ```
 
 ### Run Tests with Options
@@ -76,15 +100,34 @@ node tests/test-runner.js --test=end-to-end.test.js --debug
 1. Run a focused suite first (fast feedback).
 2. Run the example regression suite next (HTML/CSS/JS smoke checks).
 3. Run Puppeteer interaction tests last (heavier, requires a browser).
-4. Run the full suite only when changes are broad or before release.
+4. Run the resource integration Puppeteer suite when changing resources/SSE APIs.
+5. Run the full suite only when changes are broad or before release.
 
 Suggested sequence:
 ```bash
 node tests/test-runner.js --test=bundlers.test.js
 npm run test:examples:controls
+npm run test:puppeteer:bundling
 npm run test:puppeteer:windows
+npm run test:puppeteer:resources
 npm test
 ```
+
+## Advanced Puppeteer E2E Methodology
+
+For high-value interaction and integration coverage, use the shared harness:
+
+- `tests/helpers/puppeteer-e2e-harness.js`
+
+Key patterns:
+
+- Write deterministic interaction stories with `run_interaction_story(...)` and named steps.
+- Add browser probes (`console`, `pageerror`, `requestfailed`) and assert they stay clean.
+- Assert both UI state and server truth for integration cases.
+- For resource flows, validate both:
+  - API actions (`/api/resource/*`) and
+  - SSE propagation (`/events`) reflected in client UI/debug state.
+- Keep selectors stable (`id` or `data-test`) so interaction tests remain robust.
 
 ## Patterns That Work
 
@@ -201,6 +244,25 @@ Note: These tests are skipped if the `sass` dependency is not installed.
 Browser-level interaction checks for jsgui3-html examples:
 
 - MVVM counter interactions, bindings, and validation state
+
+### 11. Window Resource Integration Puppeteer Tests (`window-resource-integration.puppeteer.test.js`)
+
+Browser-level interaction checks that combine controls and server resources:
+
+- Step-driven control interactions (date + datetime controls)
+- Client actions invoking resource lifecycle APIs (`start`, `stop`, `restart`)
+- SSE resource state events reflected in client UI
+- Cross-checking client-observed state with server resource pool state
+
+### 12. Core Resource and Serve Reliability Tests
+
+- `admin-ui-render.test.js` validates the admin page control renders without clobbering control internals
+- `serve.test.js` validates `Server.serve` startup/route readiness behavior
+- `serve-resources.test.js` validates in-process and process resource wiring in serve mode
+- `process-resource.test.js` validates direct process lifecycle + crash restart handling
+- `remote-process-resource.test.js` validates polling, unreachable, and recovered transitions
+- `server-resource-pool.test.js` validates pool forwarding, remove/stop, and summaries
+- `http-sse-publisher.test.js` validates SSE broadcast/send/replay/keepalive semantics
 
 ## Configuration Examples
 

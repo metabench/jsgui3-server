@@ -24,8 +24,15 @@ Resources are JSGUI3 Server's abstraction layer for accessing data, functionalit
 **Key Features:**
 - Resource registration and discovery
 - Access control through permission systems
-- Lifecycle management (start/stop/cleanup)
-- Resource dependency resolution
+- Lifecycle management (`start()`, `stop()`, `remove(name)`)
+- Type filtering with `get_resources_by_type(type)`
+- Aggregated `summary` view of resource states
+- Resource event forwarding:
+  - `resource_state_change`
+  - `crashed`
+  - `unhealthy`
+  - `unreachable`
+  - `recovered`
 
 **Usage:**
 ```javascript
@@ -40,6 +47,109 @@ pool.add(myResource);
 pool.start((err) => {
     // Pool is ready
 });
+
+const summary = pool.summary;
+const process_resources = pool.get_resources_by_type('Process_Resource');
+await pool.remove('legacy_worker');
+```
+
+### Process_Resource
+
+**Purpose:** Represents a local long-running process as a resource.
+
+**Key Features:**
+- State machine lifecycle:
+  - `stopped`
+  - `starting`
+  - `running`
+  - `stopping`
+  - `restarting`
+  - `crashed`
+- Emits:
+  - `state_change`
+  - `stdout`
+  - `stderr`
+  - `exit`
+  - `health_check`
+  - `unhealthy`
+  - `crashed`
+- Auto-restart with exponential backoff (when `autoRestart: true`)
+- Optional health checks (`http`, `tcp`, `custom`)
+- Consistent status shape for direct and PM2-backed processes
+
+**Process Manager Modes:**
+- `direct` (default): Uses `child_process.spawn()`
+- `pm2`: Uses PM2 CLI commands
+
+**PM2 Path Resolution:**
+- If `processManager.pm2Path` is set, it is used
+- Else `PM2_PATH` env var is used (if set)
+- Else local `node_modules/.bin/pm2` is used if present
+- Else `pm2` is resolved from system `PATH`
+
+**Usage:**
+```javascript
+const Process_Resource = require('jsgui3-server/resources/process-resource');
+
+// Direct mode (default)
+const worker_direct = new Process_Resource({
+    name: 'worker_direct',
+    command: process.execPath,
+    args: ['worker.js'],
+    autoRestart: true
+});
+
+// PM2 mode (pm2Path optional)
+const worker_pm2 = new Process_Resource({
+    name: 'worker_pm2',
+    processManager: { type: 'pm2' },
+    command: process.execPath,
+    args: ['worker.js']
+});
+
+await worker_direct.start();
+console.log(worker_direct.status);
+await worker_direct.stop();
+```
+
+### Remote_Process_Resource
+
+**Purpose:** Represents a remote process controlled via HTTP API while keeping a resource-compatible interface.
+
+**Key Features:**
+- Same high-level lifecycle API as `Process_Resource`:
+  - `start()`
+  - `stop()`
+  - `restart()`
+  - `status`
+  - `get_abstract()`
+- Periodic polling of remote status endpoint
+- Emits:
+  - `state_change`
+  - `unreachable`
+  - `recovered`
+- Maintains bounded history snapshots for diagnostics
+
+**Usage:**
+```javascript
+const Remote_Process_Resource = require('jsgui3-server/resources/remote-process-resource');
+
+const remote_worker = new Remote_Process_Resource({
+    name: 'remote_worker',
+    host: '192.168.1.100',
+    port: 3400,
+    pollIntervalMs: 30000,
+    httpTimeoutMs: 6000,
+    endpoints: {
+        status: '/',
+        start: '/api/start',
+        stop: '/api/stop',
+        health: '/api/health'
+    }
+});
+
+await remote_worker.start();
+console.log(remote_worker.status);
 ```
 
 ### Website_Resource
@@ -121,6 +231,24 @@ Resources follow a consistent lifecycle:
 5. **Stop**: Resource is deactivated
 6. **Cleanup**: Resources are released
 
+For process resources, consumers can rely on the same lifecycle API regardless of execution mode (`direct`, `pm2`, or `remote`).
+
+### Unified Process Status
+
+Both `Process_Resource` and `Remote_Process_Resource` expose a compatible `status` shape:
+
+```javascript
+{
+    state: 'running',
+    pid: 12345,
+    uptime: 61520,
+    restartCount: 1,
+    lastHealthCheck: null,
+    memoryUsage: { rssBytes: 104857600 },
+    processManager: { type: 'direct' } // or 'pm2' / 'remote'
+}
+```
+
 ### Configuration Patterns
 
 Resources use specification objects for configuration:
@@ -181,6 +309,27 @@ server.resource_pool.add(databaseResource);
 const db = server.resource_pool.get_resource('Database_Resource');
 db.query('SELECT * FROM users', [], (err, results) => {
     // Handle results
+});
+```
+
+With `Server.serve()` you can register resources declaratively:
+
+```javascript
+const server = await Server.serve({
+    resources: {
+        worker_direct: {
+            type: 'process',
+            command: process.execPath,
+            args: ['worker.js']
+        },
+        remote_worker: {
+            type: 'remote',
+            host: '127.0.0.1',
+            port: 3400
+        },
+        local_cache: new In_Process_Cache_Resource({ name: 'local_cache' })
+    },
+    events: true
 });
 ```
 

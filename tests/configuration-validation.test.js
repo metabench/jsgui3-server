@@ -316,14 +316,17 @@ describe('Configuration Validation Tests', function() {
                     }
                 });
 
-                assert.strictEqual(bundler.minify_config.enabled, true);
                 assert.strictEqual(bundler.minify_config.level, 'aggressive');
+                assert.notStrictEqual(bundler.get_minify_options(), false);
             });
 
             it('should handle missing minify configuration', function() {
                 const bundler = new Core_JS_Single_File_Minifying_Bundler_Using_ESBuild({});
 
-                assert.deepStrictEqual(bundler.minify_config, {});
+                assert.deepStrictEqual(bundler.minify_config, {
+                    enabled: true,
+                    level: 'normal'
+                });
             });
         });
 

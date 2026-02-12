@@ -8,6 +8,7 @@ const Publishers = {
     'jpeg': require('./http-jpeg-publisher'),
     'js': require('./http-js-publisher'),
     'observable': require('./http-observable-publisher'),
+    'sse': require('./http-sse-publisher'),
     'png': require('./http-png-publisher'),
     'resource': require('./http-resource-publisher'),
     'svg': require('./http-svg-publisher')

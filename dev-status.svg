@@ -1,0 +1,139 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 850" style="background:#1e1e2e; font-family: 'Segoe UI', sans-serif; color: #cdd6f4;">
+  <!-- Definitions for gradients and shadows -->
+  <defs>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="3" dy="3" stdDeviation="4" flood-color="#000000" flood-opacity="0.5"/>
+    </filter>
+    <linearGradient id="grad-server" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#313244;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#45475a;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="grad-client" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#181825;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#1e1e2e;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="grad-success" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#a6e3a1;stop-opacity:0.2" />
+      <stop offset="100%" style="stop-color:#a6e3a1;stop-opacity:0.1" />
+    </linearGradient>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L0,6 L9,3 z" fill="#89b4fa" />
+    </marker>
+  </defs>
+
+  <!-- Title -->
+  <text x="50" y="50" fill="#cdd6f4" font-size="32" font-weight="bold">jsgui3-server: Dev Status & Architecture</text>
+  <text x="50" y="80" fill="#a6adc8" font-size="16">Admin UI • Auto-Observables • Defensive Programming • Server Lifecycle</text>
+
+  <!-- Areas -->
+  <rect x="50" y="110" width="500" height="700" rx="15" fill="url(#grad-server)" stroke="#585b70" stroke-width="2" />
+  <text x="70" y="140" fill="#fab387" font-size="24" font-weight="bold">Server Side (Node.js)</text>
+
+  <rect x="650" y="110" width="500" height="700" rx="15" fill="url(#grad-client)" stroke="#585b70" stroke-width="2" />
+  <text x="670" y="140" fill="#89b4fa" font-size="24" font-weight="bold">Client Side (Browser)</text>
+
+  <!-- Server Components -->
+  
+  <!-- Server Lifecycle Box -->
+  <g transform="translate(80, 180)">
+    <rect width="440" height="140" rx="8" fill="#313244" stroke="#f38ba8" stroke-width="2" stroke-dasharray="5,5" filter="url(#shadow)" />
+    <text x="15" y="30" fill="#f38ba8" font-size="18" font-weight="bold">Lifecycle Fixes</text>
+    
+    <g transform="translate(20, 50)">
+      <circle cx="10" cy="10" r="5" fill="#f38ba8" />
+      <text x="25" y="15" fill="#cdd6f4" font-size="14">1. _started Guard (Prevents double start)</text>
+    </g>
+    <g transform="translate(20, 80)">
+      <circle cx="10" cy="10" r="5" fill="#f38ba8" />
+      <text x="25" y="15" fill="#cdd6f4" font-size="14">2. Split Events: 'ready' vs 'listening'</text>
+    </g>
+     <g transform="translate(20, 110)">
+      <text x="25" y="15" fill="#a6adc8" font-size="12" font-style="italic">Fixed EADDRINUSE crash root cause</text>
+    </g>
+  </g>
+
+  <!-- Admin Module -->
+  <g transform="translate(80, 350)">
+    <rect width="200" height="120" rx="8" fill="#45475a" stroke="#89b4fa" stroke-width="2" filter="url(#shadow)" />
+    <text x="50" y="30" fill="#89b4fa" font-size="18" font-weight="bold">Admin_Module</text>
+    <line x1="10" y1="40" x2="190" y2="40" stroke="#585b70" />
+    <text x="15" y="65" fill="#cdd6f4" font-size="14">GET /api/admin/resources</text>
+    <text x="15" y="90" fill="#cdd6f4" font-size="14">GET /api/admin/observables</text>
+  </g>
+
+  <!-- Publishers -->
+  <g transform="translate(320, 350)">
+    <rect width="200" height="120" rx="8" fill="#45475a" stroke="#a6e3a1" stroke-width="2" filter="url(#shadow)" />
+    <text x="30" y="30" fill="#a6e3a1" font-size="18" font-weight="bold">Publishers</text>
+    <line x1="10" y1="40" x2="190" y2="40" stroke="#585b70" />
+    <text x="15" y="65" fill="#cdd6f4" font-size="14">HTTP_Webpage_Publisher</text>
+    <text x="15" y="90" fill="#cdd6f4" font-size="14">HTTP_Observable_Publisher</text>
+  </g>
+
+  <!-- Defensive Layers -->
+  <g transform="translate(80, 500)">
+    <rect width="440" height="100" rx="8" fill="url(#grad-success)" stroke="#a6e3a1" stroke-width="1" />
+    <text x="15" y="30" fill="#a6e3a1" font-size="18" font-weight="bold">Defensive Coding Layers</text>
+    <text x="20" y="60" fill="#cdd6f4" font-size="14">• Resource_Pool.add(undefined) → Warn & Return</text>
+    <text x="20" y="80" fill="#cdd6f4" font-size="14">• Bundler Failures → Fallback Empty Bundle</text>
+  </g>
+  
+  <!-- Bundler -->
+  <g transform="translate(80, 630)">
+    <rect width="440" height="60" rx="8" fill="#313244" stroke="#fab387" stroke-width="2" />
+    <text x="15" y="35" fill="#fab387" font-size="18" font-weight="bold">Bundler (esbuild)</text>
+    <text x="180" y="35" fill="#cdd6f4" font-size="14">Fixed: npm link jsgui3-html</text>
+  </g>
+
+
+  <!-- Client Components -->
+
+  <!-- Admin Page -->
+  <g transform="translate(680, 250)">
+    <rect width="440" height="180" rx="8" fill="#313244" stroke="#89b4fa" stroke-width="2" filter="url(#shadow)" />
+    <text x="15" y="30" fill="#89b4fa" font-size="18" font-weight="bold">Admin_Page (Client)</text>
+    <line x1="10" y1="40" x2="430" y2="40" stroke="#585b70" />
+    
+    <!-- Child Controls -->
+    <g transform="translate(20, 60)">
+      <rect width="180" height="40" rx="4" fill="#45475a" stroke="#cba6f7" stroke-width="1" />
+      <text x="35" y="25" fill="#cba6f7" font-size="14">Resource_List</text>
+    </g>
+    
+    <g transform="translate(220, 60)">
+      <rect width="180" height="40" rx="4" fill="#45475a" stroke="#cba6f7" stroke-width="1" />
+      <text x="25" y="25" fill="#cba6f7" font-size="14">Observables_List</text>
+    </g>
+    
+    <g transform="translate(120, 120)">
+      <rect width="200" height="40" rx="4" fill="#45475a" stroke="#f9e2af" stroke-width="1" />
+      <text x="30" y="25" fill="#f9e2af" font-size="14">Auto_Observable_UI</text>
+    </g>
+  </g>
+
+  <!-- Data Flow Arrows -->
+  
+  <!-- Route Info -->
+  <path d="M 280 410 L 680 300" stroke="#89b4fa" stroke-width="2" stroke-dasharray="5,5" fill="none" marker-end="url(#arrow)" />
+  <rect x="420" y="330" width="120" height="25" rx="4" fill="#1e1e2e" stroke="#89b4fa" />
+  <text x="430" y="347" fill="#89b4fa" font-size="12">JSON Data</text>
+
+  <!-- Observable Stream -->
+  <path d="M 430 470 L 800 390" stroke="#a6e3a1" stroke-width="2" fill="none" marker-end="url(#arrow)" />
+  <rect x="560" y="440" width="100" height="25" rx="4" fill="#1e1e2e" stroke="#a6e3a1" />
+  <text x="575" y="457" fill="#a6e3a1" font-size="12">SSE Steam</text>
+
+  <!-- Legend -->
+  <g transform="translate(900, 750)">
+    <text x="0" y="0" fill="#a6adc8" font-size="14" font-weight="bold">Legend</text>
+    <rect x="0" y="10" width="15" height="15" fill="#313244" stroke="#f38ba8" />
+    <text x="25" y="23" fill="#cdd6f4" font-size="12">Lifecycle Code</text>
+    
+    <rect x="0" y="35" width="15" height="15" fill="#313244" stroke="#89b4fa" />
+    <text x="25" y="48" fill="#cdd6f4" font-size="12">UI / Route Component</text>
+    
+    <rect x="0" y="60" width="15" height="15" fill="#313244" stroke="#a6e3a1" />
+    <text x="25" y="73" fill="#cdd6f4" font-size="12">Observable / Defensive</text>
+  </g>
+
+</svg>

@@ -25,6 +25,9 @@ const Webpage = require('./website/webpage');
 const HTTP_Webpage_Publisher = require('./publishers/http-webpage-publisher');
 const HTTP_Function_Publisher = require('./publishers/http-function-publisher');
 const HTTP_Observable_Publisher = require('./publishers/http-observable-publisher');
+const HTTP_SSE_Publisher = require('./publishers/http-sse-publisher');
+const Process_Resource = require('./resources/process-resource');
+const Remote_Process_Resource = require('./resources/remote-process-resource');
 
 const Static_Route_HTTP_Responder = require('./http/responders/static/Static_Route_HTTP_Responder');
 
@@ -267,7 +270,10 @@ class JSGUI_Single_Process_Server extends Evented_Class {
 		this.function_publishers = this.function_publishers || [];
 		this.function_publishers.push(fpub);
 
-		this.server_router.set_route('/api/' + name, fpub, fpub.handle_http);
+		// Auto-prefix /api/ for simple names
+		// If name already starts with '/', use as-is for full route control
+		const full_route = name.startsWith('/') ? name : '/api/' + name;
+		this.server_router.set_route(full_route, fpub, fpub.handle_http);
 	}
 
 	publish_observable(route, obs, options = {}) {
@@ -275,7 +281,10 @@ class JSGUI_Single_Process_Server extends Evented_Class {
 			obs,
 			...options
 		});
-		this.server_router.set_route(route, publisher, publisher.handle_http);
+		// Auto-prefix /api/ for simple names (like publish() does)
+		// If route already starts with '/', use as-is for backward compatibility
+		const full_route = route.startsWith('/') ? route : '/api/' + route;
+		this.server_router.set_route(full_route, publisher, publisher.handle_http);
 		return publisher;
 	}
 
@@ -478,19 +487,81 @@ class JSGUI_Single_Process_Server extends Evented_Class {
 	}
 
 	close(callback) {
-		let count = this.http_servers.length;
-		if (count === 0) {
-			if (callback) process.nextTick(callback);
+		const invoke_stop = (target, done) => {
+			if (!target || typeof target.stop !== 'function') {
+				done(null);
+				return;
+			}
+
+			if (target.stop.length >= 1) {
+				target.stop((error) => done(error || null));
+				return;
+			}
+
+			try {
+				const stop_result = target.stop();
+				if (stop_result && typeof stop_result.then === 'function') {
+					stop_result.then(() => done(null), (error) => done(error || null));
+					return;
+				}
+				done(null);
+			} catch (error) {
+				done(error);
+			}
+		};
+
+		const close_http_servers = (done) => {
+			let count = this.http_servers.length;
+			if (count === 0) {
+				this.http_servers = [];
+				done();
+				return;
+			}
+
+			this.http_servers.forEach(server => {
+				server.close(() => {
+					count--;
+					if (count === 0) {
+						this.http_servers = [];
+						done();
+					}
+				});
+			});
+		};
+
+		const finalize_close = (error) => {
+			if (callback) callback(error || null);
+		};
+
+		const stop_targets = [];
+		if (this.resource_pool) {
+			stop_targets.push(this.resource_pool);
+		}
+		if (this.sse_publisher) {
+			stop_targets.push(this.sse_publisher);
+		}
+
+		if (stop_targets.length === 0) {
+			close_http_servers(() => finalize_close(null));
 			return;
 		}
-		this.http_servers.forEach(server => {
-			server.close(() => {
-				count--;
-				if (count === 0) {
-					this.http_servers = [];
-					if (callback) callback();
-				}
-			});
+
+		let pending_stops = stop_targets.length;
+		const stop_errors = [];
+		const on_stop_complete = (error) => {
+			if (error) {
+				stop_errors.push(error);
+			}
+			pending_stops--;
+			if (pending_stops > 0) {
+				return;
+			}
+			const first_error = stop_errors.length > 0 ? stop_errors[0] : null;
+			close_http_servers(() => finalize_close(first_error));
+		};
+
+		stop_targets.forEach((target) => {
+			invoke_stop(target, on_stop_complete);
 		});
 	}
 }
@@ -498,10 +569,15 @@ class JSGUI_Single_Process_Server extends Evented_Class {
 JSGUI_Single_Process_Server.jsgui = jsgui;
 
 JSGUI_Single_Process_Server.Resource = Resource;
+JSGUI_Single_Process_Server.Resource.Process = Process_Resource;
+JSGUI_Single_Process_Server.Resource.Remote_Process = Remote_Process_Resource;
 JSGUI_Single_Process_Server.Page_Context = Server_Page_Context;
 JSGUI_Single_Process_Server.Server_Page_Context = Server_Page_Context;
 JSGUI_Single_Process_Server.Website_Resource = Website_Resource;
 JSGUI_Single_Process_Server.Publishers = Publishers;
+JSGUI_Single_Process_Server.Process_Resource = Process_Resource;
+JSGUI_Single_Process_Server.Remote_Process_Resource = Remote_Process_Resource;
+JSGUI_Single_Process_Server.HTTP_SSE_Publisher = HTTP_SSE_Publisher;
 JSGUI_Single_Process_Server.serve = require('./serve-factory')(JSGUI_Single_Process_Server);
 
 module.exports = JSGUI_Single_Process_Server;

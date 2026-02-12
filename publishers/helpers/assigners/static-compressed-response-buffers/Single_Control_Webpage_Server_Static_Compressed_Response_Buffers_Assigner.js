@@ -67,9 +67,9 @@ class Single_Control_Webpage_Server_Static_Compressed_Response_Buffers_Assigner 
         // Get compression configuration with defaults
         const enabled = this.compression_config.enabled !== false; // Default: true
         const algorithms = this.compression_config.algorithms || ['gzip', 'br'];
-        const gzipLevel = this.compression_config.gzip?.level || 6;
-        const brotliQuality = this.compression_config.brotli?.quality || 6;
-        const threshold = this.compression_config.threshold || 1024;
+        const gzipLevel = this.compression_config.gzip?.level ?? 6;
+        const brotliQuality = this.compression_config.brotli?.quality ?? 6;
+        const threshold = this.compression_config.threshold ?? 1024;
 
         if (!enabled) {
             console.log('Compression disabled, skipping compression assignment');

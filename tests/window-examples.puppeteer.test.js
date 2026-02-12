@@ -166,6 +166,35 @@ const get_checkbox_state = async (page) => {
     return page.$eval('.checkbox input[type="checkbox"]', (el) => el.checked);
 };
 
+const set_input_value_with_events = async (page, selector, next_value, event_names = ['input']) => {
+    await page.$eval(selector, (el, value, events) => {
+        el.value = value;
+        for (const event_name of events) {
+            el.dispatchEvent(new Event(event_name, { bubbles: true }));
+        }
+    }, String(next_value), event_names);
+};
+
+const click_datetime_tab = async (page, root_selector, tab_label_fragment) => {
+    const click_result = await page.evaluate((picker_root_selector, text_fragment) => {
+        const root_el = document.querySelector(picker_root_selector);
+        if (!root_el) return false;
+        const tab_el = Array.from(root_el.querySelectorAll('.dtp-tab')).find((tab) => {
+            const tab_text = String(tab.textContent || '').toLowerCase();
+            return tab_text.includes(String(text_fragment || '').toLowerCase());
+        });
+        if (!tab_el) return false;
+        tab_el.click();
+        return true;
+    }, root_selector, tab_label_fragment);
+
+    return click_result === true;
+};
+
+const get_text_content = async (page, selector) => {
+    return page.$eval(selector, (el) => (el.textContent || '').trim());
+};
+
 describe('Window Examples Puppeteer Tests', function () {
     this.timeout(180000);
 
@@ -432,7 +461,68 @@ describe('Window Examples Puppeteer Tests', function () {
         }
     });
 
-    it('date picker renders native input in "9) window, date picker"', async function () {
+    it('color picker controls stay interactive in "6) window, color_palette"', async function () {
+        const { server, port } = await start_example_server({
+            dir_name: '6) window, color_palette',
+            ctrl_name: 'Demo_UI'
+        });
+
+        let page;
+        try {
+            page = await open_example_page(port);
+            await page.waitForSelector('.demo-color-picker-default .cp-hex-input');
+            await page.waitForSelector('.demo-color-picker-compact .cp-rgb-r');
+
+            const wheel_drawn = await page.$eval('.demo-color-picker-default .cp-wheel-canvas', (canvas) => {
+                const ctx = canvas.getContext('2d');
+                if (!ctx) return false;
+                const pixel = ctx.getImageData(90, 2, 1, 1).data;
+                return pixel[3] > 0;
+            });
+            assert.strictEqual(wheel_drawn, true, 'Expected Color_Picker hue wheel canvas to be drawn');
+
+            const initial_hex = await page.$eval('.demo-color-picker-default .cp-hex-input', (el) => el.value);
+            await set_input_value_with_events(page, '.demo-color-picker-default .cp-slider-h', 0, ['input']);
+            await page.waitForFunction(
+                (selector, before_hex) => {
+                    const el = document.querySelector(selector);
+                    return !!el && String(el.value || '').toLowerCase() !== String(before_hex || '').toLowerCase();
+                },
+                {},
+                '.demo-color-picker-default .cp-hex-input',
+                initial_hex
+            );
+
+            await set_input_value_with_events(page, '.demo-color-picker-compact .cp-rgb-r', 0, ['input']);
+            await set_input_value_with_events(page, '.demo-color-picker-compact .cp-rgb-g', 255, ['input']);
+            await set_input_value_with_events(page, '.demo-color-picker-compact .cp-rgb-b', 0, ['input']);
+
+            await page.waitForFunction(() => {
+                const readout_el = document.querySelector('.demo-color-picker-readout');
+                if (!readout_el) return false;
+                const text = String(readout_el.textContent || '');
+                return /rgba\(\s*0,\s*255,\s*0/i.test(text);
+            });
+
+            await capture_screenshot(page, '6) window, color_palette', 'after_picker_interaction');
+
+            await drag_window_by(page, '.window .title.bar', 90, 60);
+            await page.waitForTimeout(120);
+
+            await set_input_value_with_events(page, '.demo-color-picker-default .cp-slider-l', 25, ['input']);
+            await page.waitForFunction(() => {
+                const hex_el = document.querySelector('.demo-color-picker-default .cp-hex-input');
+                return !!hex_el && /^#[0-9a-f]{6}$/i.test(String(hex_el.value || ''));
+            });
+        } finally {
+            if (page) {
+                await page.close();
+            }
+            await stop_example_server(server);
+        }
+    });
+
+    it('date and datetime picker interactions work in "9) window, date picker"', async function () {
         const { server, port } = await start_example_server({
             dir_name: '9) window, date picker',
             ctrl_name: 'Demo_UI'
@@ -442,9 +532,122 @@ describe('Window Examples Puppeteer Tests', function () {
         try {
             page = await open_example_page(port);
             await page.waitForSelector('input.date-picker[type="date"]');
+            await page.waitForSelector('.demo-datetime-picker.datetime-picker');
 
             const input_type = await page.$eval('input.date-picker', (el) => el.getAttribute('type'));
             assert.strictEqual(input_type, 'date', 'Expected native date input');
+
+            const date_attrs = await page.$eval('input.date-picker', (el) => ({
+                min: el.getAttribute('min'),
+                max: el.getAttribute('max'),
+                lang: el.getAttribute('lang')
+            }));
+            assert.strictEqual(date_attrs.min, '2026-01-01');
+            assert.strictEqual(date_attrs.max, '2026-12-31');
+            assert.strictEqual(date_attrs.lang, 'en-GB');
+
+            await set_input_value_with_events(page, 'input.date-picker', '2026-07-04', ['input', 'change']);
+            await page.waitForFunction(() => {
+                const out_el = document.querySelector('.demo-date-output');
+                return !!out_el && String(out_el.textContent || '').includes('2026-07-04');
+            });
+
+            const initial_datetime_text = await get_text_content(page, '.demo-datetime-output');
+            const initial_time_display = await get_text_content(page, '.demo-datetime-picker .tp-display-time');
+            const clicked_time_tab = await click_datetime_tab(page, '.demo-datetime-picker', 'time');
+            assert.strictEqual(clicked_time_tab, true, 'Expected to locate and click DateTime "Time" tab');
+
+            await page.waitForFunction(() => {
+                const tp = document.querySelector('.demo-datetime-picker .time-picker');
+                return !!tp && window.getComputedStyle(tp).display !== 'none';
+            });
+
+            const did_click_spinners = await page.evaluate(() => {
+                const hour_spinner = document.querySelector('.demo-datetime-picker .tp-spinner-up.tp-h-up');
+                const minute_spinner = document.querySelector('.demo-datetime-picker .tp-spinner-up.tp-m-up');
+                if (!hour_spinner || !minute_spinner) return false;
+                hour_spinner.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+                minute_spinner.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+                return true;
+            });
+            assert.strictEqual(did_click_spinners, true, 'Expected DateTime spinner controls to be present');
+            await page.waitForFunction(
+                (before_output_text, before_time_text) => {
+                    const out_el = document.querySelector('.demo-datetime-output');
+                    const time_el = document.querySelector('.demo-datetime-picker .tp-display-time');
+                    if (!out_el && !time_el) return false;
+                    const after_text = String(out_el.textContent || '');
+                    const after_time_text = String((time_el && time_el.textContent) || '').trim();
+                    return (
+                        after_text !== before_output_text
+                        || after_time_text !== before_time_text
+                    ) && /DateTime value:\s*\d{4}-\d{2}-\d{2}T.+/.test(after_text);
+                },
+                {},
+                initial_datetime_text,
+                initial_time_display
+            );
+
+            const clicked_date_tab = await click_datetime_tab(page, '.demo-datetime-picker', 'date');
+            assert.strictEqual(clicked_date_tab, true, 'Expected to locate and click DateTime "Date" tab');
+            await page.waitForFunction(() => {
+                const mv = document.querySelector('.demo-datetime-picker .month-view');
+                return !!mv && window.getComputedStyle(mv).display !== 'none';
+            });
+
+            await drag_window_by(page, '.window .title.bar', 80, 50);
+            await resize_window_by(page, '.window .bottom-right.resize-handle', 100, 80);
+            await page.waitForTimeout(120);
+
+            await set_input_value_with_events(page, 'input.date-picker', '2026-09-09', ['input', 'change']);
+            await page.waitForFunction(() => {
+                const out_el = document.querySelector('.demo-date-output');
+                return !!out_el && String(out_el.textContent || '').includes('2026-09-09');
+            });
+
+            await capture_screenshot(page, '9) window, date picker', 'after_datetime_interaction');
+        } finally {
+            if (page) {
+                await page.close();
+            }
+            await stop_example_server(server);
+        }
+    });
+
+    it('shared Date_Picker controls mirror values in "9b) window, shared data.model mirrored date pickers"', async function () {
+        const { server, port } = await start_example_server({
+            dir_name: '9b) window, shared data.model mirrored date pickers',
+            ctrl_name: 'Demo_UI'
+        });
+
+        let page;
+        try {
+            page = await open_example_page(port);
+            await page.waitForSelector('input.date-picker');
+
+            await page.waitForFunction(() => document.querySelectorAll('input.date-picker').length >= 2);
+            const set_date_value_at_index = async (index, next_value) => {
+                await page.evaluate((picker_index, value) => {
+                    const inputs = Array.from(document.querySelectorAll('input.date-picker'));
+                    const target = inputs[picker_index];
+                    if (!target) return;
+                    target.value = value;
+                    target.dispatchEvent(new Event('input', { bubbles: true }));
+                    target.dispatchEvent(new Event('change', { bubbles: true }));
+                }, index, next_value);
+            };
+
+            await set_date_value_at_index(0, '2026-05-10');
+            await page.waitForFunction((expected_value) => {
+                const inputs = Array.from(document.querySelectorAll('input.date-picker'));
+                return inputs.length >= 2 && inputs[1].value === expected_value;
+            }, {}, '2026-05-10');
+
+            await set_date_value_at_index(1, '2026-11-21');
+            await page.waitForFunction((expected_value) => {
+                const inputs = Array.from(document.querySelectorAll('input.date-picker'));
+                return inputs.length >= 2 && inputs[0].value === expected_value;
+            }, {}, '2026-11-21');
         } finally {
             if (page) {
                 await page.close();

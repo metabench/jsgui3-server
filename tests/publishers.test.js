@@ -13,7 +13,7 @@ describe('Publisher Component Isolation Tests', function() {
     beforeEach(function() {
         // Create mock control class
         mockControl = class MockControl {
-            constructor(spec) {
+            constructor(spec = {}) {
                 this.context = spec.context;
                 this.head = {
                     add: function(element) {

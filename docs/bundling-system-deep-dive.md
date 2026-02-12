@@ -1,5 +1,10 @@
 # Bundling System Deep Dive
 
+## Research Track
+
+For the active, chaptered research track on lightweight bundle strategy and unused-module elimination, use:
+`docs/books/jsgui3-bundling-research-book/README.md`
+
 ## When to Read
 
 This document provides detailed technical documentation of JSGUI3 Server's bundling system. Read this when:

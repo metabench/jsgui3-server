@@ -50,9 +50,9 @@ class Admin_Page extends Active_HTML_Document {
             top_bar.add(this.page_title);
 
             // Content Panel
-            const content = new controls.div({ context, class: 'admin-content' });
-            main.add(content);
-            this.content = content;
+            const content_panel = new controls.div({ context, class: 'admin-content' });
+            main.add(content_panel);
+            this.content_panel = content_panel;
 
             // Default content (Overview)
             this._render_overview();
@@ -75,15 +75,15 @@ class Admin_Page extends Active_HTML_Document {
     }
 
     _render_overview() {
-        // Clear main content area (this.content is the admin-content div)
-        if (this.content && this.content.content && typeof this.content.content.clear === 'function') {
-            this.content.content.clear();
+        // Clear main content area (content_panel is the admin-content div)
+        if (this.content_panel && this.content_panel.content && typeof this.content_panel.content.clear === 'function') {
+            this.content_panel.content.clear();
         }
 
         const welcome = new controls.div({ context: this.context, class: 'welcome-card' });
         welcome.add(new controls.h3({ context: this.context }).add('Welcome directly to jsgui3-server Admin'));
         welcome.add(new controls.p({ context: this.context }).add('Select a resource from the sidebar to inspect.'));
-        this.content.add(welcome);
+        this.content_panel.add(welcome);
     }
 
     activate() {

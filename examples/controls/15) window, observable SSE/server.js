@@ -64,13 +64,18 @@ if (require.main === module) {
         });
 
         // Register the SSE endpoint with the server's router
+        // You can use the manual approach (full control):
         server.server_router.set_route('/api/tick-stream', tick_publisher, tick_publisher.handle_http);
         console.log('  ✓ /api/tick-stream - Hot tick stream (SSE)');
+
+        // Or use the simplified API (auto-prefixes /api/ for simple names):
+        // server.publish_observable('tick-stream', tick_observable);
 
         // ========================================
         // Also publish a simple JSON API endpoint for comparison
         // ========================================
-        server.publish('/api/status', () => {
+        // Simple name (auto-prefixes /api/)
+        server.publish('status', () => {
             return {
                 status: 'ok',
                 tick_count: tick_count,

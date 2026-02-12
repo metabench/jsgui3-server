@@ -19,6 +19,13 @@ jsgui.controls.Active_HTML_Document = require('./controls/Active_HTML_Document')
 const Server = require('./server');
 jsgui.Server = Server;
 jsgui.serve = Server.serve;
+jsgui.Process_Resource = Server.Process_Resource;
+jsgui.Remote_Process_Resource = Server.Remote_Process_Resource;
+jsgui.HTTP_SSE_Publisher = Server.HTTP_SSE_Publisher;
+if (jsgui.Resource) {
+    jsgui.Resource.Process = Server.Process_Resource;
+    jsgui.Resource.Remote_Process = Server.Remote_Process_Resource;
+}
 jsgui.fs2 = require('./fs2');
 
 // Port utilities for auto-port selection

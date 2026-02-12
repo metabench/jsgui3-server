@@ -8,6 +8,8 @@ const dummy_client_path = require.resolve('./dummy-client.js');
 
 const fake_webpage_publisher_path = require.resolve('../publishers/http-webpage-publisher');
 const fake_website_publisher_path = require.resolve('../publishers/http-website-publisher');
+const original_webpage_publisher_module = require.cache[fake_webpage_publisher_path];
+const original_website_publisher_module = require.cache[fake_website_publisher_path];
 
 class Fake_Publisher_Base extends EventEmitter {
     constructor(html_route, html_body) {
@@ -40,7 +42,8 @@ class Fake_Publisher_Base extends EventEmitter {
         };
         this.type = 'html';
         this.extension = 'html';
-        setImmediate(() => {
+        const ready_delay_ms = Number(this.constructor.ready_delay_ms) || 0;
+        const emit_ready = () => {
             this.emit('ready', {
                 _arr: [{
                     type: this.type,
@@ -50,7 +53,13 @@ class Fake_Publisher_Base extends EventEmitter {
                     response_buffers: this.response_buffers
                 }]
             });
-        });
+        };
+
+        if (ready_delay_ms > 0) {
+            setTimeout(emit_ready, ready_delay_ms);
+        } else {
+            setImmediate(emit_ready);
+        }
     }
 
     handle_http(req, res) {
@@ -59,6 +68,20 @@ class Fake_Publisher_Base extends EventEmitter {
             'Content-Length': Buffer.byteLength(this.html_body, 'utf8')
         });
         res.end(this.html_body);
+    }
+
+    meets_requirements() {
+        return true;
+    }
+
+    start(callback) {
+        if (typeof callback === 'function') callback(null, true);
+        return Promise.resolve(true);
+    }
+
+    stop(callback) {
+        if (typeof callback === 'function') callback(null, true);
+        return Promise.resolve(true);
     }
 }
 
@@ -80,6 +103,9 @@ class Fake_Website_Publisher extends Fake_Publisher_Base {
         super(route, body);
     }
 }
+
+Fake_Webpage_Publisher.ready_delay_ms = 0;
+Fake_Website_Publisher.ready_delay_ms = 0;
 
 require.cache[fake_webpage_publisher_path] = { exports: Fake_Webpage_Publisher };
 require.cache[fake_website_publisher_path] = { exports: Fake_Website_Publisher };
@@ -124,7 +150,26 @@ describe('Server.serve', function() {
     this.timeout(10000);
     let server_instance;
 
+    after(() => {
+        if (original_webpage_publisher_module) {
+            require.cache[fake_webpage_publisher_path] = original_webpage_publisher_module;
+        } else {
+            delete require.cache[fake_webpage_publisher_path];
+        }
+
+        if (original_website_publisher_module) {
+            require.cache[fake_website_publisher_path] = original_website_publisher_module;
+        } else {
+            delete require.cache[fake_website_publisher_path];
+        }
+
+        delete require.cache[require.resolve('../server')];
+    });
+
     afterEach(async () => {
+        Fake_Webpage_Publisher.ready_delay_ms = 0;
+        Fake_Website_Publisher.ready_delay_ms = 0;
+
         if (server_instance) {
             await new Promise(resolve => server_instance.close(resolve));
             server_instance = null;
@@ -206,5 +251,30 @@ describe('Server.serve', function() {
         const { res, body } = await get_http_response(port, '/missing');
         assert.strictEqual(res.statusCode, 404);
         assert.strictEqual(body, 'Not Found');
+    });
+
+    it('waits for webpage publisher readiness before resolving serve()', async () => {
+        Fake_Webpage_Publisher.ready_delay_ms = 2600;
+
+        const port = await get_free_port();
+        const started_at = Date.now();
+
+        server_instance = await Server.serve({
+            Ctrl: Dummy_Control,
+            src_path_client_js: dummy_client_path,
+            host: '127.0.0.1',
+            port,
+            readyTimeoutMs: 12000
+        });
+
+        const elapsed_ms = Date.now() - started_at;
+        assert(
+            elapsed_ms >= 2400,
+            `Expected serve() to wait for delayed readiness, elapsed=${elapsed_ms}ms`
+        );
+
+        const { res, body } = await get_http_response(port, '/');
+        assert.strictEqual(res.statusCode, 200);
+        assert(body.includes('<div class="dummy-control"'));
     });
 });

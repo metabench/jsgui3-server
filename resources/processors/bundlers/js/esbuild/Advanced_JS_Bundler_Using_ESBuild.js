@@ -6,6 +6,7 @@ const Bundler_Using_ESBuild = require('./Bundler_Using_ESBuild');
 const {is_array} = require('lang-tools');
 
 const Core_JS_Single_File_Minifying_Bundler_Using_ESBuild = require('./Core_JS_Single_File_Minifying_Bundler_Using_ESBuild');
+const JSGUI3_HTML_Control_Optimizer = require('./JSGUI3_HTML_Control_Optimizer');
 
 //const CSS_Extractor = require('./_Old_CSS_Extractor');
 
@@ -17,6 +18,31 @@ const Bundle = require('../../bundle');
 const CSS_And_JS_From_JS_String_Extractor = require('../../../extractors/js/css_and_js/CSS_And_JS_From_JS_String_Extractor');
 const {compile_styles} = require('../../style-bundler');
 
+const await_bundle_observable = (bundle_result) => {
+    if (!bundle_result || typeof bundle_result.on !== 'function') {
+        return Promise.resolve(bundle_result);
+    }
+
+    const normalize_result = (value) => {
+        if (Array.isArray(value)) return value;
+        if (value && value._arr) return [value];
+        return value;
+    };
+
+    return new Promise((resolve, reject) => {
+        let settled = false;
+        const settle_once = (settle_fn, value) => {
+            if (settled) return;
+            settled = true;
+            settle_fn(value);
+        };
+
+        bundle_result.on('error', (error) => settle_once(reject, error));
+        bundle_result.on('next', (value) => settle_once(resolve, normalize_result(value)));
+        bundle_result.on('complete', (value) => settle_once(resolve, normalize_result(value)));
+    });
+};
+
 
 class Advanced_JS_Bundler_Using_ESBuild extends Bundler_Using_ESBuild {
     constructor(spec = {}) {
@@ -26,6 +52,16 @@ class Advanced_JS_Bundler_Using_ESBuild extends Bundler_Using_ESBuild {
 
         // Store bundler configuration
         this.bundler_config = spec.bundler || {};
+
+        // Enable elimination by default, while preserving explicit opt-out.
+        const raw_elimination_config = this.bundler_config.elimination;
+        if (raw_elimination_config === false) {
+            this.elimination_config = {enabled: false};
+        } else if (raw_elimination_config && typeof raw_elimination_config === 'object') {
+            this.elimination_config = raw_elimination_config;
+        } else {
+            this.elimination_config = {};
+        }
         const style_config = spec.style || this.bundler_config.style || {};
         this.style_config = Object.assign({debug: this.debug === true}, style_config);
 
@@ -46,10 +82,41 @@ class Advanced_JS_Bundler_Using_ESBuild extends Bundler_Using_ESBuild {
             minify: this.bundler_config.minify
         });
 
+        const control_elimination_config = this.elimination_config.jsgui3_html_controls || {};
+        const elimination_enabled = this.elimination_config.enabled !== false;
+        const control_elimination_enabled = elimination_enabled &&
+            control_elimination_config.enabled !== false;
+
+        if (control_elimination_enabled) {
+            const cache_config = control_elimination_config.cache && typeof control_elimination_config.cache === 'object'
+                ? control_elimination_config.cache
+                : {};
+            this.jsgui3_html_control_optimizer = new JSGUI3_HTML_Control_Optimizer({
+                package_name: control_elimination_config.package_name || 'jsgui3-html',
+                emit_manifest: control_elimination_config.emit_manifest === true,
+                allow_dynamic_controls: control_elimination_config.allow_dynamic_controls === true,
+                include_controls: control_elimination_config.include_controls,
+                exclude_controls: control_elimination_config.exclude_controls,
+                cacheEnabled: cache_config.enabled !== false,
+                sharedCache: cache_config.shared !== false,
+                log: control_elimination_config.log === true,
+                manifest_dir: control_elimination_config.manifest_dir,
+                shim_dir: control_elimination_config.shim_dir
+            });
+        } else {
+            this.jsgui3_html_control_optimizer = null;
+        }
+
     }
 
     bundle(js_file_path) {
-        const {non_minifying_bundler, css_and_js_from_js_string_extractor, minifying_js_single_file_bundler, style_config} = this;
+        const {
+            non_minifying_bundler,
+            css_and_js_from_js_string_extractor,
+            minifying_js_single_file_bundler,
+            style_config,
+            jsgui3_html_control_optimizer
+        } = this;
 
         // Validate input
         if (typeof js_file_path !== 'string' || js_file_path.trim() === '') {
@@ -69,7 +136,22 @@ class Advanced_JS_Bundler_Using_ESBuild extends Bundler_Using_ESBuild {
             try {
             //console.log('Advanced_JS_Bundler_Using_ESBuild bundle js_file_path:', js_file_path);
 
-            const res_nmb = await non_minifying_bundler.bundle(js_file_path);
+            let entry_build_overrides = {};
+            let control_scan_manifest = null;
+
+            if (jsgui3_html_control_optimizer) {
+                const optimization_result = await jsgui3_html_control_optimizer.optimize(js_file_path);
+                if (optimization_result && optimization_result.enabled && optimization_result.plugin) {
+                    entry_build_overrides.plugins = [optimization_result.plugin];
+                }
+                if (optimization_result && optimization_result.manifest) {
+                    control_scan_manifest = optimization_result.manifest;
+                }
+            }
+
+            const res_nmb = await await_bundle_observable(
+                non_minifying_bundler.bundle(js_file_path, entry_build_overrides)
+            );
 
             //console.log('res_nmb', res_nmb);
 
@@ -103,7 +185,9 @@ class Advanced_JS_Bundler_Using_ESBuild extends Bundler_Using_ESBuild {
 
                             if (this.debug) {
                                 // Generate source maps for CSS-free JS
-                                const css_free_bundle_result = await non_minifying_bundler.bundle_js_string(js);
+                                const css_free_bundle_result = await await_bundle_observable(
+                                    non_minifying_bundler.bundle_js_string(js)
+                                );
                                 const css_free_bundle_item = css_free_bundle_result[0]._arr[0];
 
                                 const res_bundle = new Bundle();
@@ -119,6 +203,10 @@ class Advanced_JS_Bundler_Using_ESBuild extends Bundler_Using_ESBuild {
                                     text: compiled_css
                                 }
                                 res_bundle.push(o_css_bundle_item);
+                                if (control_scan_manifest) {
+                                    res_bundle.bundle_analysis = res_bundle.bundle_analysis || {};
+                                    res_bundle.bundle_analysis.jsgui3_html_control_scan = control_scan_manifest;
+                                }
                                 next(res_bundle);
                                 complete(res_bundle);
 
@@ -130,9 +218,13 @@ class Advanced_JS_Bundler_Using_ESBuild extends Bundler_Using_ESBuild {
 
                             } else {
                                 // Generate source maps for CSS-free JS and minify
-                                const css_free_bundle_result = await non_minifying_bundler.bundle_js_string(js);
+                                const css_free_bundle_result = await await_bundle_observable(
+                                    non_minifying_bundler.bundle_js_string(js)
+                                );
                                 const css_free_bundle_item = css_free_bundle_result[0]._arr[0];
-                                const minified_js = await minifying_js_single_file_bundler.bundle(css_free_bundle_item.text);
+                                const minified_js = await await_bundle_observable(
+                                    minifying_js_single_file_bundler.bundle(css_free_bundle_item.text)
+                                );
 
                                 //console.log('minified_js', minified_js);
                                 //console.log('minified_js.length', minified_js.length);
@@ -147,6 +239,10 @@ class Advanced_JS_Bundler_Using_ESBuild extends Bundler_Using_ESBuild {
                                         text: compiled_css
                                     }
                                     minified_bundle.push(o_css_bundle_item);
+                                    if (control_scan_manifest) {
+                                        minified_bundle.bundle_analysis = minified_bundle.bundle_analysis || {};
+                                        minified_bundle.bundle_analysis.jsgui3_html_control_scan = control_scan_manifest;
+                                    }
                                     next(minified_bundle);
                                     complete(minified_bundle);
                                 } else {

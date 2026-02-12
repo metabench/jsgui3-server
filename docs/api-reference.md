@@ -36,9 +36,26 @@ Server.serve(options?: ServerOptions): Promise<Server>
 ```javascript
 const server = await Server.serve({
     port: 3000,
-    ctrl: MyControl
+    ctrl: MyControl,
+    resources: {
+        worker_direct: {
+            type: 'process',
+            command: process.execPath,
+            args: ['worker.js']
+        },
+        remote_worker: {
+            type: 'remote',
+            host: '127.0.0.1',
+            port: 3400
+        }
+    },
+    events: true
 });
 ```
+
+**Serve-specific options:**
+- `resources`: Registers managed resources (in-process resource objects, local process resources, remote HTTP process resources).
+- `events`: Enables built-in SSE publisher for resource lifecycle events (`/events` by default).
 
 ### Server Constructor
 
@@ -58,6 +75,21 @@ new Server(options?: ServerOptions)
 - `'ready'`: Emitted when bundling is complete
 - `'started'`: Emitted when HTTP server is listening
 - `'error'`: Emitted on server errors
+
+### Module Exports
+
+```javascript
+const jsgui = require('jsgui3-server');
+
+// Top-level exports
+jsgui.Process_Resource;
+jsgui.Remote_Process_Resource;
+jsgui.HTTP_SSE_Publisher;
+
+// Resource namespace aliases
+jsgui.Resource.Process;
+jsgui.Resource.Remote_Process;
+```
 
 ## Server Instance Methods
 
@@ -86,6 +118,38 @@ server.publish(route: string, handler: Function): void
 **Parameters:**
 - `route` (string): Route path (automatically prefixed with `/api/`)
 - `handler` (Function): Request handler function
+
+### server.publish_observable(route, observable, options)
+
+Adds an observable-backed SSE endpoint.
+
+**Signature:**
+```javascript
+server.publish_observable(route: string, observable: Observable, options?: object): HTTP_Observable_Publisher
+```
+
+**Parameters:**
+- `route` (string): Route path. If it does not start with `/`, it is prefixed with `/api/`.
+- `observable` (Observable): Source observable stream.
+- `options` (object, optional): Publisher options.
+
+**Returns:** `HTTP_Observable_Publisher` instance.
+
+**Alias:** `server.publishObservable(route, observable, options)`
+
+### server.close(callback)
+
+Stops managed resources and closes all bound HTTP servers.
+
+**Signature:**
+```javascript
+server.close(callback?: (err?: Error | null) => void): void
+```
+
+**Behavior:**
+- Calls `resource_pool.stop()` when available
+- Stops `sse_publisher` when present
+- Closes all HTTP listeners
 
 ### server.use(middleware)
 
@@ -465,7 +529,156 @@ Handles API requests.
 serve(request: IncomingMessage, response: ServerResponse): Promise<void>
 ```
 
+### HTTP_SSE_Publisher
+
+General-purpose SSE publisher for explicit event fan-out.
+
+**Extends:** `HTTP_Publisher`
+
+**Constructor:**
+```javascript
+new HTTP_SSE_Publisher(spec?: {
+    name?: string,
+    keepaliveIntervalMs?: number,
+    maxClients?: number,
+    eventHistorySize?: number
+})
+```
+
+**Methods:**
+- `handle_http(req, res)`
+- `broadcast(event_name, data_value)`
+- `send(client_id, event_name, data_value)`
+- `stop(callback?)`
+
+**Properties:**
+- `client_count` (number)
+
 ## Resource Classes
+
+### Process_Resource
+
+Represents a local process as a resource with a unified lifecycle API.
+
+**Extends:** `Resource`
+
+**Constructor:**
+```javascript
+new Process_Resource(spec?: {
+    name?: string,
+    command?: string,
+    args?: string[],
+    cwd?: string,
+    env?: object,
+    autoRestart?: boolean,
+    maxRestarts?: number,
+    processManager?: 'direct' | {
+        type: 'direct' | 'pm2',
+        pm2Path?: string,
+        ecosystem?: string
+    },
+    healthCheck?: {
+        type: 'http' | 'tcp' | 'custom',
+        url?: string,
+        host?: string,
+        port?: number,
+        fn?: Function,
+        intervalMs?: number,
+        timeoutMs?: number,
+        failuresBeforeUnhealthy?: number
+    }
+})
+```
+
+**Core Methods:**
+- `start(callback?)`
+- `stop(callback?)`
+- `restart(callback?)`
+- `get_abstract()`
+
+**Status:**
+```javascript
+{
+    state: 'stopped' | 'starting' | 'running' | 'stopping' | 'restarting' | 'crashed',
+    pid: number | null,
+    uptime: number,
+    restartCount: number,
+    lastHealthCheck: object | null,
+    memoryUsage: object | null,
+    processManager: { type: 'direct' | 'pm2' }
+}
+```
+
+**Events:**
+- `state_change`
+- `stdout`
+- `stderr`
+- `exit`
+- `health_check`
+- `unhealthy`
+- `crashed`
+
+### Remote_Process_Resource
+
+Represents a remote HTTP-controlled process using the same lifecycle-oriented API style as `Process_Resource`.
+
+**Extends:** `Resource`
+
+**Constructor:**
+```javascript
+new Remote_Process_Resource(spec?: {
+    name?: string,
+    host: string,
+    port: number,
+    protocol?: 'http' | 'https',
+    pollIntervalMs?: number,
+    httpTimeoutMs?: number,
+    historySize?: number,
+    unreachableFailuresBeforeEvent?: number,
+    endpoints?: {
+        status?: string,
+        start?: string,
+        stop?: string,
+        health?: string
+    }
+})
+```
+
+**Core Methods:**
+- `start(callback?)`
+- `stop(callback?)`
+- `restart(callback?)`
+- `get_abstract()`
+
+**Status:** Includes `state`, `pid`, `uptime`, `restartCount`, `lastHealthCheck`, `memoryUsage`, and `processManager: { type: 'remote' }`.
+
+**Events:**
+- `state_change`
+- `unreachable`
+- `recovered`
+
+### Server_Resource_Pool
+
+Server-specific resource pool with lifecycle orchestration and event forwarding.
+
+**Extends:** `Resource_Pool`
+
+**Methods:**
+- `add(resource)`
+- `remove(name, callback?)`
+- `start(callback?)`
+- `stop(callback?)`
+- `get_resources_by_type(type)`
+
+**Properties:**
+- `summary`: Aggregated state summary grouped by resource type.
+
+**Forwarded Events:**
+- `resource_state_change`
+- `crashed`
+- `unhealthy`
+- `unreachable`
+- `recovered`
 
 ### File_System_Resource
 
@@ -720,8 +933,53 @@ interface ServerOptions {
   https?: HttpsConfig;
   middleware?: Function[];
   publishers?: Record<string, Publisher>;
-  resources?: Record<string, Resource>;
+  resources?: ResourceEntries;
+  events?: boolean | EventsOptions;
   bundler?: BundlerConfig;
+}
+```
+
+```typescript
+type ResourceEntries = Record<string, ResourceEntry> | ResourceEntry[];
+
+type ResourceEntry =
+  | Resource
+  | {
+      type?: 'process' | 'local';
+      command?: string;
+      args?: string[];
+      processManager?: 'direct' | {
+        type?: 'direct' | 'pm2';
+        pm2Path?: string;
+        ecosystem?: string;
+      };
+      [key: string]: any;
+    }
+  | {
+      type?: 'remote' | 'http';
+      host?: string;
+      port?: number;
+      protocol?: 'http' | 'https';
+      endpoints?: Record<string, string>;
+      [key: string]: any;
+    }
+  | {
+      type?: 'resource' | 'in_process' | 'in-process';
+      instance?: Resource;
+      resource?: Resource;
+      class?: new (spec?: any) => Resource;
+      Ctor?: new (spec?: any) => Resource;
+      constructor_fn?: new (spec?: any) => Resource;
+      spec?: Record<string, any>;
+      [key: string]: any;
+    };
+
+interface EventsOptions {
+  route?: string;
+  name?: string;
+  keepaliveIntervalMs?: number;
+  maxClients?: number;
+  eventHistorySize?: number;
 }
 ```
 

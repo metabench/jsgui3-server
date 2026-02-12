@@ -156,6 +156,78 @@ Configuration values are resolved in this order (later sources override earlier 
   });
   ```
 
+### Resource and Event Options
+
+#### `resources`
+- **Type:** `object | array`
+- **Description:** Resource definitions to register in the server resource pool and start after server startup.
+- **Lifecycle:** Resources are started automatically after the HTTP server is listening and stopped automatically during `server.close()`.
+- **Supported forms:**
+  - In-process resource instance
+  - In-process resource constructor/class config
+  - Process resource config (`type: 'process'` or inferred from `command`)
+  - Remote process resource config (`type: 'remote'` or inferred from `host`/`endpoints`)
+- **Example:**
+  ```javascript
+  Server.serve({
+      resources: {
+          // In-process resource instance
+          cache: new In_Process_Cache_Resource({ name: 'cache' }),
+
+          // Process_Resource in direct mode (default)
+          worker_direct: {
+              type: 'process',
+              command: process.execPath,
+              args: ['worker.js'],
+              autoRestart: true
+          },
+
+          // Process_Resource in PM2 mode (pm2Path optional)
+          worker_pm2: {
+              type: 'process',
+              processManager: { type: 'pm2' },
+              command: process.execPath,
+              args: ['worker.js']
+          },
+
+          // Remote_Process_Resource
+          remote_worker: {
+              type: 'remote',
+              host: '127.0.0.1',
+              port: 3400,
+              pollIntervalMs: 30000
+          }
+      }
+  });
+  ```
+
+**Process resource notes:**
+- `processManager` defaults to `direct`.
+- PM2 works without explicitly setting `pm2Path`:
+  - `processManager.pm2Path` (if provided)
+  - `PM2_PATH` env var (if provided)
+  - local `node_modules/.bin/pm2` (if present)
+  - `pm2` from `PATH`
+
+#### `events`
+- **Type:** `boolean | object`
+- **Description:** Enables a built-in SSE endpoint for resource lifecycle events.
+- **Default:** `false`
+- **When `true`:**
+  - Registers `HTTP_SSE_Publisher` at `/events`
+  - Forwards resource pool lifecycle events (`resource_state_change`, `crashed`, `unhealthy`, `unreachable`, `recovered`)
+- **When object:** Supports publisher options such as `route`, `name`, `keepaliveIntervalMs`, `maxClients`.
+- **Example:**
+  ```javascript
+  Server.serve({
+      events: {
+          route: '/events',
+          keepaliveIntervalMs: 15000,
+          maxClients: 200
+      }
+  });
+  ```
+
 ### Static File Serving
 
 #### `static`
@@ -352,14 +424,63 @@ Server.serve({
 ### Resource Pools
 
 ```javascript
+let server;
+server = await Server.serve({
+    resources: {
+        cache: new In_Process_Cache_Resource({
+            name: 'cache'
+        }),
+        worker_direct: {
+            type: 'process',
+            command: process.execPath,
+            args: ['worker.js']
+        },
+        remote_worker: {
+            type: 'remote',
+            host: '127.0.0.1',
+            port: 3400
+        }
+    },
+    events: true,
+    api: {
+        'resources/summary': () => server.resource_pool.summary,
+        'resources/restart': async ({ name }) => {
+            const resource = server.resource_pool.get_resource(name);
+            if (!resource || typeof resource.restart !== 'function') {
+                return { ok: false, error: 'Resource restart not supported' };
+            }
+            await resource.restart();
+            return { ok: true, status: resource.status };
+        }
+    }
+});
+```
+
+For strongly typed in-process resources you can also provide constructor-based entries:
+
+```javascript
 Server.serve({
     resources: {
-        database: new DatabaseResource({
-            connectionString: process.env.DATABASE_URL
-        }),
-        cache: new RedisResource({
-            host: 'localhost',
-            port: 6379
+        in_process_metrics: {
+            type: 'resource',
+            class: In_Process_Metrics_Resource,
+            spec: {
+                sampleIntervalMs: 1000
+            }
+        },
+        in_process_events: {
+            constructor_fn: In_Process_Event_Bus_Resource,
+            spec: {
+                maxHistory: 500
+            }
+        },
+        in_process_cache: {
+            resource: new In_Process_Cache_Resource({
+                name: 'in_process_cache'
+            })
+        },
+        in_process_singleton: new In_Process_Registry_Resource({
+            name: 'in_process_singleton'
         })
     }
 });
@@ -410,6 +531,10 @@ Server.serve({ port: 'not-a-number' });
 - `pages`: Each page must have `content` property
 - `api`: Values must be functions
 - `static`: Values must be strings (directory paths)
+- `resources`: Must be an object map or array of supported resource entries
+- `resources.<name>.type`: Supported values include `process`, `remote`, `resource`, `in_process`, `in-process`
+- `resources.<name>.processManager.type`: Supported values include `direct`, `pm2`
+- `events`: Must be boolean or object
 
 ## Configuration Patterns
 

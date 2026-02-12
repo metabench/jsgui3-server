@@ -15,7 +15,7 @@ This document provides detailed technical documentation for the JSGUI3 Server fr
 - You're troubleshooting complex issues or performance problems
 - You need to understand deployment, security, and production considerations
 
-**Note:** Start with [README.md](../README.md) for project overview and basic usage. For server API design principles, see [docs/simple-server-api-design.md](docs/simple-server-api-design.md).
+**Note:** Start with [README.md](../README.md) for project overview and basic usage. For server API design principles, see [docs/simple-server-api-design.md](docs/simple-server-api-design.md). For bundling internals and elimination strategy research, see [docs/books/jsgui3-bundling-research-book/README.md](docs/books/jsgui3-bundling-research-book/README.md).
 
 # JSGUI3 Server - Comprehensive Documentation
 
@@ -118,8 +118,9 @@ This section is a short, task-oriented runway for AI agents that need to act qui
 **Start here:**
 1. Identify the target subsystem: examples, bundlers, publishers, or controls.
 2. Jump to the focused guide: `docs/books/jsgui3-mvvm-fullstack/README.md`.
-3. Make the smallest change that can pass a targeted test.
-4. Run the narrow test file first, then widen if needed.
+3. For bundle-size and pruning work, use: `docs/books/jsgui3-bundling-research-book/README.md`.
+4. Make the smallest change that can pass a targeted test.
+5. Run the narrow test file first, then widen if needed.
 
 **Minimal commands:**
 ```bash
@@ -493,6 +494,8 @@ Main entry point for starting the server.
 - `ctrl` or `Ctrl`: Main control class constructor
 - `pages`: Object defining multiple pages with routes as keys
 - `api`: Object defining API endpoints
+- `resources`: Object/array of managed resource definitions
+- `events`: Enable/configure built-in SSE endpoint for resource lifecycle events
 - `src_path_client_js`: Path to client-side JavaScript file
 - `port`: Server port (default: 8080)
 - `host`: Server host (default: all IPv4 interfaces)
@@ -536,6 +539,34 @@ const server = await Server.serve({
         'users': async () => await getUsers()
     },
     port: 3000
+});
+
+// With managed resources and SSE lifecycle events
+let server_with_resources;
+server_with_resources = await Server.serve({
+    api: {
+        'resources/summary': () => server_with_resources.resource_pool.summary
+    },
+    resources: {
+        worker_direct: {
+            type: 'process',
+            command: process.execPath,
+            args: ['worker.js'],
+            autoRestart: true
+        },
+        worker_pm2: {
+            type: 'process',
+            processManager: { type: 'pm2' }, // pm2Path optional
+            command: process.execPath,
+            args: ['worker.js']
+        },
+        remote_worker: {
+            type: 'remote',
+            host: '127.0.0.1',
+            port: 3400
+        }
+    },
+    events: true // creates /events and forwards resource lifecycle events
 });
 ```
 

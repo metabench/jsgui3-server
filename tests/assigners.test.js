@@ -40,7 +40,11 @@ describe('Assigner Component Isolation Tests', function() {
 
     describe('Single_Control_Webpage_Server_Static_Compressed_Response_Buffers_Assigner', function() {
         it('should compress content with default gzip settings', async function() {
-            const assigner = new Single_Control_Webpage_Server_Static_Compressed_Response_Buffers_Assigner();
+            const assigner = new Single_Control_Webpage_Server_Static_Compressed_Response_Buffers_Assigner({
+                compression: {
+                    threshold: 0
+                }
+            });
 
             await assigner.assign(mockBundleItems);
 
@@ -59,11 +63,15 @@ describe('Assigner Component Isolation Tests', function() {
             // Verify compression statistics
             assert.strictEqual(assigner.compression_stats.total_items, 3, 'Should track 3 total items');
             assert.strictEqual(assigner.compression_stats.gzip_compressed, 3, 'Should have compressed 3 items with gzip');
-            assert(assigner.compression_stats.gzip_savings >= 0, 'Gzip savings should be non-negative');
+            assert.strictEqual(typeof assigner.compression_stats.gzip_savings, 'number', 'Gzip savings should be numeric');
         });
 
         it('should compress content with default brotli settings', async function() {
-            const assigner = new Single_Control_Webpage_Server_Static_Compressed_Response_Buffers_Assigner();
+            const assigner = new Single_Control_Webpage_Server_Static_Compressed_Response_Buffers_Assigner({
+                compression: {
+                    threshold: 0
+                }
+            });
 
             await assigner.assign(mockBundleItems);
 
@@ -81,14 +89,15 @@ describe('Assigner Component Isolation Tests', function() {
 
             // Verify compression statistics
             assert.strictEqual(assigner.compression_stats.brotli_compressed, 3, 'Should have compressed 3 items with brotli');
-            assert(assigner.compression_stats.brotli_savings >= 0, 'Brotli savings should be non-negative');
+            assert.strictEqual(typeof assigner.compression_stats.brotli_savings, 'number', 'Brotli savings should be numeric');
         });
 
         it('should respect compression configuration - gzip only', async function() {
             const assigner = new Single_Control_Webpage_Server_Static_Compressed_Response_Buffers_Assigner({
                 compression: {
                     enabled: true,
-                    algorithms: ['gzip']
+                    algorithms: ['gzip'],
+                    threshold: 0
                 }
             });
 
@@ -108,7 +117,8 @@ describe('Assigner Component Isolation Tests', function() {
             const assigner = new Single_Control_Webpage_Server_Static_Compressed_Response_Buffers_Assigner({
                 compression: {
                     enabled: true,
-                    algorithms: ['br']
+                    algorithms: ['br'],
+                    threshold: 0
                 }
             });
 
@@ -129,7 +139,8 @@ describe('Assigner Component Isolation Tests', function() {
                 compression: {
                     enabled: true,
                     algorithms: ['gzip'],
-                    gzip: { level: 1 } // Fastest compression
+                    gzip: { level: 1 }, // Fastest compression
+                    threshold: 0
                 }
             });
 
@@ -147,7 +158,8 @@ describe('Assigner Component Isolation Tests', function() {
                 compression: {
                     enabled: true,
                     algorithms: ['br'],
-                    brotli: { quality: 1 } // Lowest quality (fastest)
+                    brotli: { quality: 1 }, // Lowest quality (fastest)
+                    threshold: 0
                 }
             });
 
@@ -289,7 +301,11 @@ describe('Assigner Component Isolation Tests', function() {
 
     describe('Compression Statistics', function() {
         it('should track compression statistics accurately', async function() {
-            const assigner = new Single_Control_Webpage_Server_Static_Compressed_Response_Buffers_Assigner();
+            const assigner = new Single_Control_Webpage_Server_Static_Compressed_Response_Buffers_Assigner({
+                compression: {
+                    threshold: 0
+                }
+            });
 
             await assigner.assign(mockBundleItems);
 

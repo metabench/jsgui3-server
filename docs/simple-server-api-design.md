@@ -21,7 +21,7 @@ This document explains the design principles and implementation of the simplifie
 2. **Convention Over Configuration** – Smart defaults; minimal required config
 3. **Consistent Patterns** – Same API shape at every scale
 4. **Zero-to-Hero Path** – Clear upgrade path from simple to advanced
-5. **Composable** – Mix and match features (pages, APIs, static files)
+5. **Composable** – Mix and match features (pages, APIs, static files, managed resources, SSE events)
 
 ---
 
@@ -218,7 +218,59 @@ Server.serve({
 
 ---
 
-### Layer 5: Shorthand Routes (Mixed Types)
+### Layer 5: Managed Resources + Lifecycle Events
+
+**Use Case:** Run and supervise background workers alongside your web app, with optional SSE event streaming.
+
+```javascript
+let server;
+server = await Server.serve({
+    page: {
+        content: DashboardControl,
+        title: 'Ops Dashboard'
+    },
+    resources: {
+        // In-process resource object
+        cache: new In_Process_Cache_Resource({ name: 'cache' }),
+
+        // Local process resource (default manager: direct)
+        worker_direct: {
+            type: 'process',
+            command: process.execPath,
+            args: ['worker.js'],
+            autoRestart: true
+        },
+
+        // PM2-backed local process (pm2Path optional)
+        worker_pm2: {
+            type: 'process',
+            processManager: { type: 'pm2' },
+            command: process.execPath,
+            args: ['worker.js']
+        },
+
+        // Remote HTTP-controlled process
+        remote_agent: {
+            type: 'remote',
+            host: '127.0.0.1',
+            port: 3400
+        }
+    },
+    events: true, // enables /events SSE endpoint
+    api: {
+        'resources/summary': () => server.resource_pool.summary
+    }
+});
+```
+
+**Lifecycle conventions:**
+- Process-like resources expose the same API shape: `start()`, `stop()`, `restart()`, `status`, `get_abstract()`
+- Resource pool forwards lifecycle events (`resource_state_change`, `crashed`, `unhealthy`, `unreachable`, `recovered`)
+- `server.close()` stops managed resources and SSE publisher cleanly
+
+---
+
+### Layer 6: Shorthand Routes (Mixed Types)
 
 **Use Case:** Mix controls, functions, and static content flexibly
 
@@ -242,7 +294,7 @@ Server.serve({
 
 ---
 
-### Layer 6: Full Website Object
+### Layer 7: Full Website Object
 
 **Use Case:** Complex multi-page sites, existing `Website` instances
 
@@ -283,7 +335,7 @@ Server.serve({
 
 ---
 
-### Layer 7: Legacy/Advanced (Current API)
+### Layer 8: Legacy/Advanced (Current API)
 
 **Still fully supported for maximum control:**
 
@@ -546,6 +598,8 @@ require('../../../server').serve(require('./client').controls.Demo_UI);
 - [x] `api` option for function publishing
 - [x] Auto-prefix `/api/` routes
 - [x] JSON/text content-type detection
+- [x] `resources` option for in-process/process/remote managed resources
+- [x] `events` option for built-in SSE lifecycle publisher
 - [ ] `static` option for directory serving
 - [ ] MIME type detection for static files
 
@@ -713,3 +767,4 @@ server.on('ready', () => {
 4. **Clearer intent** – code reads like configuration
 5. **Easy scaling** – simple projects grow naturally
 6. **Zero breaking changes** – all existing code still works
+7. **Unified runtime operations** – consistent process/resource lifecycle APIs with optional SSE observability

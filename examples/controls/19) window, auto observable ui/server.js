@@ -54,6 +54,15 @@ if (require.main === module) {
         };
         server.publish_observable('/api/logs', obs_logs);
 
+        // Expose Status Diagram
+        server.publish('/dev-status.svg', (req, res) => {
+            const fs = require('fs');
+            const path = require('path');
+            const filePath = path.join(__dirname, '../../../../dev-status.svg');
+            res.setHeader('Content-Type', 'image/svg+xml');
+            fs.createReadStream(filePath).pipe(res);
+        });
+
         // Start
         const port = 52100;
         server.start(port, (err) => {

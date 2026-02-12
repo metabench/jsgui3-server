@@ -1,7 +1,143 @@
 const jsgui = require('jsgui3-client');
 const Active_HTML_Document = require('../../../controls/Active_HTML_Document');
-const { BindingDebugTools } = require('jsgui3-html/html-core/BindingDebugger');
+const jsgui3_html = require('jsgui3-html');
 const { Data_Object } = jsgui;
+
+const snapshot_model_values = (model) => {
+    if (!model || typeof model !== 'object') return {};
+    const raw_model = model._ && typeof model._ === 'object' ? model._ : model;
+    const result = {};
+    Object.keys(raw_model).forEach((key) => {
+        if (key.startsWith('_')) return;
+        const value = raw_model[key];
+        if (typeof value === 'function') return;
+        result[key] = value;
+    });
+    return result;
+};
+
+class Fallback_Binding_Debugger {
+    constructor(control) {
+        this.control = control;
+        this.logs = [];
+        this.enabled = false;
+    }
+
+    enable() {
+        this.enabled = true;
+        this.log('Debugging enabled');
+    }
+
+    disable() {
+        this.enabled = false;
+        this.log('Debugging disabled');
+    }
+
+    log(message) {
+        const entry = {
+            timestamp: new Date().toISOString(),
+            message
+        };
+        this.logs.push(entry);
+        if (this.logs.length > 100) {
+            this.logs.shift();
+        }
+        if (this.enabled) {
+            console.log(`[BindingDebugger:fallback] ${message}`);
+        }
+    }
+
+    getBindingSummary() {
+        const binding_manager = this.control && this.control._binding_manager;
+        if (!binding_manager || typeof binding_manager.inspect !== 'function') {
+            return {
+                totalBinders: 0,
+                totalComputed: 0,
+                totalWatchers: 0,
+                details: {
+                    binders: [],
+                    computed: [],
+                    watchers: []
+                }
+            };
+        }
+
+        const details = binding_manager.inspect();
+        const binders = Array.isArray(details.binders) ? details.binders : [];
+        const computed = Array.isArray(details.computed) ? details.computed : [];
+        const watchers = Array.isArray(details.watchers) ? details.watchers : [];
+
+        return {
+            totalBinders: binders.length,
+            totalComputed: computed.length,
+            totalWatchers: watchers.length,
+            details
+        };
+    }
+
+    snapshotModels() {
+        const control = this.control || {};
+        return {
+            timestamp: new Date().toISOString(),
+            dataModel: snapshot_model_values(control.data && control.data.model),
+            viewDataModel: snapshot_model_values(control.view && control.view.data && control.view.data.model),
+            viewModel: snapshot_model_values(control.view && control.view.model)
+        };
+    }
+
+    compareSnapshots(snapshot_a = {}, snapshot_b = {}) {
+        const differences = [];
+        const compare_group = (group_name) => {
+            const before_group = snapshot_a[group_name] || {};
+            const after_group = snapshot_b[group_name] || {};
+            const key_set = new Set([...Object.keys(before_group), ...Object.keys(after_group)]);
+            key_set.forEach((key) => {
+                if (before_group[key] === after_group[key]) return;
+                differences.push({
+                    path: `${group_name}.${key}`,
+                    oldValue: before_group[key],
+                    newValue: after_group[key]
+                });
+            });
+        };
+
+        compare_group('dataModel');
+        compare_group('viewDataModel');
+        compare_group('viewModel');
+        return differences;
+    }
+}
+
+const create_fallback_binding_debug_tools = () => {
+    const debugger_by_control = new WeakMap();
+    const get_debugger = (control) => {
+        if (!debugger_by_control.has(control)) {
+            debugger_by_control.set(control, new Fallback_Binding_Debugger(control));
+        }
+        return debugger_by_control.get(control);
+    };
+
+    return {
+        getDebugger: get_debugger,
+        enableFor(control) {
+            const debugger_instance = get_debugger(control);
+            debugger_instance.enable();
+            return debugger_instance;
+        },
+        disableFor(control) {
+            const debugger_instance = get_debugger(control);
+            debugger_instance.disable();
+        }
+    };
+};
+
+const BindingDebugTools = (
+    jsgui3_html
+    && jsgui3_html.BindingDebugTools
+    && typeof jsgui3_html.BindingDebugTools.getDebugger === 'function'
+)
+    ? jsgui3_html.BindingDebugTools
+    : create_fallback_binding_debug_tools();
 
 class Binding_Debugger_Control extends jsgui.Control {
     constructor(spec = {}) {

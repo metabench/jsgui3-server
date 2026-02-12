@@ -575,7 +575,8 @@ describe('Content Analysis Tests', function() {
 
             for (const [name, bundler] of Object.entries(bundlers)) {
                 const startTime = Date.now();
-                const result = await bundler.bundle(testJsFile);
+                const bundle_input = name === 'minifying' ? testJsContent : testJsFile;
+                const result = await bundler.bundle(bundle_input);
                 const endTime = Date.now();
 
                 const bundle = result[0];

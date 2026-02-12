@@ -21,6 +21,7 @@ class Core_JS_Non_Minifying_Bundler_Using_ESBuild extends Bundler_Using_ESBuild 
 
         // Store sourcemap configuration
         this.sourcemap_config = spec.sourcemaps || {};
+        this.build_plugins = Array.isArray(spec.plugins) ? spec.plugins : [];
 
     }
 
@@ -44,7 +45,7 @@ class Core_JS_Non_Minifying_Bundler_Using_ESBuild extends Bundler_Using_ESBuild 
 
 
 
-    bundle_js_string(js_string) {
+    bundle_js_string(js_string, build_overrides = {}) {
         const res_obs = obs(async(next, complete, error) => {
             try {
                 const o_build = {
@@ -61,6 +62,11 @@ class Core_JS_Non_Minifying_Bundler_Using_ESBuild extends Bundler_Using_ESBuild 
                 const sourcemapsEnabled = this.sourcemap_config.enabled !== false;
                 if (sourcemapsEnabled && (this.debug || this.sourcemap_config.includeInProduction)) {
                     o_build.sourcemap = this.sourcemap_config.format || 'inline';
+                }
+
+                const plugins = Array.isArray(build_overrides.plugins) ? build_overrides.plugins : this.build_plugins;
+                if (plugins.length > 0) {
+                    o_build.plugins = plugins;
                 }
 
                 const result = await esbuild.build(o_build);
@@ -87,7 +93,7 @@ class Core_JS_Non_Minifying_Bundler_Using_ESBuild extends Bundler_Using_ESBuild 
         return res_obs;
     }
 
-    bundle(js_file_path) {
+    bundle(js_file_path, build_overrides = {}) {
 
 
         const res_obs = obs(async(next, complete, error) => {
@@ -108,6 +114,11 @@ class Core_JS_Non_Minifying_Bundler_Using_ESBuild extends Bundler_Using_ESBuild 
                 const sourcemapsEnabled = this.sourcemap_config.enabled !== false;
                 if (sourcemapsEnabled && (this.debug || this.sourcemap_config.includeInProduction)) {
                     o_build.sourcemap = this.sourcemap_config.format || 'inline';
+                }
+
+                const plugins = Array.isArray(build_overrides.plugins) ? build_overrides.plugins : this.build_plugins;
+                if (plugins.length > 0) {
+                    o_build.plugins = plugins;
                 }
 
                 const result = await esbuild.build(o_build);

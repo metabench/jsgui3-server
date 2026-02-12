@@ -173,7 +173,8 @@ describe('End-to-End Integration Tests', function() {
                 bundler: {
                     compression: {
                         enabled: true,
-                        algorithms: ['gzip', 'br']
+                        algorithms: ['gzip', 'br'],
+                        threshold: 0
                     }
                 }
             });
@@ -399,28 +400,28 @@ describe('End-to-End Integration Tests', function() {
         });
 
         it('should handle server port conflicts', async function() {
-            // Start first server
-            const server1 = await start_server({
+            this.timeout(60000);
+            const server_1 = await Server.serve({
                 ...base_serve_options,
                 debug: false,
                 host: '127.0.0.1'
             });
 
-            // Try to start second server on same port
+            let conflicting_server = null;
             try {
-                await start_server({
+                conflicting_server = await Server.serve({
                     ...base_serve_options,
-                    port: serverPort, // Same port
+                    port: serverPort,
                     debug: false,
                     host: '127.0.0.1'
                 });
                 assert.fail('Should have failed to start server on occupied port');
             } catch (error) {
                 assert(error, 'Should throw error for port conflict');
+            } finally {
+                await stop_server(conflicting_server);
+                await stop_server(server_1);
             }
-
-            // Clean up
-            await stop_server(server1);
         });
     });
 });

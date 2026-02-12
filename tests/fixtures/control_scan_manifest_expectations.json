@@ -1,0 +1,48 @@
+{
+  "static_alias": {
+    "entry_file": "temp_control_scan_static_alias_client.js",
+    "uses_jsgui3_html": true,
+    "dynamic_control_access_detected": false,
+    "reachable_files": [
+      "temp_control_scan_static_alias_client.js"
+    ],
+    "used_identifiers": [
+      "Active_HTML_Document",
+      "Button"
+    ],
+    "selected_controls": [
+      "Active_HTML_Document",
+      "Button"
+    ],
+    "unmatched_identifiers": [],
+    "package_aliases": [
+      "ui"
+    ],
+    "controls_aliases": [
+      "controls",
+      "ui_controls"
+    ]
+  },
+  "dynamic_alias": {
+    "entry_file": "temp_control_scan_dynamic_alias_client.js",
+    "uses_jsgui3_html": true,
+    "dynamic_control_access_detected": true,
+    "reachable_files": [
+      "temp_control_scan_dynamic_alias_client.js"
+    ],
+    "used_identifiers": [
+      "Active_HTML_Document"
+    ],
+    "selected_controls": [
+      "Active_HTML_Document"
+    ],
+    "unmatched_identifiers": [],
+    "package_aliases": [
+      "ui"
+    ],
+    "controls_aliases": [
+      "controls",
+      "ui_controls"
+    ]
+  }
+}

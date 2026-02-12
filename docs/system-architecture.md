@@ -36,6 +36,8 @@ JSGUI3 Server is a Node.js-based web framework that serves modern JavaScript GUI
 - `HTTP_Webpage_Publisher`: Serves bundled JSGUI3 controls as complete web pages
 - `HTTP_Website_Publisher`: Manages multi-page websites
 - `HTTP_Function_Publisher`: Exposes JavaScript functions as REST API endpoints
+- `HTTP_Observable_Publisher`: Streams observable-backed SSE
+- `HTTP_SSE_Publisher`: General-purpose SSE fan-out publisher
 - `HTTP_CSS_Publisher`: Serves CSS stylesheets
 - `HTTP_JS_Publisher`: Serves JavaScript bundles
 - `HTTP_Image_Publisher`: Handles image file serving
@@ -47,6 +49,8 @@ JSGUI3 Server is a Node.js-based web framework that serves modern JavaScript GUI
 
 **Key Resources:**
 - `Server_Resource_Pool`: Manages collections of resources with lifecycle management
+- `Process_Resource`: Local process resource (`direct` default, optional `pm2`)
+- `Remote_Process_Resource`: HTTP-controlled remote process resource
 - `Website_Resource`: Wraps website objects for server integration
 - `File_System_Resource`: Provides file system access
 - `Data_Resource`: Handles data storage and retrieval

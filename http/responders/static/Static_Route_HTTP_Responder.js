@@ -55,50 +55,68 @@ class Static_Route_HTTP_Responder extends HTTP_Responder {
 
         if (typeof accept_encoding === 'string' && accept_encoding.includes('br')) supported_encodings.br = true;
 
-        const has_br = response_buffers && response_buffers.br;
-        const has_gzip = response_buffers && response_buffers.gzip;
+        const safe_response_buffers = response_buffers || {};
+        const safe_response_headers = response_headers || {};
+
+        const identity_buffer = safe_response_buffers.identity || Buffer.from(text || '', 'utf8');
+        const has_br = safe_response_buffers.br;
+        const has_gzip = safe_response_buffers.gzip;
         const use_br = supported_encodings.br === true && has_br;
         const use_gzip = supported_encodings.gzip === true && has_gzip;
 
+        let selected_encoding = 'identity';
+        let selected_buffer = identity_buffer;
+        if (use_br) {
+            selected_encoding = 'br';
+            selected_buffer = safe_response_buffers.br;
+        } else if (use_gzip) {
+            selected_encoding = 'gzip';
+            selected_buffer = safe_response_buffers.gzip;
+        }
+
+        if (!Buffer.isBuffer(selected_buffer)) {
+            selected_buffer = Buffer.from(String(selected_buffer || ''), 'utf8');
+        }
+
+        const selected_headers = safe_response_headers[selected_encoding] || safe_response_headers.identity || {};
+
         //console.log('supported_encodings', supported_encodings);
 
-        if (use_br) {
-            
-            for (const key in response_headers.br) {
-                const value = response_headers.br[key];
-                //console.log('[key, value]', [key, value]);
+        const has_header = (header_name) => {
+            if (typeof res.hasHeader === 'function') {
+                return res.hasHeader(header_name);
+            }
+            if (typeof res.getHeader === 'function') {
+                return typeof res.getHeader(header_name) !== 'undefined';
+            }
+            return false;
+        };
+
+        if (typeof res.setHeader === 'function') {
+            for (const key in selected_headers) {
+                const value = selected_headers[key];
                 res.setHeader(key, value);
             }
 
-        } else if (use_gzip) {
-            //console.log('should write headers for gzipped buffer...');
-
-            for (const key in response_headers.gzip) {
-                const value = response_headers.gzip[key];
-                //console.log('[key, value]', [key, value]);
-                res.setHeader(key, value);
+            if (!has_header('Content-Type')) {
+                if (extension === 'css') res.setHeader('Content-Type', 'text/css; charset=utf-8');
+                if (extension === 'js') res.setHeader('Content-Type', 'application/javascript; charset=utf-8');
+                if (extension === 'html') res.setHeader('Content-Type', 'text/html; charset=utf-8');
             }
-        } else {
-            for (const key in response_headers.identity) {
-                const value = response_headers.identity[key];
-                //console.log('[key, value]', [key, value]);
-                res.setHeader(key, value);
+            if (!has_header('Content-Length')) {
+                res.setHeader('Content-Length', selected_buffer.length);
             }
         }
 
         // Then write the (hopefully compressed) response bodies...
 
-        if (use_br) {
-
-            res.write(response_buffers.br);
-        } else if (use_gzip) {
-            //console.log('should write gzipped buffer...');
-            res.write(response_buffers.gzip);
-        } else {
-            res.write(response_buffers.identity);
+        if (typeof res.write === 'function') {
+            res.write(selected_buffer);
         }
 
-        res.end();
+        if (typeof res.end === 'function') {
+            res.end();
+        }
 
         //console.trace();
         //throw 'NYI';

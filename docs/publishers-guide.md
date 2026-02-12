@@ -192,6 +192,61 @@ data: {"tick":2,"timestamp":1234567891,"message":"Server tick #2"}
 
 **See Also:** [Observable SSE Demo](../examples/controls/15)%20window,%20observable%20SSE/) for a complete working example.
 
+### HTTP_SSE_Publisher
+
+**Purpose:** General-purpose Server-Sent Events publisher for manual event fan-out (not tied to an observable source).
+
+**Key Features:**
+- SSE client connection registry with `client_count`
+- `broadcast(event_name, data)` for fan-out to all clients
+- `send(client_id, event_name, data)` for targeted delivery
+- Keepalive comments (`:keepalive`) to prevent idle proxy timeouts
+- Last-Event-ID replay support for reconnecting clients
+- Optional max-client limit
+- Emits:
+  - `client_connected`
+  - `client_disconnected`
+
+**Usage:**
+```javascript
+const HTTP_SSE_Publisher = require('jsgui3-server/publishers/http-sse-publisher');
+
+const sse_publisher = new HTTP_SSE_Publisher({
+    name: 'events',
+    keepaliveIntervalMs: 15000,
+    maxClients: 100
+});
+
+server.server_router.set_route('/events', sse_publisher, sse_publisher.handle_http);
+
+sse_publisher.broadcast('resource_state_change', {
+    resourceName: 'worker_1',
+    from: 'running',
+    to: 'crashed'
+});
+```
+
+**With `Server.serve()` Auto Wiring:**
+```javascript
+const server = await Server.serve({
+    events: true,
+    resources: {
+        worker_1: {
+            type: 'process',
+            command: process.execPath,
+            args: ['worker.js']
+        }
+    }
+});
+
+// SSE endpoint is available at /events by default.
+```
+
+### Choosing an SSE Publisher
+
+- Use `HTTP_Observable_Publisher` when your source is an observable stream.
+- Use `HTTP_SSE_Publisher` when you need explicit event push control (`broadcast`/`send`) from arbitrary server logic.
+
 ## Publisher Architecture
 
 ### Base Publisher Class

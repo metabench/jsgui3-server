@@ -1,7 +1,28 @@
 const jsgui = require('jsgui3-client');
 const Active_HTML_Document = require('../../../controls/Active_HTML_Document');
 const { Data_Object } = jsgui;
-const { apply_theme_overrides } = require('jsgui3-html/control_mixins/theme');
+const jsgui3_html = require('jsgui3-html');
+
+const apply_theme_overrides_fallback = (ctrl, token_map = {}) => {
+    if (!ctrl || !ctrl.dom || !ctrl.dom.attributes) return;
+    const css_var_entries = Object.entries(token_map).map(([token_name, token_value]) => {
+        return `--theme-${token_name}: ${token_value};`;
+    });
+    if (!css_var_entries.length) return;
+
+    const existing_style = String(ctrl.dom.attributes.style || '');
+    const separator = existing_style && !existing_style.trim().endsWith(';') ? '; ' : ' ';
+    ctrl.dom.attributes.style = `${existing_style}${separator}${css_var_entries.join(' ')}`.trim();
+};
+
+const apply_theme_overrides = (
+    jsgui3_html
+    && jsgui3_html.mx
+    && jsgui3_html.mx.theme
+    && typeof jsgui3_html.mx.theme.apply_theme_overrides === 'function'
+)
+    ? jsgui3_html.mx.theme.apply_theme_overrides
+    : apply_theme_overrides_fallback;
 
 const THEME_OPTIONS = Object.freeze({
     copper: {

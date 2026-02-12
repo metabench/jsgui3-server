@@ -27,14 +27,26 @@ class TestRunner {
             'assigners.test.js',
             'publishers.test.js',
             'configuration-validation.test.js',
+            'admin-ui-render.test.js',
+            'serve.test.js',
+            'serve-resources.test.js',
+            'process-resource.test.js',
+            'remote-process-resource.test.js',
+            'server-resource-pool.test.js',
+            'http-sse-publisher.test.js',
             'end-to-end.test.js',
             'content-analysis.test.js',
+            'small-controls-bundle-size.test.js',
+            'control-optimizer-cache-behavior.test.js',
+            'control-scan-manifest-regression.test.js',
             'performance.test.js',
             'error-handling.test.js',
             'examples-controls.e2e.test.js',
             'sass-controls.e2e.test.js',
             'jsgui3-html-examples.puppeteer.test.js',
-            'window-examples.puppeteer.test.js'
+            'bundling-default-control-elimination.puppeteer.test.js',
+            'window-examples.puppeteer.test.js',
+            'window-resource-integration.puppeteer.test.js'
         ];
     }
 

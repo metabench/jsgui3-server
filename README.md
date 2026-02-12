@@ -8,7 +8,7 @@ This is the primary entry point for understanding the JSGUI3 Server project. Rea
 - You're looking for quick start guides and basic usage examples
 - You need to understand the project's capabilities and limitations
 
-**Note:** For detailed API documentation, see [docs/comprehensive-documentation.md](docs/comprehensive-documentation.md). For advanced server API design, see [docs/simple-server-api-design.md](docs/simple-server-api-design.md).
+**Note:** For detailed API documentation, see [docs/comprehensive-documentation.md](docs/comprehensive-documentation.md). For advanced server API design, see [docs/simple-server-api-design.md](docs/simple-server-api-design.md). For dense internals focused on startup, resources, SSE, and E2E verification, see [docs/core/jsgui3-server-core-book/00-table-of-contents.md](docs/core/jsgui3-server-core-book/00-table-of-contents.md). For deep bundling research and lightweight-bundle strategy, see [docs/books/jsgui3-bundling-research-book/README.md](docs/books/jsgui3-bundling-research-book/README.md).
 
 # Jsgui3 Server
 
@@ -72,6 +72,66 @@ Server.serve({
 });
 ```
 
+### Managed Resources (In-Process, Direct Process, Remote Process)
+
+```javascript
+const Server = require('jsgui3-server');
+const { Resource } = require('jsgui3-server');
+
+class In_Process_Cache_Resource extends Resource {
+    constructor(spec = {}) {
+        super(spec);
+        this.cache = new Map();
+    }
+    start(callback) { callback(null, true); }
+    stop(callback) { this.cache.clear(); callback(null, true); }
+}
+
+const server = await Server.serve({
+    port: 3000,
+    api: {
+        'resources/summary': () => server.resource_pool.summary
+    },
+    resources: {
+        // Existing in-process resource instance
+        cache: new In_Process_Cache_Resource({ name: 'cache' }),
+
+        // Local child process (default process_manager is direct)
+        worker_direct: {
+            type: 'process',
+            command: process.execPath,
+            args: ['worker.js'],
+            autoRestart: true
+        },
+
+        // Local process managed by PM2 (pm2Path is optional)
+        worker_pm2: {
+            type: 'process',
+            processManager: {
+                type: 'pm2'
+            },
+            command: process.execPath,
+            args: ['worker.js']
+        },
+
+        // Remote process controlled over HTTP
+        remote_worker: {
+            type: 'remote',
+            host: '127.0.0.1',
+            port: 3400
+        }
+    },
+    events: true // creates /events SSE endpoint and forwards pool resource lifecycle events
+});
+```
+
+All process-style resources expose a consistent API:
+- `start()`
+- `stop()`
+- `restart()`
+- `status` (includes `state`, `pid`, `uptime`, `restartCount`, `lastHealthCheck`, `memoryUsage`, `processManager`)
+- `get_abstract()`
+
 ### Real-time SSE Streams
 
 ```javascript
@@ -83,9 +143,27 @@ const obs = observable(next => {
 
 // Start server and publish stream
 const server = await Server.serve(MyControl);
-server.publish_observable('/api/stream', obs);
-// Server publishes SSE stream at http://localhost:3000/api/stream
+
+// Simple name - auto-prefixes /api/
+server.publish_observable('stream', obs);
+// Server publishes SSE stream at http://localhost:8080/api/stream
+
+// Or use full route path for custom routes
+server.publish_observable('/custom/events', obs);
+// Server publishes SSE stream at http://localhost:8080/custom/events
+
 // Client connects via EventSource or Remote_Observable
+```
+
+### General SSE Publisher
+
+```javascript
+const HTTP_SSE_Publisher = require('jsgui3-server/publishers/http-sse-publisher');
+
+const sse_publisher = new HTTP_SSE_Publisher({ name: 'events' });
+server.server_router.set_route('/events', sse_publisher, sse_publisher.handle_http);
+
+sse_publisher.broadcast('resource_update', { running: 3, total: 5 });
 ```
 
 > **Note:** The new `Server.serve()` API is the recommended approach for most use cases. See [Simple Server API Design](docs/simple-server-api-design.md) for complete documentation and advanced features.
@@ -909,11 +987,15 @@ Minimal example:
 ```javascript
 // Inside your server bootstrap (after constructing Server)
 server.on('ready', () => {
+  // Simple name - auto-prefixes /api/
   // Returns text/plain at GET/POST /api/hello
   server.publish('hello', name => `Hello ${name || 'world'}`);
 
   // Returns application/json at GET/POST /api/sum
   server.publish('sum', ({ a, b }) => ({ sum: a + b }));
+  
+  // Full route path for custom routes (no auto-prefix)
+  server.publish('/custom/endpoint', () => ({ custom: true }));
 });
 ```
 

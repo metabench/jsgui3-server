@@ -28,6 +28,7 @@ class TestRunner {
             'publishers.test.js',
             'configuration-validation.test.js',
             'admin-ui-render.test.js',
+            'admin-ui-jsgui-controls.test.js',
             'serve.test.js',
             'serve-resources.test.js',
             'process-resource.test.js',

@@ -168,6 +168,136 @@ sse_publisher.broadcast('resource_update', { running: 3, total: 5 });
 
 > **Note:** The new `Server.serve()` API is the recommended approach for most use cases. See [Simple Server API Design](docs/simple-server-api-design.md) for complete documentation and advanced features.
 
+## Admin UI Dashboard
+
+Every jsgui3-server instance includes a built-in admin dashboard at `/admin/v1` with live stats, resource inspection, route listing, and SSE-driven heartbeat updates. The dashboard is session-authenticated (default dev credentials: `admin` / `admin`).
+
+The admin shell is implemented with jsgui controls for navigation and dynamic panel rendering (control-first composition), and is covered by the interaction regression suite in `tests/admin-ui-jsgui-controls.test.js`.
+
+### Disabling the Admin UI
+
+```javascript
+Server.serve({ Ctrl: MyControl, admin: false });
+
+// or
+Server.serve({ Ctrl: MyControl, admin: { enabled: false } });
+```
+
+### Adding Custom Sections
+
+Custom sections appear in the admin sidebar. When clicked, the shell fetches data from the section's API endpoint and auto-renders it as a table (arrays) or key-value panel (objects).
+
+```javascript
+const server = await Server.serve(MyControl);
+
+server.admin_v1.add_section({
+    id: 'crawlers',
+    label: 'Crawlers',
+    icon: '\uD83D\uDD77\uFE0F',
+    api_path: '/api/admin/v1/crawlers',
+    handler: (req, res) => {
+        res.writeHead(200, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify([
+            { name: 'Site A', status: 'running', pages: 1234 },
+            { name: 'Site B', status: 'idle',    pages: 0 }
+        ]));
+    }
+});
+```
+
+### Adding Custom Protected Endpoints
+
+```javascript
+server.admin_v1.add_endpoint({
+    path: '/api/admin/v1/crawlers/start',
+    role: 'admin_write',
+    handler: (req, res) => {
+        // start crawler logic
+        res.writeHead(200, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ ok: true }));
+    }
+});
+```
+
+### Plugin Pattern
+
+```javascript
+server.admin_v1.use((admin) => {
+    admin.add_section({
+        id: 'logs',
+        label: 'Logs',
+        icon: '\uD83D\uDCDC',
+        api_path: '/api/admin/v1/logs',
+        handler: (req, res) => {
+            res.writeHead(200, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify({ recent: ['log1', 'log2'] }));
+        }
+    });
+});
+```
+
+### Admin UI Regression Test
+
+```bash
+node tests/test-runner.js --test=admin-ui-jsgui-controls.test.js
+```
+
+### Declarative Configuration via `Server.serve()`
+
+Custom sections and endpoints can also be declared in the `Server.serve()` call:
+
+```javascript
+Server.serve({
+    Ctrl: MyControl,
+    port: 8080,
+    admin: {
+        sections: [
+            {
+                id: 'jobs',
+                label: 'Jobs',
+                icon: '\u2699\uFE0F',
+                api_path: '/api/admin/v1/jobs',
+                handler: (req, res) => {
+                    res.writeHead(200, { 'Content-Type': 'application/json' });
+                    res.end(JSON.stringify([{ name: 'nightly-sync', status: 'complete' }]));
+                }
+            }
+        ],
+        endpoints: [
+            {
+                path: '/api/admin/v1/jobs/run',
+                role: 'admin_write',
+                handler: (req, res) => {
+                    res.writeHead(200, { 'Content-Type': 'application/json' });
+                    res.end(JSON.stringify({ ok: true }));
+                }
+            }
+        ]
+    }
+});
+```
+
+### Exported Admin Classes
+
+For advanced customisation, the admin classes are exported from the package:
+
+```javascript
+const Server = require('jsgui3-server');
+
+// Available on the Server constructor:
+Server.Admin_Module_V1    // Admin adapter (sections, endpoints, auth, SSE)
+Server.Admin_Auth_Service // Session management, cookie handling, role checking
+Server.Admin_User_Store   // In-memory user credential store (scrypt)
+
+// Also available from the npm module entry:
+const jsgui = require('jsgui3-server');
+jsgui.Admin_Module_V1
+jsgui.Admin_Auth_Service
+jsgui.Admin_User_Store
+```
+
+See [Admin Extension Guide](docs/admin-extension-guide.md) for detailed API reference.
+
 ## Architecture Overview
 
 The server operates as a bridge between server-side JavaScript applications and browser clients, offering:

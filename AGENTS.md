@@ -36,6 +36,9 @@
 - **[docs/agent-development-guide.md](docs/agent-development-guide.md)** - Guide for AI agents working on this codebase
 - **[docs/broken-functionality-tracker.md](docs/broken-functionality-tracker.md)** - Tracker for broken/incomplete functionality
 
+### Admin UI
+- **[docs/admin-extension-guide.md](docs/admin-extension-guide.md)** - Admin UI extension API: custom sections, endpoints, plugins, exported classes
+
 ### Review and Maintenance
 - **[docs/documentation-review/CURRENT_REVIEW.md](docs/documentation-review/CURRENT_REVIEW.md)** - Current documentation review status and known issues
 
@@ -58,6 +61,7 @@
 - **Custom control development** → `docs/controls-development.md`
 - **Publisher system** → `docs/publishers-guide.md`
 - **Resource management** → `docs/resources-guide.md`
+- **Admin UI extensions** → `docs/admin-extension-guide.md`
 
 ### Agent Development
 - **Agentic workflow patterns** → `docs/GUIDE_TO_AGENTIC_WORKFLOWS_BY_GROK.md`

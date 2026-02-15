@@ -289,6 +289,7 @@ module.exports = (Server) => {
         };
         if (style_config !== undefined) server_spec.style = style_config;
         if (bundler_config !== undefined) server_spec.bundler = bundler_config;
+        if (serve_options.admin !== undefined) server_spec.admin = serve_options.admin;
 
         if (typeof serve_options.ctrl === 'function') {
             server_spec.Ctrl = serve_options.ctrl;

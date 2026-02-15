@@ -28,6 +28,11 @@ if (jsgui.Resource) {
 }
 jsgui.fs2 = require('./fs2');
 
+// Admin UI extensibility exports
+jsgui.Admin_Module_V1 = Server.Admin_Module_V1;
+jsgui.Admin_Auth_Service = Server.Admin_Auth_Service;
+jsgui.Admin_User_Store = Server.Admin_User_Store;
+
 // Port utilities for auto-port selection
 const port_utils = require('./port-utils');
 jsgui.port_utils = port_utils;

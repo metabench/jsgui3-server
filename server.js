@@ -134,6 +134,196 @@ class JSGUI_Single_Process_Server extends Evented_Class {
 			console.warn('Skipping /admin route registration due to missing control.');
 		}
 
+		// ─── Admin UI V1 (Dashboard with Stat Cards) ─────────
+		// Configurable via spec.admin:
+		//   spec.admin === false              → disable admin entirely
+		//   spec.admin = { enabled: false }   → disable admin entirely
+		//   spec.admin = { sections: [...] }  → add custom sidebar sections
+		//   spec.admin = { endpoints: [...] } → add custom protected endpoints
+		const admin_config = spec.admin !== undefined ? spec.admin : {};
+		const admin_enabled = admin_config !== false && (admin_config.enabled !== false);
+
+		const Admin_Module_V1 = require('./admin-ui/v1/server');
+		if (admin_enabled) {
+		this.admin_v1 = new Admin_Module_V1(typeof admin_config === 'object' ? admin_config : {});
+		this.admin_v1.init(this);
+
+		// Register Admin V1 Page Route
+		let Admin_Shell_Control;
+		try {
+			Admin_Shell_Control = require('./admin-ui/v1/client').controls.Admin_Shell;
+		} catch (e) {
+			console.warn('Failed to load Admin_Shell control:', e.message || e);
+		}
+
+		if (Admin_Shell_Control) {
+			const admin_v1_app = new Webpage({
+				content: Admin_Shell_Control,
+				title: 'jsgui3 Admin Dashboard'
+			});
+
+			const admin_v1_publisher = new HTTP_Webpage_Publisher({
+				name: 'Admin_V1_Publisher',
+				webpage: admin_v1_app,
+				src_path_client_js: lib_path.join(__dirname, 'admin-ui/v1/client.js')
+			});
+			admin_v1_publisher.name = 'Admin_V1_Publisher';
+
+			const is_dev_defaults = !process.env.ADMIN_V1_PASSWORD && process.env.NODE_ENV !== 'production';
+			const login_hint = is_dev_defaults
+				? '<div class="hint dev-creds">Dev defaults active — username: <code>admin</code> password: <code>admin</code></div><div class="hint">Set ADMIN_V1_USER / ADMIN_V1_PASSWORD env vars for production.</div>'
+				: '<div class="hint">Sign in with your configured credentials.</div>';
+			const login_html = `<!doctype html>
+<html>
+<head>
+	<meta charset="utf-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1" />
+	<title>Admin Login</title>
+	<style>
+		body { margin:0; font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif; background:#111428; color:#e8e8f0; display:flex; align-items:center; justify-content:center; min-height:100vh; }
+		.card { width: 340px; background:#1b1f38; border:1px solid #2f3358; border-radius:10px; padding:20px; }
+		h1 { margin:0 0 16px; font-size:1rem; }
+		label { display:block; margin:10px 0 6px; font-size:0.8rem; color:#9aa0c8; }
+		input { width:100%; box-sizing:border-box; background:#13162a; border:1px solid #2e345c; color:#e8e8f0; border-radius:6px; padding:8px 10px; }
+		button { margin-top:14px; width:100%; border:1px solid #4facfe; background:#224267; color:#d3ebff; border-radius:6px; padding:8px 10px; cursor:pointer; }
+		.err { margin-top:10px; color:#ff8e9f; font-size:0.8rem; min-height:1.1rem; }
+		.hint { margin-top:12px; color:#7f86b3; font-size:0.75rem; }
+		.dev-creds { color:#43e97b; }
+		code { background:#13162a; padding:2px 6px; border-radius:4px; font-size:0.8rem; }
+	</style>
+</head>
+<body>
+	<div class="card">
+		<h1>jsgui3 Admin Login</h1>
+		<form id="login-form">
+			<label for="username">Username</label>
+			<input id="username" autocomplete="username" required />
+			<label for="password">Password</label>
+			<input id="password" type="password" autocomplete="current-password" required />
+			<button type="submit">Sign In</button>
+			<div class="err" id="err"></div>
+			${login_hint}
+		</form>
+	</div>
+	<script>
+		(async () => {
+			try {
+				const session = await fetch('/api/admin/v1/auth/session', { credentials: 'same-origin' }).then(r => r.json());
+				if (session && session.authenticated) {
+					location.replace('/admin/v1');
+					return;
+				}
+			} catch (e) {}
+
+			const form = document.getElementById('login-form');
+			const err = document.getElementById('err');
+			form.addEventListener('submit', async (e) => {
+				e.preventDefault();
+				err.textContent = '';
+				const username = document.getElementById('username').value;
+				const password = document.getElementById('password').value;
+				try {
+					const res = await fetch('/api/admin/v1/auth/login', {
+						method: 'POST',
+						headers: { 'Content-Type': 'application/json' },
+						credentials: 'same-origin',
+						body: JSON.stringify({ username, password })
+					});
+					const data = await res.json();
+					if (!res.ok || !data.ok) {
+						err.textContent = data && data.error ? data.error : 'Login failed';
+						return;
+					}
+					location.replace('/admin/v1');
+				} catch (e2) {
+					err.textContent = 'Network error';
+				}
+			});
+		})();
+	</script>
+</body>
+</html>`;
+
+			const serve_admin_v1_page = (req, res) => {
+				if (req && typeof req.url === 'string' && req.url.startsWith('/admin/v1/login')) {
+					res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
+					res.end(login_html);
+					return;
+				}
+
+				if (!this.admin_v1 || !this.admin_v1.is_admin_read_request(req)) {
+					res.writeHead(302, { Location: '/admin/v1/login' });
+					res.end();
+					return;
+				}
+				if (admin_v1_cached_html) {
+					res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
+					res.end(admin_v1_cached_html);
+				} else {
+					res.writeHead(503, { 'Content-Type': 'text/plain' });
+					res.end('Admin UI v1 is loading, please retry...');
+				}
+			};
+
+			server_router.set_route('/admin/v1/login', null, (req, res) => {
+				res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
+				res.end(login_html);
+			});
+
+			// Namespace admin v1 assets under /admin/v1/ to avoid
+			// colliding with the main app's /js/js.js and /css/css.css.
+			let admin_v1_cached_html = null;
+
+			admin_v1_publisher.on('ready', (res_ready) => {
+				if (res_ready && res_ready._arr) {
+					for (const bundle_item of res_ready._arr) {
+						const { type } = bundle_item;
+						if (type === 'HTML') {
+							// Rewrite asset references so browser fetches
+							// the admin-specific JS/CSS, not the main app's.
+							let html = bundle_item.text || '';
+							html = html.replace(
+								/href="\/css\/css\.css"/g,
+								'href="/admin/v1/css/css.css"'
+							);
+							html = html.replace(
+								/src="\/js\/js\.js"/g,
+								'src="/admin/v1/js/js.js"'
+							);
+							// Inject viewport meta for mobile rendering
+							if (!html.includes('name="viewport"')) {
+								html = html.replace(
+									/<head([^>]*)>/i,
+									'<head$1><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">'
+								);
+							}
+							admin_v1_cached_html = html;
+						} else {
+							// JS → /admin/v1/js/js.js, CSS → /admin/v1/css/css.css
+							const namespaced_route =
+								type === 'JavaScript' ? '/admin/v1/js/js.js' :
+								type === 'CSS'        ? '/admin/v1/css/css.css' :
+								'/admin/v1' + bundle_item.route;
+							const responder = new Static_Route_HTTP_Responder(bundle_item);
+							server_router.set_route(namespaced_route, responder, responder.handle_http);
+						}
+					}
+
+					// Serve authenticated admin page at /admin/v1
+					server_router.set_route('/admin/v1', null, serve_admin_v1_page);
+				}
+			});
+
+			// Temporary handler until the publisher finishes bundling
+			server_router.set_route('/admin/v1', null, serve_admin_v1_page);
+			resource_pool.add(admin_v1_publisher);
+		} else {
+			console.warn('Skipping /admin/v1 route registration due to missing Admin_Shell control.');
+		}
+		} else {
+			// admin_enabled === false
+			this.admin_v1 = null;
+		}
 
 		if (spec.routes) {
 			throw 'NYI - will use Website class rather than Website_Resource here'
@@ -540,6 +730,9 @@ class JSGUI_Single_Process_Server extends Evented_Class {
 		if (this.sse_publisher) {
 			stop_targets.push(this.sse_publisher);
 		}
+		if (this.admin_v1 && typeof this.admin_v1.destroy === 'function') {
+			this.admin_v1.destroy();
+		}
 
 		if (stop_targets.length === 0) {
 			close_http_servers(() => finalize_close(null));
@@ -578,6 +771,12 @@ JSGUI_Single_Process_Server.Publishers = Publishers;
 JSGUI_Single_Process_Server.Process_Resource = Process_Resource;
 JSGUI_Single_Process_Server.Remote_Process_Resource = Remote_Process_Resource;
 JSGUI_Single_Process_Server.HTTP_SSE_Publisher = HTTP_SSE_Publisher;
+
+// Admin UI extensibility exports
+JSGUI_Single_Process_Server.Admin_Module_V1 = require('./admin-ui/v1/server');
+JSGUI_Single_Process_Server.Admin_Auth_Service = require('./admin-ui/v1/admin_auth_service');
+JSGUI_Single_Process_Server.Admin_User_Store = require('./admin-ui/v1/admin_user_store');
+
 JSGUI_Single_Process_Server.serve = require('./serve-factory')(JSGUI_Single_Process_Server);
 
 module.exports = JSGUI_Single_Process_Server;

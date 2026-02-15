@@ -540,6 +540,37 @@ from origin 'http://localhost:3000' has been blocked by CORS policy
    delete require.cache[require.resolve('./client.js')];
    ```
 
+### Generated `.jsgui3-server-cache` Shim Files
+
+**Symptoms:**
+- You see many changed files under `.jsgui3-server-cache/jsgui3-html-shims/`
+- Shim files contain absolute machine-specific paths
+- Git status looks noisy after running examples or admin pages
+
+**What this is:**
+- These are generated cache artifacts created by the bundling/render pipeline.
+- They are performance helpers, not source-of-truth project files.
+
+**Expected behavior:**
+1. They may be regenerated when controls, environment, or module resolution changes.
+2. They can differ across machines (for example, local `node_modules` path vs NVM/global path).
+3. They are safe to delete; they will be recreated when needed.
+
+**Recommended project hygiene:**
+1. Ignore cache directories in `.gitignore`:
+   ```gitignore
+   .jsgui3-server-cache/
+   **/.jsgui3-server-cache/
+   ```
+2. If accidentally changed, revert generated shims:
+   ```bash
+   git restore -- .jsgui3-server-cache/jsgui3-html-shims/*.js
+   ```
+3. If a nested example cache appears, remove it:
+   ```bash
+   rm -rf "examples/controls/1) window/.jsgui3-server-cache"
+   ```
+
 ### Source Maps Not Working
 
 **Symptoms:**

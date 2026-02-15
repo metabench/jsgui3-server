@@ -22,6 +22,7 @@ tests/
 ├── publishers.test.js            # Component isolation tests for publishers
 ├── configuration-validation.test.js  # Configuration validation tests
 ├── admin-ui-render.test.js       # Admin page render regression test
+├── admin-ui-jsgui-controls.test.js # Admin shell interaction + control-first regression test
 ├── serve.test.js                 # Server.serve core behavior tests
 ├── serve-resources.test.js       # Server.serve + resource integration tests
 ├── process-resource.test.js      # Process_Resource lifecycle and restart tests
@@ -58,6 +59,9 @@ node tests/test-runner.js --test=bundlers.test.js
 
 # Optimizer cache behavior
 node tests/test-runner.js --test=control-optimizer-cache-behavior.test.js
+
+# Admin UI shell interaction regression
+node tests/test-runner.js --test=admin-ui-jsgui-controls.test.js
 
 # Using mocha directly
 npx mocha tests/bundlers.test.js
@@ -257,6 +261,7 @@ Browser-level interaction checks that combine controls and server resources:
 ### 12. Core Resource and Serve Reliability Tests
 
 - `admin-ui-render.test.js` validates the admin page control renders without clobbering control internals
+- `admin-ui-jsgui-controls.test.js` validates admin shell interactions, custom section nav refresh, retry/logout control behavior, and SSE open/error/heartbeat handling
 - `serve.test.js` validates `Server.serve` startup/route readiness behavior
 - `serve-resources.test.js` validates in-process and process resource wiring in serve mode
 - `process-resource.test.js` validates direct process lifecycle + crash restart handling

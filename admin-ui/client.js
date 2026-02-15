@@ -8,6 +8,10 @@ class Admin_Page extends Active_HTML_Document {
         super(spec);
         const { context } = this;
 
+        this._menu_items = [];
+        this._section_labels = Object.create(null);
+        this._active_section = 'overview';
+
         if (typeof this.body.add_class === 'function') {
             this.body.add_class('admin-page');
         }
@@ -71,7 +75,51 @@ class Admin_Page extends Active_HTML_Document {
         item.dom.attributes['data-id'] = id;
         item.add(label);
         this.menu.add(item);
+
+        this._section_labels[id] = label;
+        this._menu_items.push({
+            id,
+            label,
+            control: item
+        });
+
+        item.on('click', () => {
+            this._activate_menu_item(id);
+        });
+
         return item;
+    }
+
+    _set_control_text(control, text) {
+        if (!control) return;
+        if (typeof control.clear === 'function') {
+            control.clear();
+        }
+        if (typeof control.add === 'function') {
+            control.add(String(text == null ? '' : text));
+        }
+    }
+
+    _set_active_menu_item(id) {
+        this._menu_items.forEach((menu_item) => {
+            if (!menu_item.control) return;
+            if (menu_item.id === id) {
+                menu_item.control.add_class('active');
+            } else {
+                menu_item.control.remove_class('active');
+            }
+        });
+    }
+
+    _activate_menu_item(id) {
+        this._active_section = id;
+        this._set_active_menu_item(id);
+
+        const label = this._section_labels[id] || id;
+        this._set_control_text(this.page_title, label);
+
+        // Placeholder navigation logic
+        console.log('Navigate to:', id);
     }
 
     _render_overview() {
@@ -89,24 +137,6 @@ class Admin_Page extends Active_HTML_Document {
     activate() {
         if (!this.__active) {
             super.activate();
-
-            // Handle menu clicks
-            const menu_items = document.querySelectorAll('.menu-item');
-            menu_items.forEach(el => {
-                el.addEventListener('click', () => {
-                    // Update Active State
-                    menu_items.forEach(i => i.classList.remove('active'));
-                    el.classList.add('active');
-
-                    // Update Title
-                    const id = el.getAttribute('data-id');
-                    const label = el.innerText;
-                    document.querySelector('.page-title').innerText = label;
-
-                    // Placeholder navigation logic
-                    console.log('Navigate to:', id);
-                });
-            });
         }
     }
 }

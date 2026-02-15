@@ -151,17 +151,91 @@ server.close(callback?: (err?: Error | null) => void): void
 - Stops `sse_publisher` when present
 - Closes all HTTP listeners
 
-### server.use(middleware)
+### server.use(fn)
 
-Adds middleware to the server.
+Register middleware to run before every request is routed. Middleware is executed
+in registration order. The chain runs to completion before the router processes
+the request.
 
 **Signature:**
 ```javascript
-server.use(middleware: Function): void
+server.use(fn: Function): Server   // returns `this` for chaining
 ```
 
 **Parameters:**
-- `middleware` (Function): Express-style middleware function
+- `fn` (Function): Middleware function with signature `(req, res, next) => void`
+  - `req` — Node.js `http.IncomingMessage`
+  - `res` — Node.js `http.ServerResponse`
+  - `next` — Call `next()` to continue to the next middleware / router.
+    Call `next(err)` to skip remaining middleware and trigger the error handler
+    (500 response).
+
+**Returns:** The server instance (for chaining).
+
+**Throws:** `Error` if `fn` is not a function.
+
+**Example:**
+```javascript
+const { compression } = require('jsgui3-server/middleware');
+
+server
+    .use((req, res, next) => {
+        console.log(`${req.method} ${req.url}`);
+        next();
+    })
+    .use(compression());
+```
+
+**Execution order:**
+```
+HTTP Request → middleware[0] → middleware[1] → … → router
+```
+
+If no middleware is registered, the router is called directly with zero overhead.
+
+**See also:** [Middleware Guide](middleware-guide.md) for response-wrapping
+patterns, custom middleware examples, and the built-in compression reference.
+
+---
+
+### Built-in Middleware
+
+#### `compression([options])`
+
+Response-compression middleware. Transparently compresses response bodies
+(gzip / deflate / brotli) when the client supports it and the content type
+is compressible.
+
+```javascript
+const { compression } = require('jsgui3-server/middleware');
+server.use(compression());                    // defaults
+server.use(compression({ threshold: 512 }));  // lower threshold
+```
+
+**Options:**
+
+| Option | Type | Default | Description |
+|-----------|--------|---------------------------|-------------------------------------------|
+| `threshold` | number | `1024` | Minimum body size in bytes to compress |
+| `level` | number | `Z_DEFAULT_COMPRESSION` | zlib compression level (1–9, or -1) |
+
+**Encoding priority:** gzip → deflate → brotli
+
+**Compressible types:** `application/json`, `text/html`, `text/plain`,
+`text/css`, `text/xml`, `text/csv`, `text/javascript`,
+`application/javascript`, `application/xml`, `application/xhtml+xml`,
+`application/manifest+json`, `image/svg+xml`.
+
+**Not compressed:** bodies below threshold, binary content types, responses
+with an existing `Content-Encoding`, and streaming responses (`res.write()`
+before `res.end()` — e.g. SSE).
+
+**Access paths:**
+```javascript
+require('jsgui3-server/middleware').compression   // direct
+require('jsgui3-server').middleware.compression    // via module
+Server.middleware.compression                      // via class
+```
 
 ## Port Utilities
 
@@ -928,10 +1002,16 @@ interface ServerOptions {
   api?: Record<string, Function>;
   static?: Record<string, string>;
 
+  // Middleware & compression
+  middleware?: Function | Function[];   // (req, res, next) middleware functions
+  compression?: boolean | {             // Enable built-in compression middleware
+      threshold?: number;               //   Min body size to compress (default 1024)
+      level?: number;                   //   zlib level (default Z_DEFAULT_COMPRESSION)
+  };
+
   // Advanced options
   cors?: CorsConfig;
   https?: HttpsConfig;
-  middleware?: Function[];
   publishers?: Record<string, Publisher>;
   resources?: ResourceEntries;
   events?: boolean | EventsOptions;

@@ -176,5 +176,6 @@ model.count++;  // Triggers change event
 | Comprehensive API | `docs/comprehensive-documentation.md` |
 | Control development | `docs/controls-development.md` |
 | Publisher system | `docs/publishers-guide.md` |
+| Middleware & compression | `docs/middleware-guide.md` |
 | Troubleshooting | `docs/troubleshooting.md` |
 | **Broken stuff** | `docs/agent-development-guide.md` |

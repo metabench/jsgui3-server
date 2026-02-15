@@ -19,6 +19,7 @@
 - **[docs/controls-development.md](docs/controls-development.md)** - Guide for developing custom JSGUI3 controls
 - **[docs/publishers-guide.md](docs/publishers-guide.md)** - Guide for publishers and content serving
 - **[docs/resources-guide.md](docs/resources-guide.md)** - Guide for resources and data abstraction
+- **[docs/middleware-guide.md](docs/middleware-guide.md)** - Middleware pipeline and built-in compression middleware
 
 ### Specialized Documentation
 - **[docs/GUIDE_TO_AGENTIC_WORKFLOWS_BY_GROK.md](docs/GUIDE_TO_AGENTIC_WORKFLOWS_BY_GROK.md)** - Comprehensive guide to agentic workflows and autonomous task execution
@@ -61,6 +62,7 @@
 - **Custom control development** → `docs/controls-development.md`
 - **Publisher system** → `docs/publishers-guide.md`
 - **Resource management** → `docs/resources-guide.md`
+- **Middleware and compression** → `docs/middleware-guide.md`
 - **Admin UI extensions** → `docs/admin-extension-guide.md`
 
 ### Agent Development

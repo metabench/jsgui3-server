@@ -1110,7 +1110,7 @@ const server = Server.serve({
     debug: false,  // Disable for production
     // Additional production settings
     max_age: 86400,  // Cache static assets for 24 hours
-    compress: true    // Enable gzip compression
+    compression: true    // Enable gzip/deflate/brotli compression
 });
 ```
 
@@ -1300,8 +1300,8 @@ Server.serve({
     src_path_client_js: require.resolve('./client.js'),
     // Cache static assets
     max_age: 86400,  // 24 hours
-    // Enable compression
-    compress: true,
+    // Enable compression (gzip/deflate/brotli via built-in middleware)
+    compression: true,
     // Optimize bundling
     debug: false
 });

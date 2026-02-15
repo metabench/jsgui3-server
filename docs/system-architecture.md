@@ -105,6 +105,8 @@ Client Request
     ↓
 HTTP Server (Node.js http/https)
     ↓
+Middleware Pipeline (server.use)     ← gzip/deflate/brotli, CORS, logging, etc.
+    ↓
 Server Router
     ↓
 Resource Pool
@@ -117,6 +119,10 @@ Content Processing/Bundling
     ↓
 HTTP Response
 ```
+
+Middleware functions registered via `server.use(fn)` execute in order before
+the router. If no middleware is registered, the router is called directly
+with zero overhead. See [Middleware Guide](middleware-guide.md) for details.
 
 ### Component Serving Flow
 

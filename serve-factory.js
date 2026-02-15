@@ -306,6 +306,34 @@ module.exports = (Server) => {
             server_instance.allowed_addresses = Array.isArray(host) ? host : [host];
         }
 
+        // ── Middleware registration ───────────────────────────────
+        // `middleware` accepts a single function or an array.  Each
+        // function must have the signature (req, res, next).  They
+        // execute in array order before the router handles the request.
+        if (serve_options.middleware) {
+            const mw_list = Array.isArray(serve_options.middleware)
+                ? serve_options.middleware
+                : [serve_options.middleware];
+            for (const mw of mw_list) {
+                if (typeof mw === 'function') {
+                    server_instance.use(mw);
+                }
+            }
+        }
+
+        // ── Built-in compression shorthand ────────────────────────
+        // `compression: true` enables gzip/deflate/brotli response
+        // compression with default options (1024-byte threshold).
+        // `compression: { threshold: 512 }` overrides defaults.
+        // Appended *after* any user-supplied middleware.
+        if (serve_options.compression) {
+            const compression = require('./middleware/compression');
+            const compression_options = typeof serve_options.compression === 'object'
+                ? serve_options.compression
+                : {};
+            server_instance.use(compression(compression_options));
+        }
+
         const configured_resources = [];
         const resource_entries = normalize_resource_entries(serve_options.resources);
         if (resource_entries.length) {

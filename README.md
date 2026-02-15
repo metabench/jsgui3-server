@@ -298,6 +298,61 @@ jsgui.Admin_User_Store
 
 See [Admin Extension Guide](docs/admin-extension-guide.md) for detailed API reference.
 
+## Middleware
+
+jsgui3-server includes an Express-style `server.use()` middleware pipeline. Middleware runs before every request reaches the router.
+
+### Built-in Compression
+
+Enable gzip/deflate/brotli compression for JSON, HTML, CSS, and JS responses:
+
+```javascript
+const { compression } = require('jsgui3-server/middleware');
+
+const server = new Server({ Ctrl: MyControl, src_path_client_js: __dirname + '/client.js' });
+server.use(compression());
+server.on('ready', () => server.start(8080));
+```
+
+Or via `Server.serve()`:
+
+```javascript
+Server.serve({
+    Ctrl: MyControl,
+    compression: true,   // enable with defaults
+    port: 8080
+});
+
+// With options:
+Server.serve({
+    Ctrl: MyControl,
+    compression: { threshold: 512 },
+    port: 8080
+});
+```
+
+### Custom Middleware
+
+```javascript
+// Request logger
+server.use((req, res, next) => {
+    console.log(`${req.method} ${req.url}`);
+    next();
+});
+
+// Multiple middleware via Server.serve()
+Server.serve({
+    Ctrl: MyControl,
+    middleware: [
+        (req, res, next) => { console.log(req.url); next(); },
+        compression({ threshold: 512 })
+    ],
+    port: 8080
+});
+```
+
+See [Middleware Guide](docs/middleware-guide.md) for the full API reference and response-wrapping patterns.
+
 ## Architecture Overview
 
 The server operates as a bridge between server-side JavaScript applications and browser clients, offering:

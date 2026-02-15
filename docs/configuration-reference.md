@@ -486,22 +486,45 @@ Server.serve({
 });
 ```
 
-### Middleware
+### `middleware`
+- **Type:** `Function | Function[]`
+- **Description:** One or more Express-style middleware functions `(req, res, next)` to run before every request reaches the router. Middleware is executed in array order.
 
 ```javascript
-const express = require('express');
-const compression = require('compression');
+const { compression } = require('jsgui3-server/middleware');
 
 Server.serve({
     middleware: [
-        compression(),
-        express.json({ limit: '10mb' }),
+        compression({ threshold: 512 }),
         (req, res, next) => {
             console.log(`${req.method} ${req.url}`);
             next();
         }
     ]
 });
+```
+
+### `compression`
+- **Type:** `boolean | Object`
+- **Description:** Convenience shorthand that enables the built-in response-compression middleware. Pass `true` for defaults or an options object.
+- **Default:** Disabled (no compression)
+
+| Sub-option | Type | Default | Description |
+|------------|--------|---------------------------|--------------------------------------------|
+| `threshold` | number | `1024` | Minimum body size (bytes) to compress |
+| `level` | number | `Z_DEFAULT_COMPRESSION` | zlib compression level (1–9, or -1 for default) |
+
+```javascript
+// Enable with defaults (1024 byte threshold, gzip preferred)
+Server.serve({ compression: true });
+
+// Enable with custom options
+Server.serve({ compression: { threshold: 256, level: 6 } });
+```
+
+> **Note:** `compression` and `middleware` can be used together. The `middleware` array runs first (in order), then the compression middleware is appended.
+
+See [Middleware Guide](middleware-guide.md) for the full API, response-wrapping patterns, and custom middleware examples.
 ```
 
 ## Configuration Validation

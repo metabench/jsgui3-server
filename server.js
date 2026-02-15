@@ -67,6 +67,12 @@ class JSGUI_Single_Process_Server extends Evented_Class {
 		let name = spec.name || undefined;
 		Object.defineProperty(this, 'name', { get: () => name, set: value => name = value })
 		this.__type_name = __type_name || 'server';
+
+		// Middleware pipeline — an ordered array of (req, res, next) functions
+		// that run before every request reaches the router.  Populated via
+		// server.use(fn).  See docs/middleware-guide.md for details.
+		this._middleware = [];
+
 		const resource_pool = this.resource_pool = new Server_Resource_Pool({
 			'access': {
 				'full': ['server_admin']
@@ -482,6 +488,27 @@ class JSGUI_Single_Process_Server extends Evented_Class {
 		return this.publish_observable(route, obs, options);
 	}
 
+	/**
+	 * Register middleware to run before every request is routed.
+	 *
+	 * Middleware signature: `function (req, res, next) { ... }`
+	 * Call `next()` to continue to the next middleware / router.
+	 * Call `next(err)` to short-circuit into the error handler.
+	 *
+	 * @param {function} fn  Middleware function.
+	 * @returns {this}       The server instance (for chaining).
+	 *
+	 * @example
+	 * const { compression } = require('jsgui3-server/middleware');
+	 * server.use(compression());
+	 */
+	use(fn) {
+		if (typeof fn !== 'function') {
+			throw new Error('Middleware must be a function (req, res, next).');
+		}
+		this._middleware.push(fn);
+		return this;
+	}
 
 	get resource_names() {
 		return this.resource_pool.resource_names;
@@ -576,33 +603,63 @@ class JSGUI_Single_Process_Server extends Evented_Class {
 							}
 						};
 
+						// Central request handler — runs the middleware chain then
+						// forwards to the router.  If the middleware array is empty
+						// (the common case before server.use() is called), the
+						// router is invoked directly with zero overhead.
 						const process_request = (req, res) => {
-							let outcome;
-							try {
-								outcome = server_router.process(req, res);
-							} catch (err) {
-								respond_error(res, err);
-								return;
-							}
-							if (!outcome) {
-								if (!res.writableEnded) {
-									respond_not_found(res);
+							const route_request = () => {
+								let outcome;
+								try {
+									outcome = server_router.process(req, res);
+								} catch (err) {
+									respond_error(res, err);
+									return;
 								}
-								return;
-							}
-							if (typeof outcome === 'object') {
-								if (outcome.status === 'error') {
-									if (!res.writableEnded) {
-										respond_error(res, outcome.error);
-									}
-								} else if (outcome.handled !== true && outcome.status === 'not-found') {
+								if (!outcome) {
 									if (!res.writableEnded) {
 										respond_not_found(res);
 									}
+									return;
 								}
-							} else if (outcome === false && !res.writableEnded) {
-								respond_not_found(res);
+								if (typeof outcome === 'object') {
+									if (outcome.status === 'error') {
+										if (!res.writableEnded) {
+											respond_error(res, outcome.error);
+										}
+									} else if (outcome.handled !== true && outcome.status === 'not-found') {
+										if (!res.writableEnded) {
+											respond_not_found(res);
+										}
+									}
+								} else if (outcome === false && !res.writableEnded) {
+									respond_not_found(res);
+								}
+							};
+
+							// ── Middleware chain ──────────────────────────
+							// Walk through this._middleware in order.  Each
+							// middleware calls next() to advance; next(err)
+							// short-circuits into respond_error.  After the
+							// last middleware calls next(), route_request()
+							// hands off to the router.
+							const middleware = this._middleware;
+							if (!middleware.length) {
+								route_request();
+								return;
 							}
+							let idx = 0;
+							const next = (err) => {
+								if (err) { respond_error(res, err); return; }
+								if (idx >= middleware.length) { route_request(); return; }
+								const mw = middleware[idx++];
+								try {
+									mw(req, res, next);
+								} catch (e) {
+									respond_error(res, e);
+								}
+							};
+							next();
 						};
 
 						if (this.https_options) {
@@ -776,6 +833,10 @@ JSGUI_Single_Process_Server.HTTP_SSE_Publisher = HTTP_SSE_Publisher;
 JSGUI_Single_Process_Server.Admin_Module_V1 = require('./admin-ui/v1/server');
 JSGUI_Single_Process_Server.Admin_Auth_Service = require('./admin-ui/v1/admin_auth_service');
 JSGUI_Single_Process_Server.Admin_User_Store = require('./admin-ui/v1/admin_user_store');
+
+// Built-in middleware — accessed as Server.middleware.compression etc.
+// See docs/middleware-guide.md for the full API reference.
+JSGUI_Single_Process_Server.middleware = require('./middleware');
 
 JSGUI_Single_Process_Server.serve = require('./serve-factory')(JSGUI_Single_Process_Server);
 

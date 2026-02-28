@@ -71,3 +71,5 @@ tests/screenshots/
 # Generated JSGUI cache artifacts
 .jsgui3-server-cache/
 **/.jsgui3-server-cache/
+
+SKILL.md

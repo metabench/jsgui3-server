@@ -36,11 +36,13 @@ tests/
 ├── control-optimizer-cache-behavior.test.js # Optimizer cache enable/disable behavior
 ├── examples-controls.e2e.test.js # Example apps regression (controls)
 ├── sass-controls.e2e.test.js     # Sass/CSS controls E2E coverage
+├── playwright-smoke.test.js       # Playwright browser smoke test for local page serving
 ├── jsgui3-html-examples.puppeteer.test.js # Puppeteer interaction tests (jsgui3-html examples)
 ├── bundling-default-control-elimination.puppeteer.test.js # Puppeteer: default control elimination bundle checks
 ├── window-examples.puppeteer.test.js # Puppeteer interaction tests (window examples)
 ├── window-resource-integration.puppeteer.test.js # Browser E2E: controls + resource APIs + SSE
 ├── helpers/puppeteer-e2e-harness.js # Shared Puppeteer story runner + probes
+├── helpers/playwright-e2e-harness.js # Shared Playwright story runner + probes
 ├── test-runner.js                # Custom test runner with reporting
 └── README.md                     # This file
 ```
@@ -87,6 +89,16 @@ npm run test:puppeteer:bundling
 npm run test:puppeteer:resources
 ```
 
+### Install Playwright Browser Runtime
+```bash
+npm run test:playwright:install
+```
+
+### Run Playwright Smoke Test
+```bash
+npm run test:playwright:smoke
+```
+
 ### Run Tests with Options
 ```bash
 # Debug mode (enables sourcemaps)
@@ -105,7 +117,8 @@ node tests/test-runner.js --test=end-to-end.test.js --debug
 2. Run the example regression suite next (HTML/CSS/JS smoke checks).
 3. Run Puppeteer interaction tests last (heavier, requires a browser).
 4. Run the resource integration Puppeteer suite when changing resources/SSE APIs.
-5. Run the full suite only when changes are broad or before release.
+5. Run the Playwright smoke test to validate alternate browser automation coverage.
+6. Run the full suite only when changes are broad or before release.
 
 Suggested sequence:
 ```bash
@@ -114,6 +127,7 @@ npm run test:examples:controls
 npm run test:puppeteer:bundling
 npm run test:puppeteer:windows
 npm run test:puppeteer:resources
+npm run test:playwright:smoke
 npm test
 ```
 
@@ -132,6 +146,14 @@ Key patterns:
   - API actions (`/api/resource/*`) and
   - SSE propagation (`/events`) reflected in client UI/debug state.
 - Keep selectors stable (`id` or `data-test`) so interaction tests remain robust.
+
+## Playwright Support
+
+Playwright support follows the same server-first test model as Puppeteer:
+
+- `tests/playwright-smoke.test.js` validates that Playwright can open a served page and load JS/CSS bundles.
+- `tests/helpers/playwright-e2e-harness.js` mirrors probe/story helpers so new Playwright interaction tests can be added with minimal boilerplate.
+- Use `PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH` if you need to force a specific Chromium binary.
 
 ## Patterns That Work
 

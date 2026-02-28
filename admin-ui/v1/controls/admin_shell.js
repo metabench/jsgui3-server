@@ -647,6 +647,39 @@ class Admin_Shell extends Active_HTML_Document {
                 panel.add(this._create_kv_row('Node Version', node_version));
                 panel.add(this._create_kv_row('Platform', platform + ' / ' + arch));
 
+                const primary_endpoint = (status && status.server && status.server.primary_endpoint) || '—';
+                const listening_endpoints = (status && status.server && status.server.listening_endpoints) || [];
+                const startup_diagnostics = (status && status.server && status.server.startup_diagnostics) || null;
+
+                const startup_panel = this._create_panel('Startup & Network');
+                startup_panel.add(this._create_kv_row('Primary Endpoint', primary_endpoint));
+                startup_panel.add(this._create_kv_row('Listening Endpoints', listening_endpoints.length));
+
+                if (Array.isArray(listening_endpoints) && listening_endpoints.length > 0) {
+                    const endpoints_list = new controls.div({ context: this.context, 'class': 'as-kv-stack' });
+                    listening_endpoints.forEach((endpoint, index) => {
+                        const endpoint_url = endpoint && endpoint.url ? endpoint.url : '';
+                        endpoints_list.add(this._create_kv_row('Endpoint ' + (index + 1), endpoint_url));
+                    });
+                    startup_panel.add(endpoints_list);
+                }
+
+                if (startup_diagnostics) {
+                    startup_panel.add(this._create_kv_row('Requested Port', startup_diagnostics.requested_port));
+                    if (startup_diagnostics.fallback_port) {
+                        startup_panel.add(this._create_kv_row('Fallback Port', startup_diagnostics.fallback_port));
+                    }
+                    if (startup_diagnostics.fallback_host) {
+                        startup_panel.add(this._create_kv_row('Fallback Host', startup_diagnostics.fallback_host));
+                    }
+                    const attempted = Array.isArray(startup_diagnostics.addresses_attempted)
+                        ? startup_diagnostics.addresses_attempted.join(', ')
+                        : '';
+                    startup_panel.add(this._create_kv_row('Addresses Attempted', attempted || '—'));
+                }
+
+                panel.add(startup_panel);
+
                 const logout_btn = new controls.button({ context: this.context, 'class': 'as-logout-btn' });
                 logout_btn.dom.attributes.type = 'button';
                 logout_btn.add('Log Out');

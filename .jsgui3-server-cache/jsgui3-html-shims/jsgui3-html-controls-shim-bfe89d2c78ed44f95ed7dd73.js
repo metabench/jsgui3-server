@@ -1,12 +1,12 @@
-const jsgui = require('/mnt/c/Users/james/Documents/repos/jsgui3-html/html-core/html-core.js');
-jsgui.Router = require('/mnt/c/Users/james/Documents/repos/jsgui3-html/router/router.js');
-jsgui.Resource = require('/mnt/c/Users/james/Documents/repos/jsgui3-html/resource/resource.js');
-jsgui.Resource_Pool = require('/mnt/c/Users/james/Documents/repos/jsgui3-html/resource/pool.js');
-jsgui.Resource.Data_KV = require('/mnt/c/Users/james/Documents/repos/jsgui3-html/resource/data-kv-resource.js');
-jsgui.Resource.Data_Transform = require('/mnt/c/Users/james/Documents/repos/jsgui3-html/resource/data-transform-resource.js');
-jsgui.Resource.Compilation = require('/mnt/c/Users/james/Documents/repos/jsgui3-html/resource/compilation-resource.js');
-jsgui.Resource.Compiler = require('/mnt/c/Users/james/Documents/repos/jsgui3-html/resource/compiler-resource.js');
-jsgui.gfx = require('/mnt/c/Users/james/Documents/repos/jsgui3-html/node_modules/jsgui3-gfx-core/core/gfx-core.js');
+const jsgui = require('/mnt/c/Users/james/Documents/repos/jsgui3-server/node_modules/jsgui3-html/html-core/html-core.js');
+jsgui.Router = require('/mnt/c/Users/james/Documents/repos/jsgui3-server/node_modules/jsgui3-html/router/router.js');
+jsgui.Resource = require('/mnt/c/Users/james/Documents/repos/jsgui3-server/node_modules/jsgui3-html/resource/resource.js');
+jsgui.Resource_Pool = require('/mnt/c/Users/james/Documents/repos/jsgui3-server/node_modules/jsgui3-html/resource/pool.js');
+jsgui.Resource.Data_KV = require('/mnt/c/Users/james/Documents/repos/jsgui3-server/node_modules/jsgui3-html/resource/data-kv-resource.js');
+jsgui.Resource.Data_Transform = require('/mnt/c/Users/james/Documents/repos/jsgui3-server/node_modules/jsgui3-html/resource/data-transform-resource.js');
+jsgui.Resource.Compilation = require('/mnt/c/Users/james/Documents/repos/jsgui3-server/node_modules/jsgui3-html/resource/compilation-resource.js');
+jsgui.Resource.Compiler = require('/mnt/c/Users/james/Documents/repos/jsgui3-server/node_modules/jsgui3-html/resource/compiler-resource.js');
+jsgui.gfx = require('/mnt/c/Users/james/Documents/repos/jsgui3-server/node_modules/jsgui3-gfx-core/core/gfx-core.js');
 jsgui.Resource.load_compiler = (name, jsfn, options) => {
     const compiler_name = name;
     const compiler_fn = jsfn;
@@ -32,9 +32,9 @@ jsgui.Resource.load_compiler = (name, jsfn, options) => {
 };
 jsgui.controls = jsgui.controls || {};
 Object.assign(jsgui.controls, {
-    Active_HTML_Document: require('/mnt/c/Users/james/Documents/repos/jsgui3-html/controls/organised/1-standard/5-ui/Active_HTML_Document'),
-    Button: require('/mnt/c/Users/james/Documents/repos/jsgui3-html/controls/organised/0-core/0-basic/0-native-compositional/button')
+    Active_HTML_Document: require('/mnt/c/Users/james/Documents/repos/jsgui3-server/node_modules/jsgui3-html/controls/organised/1-standard/5-ui/Active_HTML_Document'),
+    Button: require('/mnt/c/Users/james/Documents/repos/jsgui3-server/node_modules/jsgui3-html/controls/organised/0-core/0-basic/0-native-compositional/button')
 });
 Object.assign(jsgui, jsgui.controls);
-jsgui.mixins = jsgui.mx = require('/mnt/c/Users/james/Documents/repos/jsgui3-html/control_mixins/mx.js');
+jsgui.mixins = jsgui.mx = require('/mnt/c/Users/james/Documents/repos/jsgui3-server/node_modules/jsgui3-html/control_mixins/mx.js');
 module.exports = jsgui;

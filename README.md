@@ -33,6 +33,27 @@ Server.serve(MyControl);
 Server.serve(MyControl, { port: 3000 });
 ```
 
+### Port Conflict Fallback
+
+```javascript
+Server.serve({
+  Ctrl: MyControl,
+  port: 52000,
+  on_port_conflict: 'auto-loopback' // retry on 127.0.0.1 with a free port
+});
+```
+
+With manual `server.start(...)`, you can print the effective endpoint:
+
+```javascript
+server.start(52000, (err) => {
+  if (err) throw err;
+  server.print_endpoints({ include_index: true });
+}, {
+  on_port_conflict: 'auto-loopback'
+});
+```
+
 ### Single Page with Metadata
 
 ```javascript

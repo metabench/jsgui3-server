@@ -30,6 +30,7 @@ const Process_Resource = require('./resources/process-resource');
 const Remote_Process_Resource = require('./resources/remote-process-resource');
 
 const Static_Route_HTTP_Responder = require('./http/responders/static/Static_Route_HTTP_Responder');
+const { get_port_or_free } = require('./port-utils');
 
 const Publishers = require('./publishers/Publishers');
 
@@ -39,6 +40,8 @@ class JSGUI_Single_Process_Server extends Evented_Class {
 	}, __type_name) {
 		super();
 		this.http_servers = [];
+		this.listening_endpoints = [];
+		this._api_registry = [];
 		let disk_path_client_js;
 		if (spec.disk_path_client_js) {
 			disk_path_client_js = spec.disk_path_client_js;
@@ -151,35 +154,35 @@ class JSGUI_Single_Process_Server extends Evented_Class {
 
 		const Admin_Module_V1 = require('./admin-ui/v1/server');
 		if (admin_enabled) {
-		this.admin_v1 = new Admin_Module_V1(typeof admin_config === 'object' ? admin_config : {});
-		this.admin_v1.init(this);
+			this.admin_v1 = new Admin_Module_V1(typeof admin_config === 'object' ? admin_config : {});
+			this.admin_v1.init(this);
 
-		// Register Admin V1 Page Route
-		let Admin_Shell_Control;
-		try {
-			Admin_Shell_Control = require('./admin-ui/v1/client').controls.Admin_Shell;
-		} catch (e) {
-			console.warn('Failed to load Admin_Shell control:', e.message || e);
-		}
+			// Register Admin V1 Page Route
+			let Admin_Shell_Control;
+			try {
+				Admin_Shell_Control = require('./admin-ui/v1/client').controls.Admin_Shell;
+			} catch (e) {
+				console.warn('Failed to load Admin_Shell control:', e.message || e);
+			}
 
-		if (Admin_Shell_Control) {
-			const admin_v1_app = new Webpage({
-				content: Admin_Shell_Control,
-				title: 'jsgui3 Admin Dashboard'
-			});
+			if (Admin_Shell_Control) {
+				const admin_v1_app = new Webpage({
+					content: Admin_Shell_Control,
+					title: 'jsgui3 Admin Dashboard'
+				});
 
-			const admin_v1_publisher = new HTTP_Webpage_Publisher({
-				name: 'Admin_V1_Publisher',
-				webpage: admin_v1_app,
-				src_path_client_js: lib_path.join(__dirname, 'admin-ui/v1/client.js')
-			});
-			admin_v1_publisher.name = 'Admin_V1_Publisher';
+				const admin_v1_publisher = new HTTP_Webpage_Publisher({
+					name: 'Admin_V1_Publisher',
+					webpage: admin_v1_app,
+					src_path_client_js: lib_path.join(__dirname, 'admin-ui/v1/client.js')
+				});
+				admin_v1_publisher.name = 'Admin_V1_Publisher';
 
-			const is_dev_defaults = !process.env.ADMIN_V1_PASSWORD && process.env.NODE_ENV !== 'production';
-			const login_hint = is_dev_defaults
-				? '<div class="hint dev-creds">Dev defaults active — username: <code>admin</code> password: <code>admin</code></div><div class="hint">Set ADMIN_V1_USER / ADMIN_V1_PASSWORD env vars for production.</div>'
-				: '<div class="hint">Sign in with your configured credentials.</div>';
-			const login_html = `<!doctype html>
+				const is_dev_defaults = !process.env.ADMIN_V1_PASSWORD && process.env.NODE_ENV !== 'production';
+				const login_hint = is_dev_defaults
+					? '<div class="hint dev-creds">Dev defaults active — username: <code>admin</code> password: <code>admin</code></div><div class="hint">Set ADMIN_V1_USER / ADMIN_V1_PASSWORD env vars for production.</div>'
+					: '<div class="hint">Sign in with your configured credentials.</div>';
+				const login_html = `<!doctype html>
 <html>
 <head>
 	<meta charset="utf-8" />
@@ -250,82 +253,82 @@ class JSGUI_Single_Process_Server extends Evented_Class {
 </body>
 </html>`;
 
-			const serve_admin_v1_page = (req, res) => {
-				if (req && typeof req.url === 'string' && req.url.startsWith('/admin/v1/login')) {
-					res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
-					res.end(login_html);
-					return;
-				}
-
-				if (!this.admin_v1 || !this.admin_v1.is_admin_read_request(req)) {
-					res.writeHead(302, { Location: '/admin/v1/login' });
-					res.end();
-					return;
-				}
-				if (admin_v1_cached_html) {
-					res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
-					res.end(admin_v1_cached_html);
-				} else {
-					res.writeHead(503, { 'Content-Type': 'text/plain' });
-					res.end('Admin UI v1 is loading, please retry...');
-				}
-			};
-
-			server_router.set_route('/admin/v1/login', null, (req, res) => {
-				res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
-				res.end(login_html);
-			});
-
-			// Namespace admin v1 assets under /admin/v1/ to avoid
-			// colliding with the main app's /js/js.js and /css/css.css.
-			let admin_v1_cached_html = null;
-
-			admin_v1_publisher.on('ready', (res_ready) => {
-				if (res_ready && res_ready._arr) {
-					for (const bundle_item of res_ready._arr) {
-						const { type } = bundle_item;
-						if (type === 'HTML') {
-							// Rewrite asset references so browser fetches
-							// the admin-specific JS/CSS, not the main app's.
-							let html = bundle_item.text || '';
-							html = html.replace(
-								/href="\/css\/css\.css"/g,
-								'href="/admin/v1/css/css.css"'
-							);
-							html = html.replace(
-								/src="\/js\/js\.js"/g,
-								'src="/admin/v1/js/js.js"'
-							);
-							// Inject viewport meta for mobile rendering
-							if (!html.includes('name="viewport"')) {
-								html = html.replace(
-									/<head([^>]*)>/i,
-									'<head$1><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">'
-								);
-							}
-							admin_v1_cached_html = html;
-						} else {
-							// JS → /admin/v1/js/js.js, CSS → /admin/v1/css/css.css
-							const namespaced_route =
-								type === 'JavaScript' ? '/admin/v1/js/js.js' :
-								type === 'CSS'        ? '/admin/v1/css/css.css' :
-								'/admin/v1' + bundle_item.route;
-							const responder = new Static_Route_HTTP_Responder(bundle_item);
-							server_router.set_route(namespaced_route, responder, responder.handle_http);
-						}
+				const serve_admin_v1_page = (req, res) => {
+					if (req && typeof req.url === 'string' && req.url.startsWith('/admin/v1/login')) {
+						res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
+						res.end(login_html);
+						return;
 					}
 
-					// Serve authenticated admin page at /admin/v1
-					server_router.set_route('/admin/v1', null, serve_admin_v1_page);
-				}
-			});
+					if (!this.admin_v1 || !this.admin_v1.is_admin_read_request(req)) {
+						res.writeHead(302, { Location: '/admin/v1/login' });
+						res.end();
+						return;
+					}
+					if (admin_v1_cached_html) {
+						res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
+						res.end(admin_v1_cached_html);
+					} else {
+						res.writeHead(503, { 'Content-Type': 'text/plain' });
+						res.end('Admin UI v1 is loading, please retry...');
+					}
+				};
 
-			// Temporary handler until the publisher finishes bundling
-			server_router.set_route('/admin/v1', null, serve_admin_v1_page);
-			resource_pool.add(admin_v1_publisher);
-		} else {
-			console.warn('Skipping /admin/v1 route registration due to missing Admin_Shell control.');
-		}
+				server_router.set_route('/admin/v1/login', null, (req, res) => {
+					res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
+					res.end(login_html);
+				});
+
+				// Namespace admin v1 assets under /admin/v1/ to avoid
+				// colliding with the main app's /js/js.js and /css/css.css.
+				let admin_v1_cached_html = null;
+
+				admin_v1_publisher.on('ready', (res_ready) => {
+					if (res_ready && res_ready._arr) {
+						for (const bundle_item of res_ready._arr) {
+							const { type } = bundle_item;
+							if (type === 'HTML') {
+								// Rewrite asset references so browser fetches
+								// the admin-specific JS/CSS, not the main app's.
+								let html = bundle_item.text || '';
+								html = html.replace(
+									/href="\/css\/css\.css"/g,
+									'href="/admin/v1/css/css.css"'
+								);
+								html = html.replace(
+									/src="\/js\/js\.js"/g,
+									'src="/admin/v1/js/js.js"'
+								);
+								// Inject viewport meta for mobile rendering
+								if (!html.includes('name="viewport"')) {
+									html = html.replace(
+										/<head([^>]*)>/i,
+										'<head$1><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">'
+									);
+								}
+								admin_v1_cached_html = html;
+							} else {
+								// JS → /admin/v1/js/js.js, CSS → /admin/v1/css/css.css
+								const namespaced_route =
+									type === 'JavaScript' ? '/admin/v1/js/js.js' :
+										type === 'CSS' ? '/admin/v1/css/css.css' :
+											'/admin/v1' + bundle_item.route;
+								const responder = new Static_Route_HTTP_Responder(bundle_item);
+								server_router.set_route(namespaced_route, responder, responder.handle_http);
+							}
+						}
+
+						// Serve authenticated admin page at /admin/v1
+						server_router.set_route('/admin/v1', null, serve_admin_v1_page);
+					}
+				});
+
+				// Temporary handler until the publisher finishes bundling
+				server_router.set_route('/admin/v1', null, serve_admin_v1_page);
+				resource_pool.add(admin_v1_publisher);
+			} else {
+				console.warn('Skipping /admin/v1 route registration due to missing Admin_Shell control.');
+			}
 		} else {
 			// admin_enabled === false
 			this.admin_v1 = null;
@@ -456,20 +459,196 @@ class JSGUI_Single_Process_Server extends Evented_Class {
 		Object.defineProperty(this, 'router', { get: () => server_router })
 	}
 
-	publish(name, fn) {
-		// Get the function publisher.
-		//   Possibly ensure it exists.
-		//const fn_publisher = this.function_publisher;
-		//fn_publisher.add(name, fn);
-		const fpub = new HTTP_Function_Publisher({ name, fn });
+	/**
+	 * Publish a JavaScript function as an HTTP API endpoint.
+	 *
+	 * The function is wrapped in a {@link Function_Publisher} and
+	 * registered with the server's router.  An entry is also added to
+	 * `this._api_registry` so the OpenAPI spec generator can discover it.
+	 *
+	 * ### Route resolution
+	 *
+	 * - If `name` starts with `'/'`, it is used as-is (e.g. `'/health'`).
+	 * - Otherwise it is auto-prefixed with `'/api/'` (e.g. `'users/list'` → `'/api/users/list'`).
+	 *
+	 * ### Metadata for Swagger
+	 *
+	 * The `meta` argument feeds the OpenAPI spec generator.  All fields
+	 * are optional — endpoints without metadata still work but produce
+	 * a minimal Swagger entry.
+	 *
+	 * | Field               | Type     | Purpose                                      |
+	 * |---------------------|----------|----------------------------------------------|
+	 * | `meta.method`       | string   | HTTP method (`'GET'`, `'POST'`, etc.)        |
+	 * | `meta.summary`      | string   | One-line summary displayed in Swagger UI     |
+	 * | `meta.description`  | string   | Multi-line Markdown description              |
+	 * | `meta.tags`         | string[] | Grouping tags in Swagger UI                  |
+	 * | `meta.params`       | Object   | Request body schema (`{key: {type, ...}}`)   |
+	 * | `meta.returns`      | Object   | Response body schema (`{key: {type, ...}}`)  |
+	 * | `meta.deprecated`   | boolean  | Mark endpoint as deprecated                  |
+	 * | `meta.operationId`  | string   | Custom OpenAPI operationId                   |
+	 * | `meta.raw`          | boolean  | Raw `(req, res)` handler — skip Function_Publisher |
+	 *
+	 * @param {string}   name - Endpoint name or route path.
+	 * @param {Function} fn   - Handler function `(input) => result`, or `(req, res)` when `meta.raw` is `true`.
+	 * @param {Object}   [meta={}] - API metadata for routing and Swagger.
+	 *
+	 * @example
+	 * // Minimal — just a name and function:
+	 * server.publish('ping', () => ({ pong: true }));
+	 * // → POST /api/ping
+	 *
+	 * @example
+	 * // With full metadata for Swagger:
+	 * server.publish('users/list', listUsers, {
+	 *     method: 'POST',
+	 *     summary: 'List all users',
+	 *     description: 'Returns paginated user list with filtering.',
+	 *     tags: ['Users'],
+	 *     params: {
+	 *         page: { type: 'integer', description: 'Page number', default: 1 },
+	 *         page_size: { type: 'integer', description: 'Items per page', default: 25 }
+	 *     },
+	 *     returns: {
+	 *         rows: { type: 'array', items: { type: 'object' } },
+	 *         total_count: { type: 'integer' }
+	 *     }
+	 * });
+	 * // → POST /api/users/list  (documented in Swagger UI)
+	 *
+	 * @example
+	 * // Raw handler for streaming NDJSON:
+	 * server.publish('events/stream', (req, res) => {
+	 *     res.writeHead(200, { 'Content-Type': 'application/x-ndjson' });
+	 *     res.write(JSON.stringify({ event: 'start' }) + '\n');
+	 *     res.end();
+	 * }, { method: 'GET', raw: true, summary: 'Stream events' });
+	 */
+	publish(name, fn, meta = {}) {
+		// Auto-prefix /api/ for simple names.
+		// If name already starts with '/', use as-is for full route control.
+		const full_route = name.startsWith('/') ? name : '/api/' + name;
+
+		// ── Raw handler passthrough ──
+		// When meta.raw is true, fn receives (req, res) directly.
+		// Useful for streaming, SSE, gzip, or custom response control.
+		if (meta.raw) {
+			this._api_registry = this._api_registry || [];
+			this._api_registry.push({
+				path: full_route,
+				method: (meta.method && meta.method !== 'ANY') ? meta.method.toUpperCase() : 'GET',
+				meta,
+				schema: {}
+			});
+
+			if (meta.method && meta.method !== 'ANY') {
+				const method = meta.method.toUpperCase();
+				this.server_router.set_route(full_route, null, (req, res) => {
+					if (req.method.toUpperCase() !== method && req.method.toUpperCase() !== 'HEAD') {
+						res.writeHead(405, { 'Allow': method });
+						res.end('Method Not Allowed');
+						return;
+					}
+					return fn(req, res);
+				});
+			} else {
+				this.server_router.set_route(full_route, null, fn);
+			}
+			return;
+		}
+
+		// ── Standard function publisher ──
+		const fpub = new HTTP_Function_Publisher({ name, fn, meta });
 
 		this.function_publishers = this.function_publishers || [];
 		this.function_publishers.push(fpub);
 
-		// Auto-prefix /api/ for simple names
-		// If name already starts with '/', use as-is for full route control
-		const full_route = name.startsWith('/') ? name : '/api/' + name;
-		this.server_router.set_route(full_route, fpub, fpub.handle_http);
+		// Register in API registry for OpenAPI spec generation.
+		this._api_registry = this._api_registry || [];
+		this._api_registry.push({
+			path: full_route,
+			method: (meta.method && meta.method !== 'ANY') ? meta.method.toUpperCase() : 'POST',
+			meta,
+			schema: fpub.schema
+		});
+
+		if (meta.method && meta.method !== 'ANY') {
+			const method = meta.method.toUpperCase();
+			this.server_router.set_route(full_route, fpub, (req, res) => {
+				if (req.method.toUpperCase() !== method) {
+					res.writeHead(405, { 'Allow': method });
+					res.end('Method Not Allowed');
+					return;
+				}
+				return fpub.handle_http(req, res);
+			});
+		} else {
+			this.server_router.set_route(full_route, fpub, fpub.handle_http);
+		}
+	}
+
+	/**
+	 * Register the built-in Swagger / OpenAPI routes on this server.
+	 *
+	 * Creates two endpoints:
+	 *
+	 * | Route                | Method | Content-Type       | Purpose                          |
+	 * |----------------------|--------|--------------------|----------------------------------|
+	 * | `/api/openapi.json`  | GET    | `application/json` | OpenAPI 3.0.3 spec (JSON)        |
+	 * | `/api/docs`          | GET    | `text/html`        | Interactive Swagger UI page      |
+	 *
+	 * The Swagger UI page loads its JS and CSS from the unpkg CDN at
+	 * runtime, so zero npm dependencies are required.  The page is
+	 * styled to match jsgui3's dark aesthetic.
+	 *
+	 * ### Automatic registration
+	 *
+	 * When using `Server.serve()`, this method is called automatically
+	 * after all endpoints are registered — unless `swagger: false` is
+	 * set in the options.  The default is:
+	 *
+	 * - **Development** (`NODE_ENV !== 'production'`): Swagger enabled.
+	 * - **Production** (`NODE_ENV === 'production'`): Swagger disabled.
+	 *
+	 * ### Manual registration
+	 *
+	 * For servers created directly via `new Server(...)`, call this
+	 * method after all `publish()` calls:
+	 *
+	 * ```js
+	 * server._register_swagger_routes({ title: 'My API', version: '2.0.0' });
+	 * ```
+	 *
+	 * This method is idempotent — calling it multiple times has no
+	 * effect after the first call.
+	 *
+	 * @param {Object} [options] - Override options passed to the spec generator.
+	 * @param {string} [options.title]       - Override API title (default: server.name).
+	 * @param {string} [options.version]     - Override API version (default: '1.0.0').
+	 * @param {string} [options.description] - Override API description.
+	 */
+	_register_swagger_routes(options = {}) {
+		if (this._swagger_registered) return;
+		this._swagger_registered = true;
+
+		const Swagger_Publisher = require('./publishers/swagger-publisher');
+
+		const swagger_pub = new Swagger_Publisher({
+			server: this,
+			title: options.title || this.name || 'API Documentation',
+			version: options.version,
+			description: options.description
+		});
+
+		/**
+		 * The Swagger_Publisher instance, stored for introspection.
+		 * @type {Swagger_Publisher}
+		 */
+		this._swagger_publisher = swagger_pub;
+
+		// Register both routes pointing to the same publisher.
+		this.server_router.set_route('/api/openapi.json', swagger_pub, swagger_pub.handle_http.bind(swagger_pub));
+		this.server_router.set_route('/api/docs', swagger_pub, swagger_pub.handle_http.bind(swagger_pub));
 	}
 
 	publish_observable(route, obs, options = {}) {
@@ -513,7 +692,71 @@ class JSGUI_Single_Process_Server extends Evented_Class {
 	get resource_names() {
 		return this.resource_pool.resource_names;
 	}
+
+	get_listening_endpoints() {
+		if (!this.listening_endpoints || !this.listening_endpoints.length) {
+			return [];
+		}
+		return this.listening_endpoints.map(endpoint => ({ ...endpoint }));
+	}
+
+	get_primary_endpoint() {
+		const endpoints = this.get_listening_endpoints();
+		if (!endpoints.length) return null;
+		return endpoints[0].url;
+	}
+
+	get_startup_diagnostics() {
+		if (!this.startup_diagnostics) {
+			return null;
+		}
+		return {
+			...this.startup_diagnostics,
+			addresses_attempted: Array.isArray(this.startup_diagnostics.addresses_attempted)
+				? [...this.startup_diagnostics.addresses_attempted]
+				: [],
+			errors_by_address: this.startup_diagnostics.errors_by_address
+				? { ...this.startup_diagnostics.errors_by_address }
+				: {}
+		};
+	}
+
+	print_endpoints(options = {}) {
+		const endpoints = this.get_listening_endpoints();
+		const logger = typeof options.logger === 'function' ? options.logger : console.log;
+		const include_index = !!options.include_index;
+		const prefix = typeof options.prefix === 'string' ? options.prefix : 'listening endpoint';
+
+		if (!endpoints.length) {
+			logger('no listening endpoints');
+			return [];
+		}
+
+		const lines = endpoints.map((endpoint, index) => {
+			if (include_index) {
+				return `${prefix} [${index}]: ${endpoint.url}`;
+			}
+			return `${prefix}: ${endpoint.url}`;
+		});
+
+		lines.forEach((line) => logger(line));
+		return lines;
+	}
+
+	_record_listening_endpoint(protocol, host, port) {
+		this.listening_endpoints = this.listening_endpoints || [];
+		this.listening_endpoints.push({
+			protocol,
+			host,
+			port,
+			url: `${protocol}://${host}:${port}/`
+		});
+	}
+
 	'start'(port, callback, fnProcessRequest) {
+		const start_options = (fnProcessRequest && typeof fnProcessRequest === 'object') ? fnProcessRequest : {};
+		const fallback_on_port_conflict = start_options.on_port_conflict === 'auto-loopback';
+
 		// Guard against double-start which causes EADDRINUSE
 		if (this._started) {
 			console.warn('Server.start() called but server already started. Ignoring duplicate call.');
@@ -521,6 +764,7 @@ class JSGUI_Single_Process_Server extends Evented_Class {
 			return;
 		}
 		this._started = true;
+		this.listening_endpoints = [];
 
 		if (tof(port) !== 'number') {
 			console.log('Invalid port:', port);
@@ -534,12 +778,14 @@ class JSGUI_Single_Process_Server extends Evented_Class {
 		this.raise('starting');
 		rp.start(err => {
 			if (err) {
+				this._started = false;
 				throw err;
 			} else {
 				const lsi = rp.get_resource('Local Server Info');
 				const server_router = rp.get_resource('Server Router');
 				lsi.getters.net((err, net) => {
 					if (err) {
+						this._started = false;
 						callback(err);
 					} else {
 						// NEW: Filter addresses by allowed_addresses if specified.
@@ -559,11 +805,47 @@ class JSGUI_Single_Process_Server extends Evented_Class {
 						let num_to_start = arr_ipv4_addresses.length;
 						let started_count = 0;
 						let last_error = null;
+						const errors_by_address = {};
 						let ready_raised = false;
+						let fallback_attempted = false;
 						if (num_to_start === 0) {
-							callback('No allowed network interfaces found.');
+							const no_interface_error = new Error('No allowed network interfaces found.');
+							no_interface_error.code = 'ENOINTERFACES';
+							this._started = false;
+							if (callback) callback(no_interface_error);
 							return;
 						}
+
+						const start_loopback_fallback = async (process_request) => {
+							const fallback_host = '127.0.0.1';
+							const fallback_port = await get_port_or_free(0, fallback_host);
+							const fallback_protocol = this.https_options ? 'https' : 'http';
+							const fallback_server = this.https_options
+								? https.createServer(this.https_options, (req, res) => process_request(req, res))
+								: http.createServer((req, res) => process_request(req, res));
+							this.http_servers.push(fallback_server);
+							fallback_server.timeout = 10800000;
+							await new Promise((resolve, reject) => {
+								fallback_server.once('error', reject);
+								fallback_server.listen(fallback_port, fallback_host, resolve);
+							});
+							this._record_listening_endpoint(fallback_protocol, fallback_host, fallback_port);
+							if (!ready_raised) {
+								console.warn(`[server.start] Port conflict fallback engaged. Listening on ${fallback_host}:${fallback_port}`);
+								this.raise('listening');
+								ready_raised = true;
+							}
+							this.port = fallback_port;
+							this.startup_diagnostics = {
+								requested_port: port,
+								fallback_port,
+								fallback_host,
+								addresses_attempted: arr_ipv4_addresses,
+								errors_by_address
+							};
+							if (callback) callback(null, true);
+						};
+
 						const finalize_start = (err) => {
 							if (num_to_start !== 0) return;
 							if (started_count > 0) {
@@ -572,10 +854,32 @@ class JSGUI_Single_Process_Server extends Evented_Class {
 									this.raise('listening'); // Changed from 'ready' to avoid double-fire
 									ready_raised = true;
 								}
+								this.port = port;
+								this.startup_diagnostics = {
+									requested_port: port,
+									addresses_attempted: arr_ipv4_addresses,
+									errors_by_address
+								};
 								if (callback) callback(null, true);
 								return;
 							}
 							const final_error = err || last_error || new Error('No servers started.');
+							final_error.startup_diagnostics = {
+								requested_port: port,
+								addresses_attempted: arr_ipv4_addresses,
+								errors_by_address
+							};
+
+							if (fallback_on_port_conflict && !fallback_attempted && final_error && final_error.code === 'EADDRINUSE') {
+								fallback_attempted = true;
+								start_loopback_fallback(process_request).catch((fallback_err) => {
+									this._started = false;
+									if (callback) callback(fallback_err);
+								});
+								return;
+							}
+
+							this._started = false;
 							if (callback) callback(final_error);
 						};
 						const respond_not_found = (res) => {
@@ -671,6 +975,10 @@ class JSGUI_Single_Process_Server extends Evented_Class {
 									this.http_servers.push(https_server);
 									https_server.on('error', (err) => {
 										last_error = err;
+										errors_by_address[ipv4_address] = {
+											code: err.code,
+											message: err.message
+										};
 										if (err.code === 'EACCES') {
 											console.error('Permission denied:', err.message);
 										} else if (err.code === 'EADDRINUSE') {
@@ -683,6 +991,7 @@ class JSGUI_Single_Process_Server extends Evented_Class {
 									});
 									https_server.timeout = 10800000;
 									https_server.listen(port, ipv4_address, () => {
+										this._record_listening_endpoint('https', ipv4_address, port);
 										console.log('* Server running at https://' + ipv4_address + ':' + port + '/');
 										started_count++;
 										num_to_start--;
@@ -703,6 +1012,10 @@ class JSGUI_Single_Process_Server extends Evented_Class {
 									this.http_servers.push(http_server);
 									http_server.on('error', (err) => {
 										last_error = err;
+										errors_by_address[ipv4_address] = {
+											code: err.code,
+											message: err.message
+										};
 										if (err.code === 'EACCES') {
 											console.error('Permission denied:', err.message);
 										} else if (err.code === 'EADDRINUSE') {
@@ -715,6 +1028,7 @@ class JSGUI_Single_Process_Server extends Evented_Class {
 									});
 									http_server.timeout = 10800000;
 									http_server.listen(port, ipv4_address, () => {
+										this._record_listening_endpoint('http', ipv4_address, port);
 										console.log('* Server running at http://' + ipv4_address + ':' + port + '/');
 										started_count++;
 										num_to_start--;
@@ -761,6 +1075,8 @@ class JSGUI_Single_Process_Server extends Evented_Class {
 			let count = this.http_servers.length;
 			if (count === 0) {
 				this.http_servers = [];
+				this.listening_endpoints = [];
+				this.startup_diagnostics = null;
 				done();
 				return;
 			}
@@ -770,6 +1086,8 @@ class JSGUI_Single_Process_Server extends Evented_Class {
 					count--;
 					if (count === 0) {
 						this.http_servers = [];
+						this.listening_endpoints = [];
+						this.startup_diagnostics = null;
 						done();
 					}
 				});

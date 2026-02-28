@@ -102,7 +102,8 @@ class HTTP_Webpage_Publisher extends HTTP_Webpageorsite_Publisher {
         const render_webpage = async () => {
 
             const { webpage } = this;
-            const Ctrl = webpage.content;
+            // Use ctrl (modern Webpage API) with fallback to content (legacy)
+            const Ctrl = webpage.ctrl || webpage.content;
 
             // In business activating it with the page context.
 
@@ -194,21 +195,98 @@ class HTTP_Webpage_Publisher extends HTTP_Webpageorsite_Publisher {
     }
 
 
-    handle_http(req, res) {
-        console.log('HTTP_Webpage_Publisher handle_http');
-        console.log('req.url', req.url);
-
+    async handle_http(req, res) {
         const { webpage } = this;
+        // Use ctrl (modern Webpage API) with fallback to content (legacy)
+        const Ctrl = webpage.ctrl || webpage.content;
 
-        const Ctrl = webpage.content;
-        const ctrl = new Ctrl();
+        if (typeof Ctrl !== 'function') {
+            res.writeHead(500, { 'Content-Type': 'text/plain' });
+            res.end('Admin page control is not available');
+            return;
+        }
 
-        res.writeHead(200, {
-            'Content-Type': 'text/html'
-        });
+        try {
+            const static_page_context = new Server_Static_Page_Context();
 
-        res.end(ctrl.all_html_render());
+            const ctrl = new Ctrl({
+                context: static_page_context
+            });
 
+            let html;
+
+            if (ctrl.head && ctrl.body) {
+                // Control is a full document (has head/body) — inject CSS/JS directly
+                const ctrl_css_link = new jsgui_client.controls.link({
+                    context: static_page_context
+                });
+                ctrl_css_link.dom.attributes.rel = 'stylesheet';
+                ctrl_css_link.dom.attributes.href = '/css/css.css';
+                ctrl.head.add(ctrl_css_link);
+
+                const ctrl_js_script_link = new jsgui_client.controls.script({
+                    context: static_page_context
+                });
+                ctrl_js_script_link.dom.attributes.src = '/js/js.js';
+                ctrl.body.add(ctrl_js_script_link);
+
+                ctrl.active();
+                html = await ctrl.all_html_render();
+            } else {
+                // Control is not a document — wrap it in Active_HTML_Document
+                const Active_HTML_Document = require('../controls/Active_HTML_Document');
+
+                const doc = new Active_HTML_Document({
+                    context: static_page_context
+                });
+
+                if (webpage.title) {
+                    // Set the page title if available
+                    const title = typeof webpage.get_title === 'function'
+                        ? webpage.get_title() : webpage.title;
+                    if (title && doc.head) {
+                        const title_ctrl = new jsgui_client.controls.ctrl({
+                            context: static_page_context,
+                            'dom.tagName': 'title'
+                        });
+                        title_ctrl.dom.text = title;
+                        doc.head.add(title_ctrl);
+                    }
+                }
+
+                // Add CSS link to head
+                const ctrl_css_link = new jsgui_client.controls.link({
+                    context: static_page_context
+                });
+                ctrl_css_link.dom.attributes.rel = 'stylesheet';
+                ctrl_css_link.dom.attributes.href = '/css/css.css';
+                doc.head.add(ctrl_css_link);
+
+                // Add the control to body
+                doc.body.add(ctrl);
+
+                // Add JS script link to body
+                const ctrl_js_script_link = new jsgui_client.controls.script({
+                    context: static_page_context
+                });
+                ctrl_js_script_link.dom.attributes.src = '/js/js.js';
+                doc.body.add(ctrl_js_script_link);
+
+                doc.active();
+                html = await doc.all_html_render();
+            }
+
+            res.writeHead(200, {
+                'Content-Type': 'text/html; charset=utf-8'
+            });
+            res.end(html);
+        } catch (e) {
+            console.error('[HTTP_Webpage_Publisher] handle_http render error:', e);
+            if (!res.headersSent) {
+                res.writeHead(500, { 'Content-Type': 'text/plain' });
+                res.end('Internal Server Error: Failed to render page');
+            }
+        }
     }
 }
 

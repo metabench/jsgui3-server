@@ -205,6 +205,16 @@ class Admin_Module_V1 {
         const mem = process.memoryUsage();
         const pool_summary = this._safe_pool_summary(server);
 
+        const listening_endpoints = (server && typeof server.get_listening_endpoints === 'function')
+            ? server.get_listening_endpoints()
+            : [];
+        const primary_endpoint = (server && typeof server.get_primary_endpoint === 'function')
+            ? server.get_primary_endpoint()
+            : null;
+        const startup_diagnostics = (server && typeof server.get_startup_diagnostics === 'function')
+            ? server.get_startup_diagnostics()
+            : null;
+
         return {
             process: {
                 pid: process.pid,
@@ -222,7 +232,10 @@ class Admin_Module_V1 {
             },
             server: {
                 port: (server && server.port) || null,
-                name: (server && server.name) || 'jsgui3-server'
+                name: (server && server.name) || 'jsgui3-server',
+                primary_endpoint,
+                listening_endpoints,
+                startup_diagnostics
             },
             telemetry: {
                 request_count: this._request_count,

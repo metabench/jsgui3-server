@@ -3,28 +3,29 @@
   "main": "module.js",
   "license": "MIT",
   "dependencies": {
-    "@babel/core": "^7.28.5",
-    "@babel/generator": "^7.28.5",
-    "@babel/parser": "^7.28.5",
+    "@babel/core": "^7.29.0",
+    "@babel/generator": "^7.29.0",
+    "@babel/parser": "^7.29.0",
     "cookies": "^0.9.1",
     "esbuild": "^0.27.1",
     "fnl": "^0.0.37",
     "fnlfs": "^0.0.34",
     "jsgui3-client": "^0.0.129",
-    "jsgui3-html": "^0.0.180",
+    "jsgui3-html": "^0.0.186",
     "jsgui3-webpage": "^0.0.8",
     "jsgui3-website": "^0.0.8",
-    "lang-tools": "^0.0.44",
+    "lang-tools": "^0.0.45",
     "mocha": "^11.7.5",
     "multiparty": "^4.2.3",
     "ncp": "^2.0.0",
-    "obext": "^0.0.33",
+    "obext": "^0.0.34",
     "rimraf": "^6.1.2",
     "sass": "^1.77.6",
     "stream-to-array": "^2.3.0",
     "url-parse": "^1.5.10"
   },
   "devDependencies": {
+    "playwright": "^1.58.2",
     "puppeteer": "^19.11.1"
   },
   "commentDeps": {
@@ -43,7 +44,7 @@
     "type": "git",
     "url": "https://github.com/metabench/jsgui3-server.git"
   },
-  "version": "0.0.151",
+  "version": "0.0.154",
   "scripts": {
     "cli": "node cli.js",
     "serve": "node cli.js serve",
@@ -66,6 +67,8 @@
     "test:performance": "node tests/test-runner.js --test=performance.test.js",
     "test:errors": "node tests/test-runner.js --test=error-handling.test.js",
     "test:examples:controls": "node tests/test-runner.js --test=examples-controls.e2e.test.js",
+    "test:playwright:install": "npx playwright install chromium",
+    "test:playwright:smoke": "node tests/test-runner.js --test=playwright-smoke.test.js",
     "test:puppeteer:bundling": "node tests/test-runner.js --test=bundling-default-control-elimination.puppeteer.test.js",
     "test:puppeteer:windows": "node tests/test-runner.js --test=window-examples.puppeteer.test.js",
     "test:puppeteer:resources": "node tests/test-runner.js --test=window-resource-integration.puppeteer.test.js",

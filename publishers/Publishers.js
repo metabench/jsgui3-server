@@ -11,7 +11,8 @@ const Publishers = {
     'sse': require('./http-sse-publisher'),
     'png': require('./http-png-publisher'),
     'resource': require('./http-resource-publisher'),
-    'svg': require('./http-svg-publisher')
+    'svg': require('./http-svg-publisher'),
+    'swagger': require('./swagger-publisher')
 }
 
 module.exports = Publishers;

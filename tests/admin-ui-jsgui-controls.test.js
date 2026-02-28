@@ -154,7 +154,18 @@ describe('Admin UI jsgui control integration', function() {
     it('renders settings snapshot with key-value rows and logout button control', async () => {
         const admin_shell = create_admin_shell();
         admin_shell._fetch_json = () => Promise.resolve({
-            server: { name: 'Example Server' },
+            server: {
+                name: 'Example Server',
+                primary_endpoint: 'http://127.0.0.1:52000/',
+                listening_endpoints: [
+                    { url: 'http://127.0.0.1:52000/' },
+                    { url: 'http://192.168.1.2:52000/' }
+                ],
+                startup_diagnostics: {
+                    requested_port: 52000,
+                    addresses_attempted: ['127.0.0.1', '192.168.1.2']
+                }
+            },
             process: {
                 node_version: 'v22.0.0',
                 platform: 'linux',
@@ -169,6 +180,10 @@ describe('Admin UI jsgui control integration', function() {
         assert(dynamic_html.includes('Example Server'));
         assert(dynamic_html.includes('v22.0.0'));
         assert(dynamic_html.includes('as-logout-btn'));
+        assert(dynamic_html.includes('Startup &amp; Network'));
+        assert(dynamic_html.includes('Primary Endpoint'));
+        assert(dynamic_html.includes('127.0.0.1:52000'));
+        assert(dynamic_html.includes('Requested Port'));
     });
 
     it('renders custom section data for array, object, and scalar payloads', () => {

@@ -105,9 +105,14 @@ if (require.main === module) {
                 throw err;
             } else {
                 // Should have build it by now...
-    
+
                 console.log('server started');
+                server.print_endpoints({
+                    prefix: 'active endpoint'
+                });
             }
+        }, {
+            on_port_conflict: 'auto-loopback'
         });
     })
 

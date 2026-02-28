@@ -93,18 +93,32 @@ jsgui.Resource.Remote_Process;
 
 ## Server Instance Methods
 
-### server.start(port, callback)
+### server.start(port, callback, options)
 
 Starts the HTTP server (legacy API).
 
 **Signature:**
 ```javascript
-server.start(port?: number, callback?: (err?: Error) => void): void
+server.start(
+  port?: number,
+  callback?: (err?: Error) => void,
+  options?: {
+    on_port_conflict?: 'error' | 'auto-loopback'
+  }
+): void
 ```
 
 **Parameters:**
 - `port` (number, optional): Port to listen on (default: 8080)
 - `callback` (function, optional): Called when server starts or fails
+- `options` (object, optional): Startup behavior options
+  - `on_port_conflict: 'error' | 'auto-loopback'`
+    - `error` (default): Return startup error as usual.
+    - `auto-loopback`: If all requested interface binds fail with `EADDRINUSE`,
+      retry once on `127.0.0.1` using a free port.
+
+When startup fails, the returned error may include `error.startup_diagnostics`
+containing attempted addresses and per-address errors.
 
 ### server.publish(route, handler)
 
@@ -150,6 +164,106 @@ server.close(callback?: (err?: Error | null) => void): void
 - Calls `resource_pool.stop()` when available
 - Stops `sse_publisher` when present
 - Closes all HTTP listeners
+
+### server.get_listening_endpoints()
+
+Returns the active listener endpoints (protocol, host, port, url) for the
+current process. Useful when startup falls back from a requested fixed port to
+an auto-selected loopback port.
+
+**Signature:**
+```javascript
+server.get_listening_endpoints(): Array<{
+  protocol: 'http' | 'https';
+  host: string;
+  port: number;
+  url: string;
+}>
+```
+
+**Example:**
+```javascript
+server.start(52000, (err) => {
+  if (err) throw err;
+  console.log('Listening at', server.get_primary_endpoint());
+}, {
+  on_port_conflict: 'auto-loopback'
+});
+```
+
+### server.get_primary_endpoint()
+
+Returns the primary endpoint URL string (first endpoint) or `null` if the
+server is not listening.
+
+**Signature:**
+```javascript
+server.get_primary_endpoint(): string | null
+```
+
+**Example:**
+```javascript
+const url = server.get_primary_endpoint();
+if (url) {
+  console.log('Primary endpoint:', url);
+}
+```
+
+### server.print_endpoints(options)
+
+Prints listening endpoint URLs and returns the printed lines.
+
+**Signature:**
+```javascript
+server.print_endpoints(options?: {
+  logger?: (line: string) => void;
+  include_index?: boolean;
+  prefix?: string;
+}): string[]
+```
+
+**Parameters:**
+- `options.logger` (function, optional): Line logger (default: `console.log`)
+- `options.include_index` (boolean, optional): Include endpoint index in output
+- `options.prefix` (string, optional): Prefix text (default: `"listening endpoint"`)
+
+**Example:**
+```javascript
+server.start(52000, (err) => {
+  if (err) throw err;
+  server.print_endpoints({ include_index: true });
+}, {
+  on_port_conflict: 'auto-loopback'
+});
+```
+
+### server.get_startup_diagnostics()
+
+Returns startup diagnostics information or `null` when unavailable.
+
+**Signature:**
+```javascript
+server.get_startup_diagnostics(): {
+  requested_port: number;
+  fallback_port?: number;
+  fallback_host?: string;
+  addresses_attempted: string[];
+  errors_by_address: Record<string, { code?: string; message?: string }>;
+} | null
+```
+
+**Example:**
+```javascript
+server.start(52000, (err) => {
+  if (err) {
+    console.error(server.get_startup_diagnostics());
+    throw err;
+  }
+  console.log(server.get_startup_diagnostics());
+}, {
+  on_port_conflict: 'auto-loopback'
+});
+```
 
 ### server.use(fn)
 
@@ -992,6 +1106,10 @@ interface ServerOptions {
   src_path_client_js?: string;
   port?: number;
   host?: string;
+  on_port_conflict?: 'error' | 'auto-loopback';
+  start?: {
+    on_port_conflict?: 'error' | 'auto-loopback';
+  };
   debug?: boolean;
   name?: string;
   root?: string;

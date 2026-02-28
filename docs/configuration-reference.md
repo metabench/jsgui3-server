@@ -61,6 +61,37 @@ Configuration values are resolved in this order (later sources override earlier 
   Server.serve({ port: 3000 });
   ```
 
+#### `on_port_conflict`
+- **Type:** `'error' | 'auto-loopback'`
+- **Description:** Startup behavior when the requested port is already in use.
+- **Default:** `'error'`
+
+```javascript
+// If the configured port is busy on all selected interfaces,
+// retry on 127.0.0.1 using a free ephemeral port.
+Server.serve({
+    port: 52000,
+    on_port_conflict: 'auto-loopback'
+});
+```
+
+#### `start`
+- **Type:** `object`
+- **Description:** Advanced startup options passed to `server.start(...)`.
+
+| Property | Type | Description |
+|----------|------|-------------|
+| `on_port_conflict` | `'error' \| 'auto-loopback'` | Same as top-level `on_port_conflict` |
+
+```javascript
+Server.serve({
+    port: 52000,
+    start: {
+        on_port_conflict: 'auto-loopback'
+    }
+});
+```
+
 #### `host`
 - **Type:** `string`
 - **Description:** Host interface to bind to
@@ -525,7 +556,30 @@ Server.serve({ compression: { threshold: 256, level: 6 } });
 > **Note:** `compression` and `middleware` can be used together. The `middleware` array runs first (in order), then the compression middleware is appended.
 
 See [Middleware Guide](middleware-guide.md) for the full API, response-wrapping patterns, and custom middleware examples.
+
+### Runtime Introspection Helpers
+
+After startup, these server instance methods are useful for runtime endpoint
+inspection and diagnostics:
+
+- `server.get_listening_endpoints()`
+- `server.get_primary_endpoint()`
+- `server.print_endpoints(options)`
+- `server.get_startup_diagnostics()`
+
+```javascript
+const server = await Server.serve({
+    Ctrl: MyControl,
+    port: 52000,
+    on_port_conflict: 'auto-loopback'
+});
+
+console.log('Primary endpoint:', server.get_primary_endpoint());
+server.print_endpoints({ include_index: true });
+console.log('Startup diagnostics:', server.get_startup_diagnostics());
 ```
+
+See [API Reference](api-reference.md) for full method signatures.
 
 ## Configuration Validation
 

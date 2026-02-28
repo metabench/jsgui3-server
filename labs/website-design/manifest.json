@@ -1,0 +1,68 @@
+[
+    {
+        "id": "001",
+        "slug": "base-class-overhead",
+        "name": "Base Class Overhead",
+        "status": "validated",
+        "chapter": "03-base-class",
+        "description": "Measure Evented_Class overhead vs plain class for Webpage/Website construction",
+        "path": "labs/website-design/001-base-class-overhead",
+        "check": "labs/website-design/001-base-class-overhead/check.js",
+        "decision": "Evented_Class — 5.2x slower but <3ms for 10k, ~100 bytes extra, events free"
+    },
+    {
+        "id": "002",
+        "slug": "pages-storage",
+        "name": "Pages Storage Comparison",
+        "status": "validated",
+        "chapter": "06-pages-storage",
+        "description": "Benchmark Array vs Map vs Array+Index for page lookup, duplicate detection, and serialization",
+        "path": "labs/website-design/002-pages-storage",
+        "check": "labs/website-design/002-pages-storage/check.js",
+        "decision": "Map — O(1) lookup, built-in duplicate detection, insertion order, cleanest API"
+    },
+    {
+        "id": "003",
+        "slug": "type-detection",
+        "name": "Type Detection Strategies",
+        "status": "validated",
+        "chapter": "08-server-integration",
+        "description": "Test instanceof vs duck typing vs Symbol.for() reliability across install scenarios",
+        "path": "labs/website-design/003-type-detection",
+        "check": "labs/website-design/003-type-detection/check.js",
+        "decision": "Combined — Symbol.for() fast path + duck typing fallback, zero false positives"
+    },
+    {
+        "id": "004",
+        "slug": "two-stage-validation",
+        "name": "Two-Stage Validation",
+        "status": "validated",
+        "chapter": "11-converged-recommendation",
+        "description": "Verify construction-time lightweight + publish-time strict validation is practical",
+        "path": "labs/website-design/004-two-stage-validation",
+        "check": "labs/website-design/004-two-stage-validation/check.js",
+        "decision": "Confirmed — lightweight constructor + strict finalize(), cascading Website→Webpage"
+    },
+    {
+        "id": "005",
+        "slug": "normalize-input",
+        "name": "Input Normalization",
+        "status": "validated",
+        "chapter": "08-server-integration",
+        "description": "Can all Server.serve() input shapes normalize to one manifest structure?",
+        "path": "labs/website-design/005-normalize-input",
+        "check": "labs/website-design/005-normalize-input/check.js",
+        "decision": "Confirmed — Control, Webpage, Website, plain-object all normalize to {pages[], api[], meta}"
+    },
+    {
+        "id": "006",
+        "slug": "serve-website-spike",
+        "name": "Server Integration Spike",
+        "status": "validated",
+        "chapter": "08-server-integration",
+        "description": "End-to-end: Website flows through existing publisher pipeline",
+        "path": "labs/website-design/006-serve-website-spike",
+        "check": "labs/website-design/006-serve-website-spike/check.js",
+        "decision": "Confirmed — SSR works, route configs match serve-factory, legacy shapes distinguishable"
+    }
+]

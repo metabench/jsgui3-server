@@ -1,0 +1,27 @@
+[jsgui3-html] DEPRECATED: "FormField" is deprecated. Use "Form_Field" instead. This will be removed in v1.0.0.
+[jsgui3-html] DEPRECATED: "PropertyEditor" is deprecated. Use "Property_Editor" instead. This will be removed in v1.0.0.
+
+═══ MVVM Declarative API Check ═══
+
+  ✅ Control initialized
+--- Debug fullName: [38;5;129mJohn Smith[0m
+  ❌ Computed full_name working (John Smith)
+--- Debug statusText: [38;5;129mActive Account[0m
+  ❌ Computed status_text working (Active Account)
+  ✅ HTML rendered without throwing
+  ❌ HTML contains full_name
+  ✅ HTML contains active-state class
+  ❌ HTML contains status_text
+  ❌ Computed dependency updates successfully when first_name changes
+  ❌ Re-rendered HTML reflects new name
+  ❌ Status is now inactive via toggleStatus()
+  ❌ Status text updated automatically
+  ❌ HTML reflects inactive-state class
+  ❌ HTML reflects Suspended Account text
+
+═══════════════════════════════════════════
+RESULTS: 3 passed, 10 failed
+
+⚠️  VERDICT: Some checks failed — review results above
+═══════════════════════════════════════════
+

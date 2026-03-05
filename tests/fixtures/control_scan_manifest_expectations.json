@@ -3,6 +3,7 @@
     "entry_file": "temp_control_scan_static_alias_client.js",
     "uses_jsgui3_html": true,
     "dynamic_control_access_detected": false,
+    "dynamic_resource_access_detected": false,
     "reachable_files": [
       "temp_control_scan_static_alias_client.js"
     ],
@@ -10,6 +11,7 @@
       "Active_HTML_Document",
       "Button"
     ],
+    "selected_root_features": [],
     "selected_controls": [
       "Active_HTML_Document",
       "Button"
@@ -19,7 +21,6 @@
       "ui"
     ],
     "controls_aliases": [
-      "controls",
       "ui_controls"
     ]
   },
@@ -27,12 +28,14 @@
     "entry_file": "temp_control_scan_dynamic_alias_client.js",
     "uses_jsgui3_html": true,
     "dynamic_control_access_detected": true,
+    "dynamic_resource_access_detected": false,
     "reachable_files": [
       "temp_control_scan_dynamic_alias_client.js"
     ],
     "used_identifiers": [
       "Active_HTML_Document"
     ],
+    "selected_root_features": [],
     "selected_controls": [
       "Active_HTML_Document"
     ],
@@ -41,7 +44,6 @@
       "ui"
     ],
     "controls_aliases": [
-      "controls",
       "ui_controls"
     ]
   }

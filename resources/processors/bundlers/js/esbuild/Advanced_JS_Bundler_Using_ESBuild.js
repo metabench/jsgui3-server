@@ -43,6 +43,69 @@ const await_bundle_observable = (bundle_result) => {
     });
 };
 
+const collect_esbuild_warning_records = (bundle_result) => {
+    const bundle_list = Array.isArray(bundle_result)
+        ? bundle_result
+        : (bundle_result ? [bundle_result] : []);
+    const warning_records = [];
+
+    for (const bundle_item of bundle_list) {
+        const warnings = bundle_item &&
+            bundle_item.bundle_analysis &&
+            bundle_item.bundle_analysis.esbuild_warnings;
+        if (Array.isArray(warnings)) {
+            warning_records.push(...warnings);
+        }
+    }
+
+    return warning_records;
+};
+
+const dedupe_esbuild_warning_records = (warning_records) => {
+    const deduped_warning_records = [];
+    const seen_warning_keys = new Set();
+
+    for (const warning_record of warning_records || []) {
+        const location = warning_record && warning_record.location ? warning_record.location : {};
+        const warning_key = [
+            warning_record && warning_record.id ? warning_record.id : '',
+            warning_record && warning_record.text ? warning_record.text : '',
+            location.file || '',
+            location.line || '',
+            location.column || ''
+        ].join('|');
+
+        if (!seen_warning_keys.has(warning_key)) {
+            seen_warning_keys.add(warning_key);
+            deduped_warning_records.push(warning_record);
+        }
+    }
+
+    return deduped_warning_records;
+};
+
+const attach_bundle_analysis = (bundle, {
+    control_scan_manifest = null,
+    esbuild_warning_records = []
+} = {}) => {
+    if (!bundle) {
+        return;
+    }
+
+    const deduped_warning_records = dedupe_esbuild_warning_records(esbuild_warning_records);
+    if (!control_scan_manifest && deduped_warning_records.length === 0) {
+        return;
+    }
+
+    bundle.bundle_analysis = bundle.bundle_analysis || {};
+    if (control_scan_manifest) {
+        bundle.bundle_analysis.jsgui3_html_control_scan = control_scan_manifest;
+    }
+    if (deduped_warning_records.length > 0) {
+        bundle.bundle_analysis.esbuild_warnings = deduped_warning_records;
+    }
+};
+
 
 class Advanced_JS_Bundler_Using_ESBuild extends Bundler_Using_ESBuild {
     constructor(spec = {}) {
@@ -138,6 +201,7 @@ class Advanced_JS_Bundler_Using_ESBuild extends Bundler_Using_ESBuild {
 
             let entry_build_overrides = {};
             let control_scan_manifest = null;
+            const aggregated_esbuild_warning_records = [];
 
             if (jsgui3_html_control_optimizer) {
                 const optimization_result = await jsgui3_html_control_optimizer.optimize(js_file_path);
@@ -152,6 +216,7 @@ class Advanced_JS_Bundler_Using_ESBuild extends Bundler_Using_ESBuild {
             const res_nmb = await await_bundle_observable(
                 non_minifying_bundler.bundle(js_file_path, entry_build_overrides)
             );
+            aggregated_esbuild_warning_records.push(...collect_esbuild_warning_records(res_nmb));
 
             //console.log('res_nmb', res_nmb);
 
@@ -188,6 +253,7 @@ class Advanced_JS_Bundler_Using_ESBuild extends Bundler_Using_ESBuild {
                                 const css_free_bundle_result = await await_bundle_observable(
                                     non_minifying_bundler.bundle_js_string(js)
                                 );
+                                aggregated_esbuild_warning_records.push(...collect_esbuild_warning_records(css_free_bundle_result));
                                 const css_free_bundle_item = css_free_bundle_result[0]._arr[0];
 
                                 const res_bundle = new Bundle();
@@ -203,10 +269,10 @@ class Advanced_JS_Bundler_Using_ESBuild extends Bundler_Using_ESBuild {
                                     text: compiled_css
                                 }
                                 res_bundle.push(o_css_bundle_item);
-                                if (control_scan_manifest) {
-                                    res_bundle.bundle_analysis = res_bundle.bundle_analysis || {};
-                                    res_bundle.bundle_analysis.jsgui3_html_control_scan = control_scan_manifest;
-                                }
+                                attach_bundle_analysis(res_bundle, {
+                                    control_scan_manifest,
+                                    esbuild_warning_records: aggregated_esbuild_warning_records
+                                });
                                 next(res_bundle);
                                 complete(res_bundle);
 
@@ -221,10 +287,12 @@ class Advanced_JS_Bundler_Using_ESBuild extends Bundler_Using_ESBuild {
                                 const css_free_bundle_result = await await_bundle_observable(
                                     non_minifying_bundler.bundle_js_string(js)
                                 );
+                                aggregated_esbuild_warning_records.push(...collect_esbuild_warning_records(css_free_bundle_result));
                                 const css_free_bundle_item = css_free_bundle_result[0]._arr[0];
                                 const minified_js = await await_bundle_observable(
                                     minifying_js_single_file_bundler.bundle(css_free_bundle_item.text)
                                 );
+                                aggregated_esbuild_warning_records.push(...collect_esbuild_warning_records(minified_js));
 
                                 //console.log('minified_js', minified_js);
                                 //console.log('minified_js.length', minified_js.length);
@@ -239,10 +307,10 @@ class Advanced_JS_Bundler_Using_ESBuild extends Bundler_Using_ESBuild {
                                         text: compiled_css
                                     }
                                     minified_bundle.push(o_css_bundle_item);
-                                    if (control_scan_manifest) {
-                                        minified_bundle.bundle_analysis = minified_bundle.bundle_analysis || {};
-                                        minified_bundle.bundle_analysis.jsgui3_html_control_scan = control_scan_manifest;
-                                    }
+                                    attach_bundle_analysis(minified_bundle, {
+                                        control_scan_manifest,
+                                        esbuild_warning_records: aggregated_esbuild_warning_records
+                                    });
                                     next(minified_bundle);
                                     complete(minified_bundle);
                                 } else {

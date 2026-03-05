@@ -12,6 +12,38 @@ const Bundler_Using_ESBuild = require('./Bundler_Using_ESBuild');
 // extends Core_Bundler?
 // exends Base_Bundler???
 
+const normalize_esbuild_warning_records = (warning_records) => {
+    if (!Array.isArray(warning_records)) {
+        return [];
+    }
+
+    return warning_records.map((warning_record = {}) => {
+        const location = warning_record.location && typeof warning_record.location === 'object'
+            ? {
+                file: warning_record.location.file || null,
+                line: Number.isFinite(warning_record.location.line) ? warning_record.location.line : null,
+                column: Number.isFinite(warning_record.location.column) ? warning_record.location.column : null
+            }
+            : null;
+
+        return {
+            id: warning_record.id || null,
+            text: warning_record.text || '',
+            plugin_name: warning_record.pluginName || null,
+            location
+        };
+    });
+};
+
+const attach_esbuild_warning_analysis = (bundle, warning_records) => {
+    if (!bundle || !Array.isArray(warning_records) || warning_records.length === 0) {
+        return;
+    }
+
+    bundle.bundle_analysis = bundle.bundle_analysis || {};
+    bundle.bundle_analysis.esbuild_warnings = warning_records;
+};
+
 
 
 
@@ -135,6 +167,7 @@ class Core_JS_Single_File_Minifying_Bundler_Using_ESBuild extends Bundler_Using_
                 this.apply_minify_options(o_build);
 
                 const result = await esbuild.build(o_build);
+                const esbuild_warning_records = normalize_esbuild_warning_records(result.warnings);
                 for (let out of result.outputFiles) {
                     //console.log('out.path, out.contents, out.hash, out.text', out.path, out.contents, out.hash, out.text)
                 }
@@ -185,6 +218,7 @@ class Core_JS_Single_File_Minifying_Bundler_Using_ESBuild extends Bundler_Using_
                 }
 
                     res_bundle.push(o_bundle_item);
+                    attach_esbuild_warning_analysis(res_bundle, esbuild_warning_records);
 
                     next(res_bundle);
                     complete(res_bundle);

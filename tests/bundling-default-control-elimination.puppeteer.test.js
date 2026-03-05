@@ -9,7 +9,9 @@ const {
     launch_puppeteer_browser,
     open_page,
     stop_server_instance,
-    assert_clean_page_probe
+    assert_clean_page_probe,
+    extract_esbuild_warning_headers_from_bundle,
+    assert_no_unexpected_esbuild_warning_headers
 } = require('./helpers/puppeteer-e2e-harness');
 
 const button_fixture_client_path = path.join(__dirname, 'fixtures', 'bundling-default-button-client.js');
@@ -27,6 +29,28 @@ const window_markers = [
 
 const find_window_markers = (bundle_text = '') => {
     return window_markers.filter((marker) => bundle_text.includes(marker));
+};
+
+const allowed_esbuild_warning_patterns = [
+    /\[different-path-case\]/
+];
+
+const get_server_esbuild_warning_headers = (server_instance) => {
+    const latest_wp_bundle = server_instance && server_instance.latest_wp_bundle;
+    assert(latest_wp_bundle, 'Expected server_instance.latest_wp_bundle to inspect esbuild warnings');
+    return extract_esbuild_warning_headers_from_bundle(latest_wp_bundle);
+};
+
+const assert_no_unexpected_server_esbuild_warnings = (server_instance, {
+    allowed_warning_patterns = [],
+    required_warning_patterns = []
+} = {}) => {
+    const warning_headers = get_server_esbuild_warning_headers(server_instance);
+    assert_no_unexpected_esbuild_warning_headers(warning_headers, {
+        allowed_warning_patterns,
+        required_warning_patterns
+    });
+    return warning_headers;
 };
 
 const read_js_bundle_from_page = async (page) => {
@@ -167,6 +191,7 @@ describe('Bundling Default Control Elimination Puppeteer Tests', function () {
                 0,
                 `Unexpected Window markers in default bundle: ${default_markers.join(', ')}`
             );
+            assert_no_unexpected_server_esbuild_warnings(default_server_instance);
 
             assert_clean_page_probe(default_page_probe);
 
@@ -210,6 +235,9 @@ describe('Bundling Default Control Elimination Puppeteer Tests', function () {
                 default_bundle_response.body_text.length < disabled_bundle_response.body_text.length,
                 'Expected default bundle to be smaller than elimination-disabled bundle'
             );
+            assert_no_unexpected_server_esbuild_warnings(disabled_server_instance, {
+                allowed_warning_patterns: allowed_esbuild_warning_patterns
+            });
 
             assert_clean_page_probe(disabled_page_probe);
         } finally {
@@ -250,6 +278,9 @@ describe('Bundling Default Control Elimination Puppeteer Tests', function () {
             assert.strictEqual(bundle_response.status_code, 200, 'Expected /js/js.js to load');
             const markers = find_window_markers(bundle_response.body_text);
             assert(markers.length > 0, 'Expected Window markers when Window control is used');
+            assert_no_unexpected_server_esbuild_warnings(server_instance, {
+                allowed_warning_patterns: allowed_esbuild_warning_patterns
+            });
 
             assert_clean_page_probe(page_probe);
         } finally {

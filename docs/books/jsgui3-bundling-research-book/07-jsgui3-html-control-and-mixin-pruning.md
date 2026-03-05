@@ -61,3 +61,36 @@ When dynamic registry access is detected and symbol resolution is uncertain:
 ## Result
 
 This produces consistent APIs while allowing bundle contents to shrink significantly for narrow use cases.
+
+## Implemented Notes (Current Codebase)
+
+Current `jsgui3-server` implementation now includes:
+
+- static bracket control detection (`controls['Button']`) as optimizable/static,
+- dynamic bracket fallback (`controls[name]`) as safety-disable for elimination,
+- root-feature auto-selection from static references, including aliased `Resource` access patterns:
+  - `const resource_api = require('jsgui3-html').Resource;`
+  - `const resource_api = require('jsgui3-html')['Resource'];`
+  - `resource_api.Compiler`, `resource_api.load_compiler`
+  - `const { Data_KV } = resource_api`
+  - `resource_api['Compiler']`
+- controls alias auto-selection from bracket-derived registry references:
+  - `const controls = jsgui['controls'];`
+  - `controls['Button']`
+- conservative fallback for unresolved dynamic `Resource` alias access (`resource_api[name]`):
+  - keeps control elimination enabled
+  - retains full `Resource` sub-feature family for runtime safety
+- optional root-export pruning in shim generation for:
+  - `Router`
+  - `Resource` family (`Resource_Pool`, `Data_KV`, `Data_Transform`, `Compilation`, `Compiler`, `load_compiler`)
+  - `gfx`
+  - `mixins` / `mx`
+
+The control-scan manifest now reports both:
+
+- `selected_controls`
+- `selected_root_features`
+- `dynamic_control_access_detected`
+- `dynamic_resource_access_detected`
+
+to make pruning decisions auditable in tests and bundle diagnostics.

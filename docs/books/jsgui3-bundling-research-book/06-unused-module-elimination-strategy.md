@@ -75,3 +75,4 @@ Behavior:
 Safety:
 
 - if dynamic control indexing is detected (`controls[some_var]`), optimization is disabled by default
+- if dynamic indexing is detected on a `Resource` alias (`resource_api[some_var]`), control elimination remains enabled but `Resource` sub-features are conservatively retained

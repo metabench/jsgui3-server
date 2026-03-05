@@ -12,6 +12,7 @@ describe('End-to-End Integration Tests', function() {
 
     let server;
     let serverPort = 3001; // Use a different port for testing
+    const test_host = '127.0.0.1';
     let testControl;
     let test_client_path;
     let base_serve_options;
@@ -36,7 +37,7 @@ describe('End-to-End Integration Tests', function() {
         const server_instance = await Server.serve(serve_options);
         const port = server_instance.port || serve_options.port;
         if (port) {
-            await wait_for_route(`http://localhost:${port}/js/js.js`);
+            await wait_for_route(`http://${test_host}:${port}/js/js.js`);
         }
         return server_instance;
     };
@@ -86,7 +87,7 @@ describe('End-to-End Integration Tests', function() {
                 }
             });
 
-            const js_identity_response = await makeRequest(`http://localhost:${serverPort}/js/js.js`, {
+            const js_identity_response = await makeRequest(`http://${test_host}:${serverPort}/js/js.js`, {
                 'Accept-Encoding': 'identity'
             });
 
@@ -97,7 +98,7 @@ describe('End-to-End Integration Tests', function() {
             );
 
             // Test gzip compressed JavaScript
-            const js_gzip_response = await makeRequest(`http://localhost:${serverPort}/js/js.js`, {
+            const js_gzip_response = await makeRequest(`http://${test_host}:${serverPort}/js/js.js`, {
                 'Accept-Encoding': 'gzip'
             });
 
@@ -112,7 +113,7 @@ describe('End-to-End Integration Tests', function() {
             );
 
             // Test brotli compressed JavaScript
-            const br_js_response = await makeRequest(`http://localhost:${serverPort}/js/js.js`, {
+            const br_js_response = await makeRequest(`http://${test_host}:${serverPort}/js/js.js`, {
                 'Accept-Encoding': 'br'
             });
 
@@ -148,7 +149,7 @@ describe('End-to-End Integration Tests', function() {
             });
 
             // Test JavaScript with sourcemaps
-            const js_gzip_response = await makeRequest(`http://localhost:${serverPort}/js/js.js`, {
+            const js_gzip_response = await makeRequest(`http://${test_host}:${serverPort}/js/js.js`, {
                 'Accept-Encoding': 'gzip'
             });
 
@@ -179,7 +180,7 @@ describe('End-to-End Integration Tests', function() {
                 }
             });
 
-            const css_identity_response = await makeRequest(`http://localhost:${serverPort}/css/css.css`, {
+            const css_identity_response = await makeRequest(`http://${test_host}:${serverPort}/css/css.css`, {
                 'Accept-Encoding': 'identity'
             });
 
@@ -190,7 +191,7 @@ describe('End-to-End Integration Tests', function() {
             );
 
             // Test gzip compressed CSS
-            const css_gzip_response = await makeRequest(`http://localhost:${serverPort}/css/css.css`, {
+            const css_gzip_response = await makeRequest(`http://${test_host}:${serverPort}/css/css.css`, {
                 'Accept-Encoding': 'gzip'
             });
 
@@ -223,7 +224,7 @@ describe('End-to-End Integration Tests', function() {
             });
 
             // Test HTML (should not be compressed due to threshold)
-            const htmlResponse = await makeRequest(`http://localhost:${serverPort}/`, {
+            const htmlResponse = await makeRequest(`http://${test_host}:${serverPort}/`, {
                 'Accept-Encoding': 'gzip'
             });
 
@@ -250,7 +251,7 @@ describe('End-to-End Integration Tests', function() {
                 }
             });
 
-            const baseline_response = await makeRequest(`http://localhost:${serverPort}/js/js.js`, {
+            const baseline_response = await makeRequest(`http://${test_host}:${serverPort}/js/js.js`, {
                 'Accept-Encoding': 'identity'
             });
             assert.strictEqual(baseline_response.statusCode, 200);
@@ -276,7 +277,7 @@ describe('End-to-End Integration Tests', function() {
                 });
 
                 // Test JavaScript
-                const minified_response = await makeRequest(`http://localhost:${serverPort}/js/js.js`, {
+                const minified_response = await makeRequest(`http://${test_host}:${serverPort}/js/js.js`, {
                     'Accept-Encoding': 'identity'
                 });
 
@@ -305,7 +306,7 @@ describe('End-to-End Integration Tests', function() {
             });
 
             // Test with gzip request but compression disabled
-            const jsResponse = await makeRequest(`http://localhost:${serverPort}/js/js.js`, {
+            const jsResponse = await makeRequest(`http://${test_host}:${serverPort}/js/js.js`, {
                 'Accept-Encoding': 'gzip'
             });
 
@@ -333,7 +334,7 @@ describe('End-to-End Integration Tests', function() {
             // Make multiple concurrent requests
             const requests = [];
             for (let i = 0; i < 5; i++) {
-                requests.push(makeRequest(`http://localhost:${serverPort}/js/js.js`, {
+                requests.push(makeRequest(`http://${test_host}:${serverPort}/js/js.js`, {
                     'Accept-Encoding': 'gzip'
                 }));
             }
@@ -366,7 +367,7 @@ describe('End-to-End Integration Tests', function() {
             ];
 
             for (const test of tests) {
-                const response = await makeRequest(`http://localhost:${serverPort}${test.path}`);
+                const response = await makeRequest(`http://${test_host}:${serverPort}${test.path}`);
                 assert.strictEqual(response.statusCode, 200);
                 assert(response.headers['content-type'].includes(test.expectedType),
                        `Should serve correct content type for ${test.path}`);

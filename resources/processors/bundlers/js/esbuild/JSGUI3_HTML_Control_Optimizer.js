@@ -115,6 +115,75 @@ const parse_destructured_entries = (list_text) => {
     return entries;
 };
 
+const parse_static_bracket_identifier = (bracket_expression_text) => {
+    const text = (bracket_expression_text || '').trim();
+    const static_literal_match = /^(['"])([A-Za-z_$][A-Za-z0-9_$]*)\1$/.exec(text);
+    if (!static_literal_match) return null;
+    return sanitize_identifier(static_literal_match[2]);
+};
+
+const resource_family_feature_keys = Object.freeze([
+    'resource',
+    'resource_data_kv',
+    'resource_data_transform',
+    'resource_compilation',
+    'resource_compiler',
+    'resource_load_compiler'
+]);
+
+const derive_selected_root_features = (used_identifiers, options = {}) => {
+    const force_resource_family = options.force_resource_family === true;
+    const used_identifier_set = new Set(Array.isArray(used_identifiers) ? used_identifiers : []);
+    const selected_root_features = new Set();
+
+    const has_identifier = (name) => used_identifier_set.has(name);
+
+    if (has_identifier('Router')) selected_root_features.add('router');
+
+    const resource_identifiers = [
+        'Resource',
+        'Resource_Pool',
+        'Data_KV',
+        'Data_Transform',
+        'Compilation',
+        'Compiler',
+        'load_compiler'
+    ];
+    const has_resource_identifier = resource_identifiers.some((name) => has_identifier(name));
+    if (has_resource_identifier) selected_root_features.add('resource');
+
+    if (has_identifier('Resource_Pool')) selected_root_features.add('resource_pool');
+    if (has_identifier('Data_KV')) selected_root_features.add('resource_data_kv');
+    if (has_identifier('Data_Transform')) selected_root_features.add('resource_data_transform');
+    if (has_identifier('Compilation')) selected_root_features.add('resource_compilation');
+    if (has_identifier('Compiler')) selected_root_features.add('resource_compiler');
+    if (has_identifier('load_compiler')) {
+        selected_root_features.add('resource_compiler');
+        selected_root_features.add('resource_load_compiler');
+    }
+    if (has_identifier('gfx')) selected_root_features.add('gfx');
+    if (has_identifier('mixins') || has_identifier('mx')) selected_root_features.add('mixins');
+
+    if (force_resource_family) {
+        for (const resource_feature_key of resource_family_feature_keys) {
+            selected_root_features.add(resource_feature_key);
+        }
+    }
+
+    if (
+        selected_root_features.has('resource_pool') ||
+        selected_root_features.has('resource_data_kv') ||
+        selected_root_features.has('resource_data_transform') ||
+        selected_root_features.has('resource_compilation') ||
+        selected_root_features.has('resource_compiler') ||
+        selected_root_features.has('resource_load_compiler')
+    ) {
+        selected_root_features.add('resource');
+    }
+
+    return Array.from(selected_root_features).sort();
+};
+
 class JSGUI3_HTML_Control_Optimizer {
     constructor(spec = {}) {
         this.package_name = spec.package_name || 'jsgui3-html';
@@ -223,6 +292,7 @@ class JSGUI3_HTML_Control_Optimizer {
             reachable_files: sort_path_items(analysis.reachable_files),
             used_identifiers: sort_path_items(analysis.used_identifiers),
             selected_controls: sort_path_items(analysis.selected_controls),
+            selected_root_features: sort_path_items(analysis.selected_root_features),
             unmatched_identifiers: sort_path_items(analysis.unmatched_identifiers),
             package_aliases: sort_path_items(analysis.package_aliases),
             controls_aliases: sort_path_items(analysis.controls_aliases),
@@ -279,6 +349,7 @@ class JSGUI3_HTML_Control_Optimizer {
         const controls_aliases_set = new Set();
         let uses_jsgui3_html = false;
         let dynamic_control_access_detected = false;
+        let dynamic_resource_access_detected = false;
 
         for (const file_path of reachable_files) {
             const stat_result = dependency_stat_map.get(file_path) || await read_path_stat(file_path);
@@ -287,6 +358,7 @@ class JSGUI3_HTML_Control_Optimizer {
 
             if (scan_result.uses_jsgui3_html) uses_jsgui3_html = true;
             if (scan_result.dynamic_control_access_detected) dynamic_control_access_detected = true;
+            if (scan_result.dynamic_resource_access_detected) dynamic_resource_access_detected = true;
 
             for (const identifier of scan_result.control_identifiers) {
                 used_identifiers_set.add(identifier);
@@ -304,6 +376,9 @@ class JSGUI3_HTML_Control_Optimizer {
         }
 
         const used_identifiers = Array.from(used_identifiers_set).sort();
+        const selected_root_features = derive_selected_root_features(used_identifiers, {
+            force_resource_family: dynamic_resource_access_detected
+        });
         const selected_controls = [];
         const unmatched_identifiers = [];
 
@@ -322,7 +397,9 @@ class JSGUI3_HTML_Control_Optimizer {
             reachable_files,
             uses_jsgui3_html,
             dynamic_control_access_detected,
+            dynamic_resource_access_detected,
             used_identifiers,
+            selected_root_features,
             selected_controls,
             unmatched_identifiers,
             package_aliases: Array.from(package_aliases_set).sort(),
@@ -497,7 +574,30 @@ class JSGUI3_HTML_Control_Optimizer {
         const control_identifiers = new Set();
         const package_name_regex = escape_for_regexp(this.package_name);
         const package_aliases = new Set();
-        const controls_aliases = new Set(['controls']);
+        const controls_aliases = new Set();
+        const resource_aliases = new Set();
+        const resource_subfeature_identifiers = [
+            'Data_KV',
+            'Data_Transform',
+            'Compilation',
+            'Compiler',
+            'load_compiler'
+        ];
+        const resource_subfeature_regex_fragment = resource_subfeature_identifiers.join('|');
+        const add_resource_alias = (alias_name) => {
+            const normalized_alias = sanitize_identifier(alias_name);
+            if (normalized_alias) resource_aliases.add(normalized_alias);
+        };
+        const add_control_identifier = (identifier) => {
+            const normalized_identifier = sanitize_identifier(identifier);
+            if (normalized_identifier) control_identifiers.add(normalized_identifier);
+        };
+        const add_resource_family_fallback_identifiers = () => {
+            add_control_identifier('Resource');
+            for (const identifier of resource_subfeature_identifiers) {
+                add_control_identifier(identifier);
+            }
+        };
 
         const package_usage_regexes = [
             new RegExp(`require\\s*\\(\\s*['"]${package_name_regex}['"]\\s*\\)`, 'g'),
@@ -540,6 +640,26 @@ class JSGUI3_HTML_Control_Optimizer {
             if (alias_name) controls_aliases.add(alias_name);
         }
 
+        const controls_alias_direct_bracket_regex = new RegExp(
+            `\\b(?:const|let|var)\\s+([A-Za-z_$][A-Za-z0-9_$]*)\\s*=\\s*require\\s*\\(\\s*['"]${package_name_regex}['"]\\s*\\)\\s*\\[\\s*(['"])controls\\2\\s*\\]`,
+            'g'
+        );
+        let controls_alias_direct_bracket_match;
+        while ((controls_alias_direct_bracket_match = controls_alias_direct_bracket_regex.exec(source_text)) !== null) {
+            const alias_name = sanitize_identifier(controls_alias_direct_bracket_match[1]);
+            if (alias_name) controls_aliases.add(alias_name);
+        }
+
+        const resource_alias_direct_bracket_regex = new RegExp(
+            `\\b(?:const|let|var)\\s+([A-Za-z_$][A-Za-z0-9_$]*)\\s*=\\s*require\\s*\\(\\s*['"]${package_name_regex}['"]\\s*\\)\\s*\\[\\s*(['"])Resource\\2\\s*\\]`,
+            'g'
+        );
+        let resource_alias_direct_bracket_match;
+        while ((resource_alias_direct_bracket_match = resource_alias_direct_bracket_regex.exec(source_text)) !== null) {
+            add_resource_alias(resource_alias_direct_bracket_match[1]);
+            add_control_identifier('Resource');
+        }
+
         for (const package_alias of package_aliases) {
             const escaped_package_alias = escape_for_regexp(package_alias);
 
@@ -553,6 +673,26 @@ class JSGUI3_HTML_Control_Optimizer {
                 if (alias_name) controls_aliases.add(alias_name);
             }
 
+            const alias_from_controls_bracket_regex = new RegExp(
+                `\\b(?:const|let|var)\\s+([A-Za-z_$][A-Za-z0-9_$]*)\\s*=\\s*${escaped_package_alias}\\s*\\[\\s*(['"])controls\\2\\s*\\]`,
+                'g'
+            );
+            let alias_bracket_match;
+            while ((alias_bracket_match = alias_from_controls_bracket_regex.exec(source_text)) !== null) {
+                const alias_name = sanitize_identifier(alias_bracket_match[1]);
+                if (alias_name) controls_aliases.add(alias_name);
+            }
+
+            const alias_from_resource_bracket_regex = new RegExp(
+                `\\b(?:const|let|var)\\s+([A-Za-z_$][A-Za-z0-9_$]*)\\s*=\\s*${escaped_package_alias}\\s*\\[\\s*(['"])Resource\\2\\s*\\]`,
+                'g'
+            );
+            let alias_resource_bracket_match;
+            while ((alias_resource_bracket_match = alias_from_resource_bracket_regex.exec(source_text)) !== null) {
+                add_resource_alias(alias_resource_bracket_match[1]);
+                add_control_identifier('Resource');
+            }
+
             const destructure_package_regex = new RegExp(
                 `\\b(?:const|let|var)\\s*\\{([^}]+)\\}\\s*=\\s*${escaped_package_alias}\\b`,
                 'g'
@@ -564,7 +704,10 @@ class JSGUI3_HTML_Control_Optimizer {
                     if (entry.source === 'controls') {
                         controls_aliases.add(entry.local);
                     } else {
-                        control_identifiers.add(entry.source);
+                        add_control_identifier(entry.source);
+                        if (entry.source === 'Resource') {
+                            add_resource_alias(entry.local);
+                        }
                     }
                 }
             }
@@ -581,32 +724,71 @@ class JSGUI3_HTML_Control_Optimizer {
                 if (entry.source === 'controls') {
                     controls_aliases.add(entry.local);
                 } else {
-                    control_identifiers.add(entry.source);
+                    add_control_identifier(entry.source);
+                    if (entry.source === 'Resource') {
+                        add_resource_alias(entry.local);
+                    }
                 }
             }
         }
 
-        let dynamic_control_access_detected =
-            /\bcontrols\s*\[[^\]]+\]/.test(source_text) ||
-            /\bjsgui\.controls\s*\[[^\]]+\]/.test(source_text);
+        let dynamic_control_access_detected = false;
+        let dynamic_resource_access_detected = false;
 
+        const scan_bracket_access_expression = (expression_text) => {
+            const escaped_expression = escape_for_regexp(expression_text);
+            const bracket_access_regex = new RegExp(`\\b${escaped_expression}\\s*\\[\\s*([^\\]]+)\\]`, 'g');
+            let bracket_access_match;
+            while ((bracket_access_match = bracket_access_regex.exec(source_text)) !== null) {
+                const bracket_identifier = parse_static_bracket_identifier(bracket_access_match[1]);
+                if (bracket_identifier) {
+                    add_control_identifier(bracket_identifier);
+                } else {
+                    dynamic_control_access_detected = true;
+                }
+            }
+        };
+
+        scan_bracket_access_expression('jsgui.controls');
+        scan_bracket_access_expression('jsgui');
         for (const controls_alias of controls_aliases) {
-            const escaped_controls_alias = escape_for_regexp(controls_alias);
-            const alias_dynamic_regex = new RegExp(`\\b${escaped_controls_alias}\\s*\\[[^\\]]+\\]`);
-            if (alias_dynamic_regex.test(source_text)) dynamic_control_access_detected = true;
+            scan_bracket_access_expression(controls_alias);
+        }
+        for (const package_alias of package_aliases) {
+            scan_bracket_access_expression(`${package_alias}.controls`);
+            scan_bracket_access_expression(package_alias);
         }
 
-        for (const package_alias of package_aliases) {
-            const escaped_package_alias = escape_for_regexp(package_alias);
-            const package_controls_dynamic_regex = new RegExp(`\\b${escaped_package_alias}\\.controls\\s*\\[[^\\]]+\\]`);
-            const package_dynamic_regex = new RegExp(`\\b${escaped_package_alias}\\s*\\[[^\\]]+\\]`);
-            if (package_controls_dynamic_regex.test(source_text) || package_dynamic_regex.test(source_text)) {
+        const direct_package_controls_bracket_regex = new RegExp(
+            `require\\s*\\(\\s*['"]${package_name_regex}['"]\\s*\\)\\.controls\\s*\\[\\s*([^\\]]+)\\]`,
+            'g'
+        );
+        let direct_package_controls_bracket_match;
+        while ((direct_package_controls_bracket_match = direct_package_controls_bracket_regex.exec(source_text)) !== null) {
+            const bracket_identifier = parse_static_bracket_identifier(direct_package_controls_bracket_match[1]);
+            if (bracket_identifier) {
+                add_control_identifier(bracket_identifier);
+            } else {
+                dynamic_control_access_detected = true;
+            }
+        }
+
+        const direct_package_bracket_regex = new RegExp(
+            `require\\s*\\(\\s*['"]${package_name_regex}['"]\\s*\\)\\s*\\[\\s*([^\\]]+)\\]`,
+            'g'
+        );
+        let direct_package_bracket_match;
+        while ((direct_package_bracket_match = direct_package_bracket_regex.exec(source_text)) !== null) {
+            const bracket_identifier = parse_static_bracket_identifier(direct_package_bracket_match[1]);
+            if (bracket_identifier) {
+                add_control_identifier(bracket_identifier);
+            } else {
                 dynamic_control_access_detected = true;
             }
         }
 
         // controls.Button / jsgui.controls.Button
-        const dot_access_regexes = [/\bcontrols\.([A-Za-z_$][A-Za-z0-9_$]*)/g, /\bjsgui\.controls\.([A-Za-z_$][A-Za-z0-9_$]*)/g, /\bjsgui\.([A-Z][A-Za-z0-9_$]*)/g];
+        const dot_access_regexes = [/\bjsgui\.controls\.([A-Za-z_$][A-Za-z0-9_$]*)/g, /\bjsgui\.([A-Z][A-Za-z0-9_$]*)/g];
         for (const controls_alias of controls_aliases) {
             dot_access_regexes.push(new RegExp(`\\b${escape_for_regexp(controls_alias)}\\.([A-Za-z_$][A-Za-z0-9_$]*)`, 'g'));
         }
@@ -615,21 +797,84 @@ class JSGUI3_HTML_Control_Optimizer {
             dot_access_regexes.push(new RegExp(`\\b${escaped_package_alias}\\.controls\\.([A-Za-z_$][A-Za-z0-9_$]*)`, 'g'));
             dot_access_regexes.push(new RegExp(`\\b${escaped_package_alias}\\.([A-Z][A-Za-z0-9_$]*)`, 'g'));
         }
+        const direct_require_dot_access_regexes = [
+            new RegExp(`require\\s*\\(\\s*['"]${package_name_regex}['"]\\s*\\)\\.controls\\.([A-Za-z_$][A-Za-z0-9_$]*)`, 'g'),
+            new RegExp(`require\\s*\\(\\s*['"]${package_name_regex}['"]\\s*\\)\\.([A-Z][A-Za-z0-9_$]*)`, 'g')
+        ];
 
-        for (const regex of dot_access_regexes) {
+        for (const regex of [...dot_access_regexes, ...direct_require_dot_access_regexes]) {
             let match;
             while ((match = regex.exec(source_text)) !== null) {
                 const identifier = sanitize_identifier(match[1]);
-                if (identifier) control_identifiers.add(identifier);
+                if (identifier) add_control_identifier(identifier);
+            }
+        }
+
+        const resource_alias_direct_regex = new RegExp(
+            `\\b(?:const|let|var)\\s+([A-Za-z_$][A-Za-z0-9_$]*)\\s*=\\s*require\\s*\\(\\s*['"]${package_name_regex}['"]\\s*\\)\\.Resource\\b`,
+            'g'
+        );
+        let resource_alias_direct_match;
+        while ((resource_alias_direct_match = resource_alias_direct_regex.exec(source_text)) !== null) {
+            add_resource_alias(resource_alias_direct_match[1]);
+            add_control_identifier('Resource');
+        }
+        for (const package_alias of package_aliases) {
+            const escaped_package_alias = escape_for_regexp(package_alias);
+            const resource_alias_from_package_regex = new RegExp(
+                `\\b(?:const|let|var)\\s+([A-Za-z_$][A-Za-z0-9_$]*)\\s*=\\s*${escaped_package_alias}\\.Resource\\b`,
+                'g'
+            );
+            let resource_alias_from_package_match;
+            while ((resource_alias_from_package_match = resource_alias_from_package_regex.exec(source_text)) !== null) {
+                add_resource_alias(resource_alias_from_package_match[1]);
+                add_control_identifier('Resource');
+            }
+        }
+
+        const direct_resource_subfeature_regexes = [
+            new RegExp(
+                `require\\s*\\(\\s*['"]${package_name_regex}['"]\\s*\\)\\.Resource\\.(${resource_subfeature_regex_fragment})\\b`,
+                'g'
+            )
+        ];
+        for (const package_alias of package_aliases) {
+            direct_resource_subfeature_regexes.push(
+                new RegExp(`\\b${escape_for_regexp(package_alias)}\\.Resource\\.(${resource_subfeature_regex_fragment})\\b`, 'g')
+            );
+        }
+        for (const regex of direct_resource_subfeature_regexes) {
+            let match;
+            while ((match = regex.exec(source_text)) !== null) {
+                add_control_identifier(match[1]);
+                add_control_identifier('Resource');
+            }
+        }
+
+        const known_lower_case_property_regexes = [];
+        for (const package_alias of package_aliases) {
+            const escaped_package_alias = escape_for_regexp(package_alias);
+            known_lower_case_property_regexes.push(new RegExp(`\\b${escaped_package_alias}\\.(gfx|mixins|mx)\\b`, 'g'));
+            known_lower_case_property_regexes.push(new RegExp(`\\b${escaped_package_alias}\\.Resource\\.(load_compiler)\\b`, 'g'));
+        }
+        known_lower_case_property_regexes.push(
+            new RegExp(`require\\s*\\(\\s*['"]${package_name_regex}['"]\\s*\\)\\.(gfx|mixins|mx)\\b`, 'g'),
+            new RegExp(`require\\s*\\(\\s*['"]${package_name_regex}['"]\\s*\\)\\.Resource\\.(load_compiler)\\b`, 'g')
+        );
+        for (const regex of known_lower_case_property_regexes) {
+            let match;
+            while ((match = regex.exec(source_text)) !== null) {
+                const identifier = sanitize_identifier(match[1]);
+                if (identifier) add_control_identifier(identifier);
             }
         }
 
         // const { Button } = controls / jsgui.controls / require('jsgui3-html').controls / require('jsgui3-html')
         const destructuring_regexes = [
-            /\b(?:const|let|var)\s*\{([^}]+)\}\s*=\s*controls\b/g,
             /\b(?:const|let|var)\s*\{([^}]+)\}\s*=\s*jsgui\.controls\b/g,
             new RegExp(`\\b(?:const|let|var)\\s*\\{([^}]+)\\}\\s*=\\s*require\\s*\\(\\s*['"]${package_name_regex}['"]\\s*\\)\\.controls\\b`, 'g'),
             new RegExp(`\\b(?:const|let|var)\\s*\\{([^}]+)\\}\\s*=\\s*require\\s*\\(\\s*['"]${package_name_regex}['"]\\s*\\)\\b`, 'g'),
+            new RegExp(`\\b(?:const|let|var)\\s*\\{([^}]+)\\}\\s*=\\s*require\\s*\\(\\s*['"]${package_name_regex}['"]\\s*\\)\\.Resource\\b`, 'g'),
             new RegExp(`\\bimport\\s*\\{([^}]+)\\}\\s*from\\s*['"]${package_name_regex}['"]`, 'g')
         ];
         for (const controls_alias of controls_aliases) {
@@ -639,6 +884,7 @@ class JSGUI3_HTML_Control_Optimizer {
             const escaped_package_alias = escape_for_regexp(package_alias);
             destructuring_regexes.push(new RegExp(`\\b(?:const|let|var)\\s*\\{([^}]+)\\}\\s*=\\s*${escaped_package_alias}\\.controls\\b`, 'g'));
             destructuring_regexes.push(new RegExp(`\\b(?:const|let|var)\\s*\\{([^}]+)\\}\\s*=\\s*${escaped_package_alias}\\b`, 'g'));
+            destructuring_regexes.push(new RegExp(`\\b(?:const|let|var)\\s*\\{([^}]+)\\}\\s*=\\s*${escaped_package_alias}\\.Resource\\b`, 'g'));
         }
 
         for (const regex of destructuring_regexes) {
@@ -649,15 +895,81 @@ class JSGUI3_HTML_Control_Optimizer {
                     if (entry.source === 'controls') {
                         controls_aliases.add(entry.local);
                     } else {
-                        control_identifiers.add(entry.source);
+                        add_control_identifier(entry.source);
+                        if (entry.source === 'Resource') {
+                            add_resource_alias(entry.local);
+                        }
                     }
                 }
+            }
+        }
+
+        const scan_resource_bracket_expression = (expression_text) => {
+            const escaped_expression = escape_for_regexp(expression_text);
+            const resource_bracket_regex = new RegExp(`\\b${escaped_expression}\\s*\\[\\s*([^\\]]+)\\]`, 'g');
+            let resource_bracket_match;
+            while ((resource_bracket_match = resource_bracket_regex.exec(source_text)) !== null) {
+                const bracket_identifier = parse_static_bracket_identifier(resource_bracket_match[1]);
+                if (bracket_identifier) {
+                    add_control_identifier(bracket_identifier);
+                    add_control_identifier('Resource');
+                } else {
+                    dynamic_resource_access_detected = true;
+                    add_resource_family_fallback_identifiers();
+                }
+            }
+        };
+
+        const resource_alias_property_regexes = [];
+        for (const resource_alias of resource_aliases) {
+            resource_alias_property_regexes.push(
+                new RegExp(`\\b${escape_for_regexp(resource_alias)}\\.(${resource_subfeature_regex_fragment})\\b`, 'g')
+            );
+            scan_resource_bracket_expression(resource_alias);
+            const resource_alias_destructure_regex = new RegExp(
+                `\\b(?:const|let|var)\\s*\\{([^}]+)\\}\\s*=\\s*${escape_for_regexp(resource_alias)}\\b`,
+                'g'
+            );
+            let resource_alias_destructure_match;
+            while ((resource_alias_destructure_match = resource_alias_destructure_regex.exec(source_text)) !== null) {
+                const entries = parse_destructured_entries(resource_alias_destructure_match[1]);
+                for (const entry of entries) {
+                    add_control_identifier(entry.source);
+                    add_control_identifier('Resource');
+                }
+            }
+        }
+        for (const package_alias of package_aliases) {
+            scan_resource_bracket_expression(`${package_alias}.Resource`);
+        }
+        const direct_package_resource_bracket_regex = new RegExp(
+            `require\\s*\\(\\s*['"]${package_name_regex}['"]\\s*\\)\\.Resource\\s*\\[\\s*([^\\]]+)\\]`,
+            'g'
+        );
+        let direct_package_resource_bracket_match;
+        while ((direct_package_resource_bracket_match = direct_package_resource_bracket_regex.exec(source_text)) !== null) {
+            const bracket_identifier = parse_static_bracket_identifier(direct_package_resource_bracket_match[1]);
+            if (bracket_identifier) {
+                add_control_identifier(bracket_identifier);
+                add_control_identifier('Resource');
+            } else {
+                dynamic_resource_access_detected = true;
+                add_resource_family_fallback_identifiers();
+            }
+        }
+
+        for (const regex of resource_alias_property_regexes) {
+            let match;
+            while ((match = regex.exec(source_text)) !== null) {
+                add_control_identifier(match[1]);
+                add_control_identifier('Resource');
             }
         }
 
         return {
             uses_jsgui3_html,
             dynamic_control_access_detected,
+            dynamic_resource_access_detected,
             control_identifiers: Array.from(control_identifiers),
             package_aliases: Array.from(package_aliases),
             controls_aliases: Array.from(controls_aliases)
@@ -710,7 +1022,9 @@ class JSGUI3_HTML_Control_Optimizer {
             reachable_files: analysis.reachable_files,
             uses_jsgui3_html: analysis.uses_jsgui3_html,
             dynamic_control_access_detected: analysis.dynamic_control_access_detected,
+            dynamic_resource_access_detected: analysis.dynamic_resource_access_detected === true,
             used_identifiers: analysis.used_identifiers,
+            selected_root_features: analysis.selected_root_features || [],
             selected_controls: analysis.selected_controls,
             unmatched_identifiers: analysis.unmatched_identifiers,
             package_aliases: analysis.package_aliases || [],
@@ -725,6 +1039,7 @@ class JSGUI3_HTML_Control_Optimizer {
         const hash_input = JSON.stringify({
             entry: manifest.entry_file_path,
             selected_controls: manifest.selected_controls,
+            selected_root_features: manifest.selected_root_features || [],
             package_name: manifest.package_name
         });
         const hash = crypto.createHash('sha256').update(hash_input).digest('hex').slice(0, 24);
@@ -742,31 +1057,48 @@ class JSGUI3_HTML_Control_Optimizer {
         }
 
         const html_core_path = to_module_literal(path.join(jsgui3_html_root, 'html-core', 'html-core.js'));
-        const router_path = to_module_literal(path.join(jsgui3_html_root, 'router', 'router.js'));
-        const resource_path = to_module_literal(path.join(jsgui3_html_root, 'resource', 'resource.js'));
-        const resource_pool_path = to_module_literal(path.join(jsgui3_html_root, 'resource', 'pool.js'));
-        const data_kv_resource_path = to_module_literal(path.join(jsgui3_html_root, 'resource', 'data-kv-resource.js'));
-        const data_transform_resource_path = to_module_literal(path.join(jsgui3_html_root, 'resource', 'data-transform-resource.js'));
-        const compilation_resource_path = to_module_literal(path.join(jsgui3_html_root, 'resource', 'compilation-resource.js'));
-        const compiler_resource_path = to_module_literal(path.join(jsgui3_html_root, 'resource', 'compiler-resource.js'));
-        const mixins_path = to_module_literal(path.join(jsgui3_html_root, 'control_mixins', 'mx.js'));
-        let gfx_require_target = 'jsgui3-gfx-core';
-        try {
-            gfx_require_target = to_module_literal(require.resolve('jsgui3-gfx-core', {paths: [jsgui3_html_root]}));
-        } catch (err) {
-            // Keep package-name fallback when direct path resolution is unavailable.
+        const selected_root_features_set = new Set(Array.isArray(manifest.selected_root_features) ? manifest.selected_root_features : []);
+        const root_feature_lines = [];
+
+        if (selected_root_features_set.has('router')) {
+            const router_path = to_module_literal(path.join(jsgui3_html_root, 'router', 'router.js'));
+            root_feature_lines.push(`jsgui.Router = require('${router_path}');`);
         }
 
-        const shim_source = `
-const jsgui = require('${html_core_path}');
-jsgui.Router = require('${router_path}');
-jsgui.Resource = require('${resource_path}');
-jsgui.Resource_Pool = require('${resource_pool_path}');
-jsgui.Resource.Data_KV = require('${data_kv_resource_path}');
-jsgui.Resource.Data_Transform = require('${data_transform_resource_path}');
-jsgui.Resource.Compilation = require('${compilation_resource_path}');
-jsgui.Resource.Compiler = require('${compiler_resource_path}');
-jsgui.gfx = require('${gfx_require_target}');
+        const has_resource_feature =
+            selected_root_features_set.has('resource') ||
+            selected_root_features_set.has('resource_pool') ||
+            selected_root_features_set.has('resource_data_kv') ||
+            selected_root_features_set.has('resource_data_transform') ||
+            selected_root_features_set.has('resource_compilation') ||
+            selected_root_features_set.has('resource_compiler') ||
+            selected_root_features_set.has('resource_load_compiler');
+        if (has_resource_feature) {
+            const resource_path = to_module_literal(path.join(jsgui3_html_root, 'resource', 'resource.js'));
+            root_feature_lines.push(`jsgui.Resource = require('${resource_path}');`);
+        }
+        if (selected_root_features_set.has('resource_pool')) {
+            const resource_pool_path = to_module_literal(path.join(jsgui3_html_root, 'resource', 'pool.js'));
+            root_feature_lines.push(`jsgui.Resource_Pool = require('${resource_pool_path}');`);
+        }
+        if (selected_root_features_set.has('resource_data_kv')) {
+            const data_kv_resource_path = to_module_literal(path.join(jsgui3_html_root, 'resource', 'data-kv-resource.js'));
+            root_feature_lines.push(`jsgui.Resource.Data_KV = require('${data_kv_resource_path}');`);
+        }
+        if (selected_root_features_set.has('resource_data_transform')) {
+            const data_transform_resource_path = to_module_literal(path.join(jsgui3_html_root, 'resource', 'data-transform-resource.js'));
+            root_feature_lines.push(`jsgui.Resource.Data_Transform = require('${data_transform_resource_path}');`);
+        }
+        if (selected_root_features_set.has('resource_compilation')) {
+            const compilation_resource_path = to_module_literal(path.join(jsgui3_html_root, 'resource', 'compilation-resource.js'));
+            root_feature_lines.push(`jsgui.Resource.Compilation = require('${compilation_resource_path}');`);
+        }
+        if (selected_root_features_set.has('resource_compiler')) {
+            const compiler_resource_path = to_module_literal(path.join(jsgui3_html_root, 'resource', 'compiler-resource.js'));
+            root_feature_lines.push(`jsgui.Resource.Compiler = require('${compiler_resource_path}');`);
+        }
+        if (selected_root_features_set.has('resource_load_compiler')) {
+            root_feature_lines.push(`
 jsgui.Resource.load_compiler = (name, jsfn, options) => {
     const compiler_name = name;
     const compiler_fn = jsfn;
@@ -789,13 +1121,32 @@ jsgui.Resource.load_compiler = (name, jsfn, options) => {
         pool.add(compiler_resource);
     }
     return compiler_resource;
-};
+};`.trim());
+        }
+
+        if (selected_root_features_set.has('gfx')) {
+            let gfx_require_target = 'jsgui3-gfx-core';
+            try {
+                gfx_require_target = to_module_literal(require.resolve('jsgui3-gfx-core', {paths: [jsgui3_html_root]}));
+            } catch (err) {
+                // Keep package-name fallback when direct path resolution is unavailable.
+            }
+            root_feature_lines.push(`jsgui.gfx = require('${gfx_require_target}');`);
+        }
+
+        if (selected_root_features_set.has('mixins')) {
+            const mixins_path = to_module_literal(path.join(jsgui3_html_root, 'control_mixins', 'mx.js'));
+            root_feature_lines.push(`jsgui.mixins = jsgui.mx = require('${mixins_path}');`);
+        }
+
+        const shim_source = `
+const jsgui = require('${html_core_path}');
+${root_feature_lines.join('\n')}
 jsgui.controls = jsgui.controls || {};
 Object.assign(jsgui.controls, {
 ${selected_control_lines.join(',\n')}
 });
 Object.assign(jsgui, jsgui.controls);
-jsgui.mixins = jsgui.mx = require('${mixins_path}');
 module.exports = jsgui;
 `.trimStart();
 
@@ -808,6 +1159,7 @@ module.exports = jsgui;
         const hash_input = JSON.stringify({
             entry: manifest.entry_file_path,
             selected_controls: manifest.selected_controls,
+            selected_root_features: manifest.selected_root_features || [],
             package_name: manifest.package_name
         });
         const hash = crypto.createHash('sha256').update(hash_input).digest('hex').slice(0, 24);

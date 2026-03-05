@@ -376,6 +376,7 @@ class JSGUI_Single_Process_Server extends Evented_Class {
 
 			console.log('waiting for wp_publisher ready');
 			wp_publisher.on('ready', (wp_ready_res) => {
+				this.latest_wp_bundle = wp_ready_res;
 				//console.log('wp publisher is ready');
 				if (wp_ready_res._arr) {
 
@@ -966,15 +967,23 @@ class JSGUI_Single_Process_Server extends Evented_Class {
 							next();
 						};
 
-						if (this.https_options) {
-							each(arr_ipv4_addresses, (ipv4_address) => {
-								try {
-									var https_server = https.createServer(this.https_options, function (req, res) {
-										process_request(req, res);
-									});
-									this.http_servers.push(https_server);
-									https_server.on('error', (err) => {
-										last_error = err;
+							if (this.https_options) {
+								each(arr_ipv4_addresses, (ipv4_address) => {
+									try {
+										var https_server = https.createServer(this.https_options, function (req, res) {
+											process_request(req, res);
+										});
+										const open_sockets = new Set();
+										https_server._open_sockets = open_sockets;
+										https_server.on('connection', (socket) => {
+											open_sockets.add(socket);
+											socket.on('close', () => {
+												open_sockets.delete(socket);
+											});
+										});
+										this.http_servers.push(https_server);
+										https_server.on('error', (err) => {
+											last_error = err;
 										errors_by_address[ipv4_address] = {
 											code: err.code,
 											message: err.message
@@ -1003,15 +1012,23 @@ class JSGUI_Single_Process_Server extends Evented_Class {
 									finalize_start(err);
 								}
 							});
-						} else {
-							each(arr_ipv4_addresses, (ipv4_address) => {
-								try {
-									var http_server = http.createServer(function (req, res) {
-										process_request(req, res);
-									});
-									this.http_servers.push(http_server);
-									http_server.on('error', (err) => {
-										last_error = err;
+							} else {
+								each(arr_ipv4_addresses, (ipv4_address) => {
+									try {
+										var http_server = http.createServer(function (req, res) {
+											process_request(req, res);
+										});
+										const open_sockets = new Set();
+										http_server._open_sockets = open_sockets;
+										http_server.on('connection', (socket) => {
+											open_sockets.add(socket);
+											socket.on('close', () => {
+												open_sockets.delete(socket);
+											});
+										});
+										this.http_servers.push(http_server);
+										http_server.on('error', (err) => {
+											last_error = err;
 										errors_by_address[ipv4_address] = {
 											code: err.code,
 											message: err.message
@@ -1049,48 +1066,131 @@ class JSGUI_Single_Process_Server extends Evented_Class {
 
 	close(callback) {
 		const invoke_stop = (target, done) => {
+			const stop_timeout_ms = 5000;
+			let did_finish = false;
+			const stop_timeout_handle = setTimeout(() => {
+				const target_name = (target && (target.name || target.__type_name || (target.constructor && target.constructor.name)))
+					|| 'unknown_target';
+				console.warn(`Timed out waiting for stop() on ${target_name}; continuing shutdown.`);
+				finish_stop(null);
+			}, stop_timeout_ms);
+			stop_timeout_handle.unref?.();
+
+			const finish_stop = (error) => {
+				if (did_finish) {
+					return;
+				}
+				did_finish = true;
+				clearTimeout(stop_timeout_handle);
+				done(error || null);
+			};
+
 			if (!target || typeof target.stop !== 'function') {
-				done(null);
+				finish_stop(null);
 				return;
 			}
 
 			if (target.stop.length >= 1) {
-				target.stop((error) => done(error || null));
+				try {
+					target.stop((error) => finish_stop(error || null));
+				} catch (error) {
+					finish_stop(error);
+				}
 				return;
 			}
 
 			try {
 				const stop_result = target.stop();
 				if (stop_result && typeof stop_result.then === 'function') {
-					stop_result.then(() => done(null), (error) => done(error || null));
+					stop_result.then(() => finish_stop(null), (error) => finish_stop(error || null));
 					return;
 				}
-				done(null);
+				finish_stop(null);
 			} catch (error) {
-				done(error);
+				finish_stop(error);
+			}
+		};
+
+		const force_close_server_connections = (server_instance) => {
+			if (!server_instance) {
+				return;
+			}
+			if (typeof server_instance.closeIdleConnections === 'function') {
+				try {
+					server_instance.closeIdleConnections();
+				} catch (error) {
+					// Ignore best-effort close idle connection errors.
+				}
+			}
+			if (typeof server_instance.closeAllConnections === 'function') {
+				try {
+					server_instance.closeAllConnections();
+				} catch (error) {
+					// Ignore best-effort close all connection errors.
+				}
+			}
+			if (server_instance._open_sockets && typeof server_instance._open_sockets.forEach === 'function') {
+				server_instance._open_sockets.forEach((socket) => {
+					try {
+						socket.destroy();
+					} catch (error) {
+						// Ignore socket destroy errors during shutdown.
+					}
+				});
+				server_instance._open_sockets.clear?.();
 			}
 		};
 
 		const close_http_servers = (done) => {
-			let count = this.http_servers.length;
-			if (count === 0) {
+			const http_server_list = Array.isArray(this.http_servers) ? [...this.http_servers] : [];
+			let pending_server_count = http_server_list.length;
+			const complete_http_server_close = () => {
 				this.http_servers = [];
 				this.listening_endpoints = [];
 				this.startup_diagnostics = null;
+				this._started = false;
 				done();
+			};
+			if (pending_server_count === 0) {
+				complete_http_server_close();
 				return;
 			}
 
-			this.http_servers.forEach(server => {
-				server.close(() => {
-					count--;
-					if (count === 0) {
-						this.http_servers = [];
-						this.listening_endpoints = [];
-						this.startup_diagnostics = null;
-						done();
+			http_server_list.forEach((server_instance) => {
+				let did_close_server = false;
+				const mark_server_closed = () => {
+					if (did_close_server) {
+						return;
 					}
-				});
+					did_close_server = true;
+					pending_server_count--;
+					if (pending_server_count === 0) {
+						complete_http_server_close();
+					}
+				};
+
+				const close_timeout_ms = 5000;
+				const close_timeout_handle = setTimeout(() => {
+					force_close_server_connections(server_instance);
+					mark_server_closed();
+				}, close_timeout_ms);
+				close_timeout_handle.unref?.();
+
+				try {
+					force_close_server_connections(server_instance);
+					server_instance.close((error) => {
+						clearTimeout(close_timeout_handle);
+						if (error && error.code !== 'ERR_SERVER_NOT_RUNNING') {
+							console.error('Error while closing HTTP server:', error);
+						}
+						force_close_server_connections(server_instance);
+						mark_server_closed();
+					});
+				} catch (error) {
+					clearTimeout(close_timeout_handle);
+					force_close_server_connections(server_instance);
+					mark_server_closed();
+				}
 			});
 		};
 

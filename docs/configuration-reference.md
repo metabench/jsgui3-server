@@ -790,6 +790,36 @@ Server.serve({
 });
 ```
 
+### Control Elimination and Root-Feature Auto-Selection
+
+```javascript
+Server.serve({
+    bundler: {
+        elimination: {
+            enabled: true, // default
+            jsgui3_html_controls: {
+                enabled: true,           // default
+                allow_dynamic_controls: false, // default safety behavior
+                emit_manifest: false,
+                include_controls: [],    // optional forced-in controls
+                exclude_controls: [],    // optional forced-out controls
+                cache: {
+                    enabled: true,       // default
+                    shared: true         // default
+                }
+            }
+        }
+    }
+});
+```
+
+Default behavior:
+
+- Auto-selects used `jsgui3-html` controls from reachable source files.
+- Auto-selects optional `jsgui3-html` root exports (`Router`, `Resource` family, `gfx`, `mixins`) when referenced.
+- If unresolved dynamic control access is detected (for example `controls[name]`), elimination is disabled for safety unless `allow_dynamic_controls: true` is set.
+- If unresolved dynamic access is detected on a `Resource` alias (for example `resource_api[name]`), control elimination stays enabled and `Resource` sub-features are conservatively retained.
+
 ### Caching Configuration
 
 ```javascript

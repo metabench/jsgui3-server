@@ -33,12 +33,17 @@ tests/
 ├── content-analysis.test.js      # Content analysis and verification
 ├── performance.test.js           # Performance benchmarks
 ├── error-handling.test.js        # Error handling and edge cases
+├── small-controls-bundle-size.test.js # Bundle-size and window-marker elimination checks
+├── control-elimination-static-bracket-access.test.js # Static-vs-dynamic bracket access elimination regression (including bracket-derived controls aliases)
+├── control-elimination-root-feature-pruning.test.js # Optional jsgui root-feature pruning + Resource alias auto-selection regression
 ├── control-optimizer-cache-behavior.test.js # Optimizer cache enable/disable behavior
+├── control-scan-manifest-regression.test.js # Manifest snapshot regression for control scan details
 ├── examples-controls.e2e.test.js # Example apps regression (controls)
 ├── sass-controls.e2e.test.js     # Sass/CSS controls E2E coverage
 ├── playwright-smoke.test.js       # Playwright browser smoke test for local page serving
 ├── jsgui3-html-examples.puppeteer.test.js # Puppeteer interaction tests (jsgui3-html examples)
 ├── bundling-default-control-elimination.puppeteer.test.js # Puppeteer: default control elimination bundle checks
+├── project-local-controls-bundling.puppeteer.test.js # Puppeteer: project-local control bundling + elimination safety
 ├── window-examples.puppeteer.test.js # Puppeteer interaction tests (window examples)
 ├── window-resource-integration.puppeteer.test.js # Browser E2E: controls + resource APIs + SSE
 ├── helpers/puppeteer-e2e-harness.js # Shared Puppeteer story runner + probes
@@ -62,11 +67,24 @@ node tests/test-runner.js --test=bundlers.test.js
 # Optimizer cache behavior
 node tests/test-runner.js --test=control-optimizer-cache-behavior.test.js
 
+# Static-vs-dynamic bracket access elimination
+node tests/test-runner.js --test=control-elimination-static-bracket-access.test.js
+
+# Optional jsgui root-feature pruning
+node tests/test-runner.js --test=control-elimination-root-feature-pruning.test.js
+
 # Admin UI shell interaction regression
 node tests/test-runner.js --test=admin-ui-jsgui-controls.test.js
 
 # Using mocha directly
 npx mocha tests/bundlers.test.js
+```
+
+NPM shortcuts:
+
+```bash
+npm run test:bundler:elimination:static-brackets
+npm run test:bundler:elimination:root-features
 ```
 
 ### Run Example Apps Regression Suite
@@ -82,6 +100,11 @@ npm run test:puppeteer:windows
 ### Run Puppeteer Bundling Elimination Tests
 ```bash
 npm run test:puppeteer:bundling
+```
+
+### Run Puppeteer Project-Local Control Bundling Tests
+```bash
+npm run test:puppeteer:project-local-controls
 ```
 
 ### Run Puppeteer Resource Integration Tests
@@ -125,11 +148,40 @@ Suggested sequence:
 node tests/test-runner.js --test=bundlers.test.js
 npm run test:examples:controls
 npm run test:puppeteer:bundling
+npm run test:puppeteer:project-local-controls
 npm run test:puppeteer:windows
 npm run test:puppeteer:resources
 npm run test:playwright:smoke
 npm test
 ```
+
+## Bundle Size Metric Semantics
+
+- Tests that report `js_bytes` or `css_bytes` are reporting **raw uncompressed UTF-8 byte lengths** from emitted bundle text (`Buffer.byteLength(...)`).
+- These are **not** gzip/brotli transfer sizes.
+- Compression sizes are validated separately through response buffer assigners and content-negotiation tests (`gzip`, `br`, `identity`).
+
+## Control Scan Manifest Fields
+
+`bundle.bundle_analysis.jsgui3_html_control_scan` exposes scan diagnostics used by elimination tests, including:
+
+- `selected_controls`
+- `selected_root_features`
+- `dynamic_control_access_detected`
+- `dynamic_resource_access_detected`
+
+`dynamic_resource_access_detected` indicates conservative fallback for unresolved `Resource` alias dynamic access (for example `resource_api[name]`), where control elimination remains enabled but full `Resource` sub-features are retained for safety.
+
+`bundle.bundle_analysis.esbuild_warnings` contains normalized warning records from esbuild (`id`, `text`, `location`) used by Puppeteer bundling warning-policy checks.
+
+## Esbuild Warning Policy (Bundling E2E)
+
+Bundling Puppeteer E2E suites enforce a warning policy over esbuild output:
+
+- Warning records are read from `server_instance.latest_wp_bundle.bundle_analysis.esbuild_warnings`.
+- Any warning header not in the allowlist fails the test.
+- Current allowlist intentionally permits only known case-path warnings (`[different-path-case]`) in elimination-disabled or explicit Window scenarios.
+- Controls-only default elimination scenarios are expected to emit zero esbuild warnings.
 
 ## Advanced Puppeteer E2E Methodology
 
@@ -280,7 +332,17 @@ Browser-level interaction checks that combine controls and server resources:
 - SSE resource state events reflected in client UI
 - Cross-checking client-observed state with server resource pool state
 
-### 12. Core Resource and Serve Reliability Tests
+### 12. Project-Local Controls Bundling Puppeteer Tests (`project-local-controls-bundling.puppeteer.test.js`)
+
+Browser-level and bundle-content coverage for app-specific controls defined in project files:
+
+- Bundles project-local custom controls and transitive local helpers
+- Verifies project-local DOM markers render from the bundled app
+- Verifies project-local CSS classes are extracted into `/css/css.css`
+- Verifies default elimination removes unused Window markers for the same app
+- Confirms default elimination produces a smaller JS bundle than elimination-disabled mode for the same app
+
+### 13. Core Resource and Serve Reliability Tests
 
 - `admin-ui-render.test.js` validates the admin page control renders without clobbering control internals
 - `admin-ui-jsgui-controls.test.js` validates admin shell interactions, custom section nav refresh, retry/logout control behavior, and SSE open/error/heartbeat handling

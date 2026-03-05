@@ -403,17 +403,7 @@ const normalize_endpoint_entry = (endpoint_name, endpoint_value = {}, default_ba
         handler: endpoint_value.handler,
         method: endpoint_method,
         path: endpoint_path,
-        description: endpoint_value.description,
-        // Extended API metadata for OpenAPI / Swagger generation.
-        summary: endpoint_value.summary,
-        tags: endpoint_value.tags,
-        params: endpoint_value.params,
-        returns: endpoint_value.returns,
-        schema: endpoint_value.schema,
-        // Enhancement support: raw handler, deprecated, operationId.
-        raw: endpoint_value.raw,
-        deprecated: endpoint_value.deprecated,
-        operationId: endpoint_value.operationId
+        description: endpoint_value.description
     };
 };
 
@@ -969,12 +959,7 @@ module.exports = (Server) => {
                 name: endpoint.name,
                 method: endpoint.method || 'GET',
                 path: endpoint.path,
-                description: endpoint.description,
-                summary: endpoint.summary,
-                tags: endpoint.tags,
-                params: endpoint.params,
-                returns: endpoint.returns,
-                schema: endpoint.schema
+                description: endpoint.description
             }))
         };
 
@@ -1002,16 +987,6 @@ module.exports = (Server) => {
             }));
         }
 
-        // ── Register middleware ──────────────────────────────
-        // `middleware` accepts an array of (req, res, next) functions.
-        if (Array.isArray(serve_options.middleware)) {
-            for (const mw of serve_options.middleware) {
-                if (typeof mw === 'function') {
-                    server_instance.use(mw);
-                }
-            }
-        }
-
         for (const endpoint of normalized_api_endpoints) {
             if (!endpoint || typeof endpoint.handler !== 'function') {
                 continue;
@@ -1022,16 +997,7 @@ module.exports = (Server) => {
                 continue;
             }
 
-            const publish_meta = { method: endpoint.method };
-            if (endpoint.summary) publish_meta.summary = endpoint.summary;
-            if (endpoint.description) publish_meta.description = endpoint.description;
-            if (endpoint.tags) publish_meta.tags = endpoint.tags;
-            if (endpoint.params) publish_meta.params = endpoint.params;
-            if (endpoint.returns) publish_meta.returns = endpoint.returns;
-            if (endpoint.deprecated) publish_meta.deprecated = endpoint.deprecated;
-            if (endpoint.operationId) publish_meta.operationId = endpoint.operationId;
-            if (endpoint.raw) publish_meta.raw = endpoint.raw;
-            server_instance.publish(endpoint.path || endpoint.name, endpoint.handler, publish_meta);
+            server_instance.publish(endpoint.path || endpoint.name, endpoint.handler, { method: endpoint.method });
         }
         // ── Data query endpoints ──────────────────────────────
         // `data` accepts an object map of name → {query_fn, adapter, schema}.
@@ -1085,23 +1051,6 @@ module.exports = (Server) => {
                 server_instance.server_router.set_route(data_route, publisher, publisher.handle_http);
                 data_endpoint_count++;
             }
-        }
-
-        // ── Swagger / OpenAPI auto-registration ──────────────
-        // swagger: true   → always enable
-        // swagger: false  → always disable
-        // swagger: omitted → enable in non-production
-        const swagger_option = serve_options.swagger;
-        const swagger_enabled = swagger_option === true
-            || (swagger_option !== false && process.env.NODE_ENV !== 'production');
-
-        if (swagger_enabled) {
-            const swagger_options = typeof swagger_option === 'object' ? swagger_option : {};
-            server_instance._register_swagger_routes({
-                title: swagger_options.title || serve_options.name,
-                version: swagger_options.version,
-                description: swagger_options.description
-            });
         }
 
         const should_force_ready = !serve_options.ctrl && (

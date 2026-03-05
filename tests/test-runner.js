@@ -38,6 +38,8 @@ class TestRunner {
             'end-to-end.test.js',
             'content-analysis.test.js',
             'small-controls-bundle-size.test.js',
+            'control-elimination-static-bracket-access.test.js',
+            'control-elimination-root-feature-pruning.test.js',
             'control-optimizer-cache-behavior.test.js',
             'control-scan-manifest-regression.test.js',
             'performance.test.js',
@@ -47,6 +49,7 @@ class TestRunner {
             'playwright-smoke.test.js',
             'jsgui3-html-examples.puppeteer.test.js',
             'bundling-default-control-elimination.puppeteer.test.js',
+            'project-local-controls-bundling.puppeteer.test.js',
             'window-examples.puppeteer.test.js',
             'window-resource-integration.puppeteer.test.js'
         ];

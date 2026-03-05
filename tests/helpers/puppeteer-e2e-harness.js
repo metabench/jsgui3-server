@@ -301,6 +301,64 @@ const wait_for_condition = async (condition_fn, timeout_ms = 6000, interval_ms =
     return false;
 };
 
+const extract_esbuild_warning_headers_from_warning_records = (warning_records = []) => {
+    if (!Array.isArray(warning_records)) {
+        return [];
+    }
+
+    return warning_records.map((warning_record) => {
+        if (!warning_record || typeof warning_record !== 'object') {
+            return '';
+        }
+        const warning_text = String(warning_record.text || '').trim();
+        const warning_id = warning_record.id ? `[${String(warning_record.id)}]` : '';
+        return warning_id ? `${warning_text} ${warning_id}`.trim() : warning_text;
+    }).filter((warning_header) => warning_header.length > 0);
+};
+
+const extract_esbuild_warning_headers_from_bundle = (bundle) => {
+    const warning_records = bundle &&
+        bundle.bundle_analysis &&
+        bundle.bundle_analysis.esbuild_warnings;
+    return extract_esbuild_warning_headers_from_warning_records(warning_records);
+};
+
+const assert_no_unexpected_esbuild_warning_headers = (warning_headers, {
+    allowed_warning_patterns = [],
+    required_warning_patterns = []
+} = {}) => {
+    const headers = Array.isArray(warning_headers) ? warning_headers : [];
+    const is_pattern_match = (value, pattern) => {
+        if (pattern instanceof RegExp) {
+            return pattern.test(value);
+        }
+        return value.includes(String(pattern));
+    };
+    const is_allowed_warning = (warning_header) => {
+        return allowed_warning_patterns.some((pattern) => is_pattern_match(warning_header, pattern));
+    };
+    const unexpected_warning_headers = headers.filter((warning_header) => !is_allowed_warning(warning_header));
+    assert.strictEqual(
+        unexpected_warning_headers.length,
+        0,
+        `Unexpected esbuild warnings detected:\n${unexpected_warning_headers.join('\n')}`
+    );
+
+    const missing_required_patterns = required_warning_patterns.filter((pattern) => {
+        return !headers.some((warning_header) => is_pattern_match(warning_header, pattern));
+    });
+    assert.strictEqual(
+        missing_required_patterns.length,
+        0,
+        `Missing required esbuild warning patterns: ${missing_required_patterns.map((pattern) => String(pattern)).join(', ')}`
+    );
+
+    return {
+        warning_headers: headers,
+        unexpected_warning_headers
+    };
+};
+
 module.exports = {
     ensure_puppeteer_module,
     launch_puppeteer_browser,
@@ -313,5 +371,8 @@ module.exports = {
     wait_for_text_content,
     drag_by,
     run_interaction_story,
-    wait_for_condition
+    wait_for_condition,
+    extract_esbuild_warning_headers_from_warning_records,
+    extract_esbuild_warning_headers_from_bundle,
+    assert_no_unexpected_esbuild_warning_headers
 };

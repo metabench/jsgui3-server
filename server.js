@@ -88,20 +88,32 @@ class JSGUI_Single_Process_Server extends Evented_Class {
 		resource_pool.add(server_router);
 		this.https_options = spec.https_options || undefined;
 
+		const admin_config = spec.admin !== undefined ? spec.admin : {};
+		const admin_enabled = admin_config !== false && (admin_config.enabled !== false);
+
 		// Admin Module Setup
-		// Admin Module Setup
-		const Admin_Module = require('./admin-ui/server');
-		this.admin = new Admin_Module(this);
-		this.admin.attach_to_router(server_router);
+		if (admin_enabled) {
+			const Admin_Module = require('./admin-ui/server');
+			this.admin = new Admin_Module(this);
+			this.admin.attach_to_router(server_router);
+		} else {
+			this.admin = null;
+		}
+
+		// Legacy /admin webpage publisher. Disable when spec.admin === false to
+		// avoid its bundle registering '/' which can clobber user routes.
+		const legacy_admin_disabled = !admin_enabled;
 
 		// Register Admin Page Route
 		let Admin_Page_Control;
-		try {
-			console.log('DEBUG: Attempting to load Admin_Page_Control...');
-			Admin_Page_Control = require('./admin-ui/client').controls.Admin_Page;
-			console.log('DEBUG: Admin_Page_Control type:', typeof Admin_Page_Control);
-		} catch (e) {
-			console.warn('DEBUG: Failed to load Admin_Page_Control', e);
+		if (!legacy_admin_disabled) {
+			try {
+				console.log('DEBUG: Attempting to load Admin_Page_Control...');
+				Admin_Page_Control = require('./admin-ui/client').controls.Admin_Page;
+				console.log('DEBUG: Admin_Page_Control type:', typeof Admin_Page_Control);
+			} catch (e) {
+				console.warn('DEBUG: Failed to load Admin_Page_Control', e);
+			}
 		}
 
 		if (Admin_Page_Control) {
@@ -139,7 +151,7 @@ class JSGUI_Single_Process_Server extends Evented_Class {
 			} else {
 				console.error('DEBUG: admin_publisher is undefined!');
 			}
-		} else {
+		} else if (admin_enabled) {
 			console.warn('Skipping /admin route registration due to missing control.');
 		}
 
@@ -149,9 +161,6 @@ class JSGUI_Single_Process_Server extends Evented_Class {
 		//   spec.admin = { enabled: false }   → disable admin entirely
 		//   spec.admin = { sections: [...] }  → add custom sidebar sections
 		//   spec.admin = { endpoints: [...] } → add custom protected endpoints
-		const admin_config = spec.admin !== undefined ? spec.admin : {};
-		const admin_enabled = admin_config !== false && (admin_config.enabled !== false);
-
 		const Admin_Module_V1 = require('./admin-ui/v1/server');
 		if (admin_enabled) {
 			this.admin_v1 = new Admin_Module_V1(typeof admin_config === 'object' ? admin_config : {});
@@ -1232,6 +1241,10 @@ class JSGUI_Single_Process_Server extends Evented_Class {
 			invoke_stop(target, on_stop_complete);
 		});
 	}
+
+	stop(callback) {
+		return this.close(callback);
+	}
 }
 
 JSGUI_Single_Process_Server.jsgui = jsgui;
@@ -1241,6 +1254,8 @@ JSGUI_Single_Process_Server.Resource.Process = Process_Resource;
 JSGUI_Single_Process_Server.Resource.Remote_Process = Remote_Process_Resource;
 JSGUI_Single_Process_Server.Page_Context = Server_Page_Context;
 JSGUI_Single_Process_Server.Server_Page_Context = Server_Page_Context;
+JSGUI_Single_Process_Server.Website = Website;
+JSGUI_Single_Process_Server.Webpage = Webpage;
 JSGUI_Single_Process_Server.Website_Resource = Website_Resource;
 JSGUI_Single_Process_Server.Publishers = Publishers;
 JSGUI_Single_Process_Server.Process_Resource = Process_Resource;
@@ -1257,6 +1272,7 @@ JSGUI_Single_Process_Server.Admin_User_Store = require('./admin-ui/v1/admin_user
 JSGUI_Single_Process_Server.middleware = require('./middleware');
 
 JSGUI_Single_Process_Server.serve = require('./serve-factory')(JSGUI_Single_Process_Server);
+JSGUI_Single_Process_Server.serve_site = require('./serve-site');
 
 module.exports = JSGUI_Single_Process_Server;
 

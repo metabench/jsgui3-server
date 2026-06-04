@@ -540,34 +540,96 @@ class JSGUI3_HTML_Control_Optimizer {
         return resolved_value;
     }
 
+    async resolve_existing_local_module_file(candidate_path) {
+        const stat_result = await read_path_stat(candidate_path);
+        if (stat_result && stat_result.isFile()) {
+            return candidate_path;
+        }
+        return null;
+    }
+
+    async resolve_local_module_directory(dir_path, options = {}) {
+        const resolved_dir_path = path.resolve(dir_path);
+        const stat_result = await read_path_stat(resolved_dir_path);
+        if (!stat_result || !stat_result.isDirectory()) {
+            return null;
+        }
+
+        const skip_package_json_dirs = options.skip_package_json_dirs instanceof Set
+            ? options.skip_package_json_dirs
+            : new Set();
+
+        const package_json_path = path.join(resolved_dir_path, 'package.json');
+        const package_json_stat = await read_path_stat(package_json_path);
+        if (!skip_package_json_dirs.has(resolved_dir_path) && package_json_stat && package_json_stat.isFile()) {
+            try {
+                const package_json_text = await fs_async.readFile(package_json_path, 'utf8');
+                const package_json = JSON.parse(package_json_text);
+                const package_entry_candidates = [package_json.browser, package_json.module, package_json.main]
+                    .filter((value) => typeof value === 'string' && value.trim());
+
+                for (const package_entry_candidate of package_entry_candidates) {
+                    const package_entry_path = path.resolve(resolved_dir_path, package_entry_candidate);
+                    if (package_entry_path === resolved_dir_path) continue;
+
+                    const nested_skip_package_json_dirs = new Set(skip_package_json_dirs);
+                    nested_skip_package_json_dirs.add(resolved_dir_path);
+                    const resolved_package_entry = await this.resolve_local_module_path(package_entry_path, {
+                        skip_package_json_dirs: nested_skip_package_json_dirs
+                    });
+                    if (resolved_package_entry) {
+                        return resolved_package_entry;
+                    }
+                }
+            } catch (err) {
+                // Ignore invalid package.json contents and continue with index.* resolution.
+            }
+        }
+
+        for (const candidate_ext of local_module_extensions) {
+            const index_path = path.join(resolved_dir_path, `index${candidate_ext}`);
+            const resolved_index_path = await this.resolve_existing_local_module_file(index_path);
+            if (resolved_index_path) {
+                return resolved_index_path;
+            }
+        }
+
+        return null;
+    }
+
+    async resolve_local_module_path(base_path, options = {}) {
+        const ext = path.extname(base_path);
+        if (ext) {
+            return this.resolve_existing_local_module_file(base_path);
+        }
+
+        const resolved_base_file = await this.resolve_existing_local_module_file(base_path);
+        if (resolved_base_file) {
+            return resolved_base_file;
+        }
+
+        for (const candidate_ext of local_module_extensions) {
+            const candidate_path = `${base_path}${candidate_ext}`;
+            const resolved_candidate_path = await this.resolve_existing_local_module_file(candidate_path);
+            if (resolved_candidate_path) {
+                return resolved_candidate_path;
+            }
+        }
+
+        const resolved_directory_entry = await this.resolve_local_module_directory(base_path, options);
+        if (resolved_directory_entry) {
+            return resolved_directory_entry;
+        }
+
+        return null;
+    }
+
     async _resolve_local_module_uncached(from_file_path, request_path) {
         const from_dir = path.dirname(from_file_path);
         const base_path = request_path.startsWith('/')
             ? path.resolve(request_path)
             : path.resolve(from_dir, request_path);
-
-        const candidates = [];
-        const ext = path.extname(base_path);
-
-        if (ext) {
-            candidates.push(base_path);
-        } else {
-            candidates.push(base_path);
-            for (const candidate_ext of local_module_extensions) {
-                candidates.push(`${base_path}${candidate_ext}`);
-            }
-            for (const candidate_ext of local_module_extensions) {
-                candidates.push(path.join(base_path, `index${candidate_ext}`));
-            }
-        }
-
-        for (const candidate of candidates) {
-            if (await path_exists(candidate)) {
-                return candidate;
-            }
-        }
-
-        return null;
+        return this.resolve_local_module_path(base_path);
     }
 
     scan_source_text(source_text) {

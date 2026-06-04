@@ -38,6 +38,7 @@ describe('Control Scan Manifest Regression Tests', function () {
     this.timeout(120000);
 
     const temp_fixture_paths = [];
+    const temp_fixture_dirs = [];
 
     const write_temp_fixture = async (file_name, source_text) => {
         const temp_path = path.join(__dirname, file_name);
@@ -59,6 +60,66 @@ describe('Control Scan Manifest Regression Tests', function () {
                 // Ignore missing temp files.
             }
         }));
+
+        await Promise.all(temp_fixture_dirs.map(async (temp_dir) => {
+            try {
+                await fs.rm(temp_dir, { recursive: true, force: true });
+            } catch (err) {
+                // Ignore missing temp directories.
+            }
+        }));
+    });
+
+    it('should include controls reached through local directory imports', async function () {
+        const temp_dir = path.join(__dirname, 'temp_control_scan_directory_import_module');
+        await fs.mkdir(temp_dir, { recursive: true });
+        temp_fixture_dirs.push(temp_dir);
+
+        await fs.writeFile(path.join(temp_dir, 'index.js'), `
+const ui = require('jsgui3-html');
+const controls = ui.controls;
+
+class Temp_Directory_Import_App extends controls.Active_HTML_Document {
+    constructor(spec = {}) {
+        super(spec);
+        if (!spec.el) {
+            const button = new controls.Button({ context: this.context, text: 'ok' });
+            this.body.add(button);
+        }
+    }
+}
+
+module.exports = { Temp_Directory_Import_App };
+`, 'utf8');
+
+        const entry_fixture_path = await write_temp_fixture('temp_control_scan_directory_import_client.js', `
+const directory_module = require('./temp_control_scan_directory_import_module');
+
+module.exports = directory_module;
+`);
+
+        const bundler = new Advanced_JS_Bundler_Using_ESBuild({
+            debug: false,
+            bundler: {
+                minify: {
+                    enabled: true,
+                    level: 'normal'
+                },
+                elimination: {
+                    enabled: true,
+                    jsgui3_html_controls: {
+                        enabled: true
+                    }
+                }
+            }
+        });
+
+        const manifest = extract_scan_manifest(await bundler.bundle(entry_fixture_path));
+
+        assert(manifest.reachable_files.includes(path.join(temp_dir, 'index.js')),
+            'Directory import index.js should be part of the reachable scan set');
+        assert(manifest.selected_controls.includes('Button'),
+            'Control usage inside the directory import should be selected');
     });
 
     it('should match strict manifest snapshot for static and dynamic alias usage', async function () {

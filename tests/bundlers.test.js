@@ -7,6 +7,7 @@ const path = require('path');
 const Core_JS_Non_Minifying_Bundler_Using_ESBuild = require('../resources/processors/bundlers/js/esbuild/Core_JS_Non_Minifying_Bundler_Using_ESBuild');
 const Core_JS_Single_File_Minifying_Bundler_Using_ESBuild = require('../resources/processors/bundlers/js/esbuild/Core_JS_Single_File_Minifying_Bundler_Using_ESBuild');
 const Advanced_JS_Bundler_Using_ESBuild = require('../resources/processors/bundlers/js/esbuild/Advanced_JS_Bundler_Using_ESBuild');
+const JSGUI3_HTML_Control_Optimizer = require('../resources/processors/bundlers/js/esbuild/JSGUI3_HTML_Control_Optimizer');
 
 const await_observable = observable => new Promise((resolve, reject) => {
     observable.on('error', reject);
@@ -18,6 +19,7 @@ this.timeout(30000); // Increase timeout for bundling operations
 
     let testJsFile;
     let testJsContent;
+    let testModuleDir;
 
     beforeEach(async function() {
         // Create a temporary test JS file
@@ -60,6 +62,15 @@ this.timeout(30000); // Increase timeout for bundling operations
             await fs.unlink(testJsFile);
         } catch (err) {
             // Ignore if file doesn't exist
+        }
+
+        if (testModuleDir) {
+            try {
+                await fs.rm(testModuleDir, { recursive: true, force: true });
+            } catch (err) {
+                // Ignore cleanup errors for temp directories.
+            }
+            testModuleDir = null;
         }
     });
 
@@ -309,6 +320,97 @@ this.timeout(30000); // Increase timeout for bundling operations
             // Verify configuration is stored
             assert.deepStrictEqual(bundler.bundler_config.minify, { level: 'aggressive' });
             assert.deepStrictEqual(bundler.bundler_config.sourcemaps, { enabled: true, format: 'inline' });
+        });
+
+        it('should resolve local directory imports to index.js instead of treating directories as files', async function() {
+            testModuleDir = path.join(__dirname, 'temp_bundle_dir_module');
+            await fs.mkdir(testModuleDir, { recursive: true });
+            await fs.writeFile(path.join(testModuleDir, 'index.js'), `
+                module.exports = function temp_dir_helper() {
+                    return 'directory import ok';
+                };
+            `, 'utf8');
+
+            const directoryImportEntryFile = path.join(__dirname, 'temp_dir_import_entry.js');
+            await fs.writeFile(directoryImportEntryFile, `
+                const temp_dir_helper = require('./temp_bundle_dir_module');
+
+                function run_directory_import() {
+                    return temp_dir_helper();
+                }
+
+                module.exports = { run_directory_import };
+            `, 'utf8');
+
+            try {
+                const bundler = new Advanced_JS_Bundler_Using_ESBuild({
+                    debug: true
+                });
+
+                const result = await bundler.bundle(directoryImportEntryFile);
+                const bundle = result[0];
+                const jsItem = bundle._arr.find(item => item.type === 'JavaScript');
+
+                assert(jsItem, 'Should contain a JavaScript bundle item');
+                assert(!jsItem.text.includes('Bundling failed'), 'Directory import should not fall back to the bundling failure stub');
+                assert(jsItem.text.includes('directory import ok'), 'Bundled output should include the directory import module');
+            } finally {
+                try {
+                    await fs.unlink(directoryImportEntryFile);
+                } catch (err) {
+                    // Ignore cleanup errors for the temp entry file.
+                }
+            }
+        });
+    });
+
+    describe('JSGUI3_HTML_Control_Optimizer local module resolution', function() {
+        it('prefers extension candidates over directory index files', async function() {
+            testModuleDir = path.join(__dirname, 'temp_optimizer_resolution_order');
+            await fs.mkdir(path.join(testModuleDir, 'choice'), { recursive: true });
+            await fs.writeFile(path.join(testModuleDir, 'entry.js'), 'module.exports = require("./choice");', 'utf8');
+            await fs.writeFile(path.join(testModuleDir, 'choice.js'), 'module.exports = "file";', 'utf8');
+            await fs.writeFile(path.join(testModuleDir, 'choice', 'index.js'), 'module.exports = "directory";', 'utf8');
+
+            const optimizer = new JSGUI3_HTML_Control_Optimizer({ cacheEnabled: false });
+            const resolved_path = await optimizer.resolve_local_module(path.join(testModuleDir, 'entry.js'), './choice');
+
+            assert.strictEqual(resolved_path, path.join(testModuleDir, 'choice.js'));
+        });
+
+        it('resolves package directory imports through browser, module, then main fields', async function() {
+            testModuleDir = path.join(__dirname, 'temp_optimizer_package_fields');
+            const package_dir = path.join(testModuleDir, 'local_package');
+            await fs.mkdir(package_dir, { recursive: true });
+            await fs.writeFile(path.join(testModuleDir, 'entry.js'), 'module.exports = require("./local_package");', 'utf8');
+            await fs.writeFile(path.join(package_dir, 'browser.js'), 'module.exports = "browser";', 'utf8');
+            await fs.writeFile(path.join(package_dir, 'module.js'), 'module.exports = "module";', 'utf8');
+            await fs.writeFile(path.join(package_dir, 'main.js'), 'module.exports = "main";', 'utf8');
+            await fs.writeFile(path.join(package_dir, 'index.js'), 'module.exports = "index";', 'utf8');
+            await fs.writeFile(path.join(package_dir, 'package.json'), JSON.stringify({
+                browser: './browser',
+                module: './module',
+                main: './main'
+            }), 'utf8');
+
+            const optimizer = new JSGUI3_HTML_Control_Optimizer({ cacheEnabled: false });
+            const resolved_path = await optimizer.resolve_local_module(path.join(testModuleDir, 'entry.js'), './local_package');
+
+            assert.strictEqual(resolved_path, path.join(package_dir, 'browser.js'));
+        });
+
+        it('falls back to index files when a package entry resolves to the package directory', async function() {
+            testModuleDir = path.join(__dirname, 'temp_optimizer_package_self_entry');
+            const package_dir = path.join(testModuleDir, 'local_package');
+            await fs.mkdir(package_dir, { recursive: true });
+            await fs.writeFile(path.join(testModuleDir, 'entry.js'), 'module.exports = require("./local_package");', 'utf8');
+            await fs.writeFile(path.join(package_dir, 'index.js'), 'module.exports = "index";', 'utf8');
+            await fs.writeFile(path.join(package_dir, 'package.json'), JSON.stringify({ main: '.' }), 'utf8');
+
+            const optimizer = new JSGUI3_HTML_Control_Optimizer({ cacheEnabled: false });
+            const resolved_path = await optimizer.resolve_local_module(path.join(testModuleDir, 'entry.js'), './local_package');
+
+            assert.strictEqual(resolved_path, path.join(package_dir, 'index.js'));
         });
     });
 

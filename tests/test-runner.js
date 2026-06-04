@@ -91,6 +91,7 @@ class TestRunner {
 
         console.log(`\n📋 Running ${testFile}...`);
 
+        const startTime = Date.now();
         return new Promise((resolve) => {
             const mocha = spawn('node', ['node_modules/mocha/bin/mocha.js', testPath, '--timeout', '30000', '--reporter', 'spec'], {
                 stdio: 'inherit',
@@ -110,10 +111,12 @@ class TestRunner {
             });
 
             mocha.on('close', (code) => {
+                const duration = Date.now() - startTime;
                 const suiteResult = {
                     name: testFile,
                     status: code === 0 ? 'passed' : 'failed',
                     exitCode: code,
+                    duration: duration,
                     output: output,
                     errorOutput: errorOutput
                 };
@@ -121,10 +124,10 @@ class TestRunner {
                 this.testResults.suites.push(suiteResult);
 
                 if (code === 0) {
-                    console.log(`✅ ${testFile} passed`);
+                    console.log(`✅ ${testFile} passed (${(duration / 1000).toFixed(2)}s)`);
                     this.testResults.passed++;
                 } else {
-                    console.log(`❌ ${testFile} failed (exit code: ${code})`);
+                    console.log(`❌ ${testFile} failed (exit code: ${code}) (${(duration / 1000).toFixed(2)}s)`);
                     this.testResults.failed++;
                 }
 
@@ -133,10 +136,12 @@ class TestRunner {
             });
 
             mocha.on('error', (error) => {
-                console.log(`❌ ${testFile} error: ${error.message}`);
+                const duration = Date.now() - startTime;
+                console.log(`❌ ${testFile} error: ${error.message} (${(duration / 1000).toFixed(2)}s)`);
                 this.testResults.suites.push({
                     name: testFile,
                     status: 'error',
+                    duration: duration,
                     error: error.message
                 });
                 this.testResults.failed++;
@@ -160,6 +165,15 @@ class TestRunner {
         const successRate = this.testResults.total > 0 ?
             ((this.testResults.passed / this.testResults.total) * 100).toFixed(1) : 0;
         console.log(`📈 Success Rate: ${successRate}%`);
+
+        const activeSuites = this.testResults.suites.filter(suite => suite.status !== 'skipped');
+        if (activeSuites.length > 0) {
+            console.log('\n⏱️  Suite Durations:');
+            activeSuites.forEach(suite => {
+                const durStr = suite.duration ? `${(suite.duration / 1000).toFixed(2)}s` : 'unknown';
+                console.log(`   - ${suite.name}: ${durStr}`);
+            });
+        }
 
         if (this.testResults.failed > 0) {
             console.log('\n❌ Failed Test Suites:');
@@ -197,6 +211,7 @@ class TestRunner {
                 name: suite.name,
                 status: suite.status,
                 exitCode: suite.exitCode,
+                duration: suite.duration,
                 error: suite.error
             })),
             environment: {

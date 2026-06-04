@@ -1411,4 +1411,14 @@ function inspectDataModel(model) {
 }
 ```
 
+---
+
+## Ecosystem Coordination
+
+This repository is a core component of the **jsgui3 ecosystem**. 
+
+For cross-repo architecture maps, coding standards, coordination workflows, and orientation guides, see the ecosystem coordination headquarters:
+👉 **[jsgui3-ecosystem](https://github.com/metabench/jsgui3-ecosystem)**
+
+
 

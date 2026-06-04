@@ -258,6 +258,17 @@ const is_website_like = (value) => {
         && typeof value.get_page === 'function';
 };
 
+const is_website_instance = (value) => {
+    if (!value || typeof value !== 'object') {
+        return false;
+    }
+
+    return value[website_marker] === true
+        && typeof value.finalize === 'function'
+        && typeof value.resolve === 'function'
+        && typeof value.render_context === 'function';
+};
+
 const is_webpage_like = (value) => {
     if (!value || typeof value !== 'object') {
         return false;
@@ -628,8 +639,12 @@ module.exports = (Server) => {
             callback = maybe_callback;
         }
 
+        const input_website = is_website_instance(input) ? input : null;
+
         let serve_options = {};
-        if (typeof input === 'function') {
+        if (input_website) {
+            serve_options = {};
+        } else if (typeof input === 'function') {
             serve_options.ctrl = input;
         } else if (input && typeof input === 'object') {
             serve_options = {
@@ -656,6 +671,30 @@ module.exports = (Server) => {
                 || maybe_options.Ctrl !== undefined
             )
         );
+
+        const explicit_website = input_website
+            ? input_website
+            : (
+                serve_options.website && is_website_instance(serve_options.website)
+                    ? serve_options.website
+                    : null
+            );
+
+        if (explicit_website && !has_explicit_page_overrides) {
+            const serve_site_options = { ...serve_options };
+            if (serve_site_options.website === explicit_website) {
+                delete serve_site_options.website;
+            }
+
+            const serve_site_promise = require('./serve-site')(explicit_website, serve_site_options);
+            if (callback) {
+                serve_site_promise.then(
+                    (server_instance) => callback(null, server_instance),
+                    (error) => callback(error)
+                );
+            }
+            return serve_site_promise;
+        }
 
         const normalized_input_manifest = get_manifest_candidate(input, serve_options);
         if (normalized_input_manifest) {

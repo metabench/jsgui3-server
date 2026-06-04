@@ -218,31 +218,35 @@ const set_input_value_with_events = async (
 const wait_for_text_content = async (page, selector, expected_text_or_regex, timeout_ms = 6000) => {
     if (expected_text_or_regex instanceof RegExp) {
         await page.waitForFunction(
-            (selector_arg, regex_source, regex_flags) => {
+            ({ selector_arg, regex_source, regex_flags }) => {
                 const element = document.querySelector(selector_arg);
                 if (!element) return false;
                 const value = (element.textContent || '').trim();
                 const expected_regex = new RegExp(regex_source, regex_flags);
                 return expected_regex.test(value);
             },
-            { timeout: timeout_ms },
-            selector,
-            expected_text_or_regex.source,
-            expected_text_or_regex.flags
+            {
+                selector_arg: selector,
+                regex_source: expected_text_or_regex.source,
+                regex_flags: expected_text_or_regex.flags
+            },
+            { timeout: timeout_ms }
         );
         return;
     }
 
     const expected_text = String(expected_text_or_regex);
     await page.waitForFunction(
-        (selector_arg, expected_text_arg) => {
+        ({ selector_arg, expected_text_arg }) => {
             const element = document.querySelector(selector_arg);
             if (!element) return false;
             return (element.textContent || '').trim() === expected_text_arg;
         },
-        { timeout: timeout_ms },
-        selector,
-        expected_text
+        {
+            selector_arg: selector,
+            expected_text_arg: expected_text
+        },
+        { timeout: timeout_ms }
     );
 };
 

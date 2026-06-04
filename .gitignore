@@ -1,4 +1,4 @@
-# Logs
+﻿# Logs
 logs
 *.log
 npm-debug.log*
@@ -71,3 +71,19 @@ tests/screenshots/
 # Generated JSGUI cache artifacts
 .jsgui3-server-cache/
 **/.jsgui3-server-cache/
+
+
+# Database Ignores
+*.db
+*.db-journal
+*.db-wal
+*.db-shm
+*.sqlite
+*.sqlite-journal
+*.sqlite-wal
+*.sqlite-shm
+*.sqlite3
+*.sqlite3-journal
+*.sqlite3-wal
+*.sqlite3-shm
+

@@ -87,3 +87,6 @@ tests/screenshots/
 *.sqlite3-wal
 *.sqlite3-shm
 
+
+# Example screenshot harness output
+tools/example-screenshots/output/

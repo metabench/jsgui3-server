@@ -38,11 +38,13 @@ tests/
 ├── control-elimination-root-feature-pruning.test.js # Optional jsgui root-feature pruning + Resource alias auto-selection regression
 ├── control-optimizer-cache-behavior.test.js # Optimizer cache enable/disable behavior
 ├── control-scan-manifest-regression.test.js # Manifest snapshot regression for control scan details
+├── jsgui3-client-alias-elimination.test.js # jsgui3-client alias detection + fail-open guard in the control optimizer
 ├── examples-controls.e2e.test.js # Example apps regression (controls)
 ├── sass-controls.e2e.test.js     # Sass/CSS controls E2E coverage
 ├── playwright-smoke.test.js       # Playwright browser smoke test for local page serving
 ├── jsgui3-html-examples.puppeteer.test.js # Puppeteer interaction tests (jsgui3-html examples)
 ├── bundling-default-control-elimination.puppeteer.test.js # Puppeteer: default control elimination bundle checks
+├── legacy-jsgui3-client-surface.puppeteer.test.js # Puppeteer: legacy jsgui3-client re-export surface (mixins + Window chrome) activates cleanly
 ├── project-local-controls-bundling.puppeteer.test.js # Puppeteer: project-local control bundling + elimination safety
 ├── window-examples.puppeteer.test.js # Puppeteer interaction tests (window examples)
 ├── window-resource-integration.puppeteer.test.js # Browser E2E: controls + resource APIs + SSE
@@ -167,8 +169,13 @@ npm test
 
 - `selected_controls`
 - `selected_root_features`
+- `uses_jsgui3_client`
 - `dynamic_control_access_detected`
 - `dynamic_resource_access_detected`
+
+`uses_jsgui3_client` records a reachable browser-runtime import. When true,
+the optimizer retains the `resource` and `resource_pool` roots required by
+client activation.
 
 `dynamic_resource_access_detected` indicates conservative fallback for unresolved `Resource` alias dynamic access (for example `resource_api[name]`), where control elimination remains enabled but full `Resource` sub-features are retained for safety.
 

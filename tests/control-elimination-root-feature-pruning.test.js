@@ -52,6 +52,7 @@ describe('Control Elimination Root Feature Pruning Tests', function () {
     let resource_destructure_alias_fixture_path = null;
     let resource_static_bracket_alias_fixture_path = null;
     let resource_dynamic_bracket_alias_fixture_path = null;
+    let jsgui3_client_runtime_fixture_path = null;
 
     const write_fixture = async (file_name, source_text) => {
         const fixture_path = path.join(fixture_dir, file_name);
@@ -252,6 +253,21 @@ class Temp_Root_Features_Resource_Dynamic_Bracket_Alias_App extends controls.Act
 
 module.exports = { Temp_Root_Features_Resource_Dynamic_Bracket_Alias_App };
 `);
+
+        jsgui3_client_runtime_fixture_path = await write_fixture('temp_control_elimination_root_features_jsgui3_client_runtime.js', `
+const jsgui = require('jsgui3-client');
+const { Control, Data_Object } = jsgui;
+
+class Temp_JSGUI3_Client_Runtime_App extends Control {
+    constructor(spec = {}) {
+        super(spec);
+        this.data.model = new Data_Object({ value: 1 });
+    }
+}
+
+jsgui.controls.Temp_JSGUI3_Client_Runtime_App = Temp_JSGUI3_Client_Runtime_App;
+module.exports = jsgui;
+`);
     });
 
     after(async function () {
@@ -435,6 +451,22 @@ module.exports = { Temp_Root_Features_Resource_Dynamic_Bracket_Alias_App };
         assert(
             metrics.js_bytes > controls_only_metrics.js_bytes,
             'Expected dynamic Resource alias fixture bundle to be larger than controls-only bundle'
+        );
+    });
+
+    it('retains Resource bases required by the jsgui3-client runtime', async function () {
+        const bundler = create_default_bundler();
+        const metrics = extract_bundle_metrics(await bundler.bundle(jsgui3_client_runtime_fixture_path));
+
+        assert(metrics.analysis, 'Expected control scan manifest for jsgui3-client fixture');
+        assert.strictEqual(metrics.analysis.uses_jsgui3_client, true);
+        assert(
+            metrics.analysis.selected_root_features.includes('resource'),
+            'Expected Resource base for jsgui3-client Client_Resource'
+        );
+        assert(
+            metrics.analysis.selected_root_features.includes('resource_pool'),
+            'Expected Resource_Pool base for jsgui3-client Client_Resource_Pool'
         );
     });
 });

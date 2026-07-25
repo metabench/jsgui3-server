@@ -25,7 +25,8 @@ class Data_Grid_Control extends jsgui.Control {
             sort_key: 'name',
             sort_dir: 'asc',
             page_index: 0,
-            page_size: 4
+            page_size: 4,
+            selected_id: null
         });
         this.data.model.set('items', spec.items || DEFAULT_ITEMS, true);
 
@@ -34,6 +35,7 @@ class Data_Grid_Control extends jsgui.Control {
             result_count: 0,
             range_text: '',
             page_text: '',
+            selected_text: 'No row selected',
             total_pages: 1
         });
 
@@ -122,6 +124,7 @@ class Data_Grid_Control extends jsgui.Control {
         const start_index = page_index * page_size;
         const end_index = Math.min(start_index + page_size, sorted_items.length);
         const paged_items = sorted_items.slice(start_index, end_index);
+        const selected_item = items.find((item) => item.id === this.data.model.selected_id);
 
         const range_text = sorted_items.length
             ? `Showing ${start_index + 1}-${end_index} of ${sorted_items.length}`
@@ -131,6 +134,9 @@ class Data_Grid_Control extends jsgui.Control {
         this.view.data.model.result_count = sorted_items.length;
         this.view.data.model.range_text = range_text;
         this.view.data.model.page_text = `Page ${page_index + 1} of ${total_pages}`;
+        this.view.data.model.selected_text = selected_item
+            ? `Selected: ${selected_item.name}`
+            : 'No row selected';
         this.view.data.model.total_pages = total_pages;
     }
 
@@ -143,6 +149,7 @@ class Data_Grid_Control extends jsgui.Control {
         this.watch(this.data.model, 'sort_dir', () => recompute());
         this.watch(this.data.model, 'page_index', () => recompute());
         this.watch(this.data.model, 'page_size', () => recompute());
+        this.watch(this.data.model, 'selected_id', () => recompute());
     }
 
     update_search_text(raw_value) {
@@ -168,6 +175,14 @@ class Data_Grid_Control extends jsgui.Control {
         this.data.model.page_index = clamped_index;
     }
 
+    /**
+     * Select a row by its stable data identifier.
+     * @param {number|string} item_id - Row identifier from the source model.
+     */
+    select_row(item_id) {
+        this.data.model.selected_id = item_id;
+    }
+
     render_rows_control(table_body, paged_items) {
         table_body.clear();
 
@@ -177,6 +192,14 @@ class Data_Grid_Control extends jsgui.Control {
                 tagName: 'tr',
                 class: 'grid-row'
             });
+            row.dom.attributes['data-row-id'] = String(item.id);
+            row.dom.attributes.tabindex = '0';
+            row.dom.attributes['aria-selected'] = item.id === this.data.model.selected_id
+                ? 'true'
+                : 'false';
+            if (item.id === this.data.model.selected_id) {
+                row.add_class('is-selected');
+            }
 
             const name_cell = new jsgui.Control({
                 context: this.context,
@@ -222,6 +245,20 @@ class Data_Grid_Control extends jsgui.Control {
         paged_items.forEach((item) => {
             const row_el = document.createElement('tr');
             row_el.className = 'grid-row';
+            row_el.setAttribute('data-row-id', String(item.id));
+            row_el.setAttribute('tabindex', '0');
+            row_el.setAttribute('aria-selected', item.id === this.data.model.selected_id ? 'true' : 'false');
+            row_el.classList.toggle('is-selected', item.id === this.data.model.selected_id);
+            row_el.addEventListener('click', () => this.select_row(item.id));
+            row_el.addEventListener('keydown', (event) => {
+                if (event.key !== 'Enter' && event.key !== ' ') return;
+                event.preventDefault();
+                this.select_row(item.id);
+                setTimeout(() => {
+                    const refreshed_row = table_body_el.querySelector(`[data-row-id="${item.id}"]`);
+                    if (refreshed_row) refreshed_row.focus();
+                }, 0);
+            });
 
             const make_cell = (value, col_name) => {
                 const cell_el = document.createElement('td');
@@ -252,6 +289,7 @@ class Data_Grid_Control extends jsgui.Control {
         const table_body_el = root_el.querySelector('[data-test="grid-body"]');
         const range_text_el = root_el.querySelector('[data-test="range-text"]');
         const page_text_el = root_el.querySelector('[data-test="page-text"]');
+        const selected_text_el = root_el.querySelector('[data-test="selected-text"]');
         const prev_button_el = root_el.querySelector('[data-test="prev-page"]');
         const next_button_el = root_el.querySelector('[data-test="next-page"]');
         const sort_name_el = root_el.querySelector('[data-test="sort-name"]');
@@ -369,6 +407,17 @@ class Data_Grid_Control extends jsgui.Control {
         );
 
         this.watch(
+            this.view.data.model,
+            'selected_text',
+            (selected_text) => {
+                if (selected_text_el) {
+                    selected_text_el.textContent = selected_text || 'No row selected';
+                }
+            },
+            { immediate: true }
+        );
+
+        this.watch(
             this.data.model,
             'sort_key',
             () => update_sort_labels(),
@@ -429,15 +478,25 @@ class Data_Grid_Control extends jsgui.Control {
             class: 'grid-search'
         });
 
+        const search_label = new jsgui.Control({
+            context: page_context,
+            tagName: 'label',
+            class: 'visually-hidden',
+            content: 'Search team directory by name or role'
+        });
+        search_label.dom.attributes.for = 'team-directory-search';
+
         const search_input = new jsgui.Control({
             context: page_context,
             tagName: 'input',
             class: 'grid-input'
         });
         search_input.dom.attributes.type = 'search';
+        search_input.dom.attributes.id = 'team-directory-search';
         search_input.dom.attributes.placeholder = 'Search by name or role';
         search_input.dom.attributes['data-test'] = 'search-input';
 
+        search_wrap.add(search_label);
         search_wrap.add(search_input);
         header.add(title);
         header.add(search_wrap);
@@ -464,8 +523,19 @@ class Data_Grid_Control extends jsgui.Control {
         });
         page_text.dom.attributes['data-test'] = 'page-text';
 
+        const selected_text = new jsgui.Control({
+            context: page_context,
+            tagName: 'div',
+            class: 'grid-selection',
+            content: this.view.data.model.selected_text
+        });
+        selected_text.dom.attributes['data-test'] = 'selected-text';
+        selected_text.dom.attributes.role = 'status';
+        selected_text.dom.attributes['aria-live'] = 'polite';
+
         meta.add(range_text);
         meta.add(page_text);
+        meta.add(selected_text);
 
         const table = new jsgui.Control({
             context: page_context,
@@ -510,6 +580,10 @@ class Data_Grid_Control extends jsgui.Control {
             context: page_context,
             tagName: 'th'
         });
+        name_header.dom.attributes.scope = 'col';
+        role_header.dom.attributes.scope = 'col';
+        score_header.dom.attributes.scope = 'col';
+        joined_header.dom.attributes.scope = 'col';
 
         const label_for = (key, label) => {
             if (this.data.model.sort_key !== key) return label;
@@ -656,6 +730,17 @@ body {
     font-size: 14px;
 }
 
+.visually-hidden {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+    border: 0;
+}
+
 .grid-meta {
     display: flex;
     justify-content: space-between;
@@ -696,6 +781,21 @@ body {
 
 .grid-row:hover {
     background: #f8fafc;
+}
+
+.grid-row {
+    cursor: pointer;
+}
+
+.grid-row:focus-visible {
+    outline: 3px solid #2563eb;
+    outline-offset: -3px;
+}
+
+.grid-row.is-selected {
+    background: #dbeafe;
+    outline: 2px solid #60a5fa;
+    outline-offset: -2px;
 }
 
 .grid-footer {

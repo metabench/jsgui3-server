@@ -18,8 +18,8 @@ This folder collects new jsgui3-html focused examples for the server repo.
    - UI: registration form with per-field errors and submit state.
 
 4. **04) data-grid**
-   - Goal: collection binding, sorting, filtering, pagination.
-   - UI: simple data grid with search and page controls.
+   - Goal: collection binding, sorting, filtering, pagination, and stable row selection.
+   - UI: data grid with search, sortable columns, page controls, and model-backed selection status.
 
 5. **05) master-detail**
    - Goal: selection syncing, computed detail view, navigation.

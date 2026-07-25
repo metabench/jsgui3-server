@@ -133,6 +133,7 @@ const resource_family_feature_keys = Object.freeze([
 
 const derive_selected_root_features = (used_identifiers, options = {}) => {
     const force_resource_family = options.force_resource_family === true;
+    const include_client_runtime_resources = options.include_client_runtime_resources === true;
     const used_identifier_set = new Set(Array.isArray(used_identifiers) ? used_identifiers : []);
     const selected_root_features = new Set();
 
@@ -168,6 +169,15 @@ const derive_selected_root_features = (used_identifiers, options = {}) => {
         for (const resource_feature_key of resource_family_feature_keys) {
             selected_root_features.add(resource_feature_key);
         }
+    }
+
+    // jsgui3-client's public entrypoint always initializes Client_Resource and
+    // Client_Resource_Pool. Their base constructors live on the jsgui3-html
+    // root, so a pruned shim must retain them even when application source only
+    // names controls or Data_Object.
+    if (include_client_runtime_resources) {
+        selected_root_features.add('resource');
+        selected_root_features.add('resource_pool');
     }
 
     if (
@@ -241,7 +251,7 @@ class JSGUI3_HTML_Control_Optimizer {
         const analysis = await this.scan_entry(entry_file_path);
         const manifest = this.build_manifest(analysis);
 
-        if (!analysis.uses_jsgui3_html) {
+        if (!analysis.uses_jsgui3_html && !analysis.uses_jsgui3_client) {
             return {
                 enabled: false,
                 reason: 'no_jsgui3_html_usage',
@@ -253,6 +263,19 @@ class JSGUI3_HTML_Control_Optimizer {
             return {
                 enabled: false,
                 reason: 'dynamic_control_access_detected',
+                manifest
+            };
+        }
+
+        // Fail open: the package is in use but the scan resolved no identifiers
+        // at all, so there is no evidence of WHAT is used. Emitting a shim here
+        // would strip exports the app (or jsgui3-client's re-export surface)
+        // may rely on; serving the full package is the safe outcome.
+        const has_detected_identifiers = (analysis.used_identifiers || []).length > 0;
+        if (!has_detected_identifiers && this.include_controls.length === 0) {
+            return {
+                enabled: false,
+                reason: 'package_usage_without_detected_identifiers',
                 manifest
             };
         }
@@ -348,6 +371,7 @@ class JSGUI3_HTML_Control_Optimizer {
         const package_aliases_set = new Set();
         const controls_aliases_set = new Set();
         let uses_jsgui3_html = false;
+        let uses_jsgui3_client = false;
         let dynamic_control_access_detected = false;
         let dynamic_resource_access_detected = false;
 
@@ -357,6 +381,7 @@ class JSGUI3_HTML_Control_Optimizer {
             const scan_result = await this.read_file_scan_result(file_path, stat_result);
 
             if (scan_result.uses_jsgui3_html) uses_jsgui3_html = true;
+            if (scan_result.uses_jsgui3_client) uses_jsgui3_client = true;
             if (scan_result.dynamic_control_access_detected) dynamic_control_access_detected = true;
             if (scan_result.dynamic_resource_access_detected) dynamic_resource_access_detected = true;
 
@@ -377,7 +402,8 @@ class JSGUI3_HTML_Control_Optimizer {
 
         const used_identifiers = Array.from(used_identifiers_set).sort();
         const selected_root_features = derive_selected_root_features(used_identifiers, {
-            force_resource_family: dynamic_resource_access_detected
+            force_resource_family: dynamic_resource_access_detected,
+            include_client_runtime_resources: uses_jsgui3_client
         });
         const selected_controls = [];
         const unmatched_identifiers = [];
@@ -396,6 +422,7 @@ class JSGUI3_HTML_Control_Optimizer {
             entry_file_path: absolute_entry_file_path,
             reachable_files,
             uses_jsgui3_html,
+            uses_jsgui3_client,
             dynamic_control_access_detected,
             dynamic_resource_access_detected,
             used_identifiers,
@@ -634,7 +661,17 @@ class JSGUI3_HTML_Control_Optimizer {
 
     scan_source_text(source_text) {
         const control_identifiers = new Set();
-        const package_name_regex = escape_for_regexp(this.package_name);
+        const html_package_name_regex = escape_for_regexp(this.package_name);
+        // jsgui3-client re-exports the full jsgui3-html surface (its client.js
+        // requires jsgui3-html and passes controls/mixins/etc. through), so a
+        // require of either package must register aliases and identifier usage
+        // identically — otherwise destructures like
+        // `const {mixins} = require('jsgui3-client')` are invisible and the
+        // shim strips exports the bundle actually needs.
+        const companion_source_names = this.package_name === 'jsgui3-client' ? [] : ['jsgui3-client'];
+        const package_name_regex = companion_source_names.length
+            ? `(?:${[this.package_name, ...companion_source_names].map(escape_for_regexp).join('|')})`
+            : html_package_name_regex;
         const package_aliases = new Set();
         const controls_aliases = new Set();
         const resource_aliases = new Set();
@@ -662,10 +699,15 @@ class JSGUI3_HTML_Control_Optimizer {
         };
 
         const package_usage_regexes = [
-            new RegExp(`require\\s*\\(\\s*['"]${package_name_regex}['"]\\s*\\)`, 'g'),
-            new RegExp(`\\bfrom\\s*['"]${package_name_regex}['"]`, 'g')
+            new RegExp(`require\\s*\\(\\s*['"]${html_package_name_regex}['"]\\s*\\)`, 'g'),
+            new RegExp(`\\bfrom\\s*['"]${html_package_name_regex}['"]`, 'g')
         ];
         const uses_jsgui3_html = package_usage_regexes.some((regex) => regex.test(source_text));
+        const client_package_usage_regexes = [
+            /require\s*\(\s*['"]jsgui3-client['"]\s*\)/g,
+            /\bfrom\s*['"]jsgui3-client['"]/g
+        ];
+        const uses_jsgui3_client = client_package_usage_regexes.some((regex) => regex.test(source_text));
 
         // Detect package aliases:
         //   const ui = require('jsgui3-html')
@@ -1030,6 +1072,7 @@ class JSGUI3_HTML_Control_Optimizer {
 
         return {
             uses_jsgui3_html,
+            uses_jsgui3_client,
             dynamic_control_access_detected,
             dynamic_resource_access_detected,
             control_identifiers: Array.from(control_identifiers),
@@ -1083,6 +1126,7 @@ class JSGUI3_HTML_Control_Optimizer {
             entry_file_path: analysis.entry_file_path,
             reachable_files: analysis.reachable_files,
             uses_jsgui3_html: analysis.uses_jsgui3_html,
+            uses_jsgui3_client: analysis.uses_jsgui3_client === true,
             dynamic_control_access_detected: analysis.dynamic_control_access_detected,
             dynamic_resource_access_detected: analysis.dynamic_resource_access_detected === true,
             used_identifiers: analysis.used_identifiers,

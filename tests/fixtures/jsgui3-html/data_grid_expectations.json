@@ -5,6 +5,9 @@
     "first_name": "Ada Lovelace",
     "row_count": 4
   },
+  "selection": {
+    "selected_text": "Selected: Ada Lovelace"
+  },
   "search": {
     "query": "engineer",
     "range_text": "Showing 1-1 of 1",

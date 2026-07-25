@@ -42,6 +42,7 @@ class TestRunner {
             'control-elimination-root-feature-pruning.test.js',
             'control-optimizer-cache-behavior.test.js',
             'control-scan-manifest-regression.test.js',
+            'jsgui3-client-alias-elimination.test.js',
             'performance.test.js',
             'error-handling.test.js',
             'examples-controls.e2e.test.js',
@@ -49,6 +50,7 @@ class TestRunner {
             'playwright-smoke.test.js',
             'jsgui3-html-examples.puppeteer.test.js',
             'bundling-default-control-elimination.puppeteer.test.js',
+            'legacy-jsgui3-client-surface.puppeteer.test.js',
             'project-local-controls-bundling.puppeteer.test.js',
             'window-examples.puppeteer.test.js',
             'window-resource-integration.puppeteer.test.js'

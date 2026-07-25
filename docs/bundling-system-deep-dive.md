@@ -153,6 +153,12 @@ The ESBuild advanced path includes a `jsgui3-html` control optimizer that:
 
 By default, this scan also auto-selects optional root exports (`Router`, `Resource` family, `gfx`, `mixins`) when they are actually referenced.
 
+An entry graph that imports `jsgui3-client` also retains the `resource` and
+`resource_pool` root features. The browser runtime initializes
+`Client_Resource` and `Client_Resource_Pool` even when application source does
+not name those exports directly, so pruning them would produce a bundle that
+renders on the server but fails during client activation.
+
 ### Static Access Patterns That Stay Optimized
 
 - Dot access: `jsgui.controls.Button`
@@ -200,6 +206,7 @@ The scan manifest includes:
 
 - `selected_controls`
 - `selected_root_features`
+- `uses_jsgui3_client`
 - `dynamic_control_access_detected`
 - `dynamic_resource_access_detected`
 
@@ -242,6 +249,7 @@ Key root-feature regression scenarios include:
 - controls-only bundle keeps `selected_root_features` empty,
 - router/mixins are included only when explicitly referenced,
 - aliased `Resource.load_compiler` and `Resource.Compiler` are auto-detected,
+- a reachable `jsgui3-client` import retains `resource` and `resource_pool`,
 - dynamic `Resource` alias bracket access triggers conservative `Resource` family retention without disabling control elimination.
 
 Project-local control coverage includes:

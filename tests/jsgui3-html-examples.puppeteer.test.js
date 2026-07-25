@@ -337,6 +337,24 @@ describe('JSGUI3-HTML Example Puppeteer Tests', function () {
             const initial_names = await get_grid_names(page);
             assert.strictEqual(initial_names.length, expectations.initial.row_count);
 
+            const first_row = await page.$('[data-test="grid-body"] tr');
+            await first_row.focus();
+            await page.keyboard.press('Enter');
+            await wait_for_text(page, '[data-test="selected-text"]', expectations.selection.selected_text);
+            await wait_for_class(page, '[data-test="grid-body"] tr', 'is-selected', true);
+            assert.strictEqual(
+                await page.$eval('[data-test="grid-body"] tr', (row) => row.getAttribute('aria-selected')),
+                'true'
+            );
+            assert.strictEqual(
+                await page.$eval('[data-test="selected-text"]', (el) => el.getAttribute('aria-live')),
+                'polite'
+            );
+            assert.strictEqual(
+                await page.$eval('[data-test="search-input"]', (input) => input.labels[0].textContent),
+                'Search team directory by name or role'
+            );
+
             await set_input_value(page, '[data-test="search-input"]', expectations.search.query);
             await wait_for_text(page, '[data-test="range-text"]', expectations.search.range_text);
             await wait_for_text(page, '[data-test="page-text"]', expectations.search.page_text);

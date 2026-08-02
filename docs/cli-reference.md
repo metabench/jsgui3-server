@@ -37,14 +37,14 @@ node cli.js serve --port 3000
 # With host binding
 node cli.js serve --host 127.0.0.1 --port 8080
 
-# With root directory override
-node cli.js serve --root ./my-app --port 3000
 ```
 
 **Options:**
 - `--port <n>`: Server port number (default: 8080, 0 = ephemeral/random port)
 - `--host <addr>`: IPv4 address to bind to (default: all interfaces)
-- `--root <path>`: Project root directory (default: current working directory)
+- `--root <path>`: **Not implemented.** The flag is parsed and forwarded, but `server.js` never
+  reads `spec.root`, so it has no effect. `node cli.js --help` says the same ("reserved; not yet
+  wired"). Verified 2026-08-01 against 0.0.157.
 
 ### help
 
@@ -136,9 +136,12 @@ node cli.js serve --port 0
 
 ### Custom Root Directory
 
+Not available. `--root` is accepted but has no effect — see the Options note above. To serve a
+different project, run the CLI from that project's directory:
+
 ```bash
-# Serve from different directory
-node cli.js serve --root ../other-project --port 3000
+cd ../other-project
+node ../jsgui3-server/cli.js serve --port 3000
 ```
 
 ## Error Handling

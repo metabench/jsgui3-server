@@ -208,6 +208,127 @@ describe('Instrument Workbench — env_points()', () => {
     });
 });
 
+describe('Instrument Workbench — timbre descriptors', () => {
+    const A = require(path.join(EX, 'analysis'));
+
+    it('spectral deviation is slope-invariant', () => {
+        // The whole point of computing it on log amplitudes. On linear
+        // amplitudes a steeper roll-off reads as "more jagged", which made a
+        // physically correct strike comb appear to REDUCE jaggedness.
+        [0.5, 0.7, 0.9].forEach((r) => {
+            const geometric = Array.from({ length: 16 }, (_, i) => Math.pow(r, i));
+            assert.ok(
+                A.spectral_deviation(geometric) < 0.4,
+                'smooth geometric roll-off r=' + r + ' should read near zero, got ' + A.spectral_deviation(geometric)
+            );
+        });
+    });
+
+    it('spectral deviation detects a single notch', () => {
+        const smooth = Array.from({ length: 16 }, (_, i) => Math.pow(0.7, i));
+        const notched = smooth.slice();
+        notched[7] = 0.0001;
+        assert.ok(A.spectral_deviation(notched) > A.spectral_deviation(smooth) * 10);
+    });
+
+    it('centroid rises with brightness and is invariant to overall gain', () => {
+        const dark = Array.from({ length: 16 }, (_, i) => Math.pow(0.5, i));
+        const bright = Array.from({ length: 16 }, (_, i) => Math.pow(0.9, i));
+        assert.ok(A.centroid_rank(bright) > A.centroid_rank(dark));
+        const scaled = dark.map((v) => v * 7.3);
+        assert.ok(Math.abs(A.centroid_rank(scaled) - A.centroid_rank(dark)) < 1e-9,
+            'centroid must not depend on absolute level — createPeriodicWave normalises it away');
+    });
+
+    it('tristimulus sums to one', () => {
+        INSTRUMENTS.forEach((v) => {
+            const t = A.tristimulus(v.partials);
+            assert.ok(Math.abs(t.T1 + t.T2 + t.T3 - 1) < 1e-9, v.id);
+        });
+    });
+
+    it('odd/even ratio separates a square from a sawtooth', () => {
+        const { shape_partials } = V;
+        assert.ok(A.odd_even_ratio(shape_partials('square', 0)) > 100, 'square should be nearly all-odd');
+        // A sawtooth's odd/even ENERGY ratio is exactly 3 in the limit —
+        // (pi^2/8) / (pi^2/24) — and marginally above it when truncated at 16
+        // partials. An earlier threshold of 3 failed by a hair for that reason.
+        assert.ok(A.odd_even_ratio(shape_partials('sawtooth', 0)) < 4, 'sawtooth keeps even harmonics');
+    });
+
+    it('every voice sits inside the published centroid range for real instruments', () => {
+        // 2.5-5.5 harmonic ranks across an 18-sound set; Beauchamp's
+        // ten-instrument set averaged 3.7. The flute is deliberately exempt:
+        // it is genuinely near-sinusoidal and sits below the range.
+        INSTRUMENTS.filter((v) => v.id !== 'flute').forEach((v) => {
+            const c = A.centroid_rank(v.partials);
+            assert.ok(c >= A.REFERENCE.centroid_rank.min && c <= A.REFERENCE.centroid_rank.max,
+                v.id + ' centroid ' + c.toFixed(2) + ' outside ' +
+                A.REFERENCE.centroid_rank.min + '-' + A.REFERENCE.centroid_rank.max);
+        });
+    });
+
+    it('no voice is a smooth exponential roll-off', () => {
+        // Smoothing the spectral envelope was the most discriminable
+        // simplification in McAdams, Beauchamp & Meneguzzi at 96%. Before the
+        // physical shaping was added, piano/tuba/cello all measured under
+        // 0.01 on the linear form of this metric.
+        INSTRUMENTS.forEach((v) => {
+            assert.ok(A.spectral_deviation(v.partials) > 0.3,
+                v.id + ' spectrum is too smooth: ' + A.spectral_deviation(v.partials).toFixed(3) + ' dB');
+        });
+    });
+
+    it('relative spectral error rates identical spectra as zero and different ones as large', () => {
+        const p = INSTRUMENTS[0].partials;
+        assert.strictEqual(A.relative_spectral_error(p, p), 0);
+        const err = A.relative_spectral_error(INSTRUMENTS[3].partials, INSTRUMENTS[2].partials);
+        assert.ok(err > A.REFERENCE.spectral_error.obvious,
+            'flute vs oboe should be obviously different, got ' + err.toFixed(3));
+    });
+
+    it('level error in dB is zero for identical spectra', () => {
+        assert.strictEqual(A.level_error_db(INSTRUMENTS[1].partials, INSTRUMENTS[1].partials), 0);
+    });
+});
+
+describe('Instrument Workbench — physical spectral shaping', () => {
+    const { strike_comb, apply_resonances, REF_F0 } = V;
+
+    it('a strike at 1/beta silences every beta-th partial', () => {
+        // Why pianos are struck at 1/7 to 1/8 of the string: it removes the
+        // dissonant upper partials at the source.
+        [5, 7, 8].forEach((d) => {
+            const combed = strike_comb(new Array(16).fill(1), 1 / d);
+            for (let n = d; n <= 16; n += d) {
+                assert.ok(combed[n - 1] < 1e-9, 'partial ' + n + ' should be silenced at beta=1/' + d);
+            }
+        });
+    });
+
+    it('the piano preset really has its 8th and 16th partials removed', () => {
+        const piano = INSTRUMENTS.filter((v) => v.id === 'piano')[0];
+        assert.ok(piano.partials[7] < 1e-9, '8th partial should be combed out');
+        assert.ok(piano.partials[15] < 1e-9, '16th partial should be combed out');
+    });
+
+    it('resonances boost partials that land on them', () => {
+        const flat = new Array(16).fill(1);
+        const shaped = apply_resonances(flat, 100, [{ f: 500, q: 20, gain: 3 }]);
+        assert.ok(shaped[4] > shaped[0] * 2, 'partial 5 at 500 Hz should be lifted');
+        assert.ok(shaped[14] < shaped[4], 'partial 15 well above the peak should not be');
+    });
+
+    it('resonance shaping leaves partials finite and non-negative', () => {
+        const shaped = apply_resonances(INSTRUMENTS[5].partials, REF_F0.cello,
+            [{ f: 220, q: 14, gain: 2.2 }, { f: 470, q: 12, gain: 2.8 }]);
+        shaped.forEach((n, i) => {
+            assert.ok(Number.isFinite(n), 'partial ' + i);
+            assert.ok(n >= 0, 'partial ' + i + ' negative');
+        });
+    });
+});
+
 describe('Instrument Workbench — shape_partials()', () => {
     const { WAVE_SHAPES, shape_partials } = V;
 

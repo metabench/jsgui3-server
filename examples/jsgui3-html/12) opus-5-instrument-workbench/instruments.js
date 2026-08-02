@@ -24,13 +24,62 @@ const pad = (arr) => {
     return out;
 };
 
+// ── physically-derived spectral shaping ──────────────────────────────────────
+//
+// Hand-written exponential roll-offs measure a spectral deviation (Krimphoff
+// jaggedness) near zero. Smoothing the spectral envelope was the single most
+// discriminable simplification in McAdams, Beauchamp & Meneguzzi — 96% of
+// listeners heard it. Real spectra are jagged, and the jaggedness is not
+// decorative: it comes from where the string is struck and from the resonances
+// of the body or bore.
+//
+// These two functions put that physics back, so the bars in the editor show the
+// notches rather than a tidy curve that no instrument produces.
+
+// Strike / pluck position comb. A string driven at a fraction beta of its
+// length cannot excite partials with a node there, so partial n is scaled by
+// |sin(pi*n*beta)| and every (1/beta)-th harmonic is suppressed. Pianos strike
+// at roughly 1/7 to 1/8 to kill the dissonant 7th and 8th partials.
+const strike_comb = (partials, beta) => partials.map(
+    (a, i) => a * Math.abs(Math.sin(Math.PI * (i + 1) * beta))
+);
+
+// A bank of resonant peaks applied to the partial series — a body (cello) or a
+// bore and bell (tuba, oboe). Each peak is {f, q, gain} in Hz, and f0 fixes
+// where the partials fall relative to it.
+const apply_resonances = (partials, f0, peaks) => partials.map((a, i) => {
+    const f = f0 * (i + 1);
+    let g = 1;
+    for (const pk of peaks) {
+        const w = (f - pk.f) / (pk.f / pk.q);
+        g += pk.gain / (1 + w * w);
+    }
+    return a * g;
+});
+
+const renorm = (partials) => {
+    const peak = Math.max.apply(null, partials.map(Math.abs));
+    return peak > 0 ? partials.map((a) => a / peak) : partials;
+};
+
+// Reference pitches used when baking the resonance shaping into a preset. The
+// resonances are fixed in Hz, as a real body is, so the shaping is correct at
+// this pitch and approximately right nearby — which is itself more realistic
+// than a spectrum that translates rigidly with the note.
+const REF_F0 = { cello: 220, tuba: 87.31, oboe: 440 };
+
 const INSTRUMENTS = [
     {
         id: 'piano',
         name: 'Piano',
-        // Dense but fast-rolling-off partials; the character is in the envelope:
-        // near-instant attack, long decay, no sustain at all.
-        partials: pad([1, 0.56, 0.38, 0.22, 0.16, 0.10, 0.085, 0.055, 0.042, 0.033, 0.026, 0.02, 0.016, 0.012, 0.01, 0.008]),
+        // Dense but fast-rolling-off partials, then combed by the hammer strike
+        // at 1/8 of the string length — which is why partials 8 and 16 nearly
+        // vanish. Pianos are strung and struck this way precisely to suppress
+        // the dissonant upper partials.
+        partials: renorm(strike_comb(
+            pad([1, 0.56, 0.38, 0.22, 0.16, 0.10, 0.085, 0.055, 0.042, 0.033, 0.026, 0.02, 0.016, 0.012, 0.01, 0.008]),
+            1 / 8
+        )),
         env: { attack: 0.004, decay: 0.9, sustain: 0.0, release: 0.35 },
         curves: { attack: 'linear', decay: 'curve', release: 'curve' },
         vibrato: { rate: 0, depth: 0 },
@@ -54,9 +103,18 @@ const INSTRUMENTS = [
     {
         id: 'oboe',
         name: 'Oboe',
-        // Weak fundamental, dominant 3rd partial — the classic nasal double-reed
-        // formant. Jagged attack for the reed's initial bite.
-        partials: pad([0.42, 0.3, 1, 0.55, 0.72, 0.34, 0.48, 0.24, 0.3, 0.16, 0.2, 0.11, 0.13, 0.07, 0.08, 0.05]),
+        // Weak fundamental, dominant lower-middle partials, shaped by the two
+        // resonance regions a conical double reed is known for — near 1100 Hz
+        // and near 3000 Hz. Jagged attack for the reed's initial bite.
+        //
+        // An earlier hand-written spectrum measured a centroid of 5.75 harmonic
+        // ranks, above the 2.5-5.5 band real instruments occupy: audibly too
+        // bright. Deriving it from the formants instead of by eye fixed that.
+        partials: renorm(apply_resonances(
+            pad([0.3, 0.42, 0.5, 0.38, 0.28, 0.19, 0.13, 0.09, 0.06, 0.042, 0.03, 0.02, 0.014, 0.01, 0.007, 0.005]),
+            REF_F0.oboe,
+            [{ f: 1100, q: 4, gain: 1.6 }, { f: 3000, q: 3, gain: 1.1 }]
+        )),
         env: { attack: 0.045, decay: 0.14, sustain: 0.82, release: 0.12 },
         curves: { attack: 'jag', decay: 'linear', release: 'linear' },
         vibrato: { rate: 5.2, depth: 0.5 },
@@ -78,9 +136,19 @@ const INSTRUMENTS = [
     {
         id: 'tuba',
         name: 'Tuba',
-        // Heavy lower partials, slow lip-driven attack. Everything above the
-        // 8th partial is essentially absent.
-        partials: pad([1, 0.72, 0.5, 0.34, 0.2, 0.13, 0.08, 0.05, 0.03, 0.02, 0.012, 0.008, 0.005, 0.003, 0.002, 0.001]),
+        // Heavy lower partials, slow lip-driven attack, shaped by the bore and
+        // bell. The bell's cutoff region around 600-800 Hz is what gives low
+        // brass its body; below it the bell radiates poorly and the standing
+        // wave stays in the tube.
+        partials: renorm(apply_resonances(
+            pad([1, 0.72, 0.5, 0.34, 0.2, 0.13, 0.08, 0.05, 0.03, 0.02, 0.012, 0.008, 0.005, 0.003, 0.002, 0.001]),
+            REF_F0.tuba,
+            [
+                { f: 210, q: 10, gain: 1.6 },
+                { f: 440, q: 8, gain: 1.1 },
+                { f: 700, q: 4, gain: 2.4 }      // bell cutoff region
+            ]
+        )),
         env: { attack: 0.085, decay: 0.22, sustain: 0.8, release: 0.2 },
         curves: { attack: 'curve', decay: 'linear', release: 'curve' },
         vibrato: { rate: 0, depth: 0 },
@@ -90,9 +158,20 @@ const INSTRUMENTS = [
     {
         id: 'cello',
         name: 'Cello',
-        // Sawtooth-leaning spectrum, as a bowed string is. Slow bow-speed
-        // attack and pronounced vibrato.
-        partials: pad([1, 0.62, 0.48, 0.36, 0.3, 0.24, 0.2, 0.16, 0.13, 0.11, 0.09, 0.07, 0.055, 0.045, 0.035, 0.028]),
+        // Sawtooth-leaning spectrum, as a bowed string is, shaped by the body:
+        // the main air resonance (A0) near 220 Hz and the main wood resonance
+        // (B1-) near 470 Hz, plus the broad bridge-hill region around 2 kHz.
+        // Those peaks are fixed in Hz, as a real body is.
+        partials: renorm(apply_resonances(
+            pad([1, 0.62, 0.48, 0.36, 0.3, 0.24, 0.2, 0.16, 0.13, 0.11, 0.09, 0.07, 0.055, 0.045, 0.035, 0.028]),
+            REF_F0.cello,
+            [
+                { f: 220, q: 14, gain: 2.2 },    // A0 main air
+                { f: 470, q: 12, gain: 2.8 },    // B1- main wood
+                { f: 1100, q: 9, gain: 1.4 },
+                { f: 2000, q: 4, gain: 1.8 }     // bridge hill
+            ]
+        )),
         env: { attack: 0.095, decay: 0.2, sustain: 0.79, release: 0.24 },
         curves: { attack: 'curve', decay: 'linear', release: 'curve' },
         vibrato: { rate: 4.6, depth: 1.2 },
@@ -235,6 +314,10 @@ module.exports = {
     WAVE_SHAPES,
     INSTRUMENTS,
     pad,
+    strike_comb,
+    apply_resonances,
+    renorm,
+    REF_F0,
     shape_partials,
     clone_voice,
     shape,

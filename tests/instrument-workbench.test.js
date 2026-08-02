@@ -292,6 +292,80 @@ describe('Instrument Workbench — timbre descriptors', () => {
     });
 });
 
+describe('Instrument Workbench — AudioWorklet processor', () => {
+    const fs = require('fs');
+    const src = fs.readFileSync(path.join(EX, 'voice-processor.js'), 'utf8');
+
+    it('registers under the name the client asks for', () => {
+        assert.ok(src.includes("registerProcessor('additive-voice'"),
+            'client.js constructs AudioWorkletNode(ctx, "additive-voice")');
+    });
+
+    it('does not reference window, document or importScripts', () => {
+        // A worklet global scope has none of these. Touching one throws on
+        // addModule and the engine silently falls back to the oscillator path.
+        ['window.', 'document.', 'importScripts', 'require('].forEach((bad) => {
+            assert.ok(src.indexOf(bad) === -1, 'worklet must not use ' + bad);
+        });
+    });
+
+    it('its duplicated shape() agrees numerically with instruments.js', () => {
+        // The worklet cannot import from the bundle, so shape() is duplicated.
+        // A divergence would make the sound disagree with the drawn envelope —
+        // exactly the failure this example is built to avoid. Extract the
+        // worklet's copy and compare it against the real one across the range.
+        const start = src.indexOf('const shape = (t, mode, rising) =>');
+        assert.ok(start > 0, 'could not find shape() in the worklet source');
+        const end = src.indexOf('\n};', start);
+        const body = src.slice(start, end + 3);
+        const consts = 'const JAG_STEPS = 6; const JAG_AMOUNT = 0.13;';
+        // eslint-disable-next-line no-new-func
+        const worklet_shape = new Function(consts + body + ' return shape;')();
+
+        CURVE_MODES.forEach((mode) => {
+            for (let i = 0; i <= 100; i++) {
+                const t = i / 100;
+                [true, false].forEach((rising) => {
+                    const a = shape(t, mode, rising);
+                    const b = worklet_shape(t, mode, rising);
+                    assert.ok(Math.abs(a - b) < 1e-12,
+                        'divergence at mode=' + mode + ' t=' + t + ': ' + a + ' vs ' + b);
+                });
+            }
+        });
+    });
+
+    it('every voice carries the physical parameters the worklet reads', () => {
+        INSTRUMENTS.forEach((v) => {
+            ['decay_exponent', 'tilt', 'inharmonicity', 'asynchrony'].forEach((k) => {
+                assert.ok(Number.isFinite(v[k]), v.id + ' missing ' + k);
+            });
+            assert.ok(v.decay_exponent >= 0, v.id + ' decay_exponent negative');
+            assert.ok(v.inharmonicity >= 0 && v.inharmonicity < 0.01, v.id + ' implausible B');
+        });
+    });
+
+    it('only the piano and cello are inharmonic', () => {
+        // Sustained wind and brass instruments are effectively harmonic; giving
+        // them a nonzero B would be wrong, not merely unnecessary.
+        INSTRUMENTS.forEach((v) => {
+            const expected_inharmonic = v.id === 'piano' || v.id === 'cello';
+            assert.strictEqual(v.inharmonicity > 0, expected_inharmonic, v.id);
+        });
+    });
+
+    it('clone_voice carries the physics through', () => {
+        // The worklet receives a cloned voice over postMessage. If clone drops
+        // these the note silently reverts to default physics.
+        INSTRUMENTS.forEach((v) => {
+            const c = clone_voice(v);
+            assert.strictEqual(c.decay_exponent, v.decay_exponent, v.id);
+            assert.strictEqual(c.inharmonicity, v.inharmonicity, v.id);
+            assert.strictEqual(c.tilt, v.tilt, v.id);
+        });
+    });
+});
+
 describe('Instrument Workbench — physical spectral shaping', () => {
     const { strike_comb, apply_resonances, REF_F0 } = V;
 

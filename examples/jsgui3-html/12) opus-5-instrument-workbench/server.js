@@ -9,6 +9,8 @@
 // without reading the bundle.
 // ─────────────────────────────────────────────────────────────────────────────
 
+const fs = require('fs');
+const path = require('path');
 const jsgui = require('./client');
 const Server = require('../../../server');
 const { INSTRUMENTS, wave_cycle, env_points } = require('./instruments');
@@ -18,6 +20,21 @@ const { Demo_UI } = jsgui.controls;
 // Everything used to live inside require.main === module, which meant any test
 // written to the repo's own convention got a 404 from every endpoint.
 const register_api = (server) => {
+    // The AudioWorklet processor is served verbatim rather than bundled. A
+    // worklet module is evaluated in its own global scope with no window and no
+    // document, so it cannot be part of client.js's bundle — addModule() needs
+    // a real URL.
+    server.server_router.set_route('/voice-processor.js', null, (req, res) => {
+        fs.readFile(path.join(__dirname, 'voice-processor.js'), (err, buf) => {
+            if (err) { res.writeHead(500); res.end('worklet unavailable'); return; }
+            res.writeHead(200, {
+                'Content-Type': 'application/javascript; charset=utf-8',
+                'Cache-Control': 'no-cache'
+            });
+            res.end(buf);
+        });
+    });
+
     // The six built-in voices, as data.
     server.publish('instruments', () => INSTRUMENTS);
 

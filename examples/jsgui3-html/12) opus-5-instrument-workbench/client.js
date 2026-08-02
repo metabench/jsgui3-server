@@ -482,7 +482,11 @@ class Demo_UI extends Active_HTML_Document {
         kbcard.add(kb);
 
         const foot = new Control({ context, tag_name: 'footer', class: 'foot' });
-        foot.add('Server-rendered SVG editors · Web Audio additive synthesis · no client-side SVG element creation');
+        foot.add('Server-rendered SVG editors · per-partial additive synthesis in an AudioWorklet · engine: ');
+        const eng = new Control({ context, tag_name: 'span', class: 'engine' });
+        eng.dom.attributes['id'] = 'engine-label';
+        eng.add('starting…');
+        foot.add(eng);
 
         shell.add(head);
         shell.add(bar);
@@ -578,9 +582,50 @@ class Demo_UI extends Active_HTML_Document {
         return arr;
     }
 
+    // Load the AudioWorklet once, lazily, on the first note. Everything falls
+    // back to the old oscillator path if it is unavailable — a worklet needs a
+    // secure context in some browsers, and addModule can simply fail.
+    ensure_worklet() {
+        const ctx = this.audio();
+        if (!ctx || this._worklet_state) return;
+        if (!ctx.audioWorklet) { this._worklet_state = 'unavailable'; return; }
+        this._worklet_state = 'loading';
+        ctx.audioWorklet.addModule('/voice-processor.js').then(() => {
+            this.synth = new AudioWorkletNode(ctx, 'additive-voice', { outputChannelCount: [1] });
+            this.synth.connect(this.master);
+            this._worklet_state = 'ready';
+            this.set_engine_label('worklet');
+        }).catch(() => {
+            this._worklet_state = 'failed';
+            this.set_engine_label('oscillator fallback');
+        });
+    }
+
+    set_engine_label(text) {
+        const el = this.q('#engine-label');
+        if (el) el.textContent = text;
+    }
+
     note_on(midi) {
         const ctx = this.audio();
-        if (!ctx || this.active_notes[midi]) return;
+        if (!ctx) return;
+        this.ensure_worklet();
+
+        // Worklet path: per-partial envelopes, dynamics tilt, inharmonicity.
+        if (this._worklet_state === 'ready' && this.synth) {
+            if (this.active_notes[midi]) return;
+            this.synth.port.postMessage({
+                type: 'note_on',
+                midi,
+                velocity: this.velocity === undefined ? 0.8 : this.velocity,
+                voice: clone_voice(this.voice)
+            });
+            this.active_notes[midi] = { worklet: true };
+            this.flash_key(midi, true);
+            return;
+        }
+
+        if (this.active_notes[midi]) return;
 
         // Capture the voice per note. Reading this.voice in note_off meant
         // changing instrument mid-note gave the tail of the NEW instrument.
@@ -643,6 +688,7 @@ class Demo_UI extends Active_HTML_Document {
 
     all_notes_off() {
         for (const midi in this.active_notes) this.note_off(Number(midi));
+        if (this.synth) this.synth.port.postMessage({ type: 'all_off' });
         this.held_keys = {};
         this.pointer_notes = {};
     }
@@ -651,6 +697,12 @@ class Demo_UI extends Active_HTML_Document {
         const n = this.active_notes[midi];
         if (!n) return;
         delete this.active_notes[midi];
+
+        if (n.worklet) {
+            if (this.synth) this.synth.port.postMessage({ type: 'note_off', midi });
+            this.flash_key(midi, false);
+            return;
+        }
         const ctx = this.ctx;
         const v = n.voice || this.voice;   // the voice this note was started with
         const now = ctx.currentTime;
@@ -998,6 +1050,17 @@ class Demo_UI extends Active_HTML_Document {
                 const m = midi_of(ev.target);
                 if (m === null) return;
                 ev.preventDefault();
+                // Velocity from where the key is struck: near the pivot at the
+                // top is soft, at the tip is hard. Without a velocity input the
+                // dynamics tilt has nothing to respond to, and the whole point
+                // of it is that instruments get brighter when played harder,
+                // not merely louder.
+                const k = ev.target.closest('.key');
+                if (k) {
+                    const r = k.getBoundingClientRect();
+                    const depth = (ev.clientY - r.top) / Math.max(1, r.height);
+                    this.velocity = Math.max(0.18, Math.min(1, 0.3 + depth * 0.8));
+                }
                 try { ev.target.setPointerCapture(ev.pointerId); } catch (e) { /* ignore */ }
                 this.pointer_notes[ev.pointerId] = m;
                 this.note_on(m);

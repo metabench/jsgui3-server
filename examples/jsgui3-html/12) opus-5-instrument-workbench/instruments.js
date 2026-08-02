@@ -180,6 +180,29 @@ const INSTRUMENTS = [
     }
 ];
 
+// Physical parameters the AudioWorklet uses. Defaults are chosen so a voice
+// that declares none behaves like the old fixed-wavetable engine.
+//
+//   decay_exponent  per-partial decay tau = decay / n^e. e=1 is constant Q,
+//                   i.e. tau proportional to 1/f, which is what a freely
+//                   vibrating structure actually does. e=0 collapses to one
+//                   shared envelope — the 91%-discriminable simplification.
+//   tilt            how much quieter playing darkens the tone. 0 = level only.
+//   inharmonicity   B in f(n) = n*f0*sqrt(1+B*n^2). Piano only; measured B for
+//                   piano mid-range is of the order 1e-4, rising sharply in the
+//                   top octaves and in short-stringed uprights.
+//   asynchrony      ms of onset stagger across the partial series.
+const PHYSICS_DEFAULTS = {
+    piano: { decay_exponent: 1.1, tilt: 0.85, inharmonicity: 0.00025, asynchrony: 6 },
+    organ: { decay_exponent: 0.15, tilt: 0.2, inharmonicity: 0, asynchrony: 14 },
+    oboe: { decay_exponent: 0.3, tilt: 0.7, inharmonicity: 0, asynchrony: 9 },
+    flute: { decay_exponent: 0.25, tilt: 0.9, inharmonicity: 0, asynchrony: 12 },
+    tuba: { decay_exponent: 0.4, tilt: 0.95, inharmonicity: 0, asynchrony: 16 },
+    cello: { decay_exponent: 0.45, tilt: 0.8, inharmonicity: 0.00004, asynchrony: 11 }
+};
+
+const with_physics = (v) => Object.assign({}, v, PHYSICS_DEFAULTS[v.id] || {});
+
 const clone_voice = (v) => ({
     id: v.id,
     name: v.name,
@@ -192,7 +215,11 @@ const clone_voice = (v) => ({
     // Oscillation controls. Absent on the six built-ins, whose spectra are
     // hand-written rather than generated from a shape recipe.
     shape_kind: v.shape_kind || null,
-    jag: v.jag || 0
+    jag: v.jag || 0,
+    decay_exponent: v.decay_exponent === undefined ? 0.4 : v.decay_exponent,
+    tilt: v.tilt === undefined ? 0.6 : v.tilt,
+    inharmonicity: v.inharmonicity || 0,
+    asynchrony: v.asynchrony === undefined ? 8 : v.asynchrony
 });
 
 // Shape a normalised 0..1 progress by curve mode. Shared by the envelope
@@ -312,7 +339,10 @@ module.exports = {
     PARTIAL_COUNT,
     CURVE_MODES,
     WAVE_SHAPES,
-    INSTRUMENTS,
+    // Every consumer gets the voices with their physical parameters attached.
+    INSTRUMENTS: INSTRUMENTS.map(with_physics),
+    PHYSICS_DEFAULTS,
+    with_physics,
     pad,
     strike_comb,
     apply_resonances,

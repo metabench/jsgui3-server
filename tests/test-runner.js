@@ -25,6 +25,7 @@ class TestRunner {
         this.testFiles = [
             'bundlers.test.js',
             'assigners.test.js',
+            'instrument-workbench.test.js',
             'publishers.test.js',
             'configuration-validation.test.js',
             'admin-ui-render.test.js',

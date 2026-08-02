@@ -25,10 +25,22 @@ Nothing here is sampled. A voice is:
 - **an ADSR envelope with a per-segment curve mode** — its articulation
 - vibrato rate and depth, tuning drift, and level
 
-The partials are fed to `createPeriodicWave()` and the envelope is sampled directly into
-`setValueCurveAtTime()`. **The picture and the sound come from the same functions**, in
-`instruments.js`, shared by server and client — so the editor cannot drift out of agreement with
-what you hear.
+The partials are fed to `createPeriodicWave()` and the envelope is sampled into
+`setValueCurveAtTime()` from the same `shape()` the panel draws with. **The *shape* of what you
+see is the shape of what you hear** — the waveform panel plots the identical Fourier series Web
+Audio synthesises, and the envelope panel plots the identical curve that gets scheduled.
+
+Measured, not asserted. Rendering each voice through an `OfflineAudioContext` and correlating
+against the drawn cycle gives 0.999998 (tuba), 0.999995 (cello), 0.999987 (oboe). Every non-zero
+partial renders at 1.0000–1.0004 of its declared amplitude; the organ's absent even partials
+measure −106 dB. Envelope RMS error against `env_points()` is 0.004–0.019 across the six voices.
+
+**One caveat, and it is a real one: the spectrum panel's vertical axis is relative, not
+absolute.** `createPeriodicWave` peak-normalises the wavetable, and `wave_cycle` normalises the
+drawing the same way. Drag all sixteen bars down in proportion and the picture changes while the
+loudness does not — measured identical to five decimal places. Absolute level comes only from the
+`level` slider. That is deliberate, because it lets you edit timbre without fighting volume, but
+the panel is a ratio axis and should be read as one.
 
 That pairing is what actually separates the instruments, and you can see it in the spectrum:
 
@@ -61,7 +73,30 @@ flex children of a `position: relative` container; the ten accidentals are `posi
 against it, placed by percentage of the container width, so the whole thing scales cleanly with
 no fixed pixel maths.
 
-Both SVG editors and the waveform display are composed **on the server** with stable plain ids.
+## Tests
+
+```bash
+node tests/test-runner.js --test=instrument-workbench.test.js
+```
+
+63 assertions, 16 ms, no DOM and no audio context — `tests/instrument-workbench.test.js` covers
+`shape`, `wave_cycle`, `env_points`, `clone_voice` and `pad`, plus the six voice definitions.
+The maths is the heart of this example: an error there is simultaneously a visual bug and an
+audible one, so it is the part worth pinning.
+
+Two of those assertions exist because they already caught something. `shape(0, mode)` must equal
+exactly 0 for every mode — that is the jag click. And `jag` must measurably deviate from linear —
+verified by forcing `JAG_AMOUNT` to 0 and confirming the suite goes red.
+
+The continuity test samples each voice proportionally to its own shortest segment rather than at
+a fixed count. A fixed 400-point sweep reports the piano's 4 ms attack as a discontinuity when it
+is nothing of the kind; the audio schedules it as a 48-step ramp.
+
+## Layout notes
+
+Both SVG editors and the waveform display are composed **on the server** with stable plain ids —
+`compose()` and `paint()` call the same geometry functions, so activation reproduces the SSR
+picture exactly instead of replacing it.
 The client only calls `setAttribute` on nodes that arrived in the HTML — it never creates an SVG
 element, because dynamic SVG append lands in the XHTML namespace and renders invisibly
 (`control-enh.js:723`). Dragging a partial bar rewrites `y`/`height`; dragging an envelope handle
@@ -73,15 +108,34 @@ rewrites one path's `d`. Both are pure attribute writes.
 - `GET /api/preview?id=cello` — a sampled waveform and envelope, computed server-side with the
   same pure functions the browser uses
 
-## A bug worth keeping
+## Bugs worth keeping
 
-The ten accidentals were positioned by looking up `BLACK_AFTER[semitone]` in a table keyed by
-*white-key index*. Every lookup returned `undefined`, so `left` became `NaN%` — which CSS
-discards silently. All ten black keys stacked at position zero, and the keyboard still looked
-superficially plausible.
+Four defects found by review and testing after the first version shipped. Each is commented at
+its site, because each is the same shape as the framework defects this example is built around:
+no error, no warning, output that is almost right.
 
-It is commented in `client.js` because it is the same shape as the framework defects this
-example is built around: no error, no warning, output that is almost right.
+**The accidentals all stacked at zero.** `BLACK_AFTER` was keyed by white-key index and looked up
+by semitone, so every lookup returned `undefined` and `left` became `NaN%` — which CSS discards
+silently. The keyboard still looked superficially plausible.
+
+**Every jagged attack began with an audible click.** `shape(0, 'jag')` returned `0.08`, not `0`,
+so the gain jumped to 8% instantly at note start. Invisible in the panel, because 0.08 of panel
+height is eleven pixels.
+
+**Roughly a quarter of notes were silently lost under load.** `note_on` read `ctx.currentTime`
+*before* building the oscillator and wavetable. That work took ~2 ms, Chrome clamped the
+now-past attack curve forward, the decay curve stayed anchored to the stale timestamp, and the
+two overlapped — `setValueCurveAtTime` threw `NotSupportedError`, skipping `osc.start`,
+registration and the key highlight, and leaking a node pair each time. Measured at 23% loss under
+6× CPU throttle; near zero when idle, which is exactly why it looked fine.
+
+**The release handle could be destroyed and never recovered.** The envelope's x-axis was derived
+from the envelope being edited, so dragging release shortened the total, which moved the handle
+right, which shortened it again. It hit the 0.02 s clamp in about four pointermoves with no way
+back. The axis is now a fixed window.
+
+And the one that mattered most, described above: the panels claimed to be server-rendered and
+were not.
 
 ## Verified behaviour
 

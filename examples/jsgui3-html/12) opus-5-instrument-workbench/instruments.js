@@ -1,14 +1,14 @@
-// ─────────────────────────────────────────────────────────────────────────────
-// Opus 5 Showcase — "Instrument Workbench" · voice definitions
+﻿// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// Opus 5 Showcase â€” "Instrument Workbench" Â· voice definitions
 //
 // Shared by server and client. Plain data plus pure functions, no DOM, no audio.
 //
 // The model is additive: a voice is 16 harmonic partial amplitudes (which give
 // it its timbre) plus an amplitude envelope (which gives it its articulation).
-// That pairing is what actually separates a piano from an oboe — not a
+// That pairing is what actually separates a piano from an oboe â€” not a
 // waveform name. A PeriodicWave is built from the partials and an envelope is
 // applied to a gain node, so what the editor shows is literally what is heard.
-// ─────────────────────────────────────────────────────────────────────────────
+// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 const PARTIAL_COUNT = 16;
 
@@ -40,8 +40,10 @@ const INSTRUMENTS = [
     {
         id: 'organ',
         name: 'Organ',
-        // Drawbar-style: fundamental, octave, twelfth, super-octave. Square-on
-        // attack and full sustain — an organ pipe does not decay.
+        // Odd harmonics only â€” clarinet-like, a stopped-pipe registration. The
+        // even partials are genuinely absent; measured at -106 dB in the
+        // rendered audio. Square-on attack and full sustain, because a pipe
+        // does not decay.
         partials: pad([1, 0.0, 0.85, 0.0, 0.55, 0.0, 0.42, 0.0, 0.3, 0.0, 0.18, 0.0, 0.12, 0.0, 0.08, 0.0]),
         env: { attack: 0.012, decay: 0.04, sustain: 0.96, release: 0.06 },
         curves: { attack: 'linear', decay: 'linear', release: 'linear' },
@@ -52,7 +54,7 @@ const INSTRUMENTS = [
     {
         id: 'oboe',
         name: 'Oboe',
-        // Weak fundamental, dominant 3rd partial — the classic nasal double-reed
+        // Weak fundamental, dominant 3rd partial â€” the classic nasal double-reed
         // formant. Jagged attack for the reed's initial bite.
         partials: pad([0.42, 0.3, 1, 0.55, 0.72, 0.34, 0.48, 0.24, 0.3, 0.16, 0.2, 0.11, 0.13, 0.07, 0.08, 0.05]),
         env: { attack: 0.045, decay: 0.14, sustain: 0.82, release: 0.12 },
@@ -112,23 +114,34 @@ const clone_voice = (v) => ({
 
 // Shape a normalised 0..1 progress by curve mode. Shared by the envelope
 // drawing and the audio scheduler so the picture cannot drift from the sound.
+const JAG_STEPS = 6;
+const JAG_AMOUNT = 0.13;
+
 const shape = (t, mode, rising) => {
-    if (mode === 'curve') return rising ? t * t : 1 - (1 - t) * (1 - t);
+    const u = Math.max(0, Math.min(1, t));
+    if (mode === 'curve') return rising ? u * u : 1 - (1 - u) * (1 - u);
     if (mode === 'jag') {
-        const steps = 5;
-        const stepped = Math.floor(t * steps) / steps;
-        const wob = ((Math.floor(t * steps * 2) % 2) === 0 ? 0.08 : -0.08) * (1 - t);
-        return Math.max(0, Math.min(1, stepped + wob + t / steps));
+        // A linear ramp with triangular jags superimposed. The sin(pi*u) term
+        // tapers the jags to nothing at both ends, which is what guarantees
+        // shape(0)===0 and shape(1)===1.
+        //
+        // The earlier staircase form returned 0.08 at t=0, so every jagged
+        // attack began with an 8% gain step â€” an audible click on every note,
+        // and inaudible in the picture because 0.08 of panel height is 11px.
+        const zig = Math.abs((u * JAG_STEPS) % 2 - 1) * 2 - 1;
+        const v = u + JAG_AMOUNT * zig * Math.sin(Math.PI * u);
+        return Math.max(0, Math.min(1, v));
     }
-    return t;
+    return u;
 };
 
 // One cycle of the waveform implied by the partials, sampled to `n` points.
 const wave_cycle = (partials, n) => {
     const pts = [];
+    const denom = n > 1 ? n - 1 : 1;
     let peak = 0;
     for (let i = 0; i < n; i++) {
-        const phase = (i / (n - 1)) * Math.PI * 2;
+        const phase = (i / denom) * Math.PI * 2;
         let v = 0;
         for (let h = 0; h < partials.length; h++) {
             if (!partials[h]) continue;
@@ -150,8 +163,9 @@ const env_points = (env, curves, n) => {
     const hold = 0.35;
     const total = a + d + hold + r;
     const pts = [];
+    const denom = n > 1 ? n - 1 : 1;
     for (let i = 0; i < n; i++) {
-        const t = (i / (n - 1)) * total;
+        const t = (i / denom) * total;
         let v;
         if (t < a) {
             v = shape(t / a, curves.attack, true);
@@ -173,8 +187,10 @@ module.exports = {
     PARTIAL_COUNT,
     CURVE_MODES,
     INSTRUMENTS,
+    pad,
     clone_voice,
     shape,
     wave_cycle,
     env_points
 };
+

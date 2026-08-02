@@ -1,5 +1,5 @@
-// ─────────────────────────────────────────────────────────────────────────────
-// Opus 5 Showcase — "Instrument Workbench"
+﻿// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// Opus 5 Showcase â€” "Instrument Workbench"
 //
 // A two-octave keyboard built from relatively positioned divs, above it a
 // waveform and envelope editor, and six additive-synthesis instrument voices
@@ -10,21 +10,21 @@
 // Architecture notes, all of them consequences of verified framework behaviour:
 //
 //   * Every SVG panel is composed ON THE SERVER with stable plain ids. The
-//     client only ever calls setAttribute on nodes that arrived in the HTML —
+//     client only ever calls setAttribute on nodes that arrived in the HTML â€”
 //     it never creates an SVG element, because dynamic SVG append lands in the
 //     XHTML namespace and renders invisibly (control-enh.js:723).
 //   * SVG attribute values are String()'d; the renderer drops falsy values, so
 //     an unstringified y=0 would silently vanish (control-core.js:561).
-//   * SVG nodes are built with no Page_Context — one injects four data-jsgui-*
+//   * SVG nodes are built with no Page_Context â€” one injects four data-jsgui-*
 //     attributes onto every node.
 //   * _ctrl_fields keys match their property names exactly. Getting that wrong
 //     leaves a reference unrestored after reattachment, silently.
-//   * Ctrl.css contains no ${} — the extractor keeps only the first quasi.
+//   * Ctrl.css contains no ${} â€” the extractor keeps only the first quasi.
 //
 // The sound is genuinely synthesised from what the editor shows: the partial
 // bars become a PeriodicWave, and the envelope curve is sampled straight into
 // setValueCurveAtTime. There are no samples and no lookup tables.
-// ─────────────────────────────────────────────────────────────────────────────
+// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 const jsgui = require('jsgui3-client');
 const Active_HTML_Document = require('../../../controls/Active_HTML_Document');
@@ -33,7 +33,7 @@ const voices = require('./instruments');
 const { Control, controls } = jsgui;
 const { PARTIAL_COUNT, CURVE_MODES, INSTRUMENTS, clone_voice, shape, wave_cycle, env_points } = voices;
 
-// ── SVG factory ──────────────────────────────────────────────────────────────
+// â”€â”€ SVG factory â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 const el = (tag, attrs, kids) => {
     const K = controls[tag];
@@ -47,7 +47,7 @@ const el = (tag, attrs, kids) => {
     return c;
 };
 
-// ── geometry ─────────────────────────────────────────────────────────────────
+// â”€â”€ geometry â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 const SPEC_W = 440, SPEC_H = 190, SPEC_TOP = 18, SPEC_BASE = 162;
 const BAR_W = 20, BAR_GAP = 6, BAR_X0 = 18;
@@ -64,7 +64,7 @@ const WHITE_NAMES = ['C', 'D', 'E', 'F', 'G', 'A', 'B'];
 // Keyed by the BLACK semitone (C#=1, D#=3, F#=6, G#=8, A#=10), giving each
 // accidental's offset in white-key widths from the left edge of the octave.
 // Keying this by the white-key index instead produced NaN offsets, which CSS
-// discards silently — all ten accidentals stacked on top of each other and the
+// discards silently â€” all ten accidentals stacked on top of each other and the
 // keyboard still looked plausible at a glance.
 const BLACK_AFTER = { 1: 0.68, 3: 1.72, 6: 3.68, 8: 4.70, 10: 5.72 };
 const OCTAVES = 2;
@@ -73,29 +73,96 @@ const WHITE_COUNT = WHITE_SEMIS.length * OCTAVES;
 
 const midi_to_freq = (m) => 440 * Math.pow(2, (m - 69) / 12);
 
+// â”€â”€ geometry, shared by compose() on the server and paint() on the client â”€â”€â”€â”€
+//
+// These exist so the SSR pass emits the REAL picture rather than a placeholder.
+// The first version of this example composed d="M 0 0" and sixteen flat bars,
+// then painted the truth on activation â€” while the footer claimed the editors
+// arrived complete from the server. They did not. Sharing the geometry is what
+// makes that claim true, and it is the whole point of the example.
+
+const bar_geom = (partials, i) => {
+    const amp = Math.max(0, Math.min(1, partials[i] || 0));
+    const h = Math.max(2, amp * (SPEC_BASE - SPEC_TOP));
+    return {
+        y: SPEC_BASE - h,
+        height: h,
+        fill: i === 0 ? '#7dd3fc' : amp > 0 ? '#4b6bd8' : '#243056'
+    };
+};
+
+const wave_path_d = (partials) => {
+    const pts = wave_cycle(partials, WAVE_POINTS);
+    let d = '';
+    for (let i = 0; i < pts.length; i++) {
+        const x = (WAVE_W * i) / (pts.length - 1);
+        const y = WAVE_MID - pts[i] * WAVE_AMP;
+        d += (i === 0 ? 'M ' : ' L ') + x.toFixed(2) + ' ' + y.toFixed(2);
+    }
+    return d;
+};
+
+const env_path_d = (env, curves) => {
+    const pts = env_points(env, curves, 160);
+    const span = ENV_R - ENV_L;
+    let d = '';
+    for (let i = 0; i < pts.length; i++) {
+        const x = ENV_L + (span * i) / (pts.length - 1);
+        const y = ENV_BASE - pts[i] * (ENV_BASE - ENV_TOP);
+        d += (i === 0 ? 'M ' : ' L ') + x.toFixed(2) + ' ' + y.toFixed(2);
+    }
+    return d;
+};
+
+// The x-axis is pinned to a FIXED window rather than to the envelope being
+// edited. Deriving the axis from the same value the handle sets made the
+// release handle collapse under its own feedback: each drag shortened the
+// total, which moved the handle right, which shortened it again. It bottomed
+// out at the 0.02 s clamp in about four pointermoves and could never be
+// lengthened again.
+const ENV_WINDOW = 2.4;
+
+const env_handles = (env) => {
+    const span = ENV_R - ENV_L;
+    const at = (t, val) => ({
+        x: ENV_L + span * Math.max(0, Math.min(1, t / ENV_WINDOW)),
+        y: ENV_BASE - val * (ENV_BASE - ENV_TOP)
+    });
+    const hold = 0.35;
+    return {
+        attack: at(env.attack, 1),
+        decay: at(env.attack + env.decay, env.sustain),
+        sustain: at(env.attack + env.decay + hold, env.sustain),
+        release: at(env.attack + env.decay + hold + env.release, 0)
+    };
+};
+
 // Computer-keyboard mapping, tracker style, so the thing is playable without a mouse.
 const KEY_MAP = {
     a: 0, w: 1, s: 2, e: 3, d: 4, f: 5, t: 6, g: 7, y: 8, h: 9, u: 10, j: 11,
     k: 12, o: 13, l: 14, p: 15, ';': 16, "'": 17
 };
 
-// ── panels ───────────────────────────────────────────────────────────────────
+// â”€â”€ panels â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 class Spectrum_Panel extends Control {
     constructor(spec = {}) {
         spec.__type_name = spec.__type_name || 'spectrum_panel';
         super(spec);
+        this.spec_voice = spec.voice;
         if (!spec.el) this.compose();
     }
 
     compose() {
         this.add_class('panel');
+        const partials = (this.spec_voice || INSTRUMENTS[0]).partials;
         const bars = [];
         for (let i = 0; i < PARTIAL_COUNT; i++) {
+            const g = bar_geom(partials, i);
             bars.push(el('rect', {
                 id: 'pbar-' + i,
-                x: bar_x(i), y: SPEC_BASE - 10, width: BAR_W, height: 10,
-                rx: 3, fill: i === 0 ? '#7dd3fc' : '#4b6bd8'
+                x: bar_x(i), y: g.y, width: BAR_W, height: g.height,
+                rx: 3, fill: g.fill
             }));
             bars.push(el('text', {
                 id: 'plabel-' + i,
@@ -121,14 +188,18 @@ class Envelope_Panel extends Control {
     constructor(spec = {}) {
         spec.__type_name = spec.__type_name || 'envelope_panel';
         super(spec);
+        this.spec_voice = spec.voice;
         if (!spec.el) this.compose();
     }
 
     compose() {
         this.add_class('panel');
-        const handles = ['attack', 'decay', 'sustain', 'release'].map((nm, i) => el('circle', {
+        const v = this.spec_voice || INSTRUMENTS[0];
+        const hs = env_handles(v.env);
+        const d = env_path_d(v.env, v.curves);
+        const handles = ['attack', 'decay', 'sustain', 'release'].map((nm) => el('circle', {
             id: 'envh-' + nm,
-            cx: ENV_L + 40 + i * 90, cy: ENV_TOP + 20,
+            cx: hs[nm].x.toFixed(2), cy: hs[nm].y.toFixed(2),
             r: 6, fill: '#0d1327', stroke: '#7dd3fc', 'stroke-width': 2
         }));
         const svg = el('svg', {
@@ -139,9 +210,13 @@ class Envelope_Panel extends Control {
             el('rect', { x: 0, y: 0, width: ENV_W, height: ENV_H, fill: '#0d1327' }),
             el('line', { x1: ENV_L, y1: ENV_BASE, x2: ENV_R, y2: ENV_BASE, stroke: '#2a3459', 'stroke-width': 1 }),
             el('line', { x1: ENV_L, y1: ENV_TOP, x2: ENV_R, y2: ENV_TOP, stroke: '#1c2444', 'stroke-width': 1 }),
-            el('path', { id: 'env-fill', d: 'M 0 0', fill: '#34d399', 'fill-opacity': '0.13' }),
             el('path', {
-                id: 'env-path', d: 'M 0 0', fill: 'none',
+                id: 'env-fill',
+                d: d + ' L ' + ENV_R + ' ' + ENV_BASE + ' L ' + ENV_L + ' ' + ENV_BASE + ' Z',
+                fill: '#34d399', 'fill-opacity': '0.13'
+            }),
+            el('path', {
+                id: 'env-path', d: d, fill: 'none',
                 stroke: '#34d399', 'stroke-width': 2, 'stroke-linejoin': 'round'
             })
         ].concat(handles));
@@ -153,11 +228,13 @@ class Wave_Panel extends Control {
     constructor(spec = {}) {
         spec.__type_name = spec.__type_name || 'wave_panel';
         super(spec);
+        this.spec_voice = spec.voice;
         if (!spec.el) this.compose();
     }
 
     compose() {
         this.add_class('panel');
+        const d = wave_path_d((this.spec_voice || INSTRUMENTS[0]).partials);
         const svg = el('svg', {
             xmlns: 'http://www.w3.org/2000/svg',
             viewBox: '0 0 ' + WAVE_W + ' ' + WAVE_H,
@@ -165,14 +242,14 @@ class Wave_Panel extends Control {
         }, [
             el('rect', { x: 0, y: 0, width: WAVE_W, height: WAVE_H, fill: '#0d1327' }),
             el('line', { x1: 0, y1: WAVE_MID, x2: WAVE_W, y2: WAVE_MID, stroke: '#232c50', 'stroke-width': 1 }),
-            el('path', { id: 'wave-glow', d: 'M 0 0', fill: 'none', stroke: '#fbbf24', 'stroke-opacity': '0.18', 'stroke-width': 6 }),
-            el('path', { id: 'wave-path', d: 'M 0 0', fill: 'none', stroke: '#fbbf24', 'stroke-width': 2, 'stroke-linejoin': 'round' })
+            el('path', { id: 'wave-glow', d: d, fill: 'none', stroke: '#fbbf24', 'stroke-opacity': '0.18', 'stroke-width': 6 }),
+            el('path', { id: 'wave-path', d: d, fill: 'none', stroke: '#fbbf24', 'stroke-width': 2, 'stroke-linejoin': 'round' })
         ]);
         this.add(svg);
     }
 }
 
-// ── keyboard, built from relatively positioned divs ──────────────────────────
+// â”€â”€ keyboard, built from relatively positioned divs â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 class Keyboard extends Control {
     constructor(spec = {}) {
@@ -222,7 +299,7 @@ class Keyboard extends Control {
     }
 }
 
-// ── the page ─────────────────────────────────────────────────────────────────
+// â”€â”€ the page â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 class Demo_UI extends Active_HTML_Document {
     constructor(spec = {}) {
@@ -245,7 +322,7 @@ class Demo_UI extends Active_HTML_Document {
         const h1 = new Control({ context, tag_name: 'h1' });
         h1.add('Instrument Workbench');
         const sub = new Control({ context, tag_name: 'p', class: 'tagline' });
-        sub.add('Additive synthesis you can draw. Sixteen partials become the timbre, the envelope becomes the articulation — both are edited directly and both are what you hear.');
+        sub.add('Additive synthesis you can draw. Sixteen partials become the timbre, the envelope becomes the articulation â€” both are edited directly and both are what you hear.');
         head.add(badge); head.add(h1); head.add(sub);
 
         // toolbar
@@ -279,7 +356,10 @@ class Demo_UI extends Active_HTML_Document {
         this._ctrl_fields.sel = this.sel = sel;
 
         // editors
-        const grid = new Control({ context, tag_name: 'div', class: 'grid' });
+        // Not "grid": jsgui3-html ships a div.grid rule whose specificity (0,1,1)
+        // beats a plain .grid class, which silently changed the font stack and
+        // disabled text selection inside these two cards only.
+        const grid = new Control({ context, tag_name: 'div', class: 'editgrid' });
 
         const mk_card = (title, hint, body_ctrl, extra) => {
             const card = new Control({ context, tag_name: 'section', class: 'card' });
@@ -297,9 +377,12 @@ class Demo_UI extends Active_HTML_Document {
             return card;
         };
 
-        const spectrum = new Spectrum_Panel({ context });
-        const envelope = new Envelope_Panel({ context });
-        const wave = new Wave_Panel({ context });
+        // The default voice is composed into the SVG server-side, so the first
+        // response carries the real picture rather than a placeholder.
+        const v0 = INSTRUMENTS[0];
+        const spectrum = new Spectrum_Panel({ context, voice: v0 });
+        const envelope = new Envelope_Panel({ context, voice: v0 });
+        const wave = new Wave_Panel({ context, voice: v0 });
         this._ctrl_fields.spectrum = this.spectrum = spectrum;
         this._ctrl_fields.envelope = this.envelope = envelope;
         this._ctrl_fields.wave = this.wave = wave;
@@ -334,19 +417,22 @@ class Demo_UI extends Active_HTML_Document {
             inp.dom.attributes['step'] = String(step);
             const v = new Control({ context, tag_name: 'span', class: 'slv' });
             v.dom.attributes['id'] = id + '-val';
-            v.add('—');
+            v.add('â€”');
             w.add(t); w.add(inp); w.add(v);
             vibrow.add(w);
             return w;
         };
         mk_slider('sl-vrate', 'vibrato rate', 0, 9, 0.1);
         mk_slider('sl-vdepth', 'vibrato depth', 0, 3, 0.05);
-        mk_slider('sl-gain', 'level', 0.1, 1.2, 0.02);
+        // step 0.01 so every voice's stock level sits exactly on the grid;
+        // at 0.02 the tuba read 0.95 while the thumb sat at 0.96, and the first
+        // touch of the slider silently changed the gain.
+        mk_slider('sl-gain', 'level', 0.1, 1.2, 0.01);
 
-        grid.add(mk_card('Harmonic spectrum', 'drag a bar — partial 1 is the fundamental', spectrum));
+        grid.add(mk_card('Harmonic spectrum', 'drag a bar â€” partial 1 is the fundamental', spectrum));
         grid.add(mk_card('Amplitude envelope', 'drag a handle; each segment has its own curve', envelope, curverow));
 
-        const wavecard = mk_card('Waveform — one cycle', 'derived from the partials above', wave, vibrow);
+        const wavecard = mk_card('Waveform â€” one cycle', 'derived from the partials above', wave, vibrow);
         wavecard.add_class('wide');
 
         const kb = new Keyboard({ context });
@@ -362,7 +448,7 @@ class Demo_UI extends Active_HTML_Document {
         kbcard.add(kb);
 
         const foot = new Control({ context, tag_name: 'footer', class: 'foot' });
-        foot.add('Server-rendered SVG editors · Web Audio additive synthesis · no client-side SVG element creation');
+        foot.add('Server-rendered SVG editors Â· Web Audio additive synthesis Â· no client-side SVG element creation');
 
         shell.add(head);
         shell.add(bar);
@@ -373,17 +459,25 @@ class Demo_UI extends Active_HTML_Document {
         this.body.add(shell);
     }
 
-    // ── activation ───────────────────────────────────────────────────────────
+    // â”€â”€ activation â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
     activate() {
         if (!this.__active) {
             super.activate();
             if (typeof window === 'undefined' || typeof document === 'undefined') return;
 
-            this.library = INSTRUMENTS.map(clone_voice);
+            // Each library entry keeps its own factory baseline, so Revert works
+            // for duplicates too â€” looking the id up in INSTRUMENTS meant Revert
+            // silently did nothing for any voice the user had created.
+            this.library = INSTRUMENTS.map((v) => {
+                const c = clone_voice(v);
+                c.baseline = clone_voice(v);
+                return c;
+            });
             this.voice = clone_voice(this.library[0]);
             this.active_notes = {};
             this.held_keys = {};
+            this.pointer_notes = {};
 
             const root = this.dom.el || document;
             this.root = root;
@@ -397,7 +491,7 @@ class Demo_UI extends Active_HTML_Document {
         }
     }
 
-    // ── audio ────────────────────────────────────────────────────────────────
+    // â”€â”€ audio â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
     audio() {
         if (!this.ctx) {
@@ -406,20 +500,37 @@ class Demo_UI extends Active_HTML_Document {
             this.ctx = new AC();
             this.master = this.ctx.createGain();
             this.master.gain.value = 0.28;
-            this.master.connect(this.ctx.destination);
+            // Six held keys sum past full scale and clip. A compressor is the
+            // cheap honest fix; measured 1.7 dB over on a four-note chord with
+            // the level slider up.
+            const comp = this.ctx.createDynamicsCompressor();
+            comp.threshold.value = -10;
+            comp.ratio.value = 8;
+            comp.attack.value = 0.004;
+            comp.release.value = 0.12;
+            this.master.connect(comp);
+            comp.connect(this.ctx.destination);
         }
         if (this.ctx.state === 'suspended') this.ctx.resume();
         return this.ctx;
     }
 
+    // Building a wavetable costs ~1.8 ms of main thread. Rebuilding it per
+    // keypress caused audible stutter when playing fast, and widened the window
+    // for the scheduling race below. Cached against the partials that made it.
     periodic_wave() {
-        const ctx = this.ctx;
+        const key = this.voice.partials.join(',');
+        if (this._wave_key === key && this._wave) return this._wave;
         const n = PARTIAL_COUNT + 1;
         const real = new Float32Array(n);
         const imag = new Float32Array(n);
         for (let i = 0; i < PARTIAL_COUNT; i++) imag[i + 1] = this.voice.partials[i];
-        return ctx.createPeriodicWave(real, imag, { disableNormalization: false });
+        this._wave = this.ctx.createPeriodicWave(real, imag, { disableNormalization: false });
+        this._wave_key = key;
+        return this._wave;
     }
+
+    invalidate_wave() { this._wave = null; this._wave_key = null; }
 
     // Sample the same shape() the editor draws with, so the sound cannot
     // disagree with the picture.
@@ -437,8 +548,10 @@ class Demo_UI extends Active_HTML_Document {
         const ctx = this.audio();
         if (!ctx || this.active_notes[midi]) return;
 
-        const v = this.voice;
-        const now = ctx.currentTime;
+        // Capture the voice per note. Reading this.voice in note_off meant
+        // changing instrument mid-note gave the tail of the NEW instrument.
+        const v = clone_voice(this.voice);
+
         const osc = ctx.createOscillator();
         osc.setPeriodicWave(this.periodic_wave());
         osc.frequency.value = midi_to_freq(midi);
@@ -457,20 +570,47 @@ class Demo_UI extends Active_HTML_Document {
             lfo_gain.gain.value = v.vibrato.depth * 12;
             lfo.connect(lfo_gain);
             lfo_gain.connect(osc.detune);
-            lfo.start(now);
         }
+
+        // Read the clock AFTER all node construction, and add a small lookahead.
+        // Reading it first meant the ~2 ms of createPeriodicWave/createGain work
+        // pushed the attack curve's start into the past; Chrome clamps it
+        // forward, the decay curve stays anchored to the stale timestamp, the
+        // two then overlap and setValueCurveAtTime throws NotSupportedError.
+        // Measured: 23% of notes silently lost under CPU throttle, each leaking
+        // an oscillator and a gain node.
+        const now = ctx.currentTime + 0.02;
 
         const a = Math.max(0.002, v.env.attack);
         const d = Math.max(0.002, v.env.decay);
         const peak = v.gain;
         const sus = peak * v.env.sustain;
 
-        g.gain.setValueCurveAtTime(this.env_curve(0, peak, a, v.curves.attack, true), now, a);
-        g.gain.setValueCurveAtTime(this.env_curve(peak, sus, d, v.curves.decay, false), now + a, d);
+        // Register before scheduling so a throw cannot orphan the nodes.
+        const note = { osc, g, lfo, lfo_gain, voice: v, started: now };
+        this.active_notes[midi] = note;
+
+        try {
+            g.gain.setValueCurveAtTime(this.env_curve(0, peak, a, v.curves.attack, true), now, a);
+            g.gain.setValueCurveAtTime(this.env_curve(peak, sus, d, v.curves.decay, false), now + a, d);
+        } catch (e) {
+            // Last-resort fallback: a plain ramp still makes a note rather than
+            // silence, and keeps the node bookkeeping consistent.
+            g.gain.cancelScheduledValues(now);
+            g.gain.setValueAtTime(0, now);
+            g.gain.linearRampToValueAtTime(peak, now + a);
+            g.gain.linearRampToValueAtTime(sus, now + a + d);
+        }
 
         osc.start(now);
-        this.active_notes[midi] = { osc, g, lfo, lfo_gain, started: now };
+        if (lfo) lfo.start(now);
         this.flash_key(midi, true);
+    }
+
+    all_notes_off() {
+        for (const midi in this.active_notes) this.note_off(Number(midi));
+        this.held_keys = {};
+        this.pointer_notes = {};
     }
 
     note_off(midi) {
@@ -478,18 +618,26 @@ class Demo_UI extends Active_HTML_Document {
         if (!n) return;
         delete this.active_notes[midi];
         const ctx = this.ctx;
-        const v = this.voice;
+        const v = n.voice || this.voice;   // the voice this note was started with
         const now = ctx.currentTime;
         const r = Math.max(0.02, v.env.release);
         let current = 0.0001;
-        try { current = Math.max(0.0001, n.g.gain.value); } catch (e) { /* ignore */ }
 
         try {
-            n.g.gain.cancelScheduledValues(now);
+            // cancelScheduledValues does NOT stop a value curve that is already
+            // running; cancelAndHoldAtTime does, and also freezes the parameter
+            // at its current value so the release starts from where the note
+            // actually is rather than from a guess.
+            if (n.g.gain.cancelAndHoldAtTime) n.g.gain.cancelAndHoldAtTime(now);
+            else n.g.gain.cancelScheduledValues(now);
+            current = Math.max(0.0001, n.g.gain.value);
             n.g.gain.setValueAtTime(current, now);
             n.g.gain.setValueCurveAtTime(this.env_curve(current, 0.0001, r, v.curves.release, false), now, r);
         } catch (e) {
-            n.g.gain.setTargetAtTime(0.0001, now, r / 3);
+            try {
+                n.g.gain.cancelScheduledValues(now);
+                n.g.gain.setTargetAtTime(0.0001, now, r / 3);
+            } catch (e2) { /* the note will stop below regardless */ }
         }
 
         n.osc.stop(now + r + 0.05);
@@ -507,7 +655,7 @@ class Demo_UI extends Active_HTML_Document {
         k.setAttribute('class', on ? base + ' down' : base);
     }
 
-    // ── painting ─────────────────────────────────────────────────────────────
+    // â”€â”€ painting â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
     paint_all() {
         this.paint_spectrum();
@@ -516,45 +664,29 @@ class Demo_UI extends Active_HTML_Document {
         this.paint_controls();
     }
 
+    // All three painters call the same geometry functions compose() used on the
+    // server, so activation reproduces the SSR picture exactly rather than
+    // replacing it with a second implementation.
+
     paint_spectrum() {
         for (let i = 0; i < PARTIAL_COUNT; i++) {
             const bar = this.q('#pbar-' + i);
             if (!bar) continue;
-            const amp = Math.max(0, Math.min(1, this.voice.partials[i]));
-            const h = Math.max(2, amp * (SPEC_BASE - SPEC_TOP));
-            bar.setAttribute('y', String(SPEC_BASE - h));
-            bar.setAttribute('height', String(h));
-            bar.setAttribute('fill', i === 0 ? '#7dd3fc' : amp > 0.001 ? '#4b6bd8' : '#243056');
+            const g = bar_geom(this.voice.partials, i);
+            bar.setAttribute('y', String(g.y));
+            bar.setAttribute('height', String(g.height));
+            bar.setAttribute('fill', g.fill);
         }
     }
 
     paint_envelope() {
-        const pts = env_points(this.voice.env, this.voice.curves, 160);
-        const span = ENV_R - ENV_L;
-        let d = '';
-        for (let i = 0; i < pts.length; i++) {
-            const x = ENV_L + (span * i) / (pts.length - 1);
-            const y = ENV_BASE - pts[i] * (ENV_BASE - ENV_TOP);
-            d += (i === 0 ? 'M ' : ' L ') + x.toFixed(2) + ' ' + y.toFixed(2);
-        }
+        const d = env_path_d(this.voice.env, this.voice.curves);
         const path = this.q('#env-path');
         if (path) path.setAttribute('d', d);
         const fill = this.q('#env-fill');
         if (fill) fill.setAttribute('d', d + ' L ' + ENV_R + ' ' + ENV_BASE + ' L ' + ENV_L + ' ' + ENV_BASE + ' Z');
 
-        // Handles sit on the curve at the segment boundaries.
-        const e = this.voice.env;
-        const total = Math.max(0.001, e.attack + e.decay + 0.35 + e.release);
-        const at_time = (t, val) => ({
-            x: ENV_L + (span * t) / total,
-            y: ENV_BASE - val * (ENV_BASE - ENV_TOP)
-        });
-        const hs = {
-            attack: at_time(e.attack, 1),
-            decay: at_time(e.attack + e.decay, e.sustain),
-            sustain: at_time(e.attack + e.decay + 0.35, e.sustain),
-            release: at_time(total, 0)
-        };
+        const hs = env_handles(this.voice.env);
         for (const nm in hs) {
             const h = this.q('#envh-' + nm);
             if (!h) continue;
@@ -564,13 +696,7 @@ class Demo_UI extends Active_HTML_Document {
     }
 
     paint_wave() {
-        const pts = wave_cycle(this.voice.partials, WAVE_POINTS);
-        let d = '';
-        for (let i = 0; i < pts.length; i++) {
-            const x = (WAVE_W * i) / (pts.length - 1);
-            const y = WAVE_MID - pts[i] * WAVE_AMP;
-            d += (i === 0 ? 'M ' : ' L ') + x.toFixed(2) + ' ' + y.toFixed(2);
-        }
+        const d = wave_path_d(this.voice.partials);
         const p = this.q('#wave-path');
         if (p) p.setAttribute('d', d);
         const glow = this.q('#wave-glow');
@@ -600,12 +726,13 @@ class Demo_UI extends Active_HTML_Document {
         }
     }
 
-    // ── wiring ───────────────────────────────────────────────────────────────
+    // â”€â”€ wiring â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
     load_voice(id) {
         const found = this.library.filter((v) => v.id === id)[0];
         if (!found) return;
         this.voice = clone_voice(found);
+        this.invalidate_wave();
         this.paint_all();
     }
 
@@ -620,6 +747,7 @@ class Demo_UI extends Active_HTML_Document {
             while (this.library.filter((v) => v.id === copy.id + '-' + n).length) n++;
             copy.id = copy.id + '-' + n;
             copy.name = copy.name + ' copy ' + n;
+            copy.baseline = clone_voice(copy);   // Revert target for the copy
             this.library.push(copy);
             const o = document.createElement('option');
             o.value = copy.id;
@@ -631,8 +759,16 @@ class Demo_UI extends Active_HTML_Document {
 
         const rev = this.q('#btn-reset');
         if (rev) rev.addEventListener('click', () => {
-            const original = INSTRUMENTS.filter((v) => v.id === this.voice.id)[0];
-            if (original) { this.voice = clone_voice(original); this.paint_all(); }
+            const lib = this.library.filter((v) => v.id === this.voice.id)[0];
+            const base = lib && lib.baseline;
+            if (!base) return;
+            this.voice = clone_voice(base);
+            this.voice.name = lib.name;
+            // Without sync_library the revert applied only to the working copy;
+            // switching voice and back resurrected every reverted edit.
+            this.sync_library();
+            this.invalidate_wave();
+            this.paint_all();
         });
 
         const name = this.q('#voice-name');
@@ -700,6 +836,7 @@ class Demo_UI extends Active_HTML_Document {
             idx = Math.max(0, Math.min(PARTIAL_COUNT - 1, idx));
             const amp = Math.max(0, Math.min(1, (SPEC_BASE - p.y) / (SPEC_BASE - SPEC_TOP)));
             this.voice.partials[idx] = amp;
+            this.invalidate_wave();
             this.paint_spectrum();
             this.paint_wave();
             this.sync_library();
@@ -736,14 +873,18 @@ class Demo_UI extends Active_HTML_Document {
         const apply = (p) => {
             const e = this.voice.env;
             const span = ENV_R - ENV_L;
-            const total = Math.max(0.001, e.attack + e.decay + 0.35 + e.release);
-            const t = Math.max(0, ((p.x - ENV_L) / span) * total);
+            // Fixed window, NOT derived from the envelope being edited. See the
+            // ENV_WINDOW comment â€” deriving it created a feedback loop that
+            // collapsed the release to its clamp in a few pointermoves with no
+            // way back.
+            const t = Math.max(0, ((p.x - ENV_L) / span) * ENV_WINDOW);
             const level = Math.max(0, Math.min(1, (ENV_BASE - p.y) / (ENV_BASE - ENV_TOP)));
+            const hold = 0.35;
 
             if (grabbed === 'attack') e.attack = Math.max(0.002, Math.min(0.6, t));
             else if (grabbed === 'decay') { e.decay = Math.max(0.005, Math.min(1.4, t - e.attack)); e.sustain = level; }
             else if (grabbed === 'sustain') e.sustain = level;
-            else if (grabbed === 'release') e.release = Math.max(0.02, Math.min(1.6, t - e.attack - e.decay - 0.35));
+            else if (grabbed === 'release') e.release = Math.max(0.02, Math.min(1.6, t - e.attack - e.decay - hold));
 
             this.paint_envelope();
             this.sync_library();
@@ -769,28 +910,35 @@ class Demo_UI extends Active_HTML_Document {
                 const k = t && t.closest ? t.closest('.key') : null;
                 return k ? parseInt(k.getAttribute('data-midi'), 10) : null;
             };
+            // Keyed by pointerId so multi-touch works. A single scalar left the
+            // first finger's note droning forever with its key stuck lit.
+            const release = (ev) => {
+                const m = this.pointer_notes[ev.pointerId];
+                if (m === undefined) return;
+                delete this.pointer_notes[ev.pointerId];
+                this.note_off(m);
+            };
+
             host.addEventListener('pointerdown', (ev) => {
                 const m = midi_of(ev.target);
                 if (m === null) return;
                 ev.preventDefault();
-                host.setPointerCapture(ev.pointerId);
+                try { ev.target.setPointerCapture(ev.pointerId); } catch (e) { /* ignore */ }
+                this.pointer_notes[ev.pointerId] = m;
                 this.note_on(m);
-                this.pointer_note = m;
             });
-            host.addEventListener('pointerup', (ev) => {
-                if (this.pointer_note !== undefined && this.pointer_note !== null) {
-                    this.note_off(this.pointer_note);
-                    this.pointer_note = null;
-                }
-                try { host.releasePointerCapture(ev.pointerId); } catch (e) {}
-            });
-            host.addEventListener('pointerleave', () => {
-                if (this.pointer_note !== undefined && this.pointer_note !== null) {
-                    this.note_off(this.pointer_note);
-                    this.pointer_note = null;
-                }
-            });
+            host.addEventListener('pointerup', release);
+            host.addEventListener('pointercancel', release);
+            host.addEventListener('lostpointercapture', release);
         }
+
+        // A note held when the tab loses focus never receives its keyup and
+        // drones indefinitely; on return the first press of that key is also
+        // swallowed because held_keys still says it is down.
+        window.addEventListener('blur', () => this.all_notes_off());
+        document.addEventListener('visibilitychange', () => {
+            if (document.hidden) this.all_notes_off();
+        });
 
         window.addEventListener('keydown', (ev) => {
             if (ev.repeat) return;
@@ -841,7 +989,7 @@ body.opus5 {
 .btn.ghost { color: #8b9ac2; }
 .namewrap { margin-left: auto; }
 .nameinput { min-width: 220px; }
-.grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; align-items: start; }
+.editgrid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; align-items: start; }
 .card {
     border: 1px solid #1b2340; border-radius: 12px;
     background: #0b1120; padding: 14px 16px 16px;
@@ -893,7 +1041,7 @@ body.opus5 {
 .key.black.down { background: linear-gradient(#4a67a8, #26365e); }
 .foot { color: #4d5a80; font-size: 12px; margin-top: 18px; }
 @media (max-width: 900px) {
-    .grid { grid-template-columns: 1fr; }
+    .editgrid { grid-template-columns: 1fr; }
     .namewrap { margin-left: 0; }
 }
 `;
@@ -910,3 +1058,4 @@ controls.Demo_UI = Demo_UI;
 controls.demo_ui = Demo_UI;
 
 module.exports = jsgui;
+

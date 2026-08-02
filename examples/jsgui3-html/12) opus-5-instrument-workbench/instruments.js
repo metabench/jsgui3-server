@@ -1,14 +1,14 @@
-﻿// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-// Opus 5 Showcase â€” "Instrument Workbench" Â· voice definitions
+// ─────────────────────────────────────────────────────────────────────────────
+// Opus 5 Showcase — "Instrument Workbench" · voice definitions
 //
 // Shared by server and client. Plain data plus pure functions, no DOM, no audio.
 //
 // The model is additive: a voice is 16 harmonic partial amplitudes (which give
 // it its timbre) plus an amplitude envelope (which gives it its articulation).
-// That pairing is what actually separates a piano from an oboe â€” not a
+// That pairing is what actually separates a piano from an oboe — not a
 // waveform name. A PeriodicWave is built from the partials and an envelope is
 // applied to a gain node, so what the editor shows is literally what is heard.
-// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─────────────────────────────────────────────────────────────────────────────
 
 const PARTIAL_COUNT = 16;
 
@@ -40,7 +40,7 @@ const INSTRUMENTS = [
     {
         id: 'organ',
         name: 'Organ',
-        // Odd harmonics only â€” clarinet-like, a stopped-pipe registration. The
+        // Odd harmonics only — clarinet-like, a stopped-pipe registration. The
         // even partials are genuinely absent; measured at -106 dB in the
         // rendered audio. Square-on attack and full sustain, because a pipe
         // does not decay.
@@ -54,7 +54,7 @@ const INSTRUMENTS = [
     {
         id: 'oboe',
         name: 'Oboe',
-        // Weak fundamental, dominant 3rd partial â€” the classic nasal double-reed
+        // Weak fundamental, dominant 3rd partial — the classic nasal double-reed
         // formant. Jagged attack for the reed's initial bite.
         partials: pad([0.42, 0.3, 1, 0.55, 0.72, 0.34, 0.48, 0.24, 0.3, 0.16, 0.2, 0.11, 0.13, 0.07, 0.08, 0.05]),
         env: { attack: 0.045, decay: 0.14, sustain: 0.82, release: 0.12 },
@@ -109,7 +109,11 @@ const clone_voice = (v) => ({
     curves: { attack: v.curves.attack, decay: v.curves.decay, release: v.curves.release },
     vibrato: { rate: v.vibrato.rate, depth: v.vibrato.depth },
     drift: v.drift,
-    gain: v.gain
+    gain: v.gain,
+    // Oscillation controls. Absent on the six built-ins, whose spectra are
+    // hand-written rather than generated from a shape recipe.
+    shape_kind: v.shape_kind || null,
+    jag: v.jag || 0
 });
 
 // Shape a normalised 0..1 progress by curve mode. Shared by the envelope
@@ -126,13 +130,55 @@ const shape = (t, mode, rising) => {
         // shape(0)===0 and shape(1)===1.
         //
         // The earlier staircase form returned 0.08 at t=0, so every jagged
-        // attack began with an 8% gain step â€” an audible click on every note,
+        // attack began with an 8% gain step — an audible click on every note,
         // and inaudible in the picture because 0.08 of panel height is 11px.
         const zig = Math.abs((u * JAG_STEPS) % 2 - 1) * 2 - 1;
         const v = u + JAG_AMOUNT * zig * Math.sin(Math.PI * u);
         return Math.max(0, Math.min(1, v));
     }
     return u;
+};
+
+// ── waveform character ───────────────────────────────────────────────────────
+//
+// Classic oscillator shapes expressed as harmonic recipes, so asking for a
+// square is the same act as drawing one — there is no separate oscillator mode
+// hiding behind the spectrum.
+//
+// Partials are SIGNED. Sawtooth and square are exact with positive coefficients
+// alone, but a triangle needs alternating signs (odd harmonics, 1/n^2, flipping
+// each time); without them you get a rounded wave that is not a triangle.
+// The bar editor edits magnitude and preserves whatever sign a partial has.
+const WAVE_SHAPES = ['sine', 'triangle', 'sawtooth', 'square'];
+
+const shape_partials = (kind, jag) => {
+    const out = new Array(PARTIAL_COUNT).fill(0);
+    const amount = Math.max(0, Math.min(1, jag || 0));
+
+    for (let i = 0; i < PARTIAL_COUNT; i++) {
+        const n = i + 1;
+        const odd = n % 2 === 1;
+        if (kind === 'sine') out[i] = n === 1 ? 1 : 0;
+        else if (kind === 'triangle') out[i] = odd ? Math.pow(-1, (n - 1) / 2) / (n * n) : 0;
+        else if (kind === 'sawtooth') out[i] = 1 / n;
+        else if (kind === 'square') out[i] = odd ? 1 / n : 0;
+    }
+
+    // "Jag" lifts the upper harmonics, which is what makes an oscillation look
+    // and sound edgier without changing its fundamental character.
+    if (amount > 0) {
+        for (let i = 0; i < PARTIAL_COUNT; i++) {
+            const n = i + 1;
+            if (n === 1) continue;
+            const lift = amount * 0.55 * Math.pow(n / PARTIAL_COUNT, 0.6);
+            const sign = out[i] < 0 ? -1 : 1;
+            out[i] = sign * Math.min(1, Math.abs(out[i]) + lift);
+        }
+    }
+
+    const peak = Math.max.apply(null, out.map(Math.abs));
+    if (peak > 0) for (let i = 0; i < PARTIAL_COUNT; i++) out[i] = out[i] / peak;
+    return out;
 };
 
 // One cycle of the waveform implied by the partials, sampled to `n` points.
@@ -186,8 +232,10 @@ const env_points = (env, curves, n) => {
 module.exports = {
     PARTIAL_COUNT,
     CURVE_MODES,
+    WAVE_SHAPES,
     INSTRUMENTS,
     pad,
+    shape_partials,
     clone_voice,
     shape,
     wave_cycle,

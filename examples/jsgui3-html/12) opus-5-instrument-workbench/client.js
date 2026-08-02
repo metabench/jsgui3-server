@@ -1,5 +1,5 @@
-﻿// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-// Opus 5 Showcase â€” "Instrument Workbench"
+// ─────────────────────────────────────────────────────────────────────────────
+// Opus 5 Showcase — "Instrument Workbench"
 //
 // A two-octave keyboard built from relatively positioned divs, above it a
 // waveform and envelope editor, and six additive-synthesis instrument voices
@@ -10,30 +10,33 @@
 // Architecture notes, all of them consequences of verified framework behaviour:
 //
 //   * Every SVG panel is composed ON THE SERVER with stable plain ids. The
-//     client only ever calls setAttribute on nodes that arrived in the HTML â€”
+//     client only ever calls setAttribute on nodes that arrived in the HTML —
 //     it never creates an SVG element, because dynamic SVG append lands in the
 //     XHTML namespace and renders invisibly (control-enh.js:723).
 //   * SVG attribute values are String()'d; the renderer drops falsy values, so
 //     an unstringified y=0 would silently vanish (control-core.js:561).
-//   * SVG nodes are built with no Page_Context â€” one injects four data-jsgui-*
+//   * SVG nodes are built with no Page_Context — one injects four data-jsgui-*
 //     attributes onto every node.
 //   * _ctrl_fields keys match their property names exactly. Getting that wrong
 //     leaves a reference unrestored after reattachment, silently.
-//   * Ctrl.css contains no ${} â€” the extractor keeps only the first quasi.
+//   * Ctrl.css contains no ${} — the extractor keeps only the first quasi.
 //
 // The sound is genuinely synthesised from what the editor shows: the partial
 // bars become a PeriodicWave, and the envelope curve is sampled straight into
 // setValueCurveAtTime. There are no samples and no lookup tables.
-// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─────────────────────────────────────────────────────────────────────────────
 
 const jsgui = require('jsgui3-client');
 const Active_HTML_Document = require('../../../controls/Active_HTML_Document');
 const voices = require('./instruments');
 
 const { Control, controls } = jsgui;
-const { PARTIAL_COUNT, CURVE_MODES, INSTRUMENTS, clone_voice, shape, wave_cycle, env_points } = voices;
+const {
+    PARTIAL_COUNT, CURVE_MODES, WAVE_SHAPES, INSTRUMENTS,
+    clone_voice, shape, shape_partials, wave_cycle, env_points
+} = voices;
 
-// â”€â”€ SVG factory â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── SVG factory ──────────────────────────────────────────────────────────────
 
 const el = (tag, attrs, kids) => {
     const K = controls[tag];
@@ -47,7 +50,7 @@ const el = (tag, attrs, kids) => {
     return c;
 };
 
-// â”€â”€ geometry â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── geometry ─────────────────────────────────────────────────────────────────
 
 const SPEC_W = 440, SPEC_H = 190, SPEC_TOP = 18, SPEC_BASE = 162;
 const BAR_W = 20, BAR_GAP = 6, BAR_X0 = 18;
@@ -64,7 +67,7 @@ const WHITE_NAMES = ['C', 'D', 'E', 'F', 'G', 'A', 'B'];
 // Keyed by the BLACK semitone (C#=1, D#=3, F#=6, G#=8, A#=10), giving each
 // accidental's offset in white-key widths from the left edge of the octave.
 // Keying this by the white-key index instead produced NaN offsets, which CSS
-// discards silently â€” all ten accidentals stacked on top of each other and the
+// discards silently — all ten accidentals stacked on top of each other and the
 // keyboard still looked plausible at a glance.
 const BLACK_AFTER = { 1: 0.68, 3: 1.72, 6: 3.68, 8: 4.70, 10: 5.72 };
 const OCTAVES = 2;
@@ -73,21 +76,28 @@ const WHITE_COUNT = WHITE_SEMIS.length * OCTAVES;
 
 const midi_to_freq = (m) => 440 * Math.pow(2, (m - 69) / 12);
 
-// â”€â”€ geometry, shared by compose() on the server and paint() on the client â”€â”€â”€â”€
+// ── geometry, shared by compose() on the server and paint() on the client ────
 //
 // These exist so the SSR pass emits the REAL picture rather than a placeholder.
 // The first version of this example composed d="M 0 0" and sixteen flat bars,
-// then painted the truth on activation â€” while the footer claimed the editors
+// then painted the truth on activation — while the footer claimed the editors
 // arrived complete from the server. They did not. Sharing the geometry is what
 // makes that claim true, and it is the whole point of the example.
 
+// Partials are signed — a negative one is phase-inverted, which is what makes a
+// true triangle possible. The bar shows magnitude and colours the inversion.
 const bar_geom = (partials, i) => {
-    const amp = Math.max(0, Math.min(1, partials[i] || 0));
-    const h = Math.max(2, amp * (SPEC_BASE - SPEC_TOP));
+    const raw = partials[i] || 0;
+    const amp = Math.min(1, Math.abs(raw));
+    // A 2px floor for genuinely-zero partials reads as a zero tick; anything
+    // audible gets at least 4px so it is visibly distinct from silence. The
+    // flute's upper partials previously all rendered at the same 2px and the
+    // last few were painted in the "off" colour despite being audible.
+    const h = amp === 0 ? 2 : Math.max(4, amp * (SPEC_BASE - SPEC_TOP));
     return {
         y: SPEC_BASE - h,
         height: h,
-        fill: i === 0 ? '#7dd3fc' : amp > 0 ? '#4b6bd8' : '#243056'
+        fill: amp === 0 ? '#243056' : i === 0 ? '#7dd3fc' : raw < 0 ? '#a78bfa' : '#4b6bd8'
     };
 };
 
@@ -143,7 +153,7 @@ const KEY_MAP = {
     k: 12, o: 13, l: 14, p: 15, ';': 16, "'": 17
 };
 
-// â”€â”€ panels â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── panels ───────────────────────────────────────────────────────────────────
 
 class Spectrum_Panel extends Control {
     constructor(spec = {}) {
@@ -249,7 +259,7 @@ class Wave_Panel extends Control {
     }
 }
 
-// â”€â”€ keyboard, built from relatively positioned divs â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── keyboard, built from relatively positioned divs ──────────────────────────
 
 class Keyboard extends Control {
     constructor(spec = {}) {
@@ -299,7 +309,7 @@ class Keyboard extends Control {
     }
 }
 
-// â”€â”€ the page â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── the page ─────────────────────────────────────────────────────────────────
 
 class Demo_UI extends Active_HTML_Document {
     constructor(spec = {}) {
@@ -322,7 +332,7 @@ class Demo_UI extends Active_HTML_Document {
         const h1 = new Control({ context, tag_name: 'h1' });
         h1.add('Instrument Workbench');
         const sub = new Control({ context, tag_name: 'p', class: 'tagline' });
-        sub.add('Additive synthesis you can draw. Sixteen partials become the timbre, the envelope becomes the articulation â€” both are edited directly and both are what you hear.');
+        sub.add('Additive synthesis you can draw. Sixteen partials become the timbre, the envelope becomes the articulation — both are edited directly and both are what you hear.');
         head.add(badge); head.add(h1); head.add(sub);
 
         // toolbar
@@ -404,6 +414,21 @@ class Demo_UI extends Active_HTML_Document {
             curverow.add(g);
         });
 
+        // Oscillation character: classic shapes expressed as harmonic recipes,
+        // so choosing one rewrites the bars above rather than switching to a
+        // hidden oscillator mode. Curved (sine), linear (sawtooth, triangle)
+        // and jagged (square, plus the jag slider) are all directly reachable.
+        const shaperow = new Control({ context, tag_name: 'div', class: 'curverow' });
+        const shapelbl = new Control({ context, tag_name: 'span', class: 'cgl' });
+        shapelbl.add('oscillation');
+        shaperow.add(shapelbl);
+        WAVE_SHAPES.forEach((kind) => {
+            const b = new Control({ context, tag_name: 'button', class: 'cmode wshape' });
+            b.dom.attributes['data-shape'] = kind;
+            b.add(kind);
+            shaperow.add(b);
+        });
+
         const vibrow = new Control({ context, tag_name: 'div', class: 'sliders' });
         const mk_slider = (id, label, min, max, step) => {
             const w = new Control({ context, tag_name: 'label', class: 'sl' });
@@ -417,11 +442,12 @@ class Demo_UI extends Active_HTML_Document {
             inp.dom.attributes['step'] = String(step);
             const v = new Control({ context, tag_name: 'span', class: 'slv' });
             v.dom.attributes['id'] = id + '-val';
-            v.add('â€”');
+            v.add('—');
             w.add(t); w.add(inp); w.add(v);
             vibrow.add(w);
             return w;
         };
+        mk_slider('sl-jag', 'jag', 0, 1, 0.01);
         mk_slider('sl-vrate', 'vibrato rate', 0, 9, 0.1);
         mk_slider('sl-vdepth', 'vibrato depth', 0, 3, 0.05);
         // step 0.01 so every voice's stock level sits exactly on the grid;
@@ -429,10 +455,18 @@ class Demo_UI extends Active_HTML_Document {
         // touch of the slider silently changed the gain.
         mk_slider('sl-gain', 'level', 0.1, 1.2, 0.01);
 
-        grid.add(mk_card('Harmonic spectrum', 'drag a bar â€” partial 1 is the fundamental', spectrum));
+        grid.add(mk_card('Harmonic spectrum', 'drag a bar — partial 1 is the fundamental', spectrum));
         grid.add(mk_card('Amplitude envelope', 'drag a handle; each segment has its own curve', envelope, curverow));
 
-        const wavecard = mk_card('Waveform â€” one cycle', 'derived from the partials above', wave, vibrow);
+        const wavecontrols = new Control({ context, tag_name: 'div' });
+        wavecontrols.add(shaperow);
+        wavecontrols.add(vibrow);
+        const wavecard = mk_card(
+            'Waveform — one cycle',
+            'pick an oscillation, or draw one in the spectrum',
+            wave,
+            wavecontrols
+        );
         wavecard.add_class('wide');
 
         const kb = new Keyboard({ context });
@@ -448,7 +482,7 @@ class Demo_UI extends Active_HTML_Document {
         kbcard.add(kb);
 
         const foot = new Control({ context, tag_name: 'footer', class: 'foot' });
-        foot.add('Server-rendered SVG editors Â· Web Audio additive synthesis Â· no client-side SVG element creation');
+        foot.add('Server-rendered SVG editors · Web Audio additive synthesis · no client-side SVG element creation');
 
         shell.add(head);
         shell.add(bar);
@@ -459,7 +493,7 @@ class Demo_UI extends Active_HTML_Document {
         this.body.add(shell);
     }
 
-    // â”€â”€ activation â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // ── activation ───────────────────────────────────────────────────────────
 
     activate() {
         if (!this.__active) {
@@ -467,7 +501,7 @@ class Demo_UI extends Active_HTML_Document {
             if (typeof window === 'undefined' || typeof document === 'undefined') return;
 
             // Each library entry keeps its own factory baseline, so Revert works
-            // for duplicates too â€” looking the id up in INSTRUMENTS meant Revert
+            // for duplicates too — looking the id up in INSTRUMENTS meant Revert
             // silently did nothing for any voice the user had created.
             this.library = INSTRUMENTS.map((v) => {
                 const c = clone_voice(v);
@@ -491,7 +525,7 @@ class Demo_UI extends Active_HTML_Document {
         }
     }
 
-    // â”€â”€ audio â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // ── audio ────────────────────────────────────────────────────────────────
 
     audio() {
         if (!this.ctx) {
@@ -655,7 +689,7 @@ class Demo_UI extends Active_HTML_Document {
         k.setAttribute('class', on ? base + ' down' : base);
     }
 
-    // â”€â”€ painting â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // ── painting ─────────────────────────────────────────────────────────────
 
     paint_all() {
         this.paint_spectrum();
@@ -714,19 +748,27 @@ class Demo_UI extends Active_HTML_Document {
             const out = this.q('#' + id + '-val');
             if (out) out.textContent = fmt;
         };
+        set_slider('sl-jag', v.jag || 0, (v.jag || 0).toFixed(2));
         set_slider('sl-vrate', v.vibrato.rate, v.vibrato.rate.toFixed(1) + ' Hz');
         set_slider('sl-vdepth', v.vibrato.depth, v.vibrato.depth.toFixed(2));
         set_slider('sl-gain', v.gain, v.gain.toFixed(2));
 
-        const btns = this.root.querySelectorAll('.cmode');
+        const btns = this.root.querySelectorAll('.cmode[data-seg]');
         for (let i = 0; i < btns.length; i++) {
             const b = btns[i];
             const on = v.curves[b.getAttribute('data-seg')] === b.getAttribute('data-mode');
             b.setAttribute('class', on ? 'cmode on' : 'cmode');
         }
+
+        const shapes = this.root.querySelectorAll('.wshape');
+        for (let i = 0; i < shapes.length; i++) {
+            const b = shapes[i];
+            const on = v.shape_kind === b.getAttribute('data-shape');
+            b.setAttribute('class', on ? 'cmode wshape on' : 'cmode wshape');
+        }
     }
 
-    // â”€â”€ wiring â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // ── wiring ───────────────────────────────────────────────────────────────
 
     load_voice(id) {
         const found = this.library.filter((v) => v.id === id)[0];
@@ -788,11 +830,22 @@ class Demo_UI extends Active_HTML_Document {
             if (!s) return;
             s.addEventListener('input', () => { apply(parseFloat(s.value)); this.paint_controls(); this.sync_library(); });
         };
+        // Re-apply the current shape recipe at the new jag amount, so the bars,
+        // the drawn cycle and the wavetable all move together.
+        bind_slider('sl-jag', (v) => {
+            this.voice.jag = v;
+            if (this.voice.shape_kind) {
+                this.voice.partials = shape_partials(this.voice.shape_kind, v);
+                this.invalidate_wave();
+                this.paint_spectrum();
+                this.paint_wave();
+            }
+        });
         bind_slider('sl-vrate', (v) => { this.voice.vibrato.rate = v; });
         bind_slider('sl-vdepth', (v) => { this.voice.vibrato.depth = v; });
         bind_slider('sl-gain', (v) => { this.voice.gain = v; });
 
-        const btns = this.root.querySelectorAll('.cmode');
+        const btns = this.root.querySelectorAll('.cmode[data-seg]');
         for (let i = 0; i < btns.length; i++) {
             btns[i].addEventListener('click', (ev) => {
                 const b = ev.currentTarget;
@@ -800,6 +853,18 @@ class Demo_UI extends Active_HTML_Document {
                 this.paint_envelope();
                 this.paint_controls();
                 this.sync_library();
+            });
+        }
+
+        const shapes = this.root.querySelectorAll('.wshape');
+        for (let i = 0; i < shapes.length; i++) {
+            shapes[i].addEventListener('click', (ev) => {
+                const kind = ev.currentTarget.getAttribute('data-shape');
+                this.voice.shape_kind = kind;
+                this.voice.partials = shape_partials(kind, this.voice.jag || 0);
+                this.invalidate_wave();
+                this.sync_library();
+                this.paint_all();
             });
         }
     }
@@ -812,6 +877,8 @@ class Demo_UI extends Active_HTML_Document {
             lib.curves = { attack: this.voice.curves.attack, decay: this.voice.curves.decay, release: this.voice.curves.release };
             lib.vibrato = { rate: this.voice.vibrato.rate, depth: this.voice.vibrato.depth };
             lib.gain = this.voice.gain;
+            lib.shape_kind = this.voice.shape_kind || null;
+            lib.jag = this.voice.jag || 0;
         }
     }
 
@@ -835,7 +902,10 @@ class Demo_UI extends Active_HTML_Document {
             let idx = Math.round((p.x - BAR_X0 - BAR_W / 2) / (BAR_W + BAR_GAP));
             idx = Math.max(0, Math.min(PARTIAL_COUNT - 1, idx));
             const amp = Math.max(0, Math.min(1, (SPEC_BASE - p.y) / (SPEC_BASE - SPEC_TOP)));
-            this.voice.partials[idx] = amp;
+            // Preserve the sign: dragging edits magnitude, so a phase-inverted
+            // partial stays inverted rather than silently flipping.
+            const sign = this.voice.partials[idx] < 0 ? -1 : 1;
+            this.voice.partials[idx] = sign * amp;
             this.invalidate_wave();
             this.paint_spectrum();
             this.paint_wave();
@@ -874,7 +944,7 @@ class Demo_UI extends Active_HTML_Document {
             const e = this.voice.env;
             const span = ENV_R - ENV_L;
             // Fixed window, NOT derived from the envelope being edited. See the
-            // ENV_WINDOW comment â€” deriving it created a feedback loop that
+            // ENV_WINDOW comment — deriving it created a feedback loop that
             // collapsed the release to its clamp in a few pointermoves with no
             // way back.
             const t = Math.max(0, ((p.x - ENV_L) / span) * ENV_WINDOW);

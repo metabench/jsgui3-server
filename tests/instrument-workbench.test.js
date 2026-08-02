@@ -208,6 +208,86 @@ describe('Instrument Workbench — env_points()', () => {
     });
 });
 
+describe('Instrument Workbench — shape_partials()', () => {
+    const { WAVE_SHAPES, shape_partials } = V;
+
+    it('offers the four documented oscillations', () => {
+        assert.deepStrictEqual(WAVE_SHAPES, ['sine', 'triangle', 'sawtooth', 'square']);
+    });
+
+    WAVE_SHAPES.forEach((kind) => {
+        it(kind + ' returns ' + PARTIAL_COUNT + ' finite partials with a unit peak', () => {
+            const p = shape_partials(kind, 0);
+            assert.strictEqual(p.length, PARTIAL_COUNT);
+            p.forEach((n, i) => assert.ok(Number.isFinite(n), 'partial ' + i + ' not finite'));
+            assert.ok(Math.abs(Math.max.apply(null, p.map(Math.abs)) - 1) < 1e-9);
+        });
+    });
+
+    it('sine is the fundamental alone', () => {
+        const p = shape_partials('sine', 0);
+        assert.strictEqual(p[0], 1);
+        assert.ok(p.slice(1).every((n) => n === 0));
+    });
+
+    it('square and triangle have no even harmonics', () => {
+        ['square', 'triangle'].forEach((kind) => {
+            const p = shape_partials(kind, 0);
+            [1, 3, 5, 7, 9].forEach((i) => assert.strictEqual(p[i], 0, kind + ' partial ' + (i + 1)));
+        });
+    });
+
+    it('sawtooth keeps every harmonic, falling as 1/n', () => {
+        const p = shape_partials('sawtooth', 0);
+        assert.ok(p.every((n) => n > 0));
+        assert.ok(Math.abs(p[1] / p[0] - 0.5) < 1e-9, '2nd partial should be half the 1st');
+        assert.ok(Math.abs(p[2] / p[0] - 1 / 3) < 1e-9);
+    });
+
+    it('triangle alternates sign — the reason partials are signed at all', () => {
+        // Without alternating signs this is a rounded wave, not a triangle.
+        const p = shape_partials('triangle', 0);
+        assert.ok(p[0] > 0);
+        assert.ok(p[2] < 0, '3rd partial should be inverted');
+        assert.ok(p[4] > 0, '5th partial should be positive again');
+    });
+
+    it('produces four measurably different waveforms', () => {
+        const cycles = WAVE_SHAPES.map((k) => wave_cycle(shape_partials(k, 0), 128));
+        for (let a = 0; a < cycles.length; a++) {
+            for (let b = a + 1; b < cycles.length; b++) {
+                const diff = cycles[a].reduce((s, n, i) => s + Math.abs(n - cycles[b][i]), 0) / 128;
+                assert.ok(diff > 0.05, WAVE_SHAPES[a] + ' and ' + WAVE_SHAPES[b] + ' are too alike: ' + diff);
+            }
+        }
+    });
+
+    it('square is flat-topped and triangle is peaky', () => {
+        const loud = (w) => w.filter((v) => Math.abs(v) > 0.7).length;
+        assert.ok(loud(wave_cycle(shape_partials('square', 0), 200)) > 150, 'square should sit near its rails');
+        assert.ok(loud(wave_cycle(shape_partials('triangle', 0), 200)) < 100, 'triangle should spend time away from its peaks');
+    });
+
+    it('jag lifts the upper harmonics without touching the fundamental', () => {
+        const plain = shape_partials('sawtooth', 0);
+        const jagged = shape_partials('sawtooth', 1);
+        assert.ok(jagged[11] > plain[11] * 2, 'upper harmonic barely moved');
+        assert.strictEqual(jagged[0], 1, 'fundamental should stay at unit peak');
+    });
+
+    it('clamps the jag amount and tolerates rubbish', () => {
+        [undefined, null, -5, 99, NaN].forEach((bad) => {
+            const p = shape_partials('sawtooth', bad);
+            assert.ok(p.every(Number.isFinite), 'jag=' + bad + ' produced a non-finite partial');
+        });
+    });
+
+    it('returns silence for an unknown shape rather than NaN', () => {
+        const p = shape_partials('not-a-shape', 0);
+        assert.ok(p.every((n) => n === 0));
+    });
+});
+
 describe('Instrument Workbench — clone_voice()', () => {
     it('deep-copies partials, env, curves and vibrato', () => {
         const src = INSTRUMENTS[0];

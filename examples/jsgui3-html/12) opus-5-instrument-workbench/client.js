@@ -780,7 +780,12 @@ class Demo_UI extends Active_HTML_Document {
 
     wire_toolbar() {
         const sel = this.q('#voice-pick');
-        if (sel) sel.addEventListener('change', () => this.load_voice(sel.value));
+        if (sel) sel.addEventListener('change', () => {
+            this.load_voice(sel.value);
+            // Hand focus back so the playing keys work immediately after
+            // choosing an instrument, which is the obvious next thing to do.
+            sel.blur();
+        });
 
         const dup = this.q('#btn-dup');
         if (dup) dup.addEventListener('click', () => {
@@ -1010,19 +1015,39 @@ class Demo_UI extends Active_HTML_Document {
             if (document.hidden) this.all_notes_off();
         });
 
+        // Only genuine text entry should swallow the playing keys.
+        //
+        // The first version tested tagName against INPUT / SELECT / TEXTAREA,
+        // which killed the keyboard as soon as you used the instrument dropdown
+        // or touched any slider — the range inputs are INPUTs too. Since picking
+        // an instrument and then playing it is the obvious thing to do, the
+        // shortcuts appeared simply not to work.
+        const is_text_entry = (el) => {
+            if (!el) return false;
+            if (el.isContentEditable) return true;
+            const tag = el.tagName;
+            if (tag === 'TEXTAREA') return true;
+            if (tag !== 'INPUT') return false;
+            const type = (el.getAttribute('type') || 'text').toLowerCase();
+            return ['text', 'search', 'email', 'url', 'tel', 'password', 'number'].indexOf(type) !== -1;
+        };
+
         window.addEventListener('keydown', (ev) => {
-            if (ev.repeat) return;
-            const tag = ev.target && ev.target.tagName;
-            if (tag === 'INPUT' || tag === 'SELECT' || tag === 'TEXTAREA') return;
-            const off = KEY_MAP[ev.key.toLowerCase()];
+            if (ev.repeat || ev.metaKey || ev.ctrlKey || ev.altKey) return;
+            if (is_text_entry(ev.target)) return;
+            const off = KEY_MAP[(ev.key || '').toLowerCase()];
             if (off === undefined) return;
+            // Stop a focused <select> doing type-ahead — otherwise pressing "o"
+            // would jump the dropdown to Oboe instead of playing a note.
+            ev.preventDefault();
             const midi = BASE_MIDI + off;
             if (this.held_keys[midi]) return;
             this.held_keys[midi] = true;
             this.note_on(midi);
         });
         window.addEventListener('keyup', (ev) => {
-            const off = KEY_MAP[ev.key.toLowerCase()];
+            if (is_text_entry(ev.target)) return;
+            const off = KEY_MAP[(ev.key || '').toLowerCase()];
             if (off === undefined) return;
             const midi = BASE_MIDI + off;
             delete this.held_keys[midi];

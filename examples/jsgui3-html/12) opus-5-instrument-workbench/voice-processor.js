@@ -106,6 +106,44 @@ class Note {
             this.phase[i] = Math.random() * TWO_PI;
         }
 
+        // Vibrato and per-partial jitter.
+        //
+        // Measurement drove this. With per-partial decay alone, the five
+        // sustaining voices measured a frame-to-frame spectral correlation of
+        // 0.9998 — indistinguishable from the fixed-wavetable engine, because
+        // once a note reaches its sustain floor every partial sits at a
+        // constant fraction of a constant amplitude. Per-partial decay only
+        // buys spectral flux for voices that actually decay, which is the
+        // piano and nothing else here.
+        //
+        // Real sustained tone is not static: vibrato sweeps the partials
+        // through fixed body and bore resonances, so each partial's AMPLITUDE
+        // is modulated by a different amount depending on where it sits on the
+        // resonance curve. That is the mechanism, and it is why a vibrato that
+        // only shifts pitch sounds synthetic.
+        this.vib_rate = (voice.vibrato && voice.vibrato.rate) || 0;
+        this.vib_depth = (voice.vibrato && voice.vibrato.depth) || 0;
+        this.vib_phase = Math.random() * TWO_PI;
+
+        // How strongly each partial's amplitude responds to the vibrato sweep.
+        // Higher partials move further in Hz for the same cents of vibrato, so
+        // they cross resonance slopes faster and modulate more.
+        this.vib_amp = new Float64Array(PARTIALS);
+        for (let i = 0; i < PARTIALS; i++) {
+            const n = i + 1;
+            this.vib_amp[i] = Math.min(0.5, 0.035 * n) * (i % 3 === 0 ? -1 : 1);
+        }
+
+        // Slow independent drift per partial — the small instability every
+        // acoustic source has. Deterministic per note, not per sample.
+        this.jit_rate = new Float64Array(PARTIALS);
+        this.jit_phase = new Float64Array(PARTIALS);
+        for (let i = 0; i < PARTIALS; i++) {
+            this.jit_rate[i] = 0.7 + Math.random() * 2.6;
+            this.jit_phase[i] = Math.random() * TWO_PI;
+        }
+        this.jit_depth = voice.id === 'organ' ? 0.012 : 0.045;
+
         this.release_t = 0;
         this.rel_level = new Float64Array(PARTIALS);
     }
@@ -144,8 +182,23 @@ class Note {
         const sr = this.sr;
         const dt = 1 / sr;
         let alive = false;
+        const vib_on = this.vib_rate > 0 && this.vib_depth > 0;
         for (let f = 0; f < frames; f++) {
             const t = this.t + f * dt;
+
+            // One vibrato oscillator per note, shared by every partial: the
+            // pitch sweep is common, the AMPLITUDE response to it is not.
+            let vib = 0;
+            if (vib_on) {
+                this.vib_phase += TWO_PI * this.vib_rate * dt;
+                if (this.vib_phase > TWO_PI) this.vib_phase -= TWO_PI;
+                // Vibrato takes ~150 ms to develop, as a player's does.
+                const onset = Math.min(1, t / 0.15);
+                vib = Math.sin(this.vib_phase) * onset;
+            }
+            // Cents of pitch deviation -> a frequency ratio.
+            const ratio = vib_on ? Math.pow(2, (vib * this.vib_depth * 18) / 1200) : 1;
+
             let s = 0;
             for (let i = 0; i < PARTIALS; i++) {
                 const a = this.amp[i];
@@ -153,9 +206,20 @@ class Note {
                 const lv = this.level(i, t);
                 if (lv <= 1e-5) continue;
                 alive = true;
-                this.phase[i] += TWO_PI * this.freq[i] * dt;
+
+                // Each partial's amplitude is modulated by the vibrato sweep by
+                // a different amount, plus its own slow drift. This is what
+                // makes a sustained note's SPECTRUM move rather than just its
+                // pitch.
+                let mod = 1;
+                if (vib_on) mod += vib * this.vib_amp[i];
+                this.jit_phase[i] += TWO_PI * this.jit_rate[i] * dt;
+                mod += this.jit_depth * Math.sin(this.jit_phase[i]);
+                if (mod < 0) mod = 0;
+
+                this.phase[i] += TWO_PI * this.freq[i] * ratio * dt;
                 if (this.phase[i] > TWO_PI) this.phase[i] -= TWO_PI;
-                s += a * lv * Math.sin(this.phase[i]);
+                s += a * lv * mod * Math.sin(this.phase[i]);
             }
             out[f] += s * this.vel * (this.voice.gain === undefined ? 0.8 : this.voice.gain) * 0.16;
         }
@@ -166,9 +230,22 @@ class Note {
 }
 
 class Additive_Voice_Processor extends AudioWorkletProcessor {
-    constructor() {
+    constructor(options) {
         super();
         this.notes = new Map();
+
+        // A note supplied through processorOptions starts immediately, because
+        // those arrive synchronously with the processor's construction.
+        // port.postMessage does NOT: it is delivered asynchronously to the audio
+        // thread, and in an OfflineAudioContext startRendering() can finish
+        // before the message lands. Measuring this engine offline via
+        // postMessage produced silence on six voices out of six, having
+        // apparently worked once — a racy harness, not a broken synth.
+        const opts = (options && options.processorOptions) || {};
+        if (opts.note) {
+            const n = opts.note;
+            this.notes.set(n.midi, new Note(n.midi, n.voice, n.velocity, sampleRate));
+        }
         this.port.onmessage = (ev) => {
             const m = ev.data || {};
             if (m.type === 'note_on') {
